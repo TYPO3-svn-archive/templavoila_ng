@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<T3locallang>
+	<meta type="array">
+		<type>module</type>
+		<description>Language labels for module &quot;tools_txterfceM1&quot;</description>
+	</meta>
+	<data type="array">
+		<languageKey index="default" type="array">
+			<label index="title">FCE Repository</label>
+			<label index="function1">Export FCEs</label>
+			<label index="function2">Import FCEs</label>
+			<label index="function3">Settings</label>
+		</languageKey>
+	</data>
+</T3locallang>
