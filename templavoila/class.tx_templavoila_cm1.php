@@ -73,7 +73,7 @@ class tx_templavoila_cm1 {
 			$LL = $LANG->includeLLFile(t3lib_extMgm::extPath('templavoila').'locallang.xml', 0);
 
 				// Adding link for Mapping tool:
-			if (@is_file($table)) {
+				if (@is_file($table))	{
 				if ($BE_USER->isAdmin()) {
 					if (function_exists('finfo_open')) {
 						$fi = finfo_open(FILEINFO_MIME);
@@ -83,7 +83,7 @@ class tx_templavoila_cm1 {
 					else {
 						$pi = @pathinfo($table);
 						$enabled = preg_match('/(html?|tmpl)/', $pi['extension']);
-					}
+				}
 					if ($enabled) {
 						$url = t3lib_extMgm::extRelPath('templavoila').'cm1/index.php?file='.rawurlencode($table);
 						$localItems[] = $backRef->linkItem(

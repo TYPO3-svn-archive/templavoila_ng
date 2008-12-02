@@ -138,7 +138,7 @@ class tx_templavoila_dbnewcontentel {
 		if (!$this->parentRecord) {
 			$mainContentAreaFieldName = $this->apiObj->ds_getFieldNameByColumnPosition ($this->id, 0);
 			if ($mainContentAreaFieldName != FALSE) {
-				$this->parentRecord = 'pages:'.$this->id.':sDEF:lDEF:'.$mainContentAreaFieldName.':vDEF:0';
+				$this->parentRecord = implode(SEPARATOR_PARMS, array('pages',$this->id,'sDEF','lDEF',$mainContentAreaFieldName,'vDEF',0));
 			}
 		}
 	}

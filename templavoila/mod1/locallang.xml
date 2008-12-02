@@ -13,31 +13,44 @@
 			<label index="title">WEB &gt; PAGE MODULE</label>
 			<label index="default_introduction">If you wish to edit the content of a page, please click the page title in the page tree to the left.</label>
 			<label index="csh_whatisthetemplavoilapagemodule">What is the TemplaVoilá page module?</label>
+
+			<label index="page_display">Preview-mode</label>
+			<label index="page_display_nu">Preview-mode (with non-used elements)</label>
+			<label index="page_ouline">Outline-mode</label>
+			<label index="page_settings">Options</label>
+			<label index="page_settings_hidden">Hide hidden elements</label>
+			<label index="page_settings_all">Show hidden elements</label>
+
 			<label index="createnewpage_selecttemplate">Select a template for your new page:</label>
 			<label index="createnewpage_defaultlayoutsubmitlabel">Create page with default layout</label>
 			<label index="createnewpage_templateobject_createemptypage">Create an empty page based on this template:</label>
 			<label index="createnewpage_templateobject_createpagewithdefaultcontent">Create a page with default content based on this template:</label>
 			<label index="createnewcontent_newContentElement">New content element</label>
+
 			<label index="warning_elementusedmorethanonce">This element has been used %s times on this page! ID:%s</label>
 			<label index="warning_containerSeparate">WARNING: This container element has localization without inheritance enabled (langChildren = 0). This is most likely a misconfiguration since the localization features of TemplaVoila does not support localized container fields in the native interface! Please inform the system administrator!</label>
 			<label index="warning_containerInheritance">This container element has localization enabled but with inheritance (langChildren = 1). This situation might produce confusing displays in TemplaVoila and you are encouraged to disable localization of this container element completely by setting langDisable = 1. Please inform the system administrator!</label>
 			<label index="warning_containerSeparate_short">L10N mode: Separate!</label>
 			<label index="warning_containerInheritance_short">L10N mode: Inheritance</label>
+
 			<label index="cannotedit_doktypemountpoint">This page acts as a mount point and its content is being replaced by another page (&quot;%s&quot;). Therefore you cannot edit the content of this page directly.</label>
-			<label index="jumptomountsourcepage">Jump to source page of this mount point</label>
 			<label index="cannotedit_contentfrompid">This page has been configured in a way that it doesn't have any content itself but instead the content of another page (&quot;%s&quot;) is shown. Therefore you cannot edit the content of this page directly.</label>
-			<label index="jumptocontentfrompidpage">Jump to page containing the content elements</label>
 			<label index="cannotedit_shortcut_0">This page is of the type &quot;shortcut&quot;. Instead of having content on its own, this page shows the content the page &quot;%s&quot;. Therefore you cannot edit the content of this page directly.</label>
 			<label index="cannotedit_shortcut_1">This page is of the type &quot;shortcut&quot;. Instead of having content on its own, this page shows the content from the first sub page. Therefore you cannot edit the content of this page directly.</label>
 			<label index="cannotedit_shortcut_2">This page is of the type &quot;shortcut&quot;. Instead of having content on its own, this page shows the content of a random sub page. Therefore you cannot edit the content of this page directly.</label>
-			<label index="jumptoshortcutdestination">Jump to shortcut destination</label>
 			<label index="cannotedit_externalurl_1">This page refers to an external website, you therefore cannot edit the content of this page directly.</label>
 			<label index="cannotedit_externalurl_2">This page refers to an external FTP location, you therefore cannot edit the content of this page directly.</label>
 			<label index="cannotedit_externalurl_3">This page refers to an email address, you therefore cannot edit the content of this page directly.</label>
+
+			<label index="jumptomountsourcepage">Jump to source page of this mount point</label>
+			<label index="jumptocontentfrompidpage">Jump to page containing the content elements</label>
+			<label index="jumptoshortcutdestination">Jump to shortcut destination</label>
 			<label index="jumptoexternalurl">Jump to external URL (%s)</label>
+
 			<label index="editpage_sysfolder_intro">The current page is of the type &quot;Sysfolder&quot;. Sysfolders usually don't contain content elements but are used for collecting other types of records in a single folder.</label>
 			<label index="editpage_sysfolder_listview_noaccess">The content of a Sysfolder is usually managed by the &quot;List&quot; module but you currently don't have access to that module. If you need to access the data in the Sysfolder anyway, please ask your system administrator to grant you access to the List module.</label>
 			<label index="editpage_sysfolder_switchtolistview">Switch to list view</label>
+
 			<label index="template_nodescriptionavailable">No description available.</label>
 			<label index="template_titledefault">Default template</label>
 			<label index="willbereplacedbydefaultlanguage">(will be replaced by content of default language)</label>
@@ -46,6 +59,7 @@
 			<label index="view_tree">Tree view</label>
 			<label index="createnewtranslation">Create new page translation</label>
 			<label index="selectlanguageversion">Show page language version</label>
+
 			<label index="pageLocalizationMode">Page localization mode</label>
 			<label index="pageLocalizationMode_separate">Separate structures</label>
 			<label index="pageLocalizationMode_inheritance">Inheritance of values</label>
@@ -53,6 +67,7 @@
 			<label index="pageLocalizationDisplayMode">Display mode</label>
 			<label index="pageLocalizationDisplayMode_selectedLanguage">Selected language</label>
 			<label index="pageLocalizationDisplayMode_onlyLocalized">Only localized elements</label>
+
 			<label index="clickToEditTranslation">Click to edit translation</label>
 			<label index="editlanguageversion">Edit page properties</label>
 			<label index="multipleLanguages">Multiple languages</label>
@@ -86,10 +101,12 @@
 			<label index="inititemno_elementsNotBeingUsed">Elements not being used in this language or sheet</label>
 			<label index="rendernonusedelements_deleteall">Delete all records above marked with delete-icon</label>
 			<label index="renderreferencecount_delete">Delete!</label>
+
 			<label index="sidebar_advancedfunctions_labelshowhidden">Show hidden elements</label>
 			<label index="sidebar_advancedfunctions_labelshowoutline">Show outline</label>
 			<label index="sidebar_advancedfunctions_labelcachefunctions">Cache functions</label>
 			<label index="sidebar_renderitem_showtranslationinformation">Display translation information</label>
+
 			<label index="outline_header_title">Title:</label>
 			<label index="outline_header_controls">Controls:</label>
 			<label index="outline_header_status">Status:</label>
@@ -97,6 +114,7 @@
 			<label index="outline_status_dirty">Click to clean up XML...</label>
 			<label index="outline_status_clean">XML is clean.</label>
 			<label index="outline_status_cleanAll">Clean XML of all dirty elements above!</label>
+
 			<label index="element_localizations">Localizations</label>
 			<label index="records">Other elements (non-content)</label>
 			<label index="displayRecordsFrom">Display elements from:</label>
@@ -132,28 +150,40 @@
 			<label index="title">WEB &gt; SEITEN-MODUL</label>
 			<label index="default_introduction">Wenn Sie den Inhalt einer Seite bearbeiten möchten, klicken Sie bitte im Seitenbaum auf der linken Seite auf einen Seitentitel.</label>
 			<label index="csh_whatisthetemplavoilapagemodule">Was ist das TemplaVoila Seitenmodul?</label>
+
+			<label index="page_display">Vorschau-Modus</label>
+			<label index="page_display_nu">Vorschau-Modus (mit unbenutzten Elementen)</label>
+			<label index="page_ouline">Zeilen-Modus</label>
+			<label index="page_settings">Optionen</label>
+			<label index="page_settings_hidden">Versteckte Elemente ausblenden</label>
+			<label index="page_settings_all">Versteckte Elemente anzeigen</label>
+
 			<label index="createnewpage_selecttemplate">Vorlage für Ihre neue Seite auswählen:</label>
 			<label index="createnewpage_defaultlayoutsubmitlabel">Neue Seite mit Standard Layout erstellen</label>
 			<label index="createnewpage_templateobject_createemptypage">Eine leere Seite basierend auf folgendem Layout erstellen:</label>
 			<label index="createnewpage_templateobject_createpagewithdefaultcontent">Eine Seite mit vorausgefülltem Inhalt, basierend auf folgender Vorlage erstellen:</label>
 			<label index="createnewcontent_newContentElement">Neues Inhaltselement</label>
+
 			<label index="warning_elementusedmorethanonce">Dieses Element wird auf der aktuellen Seite %s mal verwendet! ID:%s</label>
 			<label index="warning_containerSeparate">ACHTUNG: Für dieses Container Element wurde Lokalisierung ohne Vererbung aktiviert (langChildren = 0). Dabei handelt es sich vermutlich um eine Fehlkonfiguration, weil die Standard Oberfläche von TemplaVoila die Darstellung von lokalisierten Container Feldern nicht unterstützt! Bitte informieren Sie den Entwickler dieser Website.</label>
 			<label index="warning_containerInheritance">Für dieses Container Element wurde Lokalisierung mit Vererbung aktiviert (langChildren = 1). Diese Konfiguration kann zu verwirrenden Darstellungen in TemplaVoila führen und es wird empfohlen, die Lokalisierung für dieses Container Element komplett auszuschalten, indem Sie langDisable auf &quot;1&quot; setzen. Bitte informieren Sie den Entwickler dieser Website.</label>
 			<label index="warning_containerSeparate_short">Übersetzungsmodus: Separat</label>
 			<label index="warning_containerInheritance_short">Übersetzungsmodus: Vererbung</label>
+
 			<label index="cannotedit_doktypemountpoint">Diese Seite dient als &quot;Moint Point&quot; und ihr Inhalt wird durch den einer anderen Seite (&quot;%s&quot;) ersetzt. Sie können den Inhalt dieser Seite daher nicht direkt bearbeiten.</label>
-			<label index="jumptomountsourcepage">Springe zur Ursprungsseite für diesen Mount Point</label>
 			<label index="cannotedit_contentfrompid">Diese Seite wurde so konfiguriert, daß sie selbst keine Inhalte enthält sondern stattdessen die Inhalte einer anderen Seite (&quot;%s&quot;) anzeigt. Daher können Sie den Inhalt dieser Seite nicht direkt bearbeiten.</label>
-			<label index="jumptocontentfrompidpage">Springe zur Seite, die die Inhaltselemente enthält</label>
 			<label index="cannotedit_shortcut_0">Diese Seite ist vom Typ &quot;Shortcut&quot; und enthält keinen eigenen Inhaltselemente. Stattdessen wird der Inhalt der Seite &quot;%s&quot; angezeigt. Daher können Sie den Inhalt dieser Seite nicht direkt bearbeiten.</label>
 			<label index="cannotedit_shortcut_1">Diese Seite ist vom Typ &quot;Shortcut&quot; und enthält keinen eigenen Inhaltselemente. Stattdessen wird der Inhalt der ersten Unterseite angezeigt. Daher können Sie den Inhalt dieser Seite nicht direkt bearbeiten.</label>
 			<label index="cannotedit_shortcut_2">Diese Seite ist vom Typ &quot;Shortcut&quot; und enthält keinen eigenen Inhaltselemente. Stattdessen wird der Inhalt einer zufälligen Unterseite angezeigt. Daher können Sie den Inhalt dieser Seite nicht direkt bearbeiten.</label>
-			<label index="jumptoshortcutdestination">Springe zum Ziel des Shortcuts</label>
 			<label index="cannotedit_externalurl_1">Diese Seite verweist auf eine externe Website. Daher können Sie den Inhalt dieser Seite nicht direkt bearbeiten.</label>
 			<label index="cannotedit_externalurl_2">Diese Seite verweist auf einen FTP-Server. Daher können Sie den Inhalt dieser Seite nicht direkt bearbeiten.</label>
 			<label index="cannotedit_externalurl_3">Diese Seite verweist auf eine E-Mail Adresse. Daher können Sie den Inhalt dieser Seite nicht direkt bearbeiten.</label>
+
+			<label index="jumptomountsourcepage">Springe zur Ursprungsseite für diesen Mount Point</label>
+			<label index="jumptocontentfrompidpage">Springe zur Seite, die die Inhaltselemente enthält</label>
+			<label index="jumptoshortcutdestination">Springe zum Ziel des Shortcuts</label>
 			<label index="jumptoexternalurl">Springe zur externen URL (%s)</label>
+
 			<label index="editpage_sysfolder_intro">Die aktuelle Seite ist vom Typ &quot;Systemordner&quot;. Systemordner enthalten üblicherweise keine Inhaltselemente sondern werden zur Ablage anderer Arten von Datensätzen verwendet.</label>
 			<label index="editpage_sysfolder_listview_noaccess">Der Inhalt eines Systemordners wird normalerweise über das &quot;Liste&quot; Modul verwaltet. Zur Zeit haben Sie jedoch keinen Zugriff auf dieses Modul. Wenn Sie dennoch auf die Daten in diesem Systemordner zugreifen möchten, bitten Sie Ihren System Administrator, Ihnen Zugriff auf das &quot;Liste&quot; Modul zu gewähren.</label>
 			<label index="editpage_sysfolder_switchtolistview">Wechsle zur Listen Ansicht</label>
@@ -165,6 +195,7 @@
 			<label index="view_tree">Baumstruktur</label>
 			<label index="createnewtranslation">Neue Seiten-Übersetzung anlegen</label>
 			<label index="selectlanguageversion">Ausgewählte Sprache</label>
+
 			<label index="pageLocalizationMode">Übersetzungsmodus der Seite</label>
 			<label index="pageLocalizationMode_separate">Separate Strukturen</label>
 			<label index="pageLocalizationMode_inheritance">Vererbung der Werte</label>
@@ -172,6 +203,7 @@
 			<label index="pageLocalizationDisplayMode">Darstellungsmodus</label>
 			<label index="pageLocalizationDisplayMode_selectedLanguage">Ausgewählte Sprache</label>
 			<label index="pageLocalizationDisplayMode_onlyLocalized">Nur übersetzte Elemente</label>
+
 			<label index="clickToEditTranslation">Klicken um Übersetzung zu bearbeiten</label>
 			<label index="editlanguageversion">Bearbeite Seiteneigenschaften</label>
 			<label index="multipleLanguages">Mehrere Sprachen</label>
@@ -204,10 +236,12 @@
 			<label index="inititemno_elementsNotBeingUsed">Elemente, die in diesem Blatt oder Sprache nicht verwendet werden</label>
 			<label index="rendernonusedelements_deleteall">Lösche alle obigen Datensätze, die mit einem Löschen-Symbol gekennzeichnet sind</label>
 			<label index="renderreferencecount_delete">Löschen!</label>
+
 			<label index="sidebar_advancedfunctions_labelshowhidden">Zeige verborgene Elemente</label>
 			<label index="sidebar_advancedfunctions_labelshowoutline">Listendarstellung zeigen</label>
 			<label index="sidebar_advancedfunctions_labelcachefunctions">Cache Funktionen</label>
 			<label index="sidebar_renderitem_showtranslationinformation">Übersetzungsinformationen anzeigen</label>
+
 			<label index="outline_header_title">Titel:</label>
 			<label index="outline_header_controls">Funktionen:</label>
 			<label index="outline_header_status">Status:</label>
@@ -215,6 +249,7 @@
 			<label index="outline_status_dirty">Klicken um XML zu bereinigen ...</label>
 			<label index="outline_status_clean">XML ist sauber</label>
 			<label index="outline_status_cleanAll">Bereinige XML aller obigen Elemente!</label>
+
 			<label index="template_descriptiondefault">Standard Layout, definiert durch den Designer dieser Website.</label>
 			<label index="element_localizations">Übersetzungen</label>
 		</languageKey>

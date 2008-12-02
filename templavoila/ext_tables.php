@@ -18,6 +18,14 @@ if (TYPO3_MODE=='BE') {
 	t3lib_extMgm::addModule('web','txtemplavoilaM1','top',t3lib_extMgm::extPath($_EXTKEY).'mod1/');
 	t3lib_extMgm::addModule('web','txtemplavoilaM2','',t3lib_extMgm::extPath($_EXTKEY).'mod2/');
 
+		// Adding backend templates:
+	$GLOBALS['TBE_STYLES']['htmlTemplates']['templates/control-center.html'] =
+		t3lib_extMgm::extRelPath($_EXTKEY).'templates/control-center.html';
+	$GLOBALS['TBE_STYLES']['htmlTemplates']['templates/mapper.html'] =
+		t3lib_extMgm::extRelPath($_EXTKEY).'templates/mapper.html';
+	$GLOBALS['TBE_STYLES']['htmlTemplates']['templates/page.html'] =
+		t3lib_extMgm::extRelPath($_EXTKEY).'templates/page.html';
+
 		// Remove default Page module (layout) manually if wanted:
 	if (!$_EXTCONF['enable.']['oldPageModule']) {
 		$tmp = $GLOBALS['TBE_MODULES']['web'];
@@ -113,7 +121,7 @@ t3lib_extMgm::addToAllTCAtypes('be_groups','tx_templavoila_access;;;;1-1-1', '1'
 
 	// Adding the new content element, "Flexible Content":
 t3lib_div::loadTCA('tt_content');
-$tempColumns = array(
+$tempColumns = Array (
 	'tx_templavoila_ds' => Array (
 		'exclude' => 1,
 		'label' => 'LLL:EXT:templavoila/locallang_db.xml:tt_content.tx_templavoila_ds',
@@ -174,9 +182,9 @@ $tempColumns = array(
 		)
 	),
 );
-t3lib_extMgm::addTCAcolumns('tt_content', $tempColumns, 1);
+t3lib_extMgm::addTCAcolumns('tt_content',$tempColumns,1);
 
-$TCA['tt_content']['types'][$_EXTKEY . '_pi1']['showitem'] = 'CType;;4;button;1-1-1, header;;3;;2-2-2,tx_templavoila_ds,tx_templavoila_to,tx_templavoila_flex;;;;2-2-2, hidden;;1;;3-3-3';
+$TCA['tt_content']['types'][$_EXTKEY.'_pi1']['showitem']='CType;;4;button;1-1-1, header;;3;;2-2-2,tx_templavoila_ds,tx_templavoila_to,tx_templavoila_flex;;;;2-2-2, hidden;;1;;3-3-3';
 $TCA['tt_content']['ctrl']['typeicons'][$_EXTKEY . '_pi1'] = t3lib_extMgm::extRelPath($_EXTKEY) . '/icon_fce_ce.png';
 t3lib_extMgm::addPlugin(array('LLL:EXT:templavoila/locallang_db.xml:tt_content.CType_pi1', $_EXTKEY . '_pi1', 'EXT:' . $_EXTKEY . '/icon_fce_ce.png'), 'CType');
 
@@ -186,14 +194,14 @@ if ($TCA['tt_content']['ctrl']['requestUpdate'] != '') {
 $TCA['tt_content']['ctrl']['requestUpdate'] .= 'tx_templavoila_ds';
 
 	// For pages:
-$tempColumns = array (
-	'tx_templavoila_ds' => array (
+$tempColumns = Array (
+	'tx_templavoila_ds' => Array (
 		'exclude' => 1,
 		'label' => 'LLL:EXT:templavoila/locallang_db.xml:pages.tx_templavoila_ds',
-		'config' => array (
+		'config' => Array (
 			'type' => 'select',
 			'items' => Array (
-				array('',0),
+				Array('',0),
 			),
 			'foreign_table' => 'tx_templavoila_datastructure',
 			'foreign_table_where' => 'AND tx_templavoila_datastructure.pid=###STORAGE_PID### AND tx_templavoila_datastructure.scope IN (1) ORDER BY tx_templavoila_datastructure.sorting',
@@ -270,7 +278,7 @@ $tempColumns = array (
 		)
 	),
 );
-t3lib_extMgm::addTCAcolumns('pages', $tempColumns, 1);
+t3lib_extMgm::addTCAcolumns('pages',$tempColumns,1);
 t3lib_extMgm::addToAllTCAtypes('pages','tx_templavoila_ds;;;;1-1-1,tx_templavoila_to,tx_templavoila_next_ds,tx_templavoila_next_to,tx_templavoila_flex;;;;1-1-1');
 if ($TCA['pages']['ctrl']['requestUpdate'] != '') {
 	$TCA['pages']['ctrl']['requestUpdate'] .= ',';

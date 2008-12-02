@@ -1,0 +1,78 @@
+
+
+
+
+	/* ----- z-Order ----- */
+
+	#typo3-docheader {	position: relative; z-index: 2; }
+	#typo3-docheader-row1 {	position: relative; z-index: 2; }
+	#typo3-docheader-row2 {	position: relative; z-index: 1; }
+	#typo3-docheader-row3 {	position: relative; z-index: 0; }
+	#typo3-docbody {	position: relative; z-index: 0; }
+
+	/* ----- Toolbar ----- */
+
+	#typo3-docheader-row1 .toolbar-item:focus {
+		outline: none;
+	}
+
+	#typo3-docheader-row1 .toolbar-item {
+		display: block;
+		height: 20px;
+	}
+
+	#typo3-docheader-row1 .toolbar-item-menu {
+	/*	top: 20px;	*/
+		top: 19px;
+	}
+
+	#typo3-docheader-row1 .toolbar-item-active {
+		background-image: url(/typo3/gfx/toolbar_item_active_bg.png);
+	}
+
+	/* ----- Caching ----- */
+
+	#clear-mapping-actions-menu {
+		position: relative;
+		display: -moz-inline-block;	/* FF2 */
+		display: inline-block;		/* FF3 & IE7 */
+	}
+
+	#clear-mapping-actions-menu > a {
+		position: relative; z-index: 1;
+	}
+
+	#clear-mapping-actions-menu > ul {
+		position: absolute; z-index: 0;
+		list-style: none;
+		padding: 2px 0px 0px;
+		margin: 0px;
+		background-color: #f9f9f9;
+		border: 1px solid #abb2bc;
+	/*	border-top: none;	*/
+		width: 180px;
+	}
+
+	#clear-mapping-actions-menu li {
+		padding-top: 2px;
+		text-align: left;
+		float: none;
+		vertical-align: middle;
+		height: 19px;
+	}
+
+	#clear-mapping-actions-menu li img {
+		float: left;
+		padding-right: 3px;
+		margin: 0;
+	}
+
+	#clear-mapping-actions-menu li a {
+		text-decoration: none;
+		line-height: 12px;
+		vertical-align: middle;
+		display: block;
+		padding-bottom: 2px;
+		padding-left: 3px;
+		font-size: 11px;
+	}

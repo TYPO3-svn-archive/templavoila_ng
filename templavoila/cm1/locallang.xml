@@ -11,16 +11,32 @@
 	<data type="array">
 		<languageKey index="default" type="array">
 			<label index="title">TemplaVoilà</label>
+
 			<label index="templateFile">Template File</label>
 			<label index="templateObject">Template Object</label>
+			<label index="templateIcon">Template Icon</label>
+
 			<label index="titleXmlConfiguration">XML configuration</label>
 			<label index="titleLoadDSXml">Load DS XML</label>
-			<label index="mappingTitle">Template Mapping</label>
+
+			<label index="tabDSStructure">Structure</label>
+			<label index="tabDSDetails">Information</label>
 			<label index="tabTODetails">Information</label>
 			<label index="tabHeadParts">Header Parts</label>
 			<label index="tabBodyParts">Mapping</label>
+			<label index="tabPreview">Preview</label>
+			<label index="tabXML">XML</label>
+
+			<label index="structureFile">Data Structure File</label>
+			<label index="structureInfoOrigin">Data Structure Origin</label>
+			<label index="structureInfoParts">Data Structure Details</label>
+			<label index="mappingTitle">Template Mapping</label>
+			<label index="mappingInfoParts">Template Object Details</label>
 			<label index="mappingHeadParts">Adding parts from HTML header</label>
 			<label index="mappingBodyParts">Data Structure to be mapped to HTML template</label>
+			<label index="mappingPreview">Data Structure to be mapped to HTML template</label>
+
+			<label index="noicon">No icon</label>
 			<label index="rootDescription">Select the HTML element on the page which you want to be the overall container element for the template.</label>
 			<label index="selectTOrecrdToLoadDSFrom">Select a Template Object record to load a Data Structure/Mapping information from</label>
 			<label index="noDSDefined">No Data Structure was defined in the record... (Must be T3DataStructure XML content)</label>
@@ -34,6 +50,8 @@
 			<label index="errorTONotSaved">No Template Object was created although the Data Structure was (UID %s)!</label>
 			<label index="errorTONotCreated">No Data Structure was created!</label>
 			<label index="errorNoUidFound">No UID was found pointing to a Template Object record.</label>
+			<label index="errorFileNotFound">File to create Datastructe from hasn't been found.</label>
+			<label index="mess.onChangeAlert">This change will affect which fields are available in the form.\nWould you like to save now in order to refresh the display?</label>
 		</languageKey>
 	</data>
 	<orig_hash type="array">

@@ -529,7 +529,7 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 					$secKey = key($section);
 					$secDat = $section[$secKey];
 					if ($currentMappingInfo['sub'][$secKey])	{
-						$out.=$this->mergeFormDataIntoTemplateStructure($secDat['el'],$currentMappingInfo['sub'][$secKey],'',$valueKey);
+						$out .= $this->mergeFormDataIntoTemplateStructure($secDat['el'],$currentMappingInfo['sub'][$secKey],'',$valueKey);
 					}
 				}
 			}
@@ -538,7 +538,9 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 				foreach($currentMappingInfo['cArray'] as $key => $val)	{
 					if (!t3lib_div::testInt($key))	{
 						if (is_array($editStruct[$key]['el']) && $currentMappingInfo['sub'][$key])	{
-							$currentMappingInfo['cArray'][$key] = $this->mergeFormDataIntoTemplateStructure($editStruct[$key]['el'],$currentMappingInfo['sub'][$key],'',$valueKey);
+							$rcs = $this->mergeFormDataIntoTemplateStructure($editStruct[$key]['el'],$currentMappingInfo['sub'][$key],'',$valueKey);
+
+							$currentMappingInfo['cArray'][$key] = str_replace('###GROUP###', $rcs, $editStruct[$key][$valueKey]);
 						} else {
 								# NO htmlspecialchars()'ing here ... it might be processed values that should be allowed to go through easily.
 							$currentMappingInfo['cArray'][$key] = $editStruct[$key][$valueKey];
@@ -758,10 +760,10 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 		$htmlParse = ($this->htmlParse ? $this->htmlParse : t3lib_div::makeInstance('t3lib_parsehtml'));
 
 			// Traversing mapped header parts:
-		if (is_array($MappingInfo_head['headElementPaths'])) {
+		if (is_array($MappingInfo_head['headElementPaths']))	{
 			$extraHeaderData = array();
 			foreach(array_keys($MappingInfo_head['headElementPaths']) as $kk) {
-				if (isset($MappingData_head_cached['cArray']['el_'.$kk])) {
+				if (isset($MappingData_head_cached['cArray']['el_'.$kk]))	{
 					$uKey = md5(trim($MappingData_head_cached['cArray']['el_'.$kk]));
 					$extraHeaderData['TV_'.$uKey] = chr(10) . chr(9) . trim($htmlParse->XHTML_clean($MappingData_head_cached['cArray']['el_'.$kk]));
 				}

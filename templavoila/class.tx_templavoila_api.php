@@ -101,6 +101,10 @@
 require_once (PATH_t3lib.'class.t3lib_loaddbgroup.php');
 require_once (PATH_t3lib.'class.t3lib_tcemain.php');
 
+define('SEPARATOR_XPATH', '/');
+define('SEPARATOR_PARMS', ':');
+define('SEPARATOR_PARMG', '|');	// parameter-groups
+
 /**
  * Public API class for proper handling of content elements and other useful TemplaVoila related functions
  *
@@ -135,9 +139,95 @@ class tx_templavoila_api {
 		return $this->__construct ($alternativeRootTable);
 	}
 
+	/******************************************************
+	 *
+	 * FLEXFORMS!
+	 *
+	 ******************************************************/
 
+	/**
+	 * Return value from somewhere inside a FlexForm structure
+	 *
+	 * @param	array		FlexForm data
+	 * @param	string		Field name to extract. Can be given like "test/el/2/test/el/field_templateObject" where each part will dig a level deeper in the FlexForm data.
+	 * @param	string		Sheet pointer, eg. "sDEF"
+	 * @param	string		Language pointer, eg. "lDEF"
+	 * @param	string		Value pointer, eg. "vDEF"
+	 * @return	string		The content.
+	 */
+	function api_getFFvalue($T3FlexForm_array,$fieldName,$sheet='sDEF',$lang='lDEF',$value='vDEF') {
+		$sheetArray = is_array($T3FlexForm_array) ? $T3FlexForm_array['data'][$sheet][$lang] : '';
+		if (is_array($sheetArray))	{
+			return $this->api_getFFvalueFromSheetArray($sheetArray,explode(SEPARATOR_XPATH,$fieldName),$value);
+		}
+	}
 
+	function api_setFFvalue(&$T3FlexForm_array,$fieldName,$fieldValue,$sheet='sDEF',$lang='lDEF',$value='vDEF') {
+		$T3FlexForm_array['data'][$sheet][$lang] = is_array($T3FlexForm_array['data'][$sheet][$lang]) ? $T3FlexForm_array['data'][$sheet][$lang] : array();
+		if (1)	{
+			$this->api_setFFvalueToSheetArray($T3FlexForm_array['data'][$sheet][$lang],explode(SEPARATOR_XPATH,$fieldName),$value,$fieldValue);
+		}
+	}
 
+	/**
+	 * Returns part of $sheetArray pointed to by the keys in $fieldNameArray
+	 *
+	 * @param	array		Multidimensiona array, typically FlexForm contents
+	 * @param	array		Array where each value points to a key in the FlexForms content - the input array will have the value returned pointed to by these keys. All integer keys will not take their integer counterparts, but rather traverse the current position in the array an return element number X (whether this is right behavior is not settled yet...)
+	 * @param	string		Value for outermost key, typ. "vDEF" depending on language.
+	 * @return	mixed		The value, typ. string.
+	 * @access private
+	 * @see pi_getFFvalue()
+	 */
+	function api_getFFvalueFromSheetArray($sheetArray,$fieldNameArr,$value)	{
+		$tempArr=$sheetArray;
+		foreach($fieldNameArr as $k => $v)	{
+			if (!is_array($tempArr))
+				return null;
+
+			if (t3lib_div::testInt($v))	{
+				$c=0;
+				foreach($tempArr as $values)	{
+					if ($c==$v)	{
+						#debug($values);
+						$tempArr=$values;
+						break;
+					}
+					$c++;
+				}
+			}
+			else {
+				$tempArr = $tempArr[$v];
+			}
+		}
+
+		return $tempArr[$value];
+	}
+
+	function api_setFFvalueToSheetArray(&$sheetArray,$fieldNameArr,$value,$assignment)	{
+		$tempArr=&$sheetArray;
+		foreach($fieldNameArr as $k => $v)	{
+			if (!is_array($tempArr[$v]))
+				$tempArr[$v] = array();
+
+			if (t3lib_div::testInt($v))	{
+				$c=0;
+				foreach($tempArr as $values)	{
+					if ($c==$v)	{
+						#debug($values);
+						$tempArr=$values;
+						break;
+					}
+					$c++;
+				}
+			}
+			else {
+				$tempArr = &$tempArr[$v];
+			}
+		}
+
+		$tempArr[$value] = $assignment;
+	}
 
 	/******************************************************
 	 *
@@ -750,7 +840,8 @@ class tx_templavoila_api {
 	 */
 	function flexform_getValidPointer ($flexformPointer) {
 
-		if (is_string($flexformPointer)) $flexformPointer = $this->flexform_getPointerFromString ($flexformPointer);
+		if (is_string($flexformPointer))
+			$flexformPointer = $this->flexform_getPointerFromString ($flexformPointer);
 
 		if (!t3lib_div::inList($this->rootTable.',tt_content',$flexformPointer['table'])) {
 			if ($this->debug) t3lib_div::devLog ('flexform_getValidPointer: Table "'.$flexformPointer['table'].'" is not in the list of allowed tables!', 'TemplaVoila API', 2, $this->rootTable.',tt_content');
@@ -783,18 +874,18 @@ class tx_templavoila_api {
 	 *
 	 * NOTE: "targettable" currently must be tt_content
 	 *
-	 * @param	string		$flexformPointerString: A string of the format "table:uid:sheet:sLang:field:vLang:position". The string may additionally contain "/table:uid" which is used to check the target record of the pointer
+	 * @param	string		$flexformPointerString: A string of the format "table:uid:sheet:sLang:field:vLang:position". The string may additionally contain "|table:uid" which is used to check the target record of the pointer
 	 * @return	array		A flexform pointer array which can be used with the functions in tx_templavoila_api
 	 * @access	public
 	 */
 	function flexform_getPointerFromString ($flexformPointerString) {
 
-		$tmpArr = explode ('/', $flexformPointerString);
+		$tmpArr = explode (SEPARATOR_PARMG, $flexformPointerString);
 		$locationString= $tmpArr[0];
 		$targetCheckString = $tmpArr[1];
 
-		$locationArr = explode (':', $locationString);
-		$targetCheckArr = explode (':', $targetCheckString);
+		$locationArr = explode (SEPARATOR_PARMS, $locationString);
+		$targetCheckArr = explode (SEPARATOR_PARMS, $targetCheckString);
 
 		if (count($targetCheckArr) == 2) {
 			$flexformPointer = array (
@@ -831,19 +922,19 @@ class tx_templavoila_api {
 		if (!is_array ($flexformPointer)) return FALSE;
 
 		if (isset ($flexformPointer['sheet'])) {
-			$flexformPointerString =
-				$flexformPointer['table'].':'.
-				$flexformPointer['uid'].':'.
-				$flexformPointer['sheet'].':'.
-				$flexformPointer['sLang'].':'.
-				$flexformPointer['field'].':'.
-				$flexformPointer['vLang'].':'.
-				$flexformPointer['position'];
+			$flexformPointerString = implode(SEPARATOR_PARMS, array(
+				$flexformPointer['table'],
+				$flexformPointer['uid'  ],
+				$flexformPointer['sheet'],
+				$flexformPointer['sLang'],
+				$flexformPointer['field'],
+				$flexformPointer['vLang'],
+				$flexformPointer['position']));
 			if (isset ($flexformPointer['targetCheckUid'])) {
-				$flexformPointerString .= '/tt_content:'.$flexformPointer['targetCheckUid'];
+				$flexformPointerString .= SEPARATOR_PARMG.'tt_content'.SEPARATOR_PARMS.$flexformPointer['targetCheckUid'];
 			}
 		} else {
-			$flexformPointerString = $flexformPointer['table'].':'.$flexformPointer['uid'];
+			$flexformPointerString = $flexformPointer['table'].SEPARATOR_PARMS.$flexformPointer['uid'];
 		}
 
 		return $flexformPointerString;
@@ -918,7 +1009,7 @@ class tx_templavoila_api {
 			return FALSE;
 		}
 
-		$listOfUIDs = is_array ($flexformXMLArr) && is_array($flexformXMLArr['data']) ? $flexformXMLArr['data'][$flexformPointer['sheet']][$flexformPointer['sLang']][$flexformPointer['field']][$flexformPointer['vLang']] : '';
+		$listOfUIDs = $this->api_getFFvalue($flexformXMLArr,$flexformPointer['field'],$flexformPointer['sheet'],$flexformPointer['sLang'],$flexformPointer['vLang']);
 		$arrayOfUIDs = t3lib_div::intExplode(',', $listOfUIDs);
 
 			// Getting the relation uids out and use only tt_content records which are not deleted:
@@ -1133,7 +1224,9 @@ class tx_templavoila_api {
 
 		$dataArr = array();
 		$uid = t3lib_beFunc::wsMapId($destinationPointer['table'],$destinationPointer['uid']);
-		$dataArr[$destinationPointer['table']][$uid]['tx_templavoila_flex']['data'][$destinationPointer['sheet']][$destinationPointer['sLang']][$destinationPointer['field']][$destinationPointer['vLang']] = implode(',',$referencesArr);
+
+	//	$dataArr[$destinationPointer['table']][$uid]['tx_templavoila_flex']['data'][$destinationPointer['sheet']][$destinationPointer['sLang']][$destinationPointer['field']][$destinationPointer['vLang']] = implode(',',$referencesArr);
+		$this->api_setFFvalue($dataArr[$destinationPointer['table']][$uid]['tx_templavoila_flex'],$destinationPointer['field'],implode(',',$referencesArr),$destinationPointer['sheet'],$destinationPointer['sLang'],$destinationPointer['vLang']);
 
 		$flagWasSet = $this->getTCEmainRunningFlag();
 		$this->setTCEmainRunningFlag (TRUE);
@@ -1358,6 +1451,96 @@ class tx_templavoila_api {
 	}
 
 	/**
+	 * the local function enables recursion on the content-tree
+	 *
+	 * to not break any other old or new extension or code that expect the result
+	 * to be in a specific manner, we havn't changed the structuring of the results
+	 *
+	 * previously we did not have any more levels above root-level:
+	 * - the "previewData" contained a one-level hierarchy of the root-level element
+	 * - "sub" was a flat array of element-containers of the root-level
+	 * - "contentFields" was a flat array of user-interface elements of the root-level
+	 * - "contentElementUsage" was a flat array of content-uids used somewhere in the template
+	 *
+	 * after the change we did not redefine the meaning and structure of the result
+	 * but mearly extended the definition:
+	 * - "previewData" now contains the full hierarchy linked through 'el' as in various other cases too
+	 * - "sub" is still flat, but now also contains XPathed elements of the hierarchy
+	 * - "contentFields" is still flat, but now also contains XPathed elements of the hierarchy
+	 * - "contentElementUsage" is still flat, but now also contains all resolved uids from inside the hierarchy
+	 */
+	function traverseContentTree_element(
+		$xpath, $fieldList, $map, $data,
+		&$previewData, &$contentFields, &$sub,
+		$sKey, $lKeys, $vKeys,
+		&$tt_content_elementRegister, $prevRecList
+	) {
+
+		foreach($fieldList as $fieldKey => $fieldData) {
+			$fieldPath = $xpath . $fieldKey;
+
+				// Compile preview data:
+			if ($this->includePreviewData)	{
+				$dsel = $map[$fieldKey];
+
+				$previewData[$fieldPath] = array(
+					'title'       => $fieldData['tx_templavoila']['title'],
+					'TCEforms'    => $fieldData['TCEforms'],
+					'type'        => $fieldData['type'],
+					'section'     => $fieldData['section'],
+					'data'        => array(),
+					'subElements' => array(),
+					'isMapped'    => is_array($dsel)
+				);
+
+				foreach($lKeys as $lKey) {
+					foreach($vKeys as $vKey) {
+						$previewData[$fieldPath]['data'][$lKey][$vKey] = $this->api_getFFvalue($data, $fieldPath, $sKey, $lKey, $vKey);
+					}
+				}
+
+				if ($fieldData['type'] == 'array') {
+						// we fully go into COs and register them XPathed
+					if ($fieldData['section'] == 0) {
+						$this->traverseContentTree_element(
+							$fieldPath . SEPARATOR_XPATH . 'el' . SEPARATOR_XPATH, $fieldData['el'], $map[$fieldKey]['el'], $data,
+							$previewData, $contentFields, $sub,
+							$sKey, $lKeys, $vKeys,
+							$tt_content_elementRegister, $prevRecList
+						);
+					}
+						// sections are stoppers, recursion here isn't permited
+					else {
+						foreach($lKeys as $lKey) {
+							$previewData[$fieldPath]['subElements'][$lKey] = $this->api_getFFvalue($data, $fieldPath, $sKey, $lKey, 'el');
+						}
+					}
+				}
+			}
+
+				// If the current field points to other content elements, process them:
+			if ($fieldData['TCEforms']['config']['type'         ] == 'group' &&
+			    $fieldData['TCEforms']['config']['internal_type'] == 'db' &&
+			    $fieldData['TCEforms']['config']['allowed'      ] == 'tt_content') {
+					foreach($lKeys as $lKey)	{
+						foreach($vKeys as $vKey) {
+							$listOfSubElementUids = $this->api_getFFvalue($data, $fieldPath, $sKey, $lKey, $vKey);
+
+								// sub->XPath
+							$sub[$lKey][$fieldPath][$vKey] = $this->getContentTree_processSubContent($listOfSubElementUids, $tt_content_elementRegister, $prevRecList);
+							$sub[$lKey][$fieldPath][$vKey]['meta']['title'] = $fieldData['TCEforms']['label'];
+						}
+					}
+			}
+				// If generally there are non-container fields, register them:
+			elseif ($fieldData['type']!='array' && $fieldData['TCEforms']['config']) {
+					// contentFields->XPath
+				$contentFields[] = $fieldPath;
+			}
+		}
+	}
+
+	/**
 	 * Returns the content tree (based on the data structure) for a certain page or a flexible content element. In case of a page it will contain all the references
 	 * to content elements (and some more information) and in case of a FCE, references to its sub-elements.
 	 *
@@ -1407,11 +1590,15 @@ class tx_templavoila_api {
 				default:
 					$currentTemplateObject = FALSE;
 			}
-			if (is_array ($currentTemplateObject)) $templateMappingArr = unserialize($currentTemplateObject['templatemapping']);
+
 			$tree['ds_is_found'] = is_array($rawDataStructureArr);
 			$tree['ds_meta'] = $rawDataStructureArr['meta'];
 			$flexformContentArr = t3lib_div::xml2array($row['tx_templavoila_flex']);
-			if (!is_array($flexformContentArr))	$flexformContentArr = array();
+
+			if (is_array ($currentTemplateObject))
+				$templateMappingArr = unserialize($currentTemplateObject['templatemapping']);
+			if (!is_array($flexformContentArr))
+				$flexformContentArr = array();
 
 				// Respect the currently selected language, for both concepts - with langChildren enabled and disabled:
 			$langChildren = intval($tree['ds_meta']['langChildren']);
@@ -1434,46 +1621,33 @@ class tx_templavoila_api {
 
 					// Traverse the sheet's elements:
 				if (is_array($sheetData) && is_array($sheetData['ROOT']['el']))	{
-					foreach($sheetData['ROOT']['el'] as $fieldKey => $fieldData) {
+					$xpath         = '';							//'ROOT/el/';
+					$fieldList     = $sheetData['ROOT']['el'];				// DS
+					$map           = $templateMappingArr['MappingInfo']['ROOT']['el'];	// TO
+					$data          = $flexformContentArr;//['data'][$sheetKey];		// DV with language-keys
 
-							// Compile preview data:
-						if ($this->includePreviewData)	{
-							$tree['previewData']['sheets'][$sheetKey][$fieldKey] = array(
-								'TCEforms' => $fieldData['TCEforms'],
-								'type' => $fieldData['type'],
-								'section' => $fieldData['section'],
-								'data' => array(),
-								'subElements' => array(),
-								'isMapped' => is_array($templateMappingArr['MappingInfo']['ROOT']['el'][$fieldKey])
-							);
-							foreach($lKeys as $lKey)	{
-								foreach($vKeys as $vKey)	{
-									if (is_array($flexformContentArr['data'])) {
-										$tree['previewData']['sheets'][$sheetKey][$fieldKey]['data'][$lKey][$vKey] = $flexformContentArr['data'][$sheetKey][$lKey][$fieldKey][$vKey];
-									}
-								}
+					$previewData   = $tree['previewData']['sheets'][$sheetKey];		// local list of fields
+					$contentFields = $tree['contentFields'][$sheetKey];			// global list of content-fields
+					$sub           = $tree['sub'][$sheetKey];				// global list of field-labels
 
-								if ($fieldData['type'] == 'array')	{
-									$tree['previewData']['sheets'][$sheetKey][$fieldKey]['subElements'][$lKey] = $flexformContentArr['data'][$sheetKey][$lKey][$fieldKey]['el'];
-								}
-							}
-						}
+					$previewData   = array();	// hierarchical
+					$contentFields = array();	// flat XPathed
+					$sub           = array();	// flat XPathed
 
-							// If the current field points to other content elements, process them:
-						if ($fieldData['TCEforms']['config']['type'] == 'group' &&
-							$fieldData['TCEforms']['config']['internal_type'] == 'db' &&
-							$fieldData['TCEforms']['config']['allowed'] == 'tt_content')	{
-								foreach($lKeys as $lKey)	{
-									foreach($vKeys as $vKey)	{
-										$listOfSubElementUids = $flexformContentArr['data'][$sheetKey][$lKey][$fieldKey][$vKey];
-										$tree['sub'][$sheetKey][$lKey][$fieldKey][$vKey] = $this->getContentTree_processSubContent($listOfSubElementUids, $tt_content_elementRegister, $prevRecList);
-										$tree['sub'][$sheetKey][$lKey][$fieldKey][$vKey]['meta']['title'] = $fieldData['TCEforms']['label'];
-									}
-								}
-						} elseif ($fieldData['type']!='array' && $fieldData['TCEforms']['config'])	{	// If generally there are non-container fields, register them:
-							$tree['contentFields'][$sheetKey][] = $fieldKey;
-						}
-					}
+
+					$this->traverseContentTree_element(
+						$xpath, $fieldList, $map, $data,
+						&$previewData, &$contentFields, &$sub,
+						$sheetKey, $lKeys, $vKeys,
+						&$tt_content_elementRegister, $prevRecList
+					);
+
+						// flat list of XPathed element labels
+					$tree['sub'][$sheetKey] = $sub;
+						// flat it of XPathed content-fields
+					$tree['contentFields'][$sheetKey] = $contentFields;
+						// hierarchical tree ef elements
+					$tree['previewData']['sheets'][$sheetKey] = $previewData;
 				}
 			}
 		}
@@ -1504,7 +1678,8 @@ class tx_templavoila_api {
 		$dbAnalysis->start($listOfSubElementUids, 'tt_content');
 
 			// Traverse records:
-        $counter = 1;   // Note: key in $dbAnalysis->itemArray is not a valid counter! It is in 'tt_content_xx' format!
+		$counter = 1;
+			// Note: key in $dbAnalysis->itemArray is not a valid counter! It is in 'tt_content_xx' format!
 		foreach($dbAnalysis->itemArray as $recIdent)	{
 			$idStr = 'tt_content:'.$recIdent['id'];
 
@@ -1513,11 +1688,13 @@ class tx_templavoila_api {
 
 				if (is_array($nextSubRecord))	{
 					$tt_content_elementRegister[$recIdent['id']]++;
+
 					$subTree['el'][$idStr] = $this->getContentTree_element('tt_content', $nextSubRecord, $tt_content_elementRegister, $prevRecList.','.$idStr);
 					$subTree['el'][$idStr]['el']['index'] = $counter;
 					$subTree['el'][$idStr]['el']['isHidden'] = $TCA['tt_content']['ctrl']['enablecolumns']['disabled'] && $nextSubRecord[$TCA['tt_content']['ctrl']['enablecolumns']['disabled']];
 					$subTree['el_list'][$counter] = $idStr;
-                    $counter++;
+
+                    			$counter++;
 				} else {
 					# ERROR: The element referenced was deleted! - or hidden :-)
 				}

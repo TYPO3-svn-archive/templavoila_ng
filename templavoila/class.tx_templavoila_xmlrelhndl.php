@@ -120,7 +120,7 @@ class tx_templavoila_xmlrelhndl {
 	 */
 	function insertRecord($destination, $row)	{
 
-		$tmpArr = explode (':', $destination);
+		$tmpArr = explode (SEPARATOR_PARMS, $destination);
 		$destinationArr = array (
 			'table' => $tmpArr[0],
 			'uid' => $tmpArr[1],
@@ -138,7 +138,7 @@ class tx_templavoila_xmlrelhndl {
 	 * NOTE: This function is deprecated. It calls the methods of the newer TemplaVoila API.
 	 *
 	 * @param	string		$pasteCmd: Kind of pasting: 'cut', 'copy', 'copyref', 'ref' or 'unlink'
-	 * @param	string		$source: String defining the original record. [table]:[uid]:[sheet]:[structure Language]:[FlexForm field name]:[value language]:[index of reference position in field value]/[ref. table]:[ref. uid]. Example: 'pages:78:sDEF:lDEF:field_contentarea:vDEF:0/tt_content:60'. The field name in the table is implicitly 'tx_templavoila_flex'. The definition of the reference element after the slash MUST match the element pointed to by the reference index in the first part. This is a security measure.
+	 * @param	string		$source: String defining the original record. [table]:[uid]:[sheet]:[structure Language]:[FlexForm field name]:[value language]:[index of reference position in field value]/[ref. table]:[ref. uid]. Example: 'pages:78:sDEF:lDEF:field_contentarea:vDEF:0|tt_content:60'. The field name in the table is implicitly 'tx_templavoila_flex'. The definition of the reference element after the slash MUST match the element pointed to by the reference index in the first part. This is a security measure.
 	 * @param	string		$destination: Defines the destination where to paste the record (not used when unlinking of course). Syntax is the same as first part of 'source', defining a position in a FlexForm 'tx_templavoila_flex' field.
 	 * @return	void
 	 * @deprecated version - 1.0.0
@@ -146,7 +146,7 @@ class tx_templavoila_xmlrelhndl {
 	function pasteRecord($pasteCmd, $source, $destination)	{
 
 			// Split the source definition into parts:
-		list($sourceStr,$check,$isLocal,$currentPageId) = explode('/',$source);
+		list($sourceStr,$check,$isLocal,$currentPageId) = explode(SEPARATOR_PARMG,$source);
 
 		$destinationPointer = $this->templavoilaAPIObj->flexform_getPointerFromString ($destination);
 		if ($sourceStr)	{
@@ -166,7 +166,7 @@ class tx_templavoila_xmlrelhndl {
 
 		} elseif($check && $pasteCmd=='ref') {		// Insert a reference to a content element from "outside" - for example from the clipboard of non-used elements:
 
-			list($table,$uid) = explode(':', $check);
+			list($table,$uid) = explode(SEPARATOR_PARMS, $check);
 			$this->templavoilaAPIObj->referenceElementByUid ($uid, $destinationPointer);
 		}
 	}
@@ -175,14 +175,14 @@ class tx_templavoila_xmlrelhndl {
 	 * Returns a tt_content record specified by a flexform pointer
 	 * NOTE: This function is deprecated. It calls the methods of the newer TemplaVoila API.
 	 *
-	 * @param	string		$location: String defining the record. [table]:[uid]:[sheet]:[structure Language]:[FlexForm field name]:[value language]:[index of reference position in field value]/[ref. table]:[ref. uid]. Example: 'pages:78:sDEF:lDEF:field_contentarea:vDEF:0/tt_content:60'. The field name in the table is implicitly 'tx_templavoila_flex'. The definition of the reference element after the slash MUST match the element pointed to by the reference index in the first part. This is a security measure.
+	 * @param	string		$location: String defining the record. [table]:[uid]:[sheet]:[structure Language]:[FlexForm field name]:[value language]:[index of reference position in field value]/[ref. table]:[ref. uid]. Example: 'pages:78:sDEF:lDEF:field_contentarea:vDEF:0|tt_content:60'. The field name in the table is implicitly 'tx_templavoila_flex'. The definition of the reference element after the slash MUST match the element pointed to by the reference index in the first part. This is a security measure.
 	 * @return	mixed		The record row or FALSE if not successful
 	 * @deprecated version - 1.0.0
 	 */
 	function getRecord($location) {
 
 			// Split the source definition into parts:
-		list($locationStr, $check, $isLocal, $currentPageId) = explode('/', $location);
+		list($locationStr, $check, $isLocal, $currentPageId) = explode(SEPARATOR_PARMG, $location);
 		$flexformPointer = $this->templavoilaAPIObj->flexform_getPointerFromString ($locationStr);
 
 		return $this->templavoilaAPIObj->flexform_getRecordByPointer ($flexformPointer);
@@ -509,7 +509,7 @@ class tx_templavoila_xmlrelhndl {
 	 * @deprecated version - 1.0.0
 	 */
 	function _splitAndValidateReference($string)	{
-		 $refArr = explode(':',$string);
+		 $refArr = explode(SEPARATOR_PARMS,$string);
 
 		 if ($version = t3lib_BEfunc::getWorkspaceVersionOfRecord($GLOBALS['BE_USER']->workspace, $refArr[0], $refArr[1], 'uid'))	{
 			$refArr[1] = $version['uid'];

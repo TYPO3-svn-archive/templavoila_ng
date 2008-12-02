@@ -90,11 +90,11 @@ class tx_templavoila_pi1 extends tslib_pibase {
 	 * @param	array		TypoScript array for the plugin.
 	 * @return	string		HTML content for the Flexible Content elements.
 	 */
-    function main($content,$conf)    {
+	function main($content,$conf) {
 		$this->initVars($conf);
 
 		return $this->renderElement($this->cObj->data, 'tt_content');
-    }
+	}
 
 	/**
 	 * Main function for rendering records from system tables (like fe_users) using TemplaVoila. Function creates fake flexform, ds and to fields for the record and calls {@link #renderElement($row,$table) renderElement} for processing.
@@ -135,7 +135,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 	 * @todo Create TS element with this functionality?
 	 * @todo Support sheet selector?
 	 */
-    function main_record($content, $conf) {
+	function main_record($content, $conf) {
 		$this->initVars($conf);
 
 		// Make a copy of the data, do not spoil original!
@@ -175,13 +175,13 @@ class tx_templavoila_pi1 extends tslib_pibase {
 			else {
 				$lKey = 'lDEF'; $vKey = 'vDEF';
 			}
-		    $values['data']['sDEF'][$lKey][$k][$vKey] = $v;
+			$values['data']['sDEF'][$lKey][$k][$vKey] = $v;
 		}
-        $ff = t3lib_div::makeInstance('t3lib_flexformtools');                                                                                         
-        $data['tx_templavoila_flex'] = $ff->flexArray2xml($values);                                                                                   
+		$ff = t3lib_div::makeInstance('t3lib_flexformtools');
+		$data['tx_templavoila_flex'] = $ff->flexArray2xml($values);
 
 		return $this->renderElement($data, $conf['table']);
-    }
+	}
 
 	/**
 	 * Main function for rendering of Page Templates of TemplaVoila
@@ -190,7 +190,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 	 * @param	array		TypoScript array for the plugin.
 	 * @return	string		HTML content for the Page Template elements.
 	 */
-    function main_page($content,$conf)    {
+	function main_page($content,$conf) {
 		$this->initVars($conf);
 
 			// Current page record which we MIGHT manipulate a little:
@@ -215,13 +215,15 @@ class tx_templavoila_pi1 extends tslib_pibase {
 		if ($pageRecord['content_from_pid']) {
 		    $ds = $pageRecord['tx_templavoila_ds'];
 		    $to = $pageRecord['tx_templavoila_to'];
+
 		    $pageRecord = $GLOBALS['TSFE']->sys_page->getPage($pageRecord['content_from_pid']);
+
 		    $pageRecord['tx_templavoila_ds'] = $ds;
 		    $pageRecord['tx_templavoila_to'] = $to;
 		}
 
 		return $this->renderElement($pageRecord, 'pages');
-    }
+	}
 
 	/**
 	 * Will set up various stuff in the class based on input TypoScript
@@ -273,10 +275,10 @@ class tx_templavoila_pi1 extends tslib_pibase {
 		}
 
 			// If a Data Structure was found:
-		if (is_array($DS))	{
+		if (is_array($DS)) {
 
 				// Sheet Selector:
-			if ($DS['meta']['sheetSelector'])	{
+			if ($DS['meta']['sheetSelector']) {
 					// <meta><sheetSelector> could be something like "EXT:user_extension/class.user_extension_selectsheet.php:&amp;user_extension_selectsheet"
 				$sheetSelector = &t3lib_div::getUserObj($DS['meta']['sheetSelector']);
 				$renderSheet = $sheetSelector->selectSheet();
@@ -295,7 +297,8 @@ class tx_templavoila_pi1 extends tslib_pibase {
 			$lKey = ($GLOBALS['TSFE']->sys_language_isocode && !$langDisabled && !$langChildren) ? 'l'.$GLOBALS['TSFE']->sys_language_isocode : 'lDEF';
 
 			$dataValues = is_array($data['data']) ? $data['data'][$sheet][$lKey] : '';
-			if (!is_array($dataValues))	$dataValues = array();
+			if (!is_array($dataValues))
+				$dataValues = array();
 
 				// Init mark up object.
 			$this->markupObj = t3lib_div::makeInstance('tx_templavoila_htmlmarkup');
@@ -380,13 +383,15 @@ class tx_templavoila_pi1 extends tslib_pibase {
 	 * @param	string		Value key
 	 * @return	void
 	 */
-	function processDataValues(&$dataValues,$DSelements,$TOelements,$valueKey='vDEF')	{
+	function processDataValues(&$dataValues,$DSelements,$TOelements,$valueKey='vDEF',$xpath='')	{
 		if (is_array($DSelements))	{
 
 				// Create local processing information array:
 			$LP = array();
 			foreach($DSelements as $key => $dsConf)	{
-				if ($DSelements[$key]['type']!='array')	{	// For all non-arrays:
+					// For all non-sections:
+				if (($DSelements[$key]['type'] != 'array') ||
+				    ($DSelements[$key]['section'] != 1)) {
 						// Set base configuration:
 					$LP[$key] = $DSelements[$key]['tx_templavoila'];
 						// Overlaying local processing:
@@ -408,76 +413,109 @@ class tx_templavoila_pi1 extends tslib_pibase {
 				}
 			}
 
-            // Check if information about parent record should be set. Note: we do not push/pop registers here because it may break LOAD_REGISTER/RESTORE_REGISTER data transfer between FCEs!
-            $savedParentInfo = array();
-            $registerKeys = array();
-            if (is_array($this->cObj->data)) {
+			$cObj =t3lib_div::makeInstance('tslib_cObj');
+			$cObj->setParent($this->cObj->data,$this->cObj->currentRecord);
+			$cObj->start($dataRecord,'_NO_TABLE');
 
-                $tArray = $this->cObj->data;
-                ksort($tArray);
-                $checksum = md5(serialize($tArray));
+				// Check if information about parent record should be set. Note: we do not push/pop registers here because it may break LOAD_REGISTER/RESTORE_REGISTER data transfer between FCEs!
+			$sameParent = false;
+			$savedParentInfo = array();
+			if (is_array($this->cObj->data)) {
 
-                $sameParent = false;
-                if (isset($GLOBALS['TSFE']->register['tx_templavoila_pi1.parentRec.__SERIAL'])) {
-                    $sameParent = ($checksum === $GLOBALS['TSFE']->register['tx_templavoila_pi1.parentRec.__SERIAL']);
-                }
+				$tArray = $this->cObj->data;
+				ksort($tArray);
+				$checksum = md5(serialize($tArray));
 
-                if (!$sameParent) {
-                    // Step 1: save previous parent records from registers. This happens when pi1 is called for FCEs on a page.
-                    $unsetKeys = array ();
-                    foreach ($GLOBALS['TSFE']->register as $dkey => $dvalue) {
-	if (preg_match('/^tx_templavoila_pi1\.parentRec\./', $dkey)) {
-	    $savedParentInfo[$dkey] = $dvalue;
-	    $unsetKeys[] = $dkey;
-	}
-                    }
+				if (isset($GLOBALS['TSFE']->register['tx_templavoila_pi1.parentRec.__SERIAL'])) {
+					$sameParent = ($checksum === $GLOBALS['TSFE']->register['tx_templavoila_pi1.parentRec.__SERIAL']);
+				}
 
-                    // Step 2: unset previous parent info
-                    foreach ($unsetKeys as $dkey) {
-	unset ($GLOBALS['TSFE']->register[$dkey]);
-                    }
-                    unset($unsetKeys); // free memory
+				if (!$sameParent) {
+						// Step 1: save previous parent records from registers. This happens when pi1 is called for FCEs on a page.
+					$unsetKeys = array ();
+					foreach ($GLOBALS['TSFE']->register as $dkey => $dvalue) {
+						if (preg_match('/^tx_templavoila_pi1\.parentRec\./', $dkey)) {
+							$savedParentInfo[$dkey] = $dvalue;
+							$unsetKeys[] = $dkey;
+						}
+				    	}
 
-                    // Step 3: set new parent record to register
-                    $registerKeys = array ();
-                    foreach ($this->cObj->data as $dkey => $dvalue) {
-	$registerKeys[] = $tkey = 'tx_templavoila_pi1.parentRec.' . $dkey;
-	$GLOBALS['TSFE']->register[$tkey] = $dvalue;
-                    }
+				    		// Step 2: unset previous parent info
+				    	foreach ($unsetKeys as $dkey) {
+						unset ($GLOBALS['TSFE']->register[$dkey]);
+					}
+					unset($unsetKeys); // free memory
 
-                    // Step 4: update checksum
-                    $GLOBALS['TSFE']->register['tx_templavoila_pi1.parentRec.__SERIAL'] = $checksum;
-                    $registerKeys[] = 'tx_templavoila_pi1.parentRec.__SERIAL';
-                }
-            }
+						// Step 3: set new parent record to register
+					foreach ($this->cObj->data as $dkey => $dvalue) {
+						$tkey = 'tx_templavoila_pi1.parentRec.' . $dkey;
+						$GLOBALS['TSFE']->register[$tkey] = $dvalue;
+					}
+
+						// Step 4: update checksum
+					$GLOBALS['TSFE']->register['tx_templavoila_pi1.parentRec.__SERIAL'] = $checksum;
+				}
+			}
 
 				// For each DS element:
 			foreach($DSelements as $key => $dsConf)	{
-
-						// Array/Section:
+					// Array/Section:
 				if ($DSelements[$key]['type']=='array')	{
-					if (is_array($dataValues[$key]['el']))	{
+					/* no DS-childs: bail out
+					 * no EL-childs: progress (they may all be TypoScript elements without visual representation)
+					 */
+					if (is_array($DSelements[$key]['el'])/* &&
+					    is_array($TOelements[$key]['el'])*/) {
+						if (!isset($dataValues[$key]['el']))
+							$dataValues[$key]['el'] = array();
+
 						if ($DSelements[$key]['section'])	{
 							foreach($dataValues[$key]['el'] as $ik => $el)	{
 								if (is_array($el))	{
-									$theKey = key($el);
-									if (is_array($dataValues[$key]['el'][$ik][$theKey]['el']))	{
-										$this->processDataValues($dataValues[$key]['el'][$ik][$theKey]['el'],$DSelements[$key]['el'][$theKey]['el'],$TOelements[$key]['el'][$theKey]['el'],$valueKey);
+						//			$theKey = key($el);
+						//			if (is_array($dataValues[$key]['el'][$ik][$theKey]['el']))	{
+						//				$this->processDataValues($dataValues[$key]['el'][$ik][$theKey]['el'],$DSelements[$key]['el'][$theKey]['el'],$TOelements[$key]['el'][$theKey]['el'],$valueKey,$xpath.$key.'/el/'.$theKey.'/el/');
+                                                //
+						//					// If what was an array is returned as a non-array (eg. string "__REMOVE") then unset the whole thing:
+						//				if (!is_array($dataValues[$key]['el'][$ik][$theKey]['el']))	{
+						//					unset($dataValues[$key]['el'][$ik]);
+						//				}
+						//			}
 
-											// If what was an array is returned as a non-array (eg. string "__REMOVE") then unset the whole thing:
-										if (!is_array($dataValues[$key]['el'][$ik][$theKey]['el']))	{
-											unset($dataValues[$key]['el'][$ik]);
-										}
-									}
+									$this->processDataValues($dataValues[$key]['el'][$ik],$DSelements[$key]['el'],$TOelements[$key]['el'],$valueKey,$xpath.$key.'/el/');
 								}
 							}
+
+							$dataValues[$key][$valueKey] = '###GROUP###';
 						} else {
-							if (!isset($dataValues[$key]['el']))	$dataValues[$key]['el'] = array();
-							$this->processDataValues($dataValues[$key]['el'],$DSelements[$key]['el'],$TOelements[$key]['el'],$valueKey);
+							$this->processDataValues($dataValues[$key]['el'],$DSelements[$key]['el'],$TOelements[$key]['el'],$valueKey,$xpath.$key.'/el/');
+
+							$dataValues[$key][$valueKey] = '###GROUP###';
+
+							$cObj->setCurrentVal($dataValues[$key][$valueKey]);
+							$GLOBALS['TSFE']->register['tx_templavoila_pi1.parentRec.'.str_replace('ROOT/el/', '', $xpath . $key)] = $dataValues[$key][$valueKey];
+
+								// Various local quick-processing options:
+							$pOptions = $LP[$key]['proc'];
+
+							if (is_array($pOptions)) {
+								if (trim($pOptions['stdWrap']))	{
+										// BUG HERE: should convert array to TypoScript...
+									$tsparserObj = t3lib_div::makeInstance('t3lib_TSparser');
+									$tsparserObj->parse($pOptions['stdWrap']);
+
+									$dataValues[$key][$valueKey] = $cObj->stdWrap($dataValues[$key][$valueKey],$tsparserObj->setup);
+								}
+							}
+						}
+
+							// If what was an array is returned as a non-array (eg. string "__REMOVE") then unset the whole thing:
+						if (!is_array($dataValues[$key]['el']))	{
+							unset($dataValues);
 						}
 					}
-				} else {
-
+				}
+				else {
 						// Language inheritance:
 					if ($valueKey!='vDEF')	{
 						$dataValues[$key][$valueKey] = $this->inheritValue($dataValues[$key],$valueKey,$LP[$key]['langOverlayMode']);
@@ -489,27 +527,23 @@ class tx_templavoila_pi1 extends tslib_pibase {
 						}
 					}
 
-					$tsparserObj = t3lib_div::makeInstance('t3lib_TSparser');
-
-					$cObj =t3lib_div::makeInstance('tslib_cObj');
-					$cObj->setParent($this->cObj->data,$this->cObj->currentRecord);
-					$cObj->start($dataRecord,'_NO_TABLE');
-
 					$cObj->setCurrentVal($dataValues[$key][$valueKey]);
+					$GLOBALS['TSFE']->register['tx_templavoila_pi1.parentRec.'.str_replace('ROOT/el/', '', $xpath . $key)] = $dataValues[$key][$valueKey];
 
-	                    // Render localized labels for 'select' elements:
-                    if ($DSelements[$key]['TCEforms']['config']['type'] == 'select') {
-	if (substr($dataValues[$key][$valueKey], 0, 4) == 'LLL:') {
-	    $tempLangVal = $GLOBALS['TSFE']->sL($dataValues[$key][$valueKey]);
-	    if ($tempLangVal != '') {
-	        $dataValues[$key][$valueKey] = $tempLangVal;
-	    }
-	    unset($tempLangVal);
-	}
-                    }
+					        // Render localized labels for 'select' elements:
+					if ($DSelements[$key]['TCEforms']['config']['type'] == 'select') {
+						if (substr($dataValues[$key][$valueKey], 0, 4) == 'LLL:') {
+							$tempLangVal = $GLOBALS['TSFE']->sL($dataValues[$key][$valueKey]);
+							if ($tempLangVal != '') {
+								$dataValues[$key][$valueKey] = $tempLangVal;
+							}
+							unset($tempLangVal);
+						}
+					}
 
 						// TypoScript / TypoScriptObjPath:
 					if (trim($LP[$key]['TypoScript']) || trim($LP[$key]['TypoScriptObjPath']))	{
+						$tsparserObj = t3lib_div::makeInstance('t3lib_TSparser');
 
 						if (trim($LP[$key]['TypoScript']))	{
 
@@ -560,6 +594,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 							$tsparserObj->parse($LP[$key]['TypoScript']);
 							$dataValues[$key][$valueKey] = $cObj->cObjGet($tsparserObj->setup,'TemplaVoila_Proc.');
 						}
+
 						if (trim($LP[$key]['TypoScriptObjPath']))	{
 							list($name, $conf) = $tsparserObj->getVal(trim($LP[$key]['TypoScriptObjPath']),$GLOBALS['TSFE']->tmpl->setup);
 							$dataValues[$key][$valueKey] = $cObj->cObjGetSingle($name,$conf,'TemplaVoila_ProcObjPath--'.str_replace('.','*',$LP[$key]['TypoScriptObjPath']).'.');
@@ -568,31 +603,47 @@ class tx_templavoila_pi1 extends tslib_pibase {
 
 						// Various local quick-processing options:
 					$pOptions = $LP[$key]['proc'];
-					if (is_array($pOptions))	{
-						if ($pOptions['int'])		$dataValues[$key][$valueKey] = intval($dataValues[$key][$valueKey]);
+
+					if (is_array($pOptions)) {
 							// HSC of all values by default:
-						if ($pOptions['HSC'])		$dataValues[$key][$valueKey] = htmlspecialchars($dataValues[$key][$valueKey]);
-						if (trim($pOptions['stdWrap']))		{
-							$tsparserObj = t3lib_div::makeInstance('t3lib_TSparser');
+						if ($pOptions['int'])
+							$dataValues[$key][$valueKey] = intval($dataValues[$key][$valueKey]);
+						if ($pOptions['HSC'])
+							$dataValues[$key][$valueKey] = htmlspecialchars($dataValues[$key][$valueKey]);
+
+						if (trim($pOptions['stdWrap']))	{
 								// BUG HERE: should convert array to TypoScript...
+							$tsparserObj = t3lib_div::makeInstance('t3lib_TSparser');
 							$tsparserObj->parse($pOptions['stdWrap']);
+
 							$dataValues[$key][$valueKey] = $cObj->stdWrap($dataValues[$key][$valueKey],$tsparserObj->setup);
 						}
 					}
 				}
 			}
 
-            // Unset curent parent record info
-            foreach ($registerKeys as $dkey) {
-                unset($GLOBALS['TSFE']->register[$dkey]);
-            }
+			if (!$sameParent) {
+					// Step 1: Unset curent parent record info
+				$unsetKeys = array ();
+				foreach ($GLOBALS['TSFE']->register as $dkey => $dvalue) {
+					if (preg_match('/^tx_templavoila_pi1\.parentRec\./', $dkey)) {
+						$unsetKeys[] = $dkey;
+					}
+				}
 
-            // Restore previous parent record info if necessary
-            foreach ($savedParentInfo as $dkey => $dvalue) {
-                $GLOBALS['TSFE']->register[$dkey] = $dvalue;
-            }
-        }
-    }
+					// Step 2: unset previous parent info
+				foreach ($unsetKeys as $dkey) {
+					unset ($GLOBALS['TSFE']->register[$dkey]);
+				}
+				unset($unsetKeys); // free memory
+
+					// Step 3: Restore previous parent record info if necessary
+				foreach ($savedParentInfo as $dkey => $dvalue) {
+				    $GLOBALS['TSFE']->register[$dkey] = $dvalue;
+				}
+			}
+		}
+	}
 
 	/**
 	 * Processing of language fallback values (inheritance/overlaying)
