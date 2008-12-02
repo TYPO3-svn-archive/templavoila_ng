@@ -1,2 +1,0 @@
-  # cat=basic/enable; type=boolean; label=Enable the classic page module
-enable.oldPageModule = 0
