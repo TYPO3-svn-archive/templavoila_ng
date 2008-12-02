@@ -1,0 +1,84 @@
+
+
+
+	div#typo3-docheader-row3 {
+		overflow: hidden;
+		position: relative;
+	}
+
+	div#typo3-docheader-row3.expulsed {
+		height: auto;
+		overflow: visible;
+	}
+
+	div#typo3-docheader-row3.impulsed {
+		height: 8px;
+		overflow: hidden;
+	}
+
+	/* typo3-TC...forms.css (Linie 9) */
+	div#typo3-docheader-row3 > div.docheader-row3-content {
+		background: #F3F3F9 none repeat scroll 0 0;
+		border-bottom: 2px solid #595D66;
+		padding: 10px;
+
+		position: absolute;
+		z-index: 1;
+		bottom: 8px;
+		left: 0px;
+		right: 0px;
+
+	/*	border-top: 2px dashed #595D66;
+		margin-top: -2px;	*/
+	}
+
+	div#typo3-docheader-row3.expulsed ~ div#typo3-docheader-row2 {
+		border-bottom-style: dashed;
+	}
+
+	div#typo3-docheader-row3.expulsed > div.docheader-row3-content {
+		position: relative;
+		bottom: auto;
+	}
+
+	div#typo3-docheader-row3.impulsed > div.docheader-row3-content {
+		position: absolute;
+		bottom: 8px;
+	}
+
+	div#typo3-docheader-row3 > div.docheader-row3-eject {
+		background: #595D66 none repeat scroll -2px 1px;
+		height: 8px;
+		width: 40px;	/* 1:5 */
+		margin-left: auto;
+		margin-right: 10px;
+		cursor: pointer;
+
+		-moz-border-radius: 0 0 8px 8px;
+		-webkit-border-radius: 0 0 8px 8px;
+		-border-radius: 0 0 8px 8px;
+		background-position: -2px 9px;
+		height: 16px;
+		margin-top: -8px;
+
+		position: absolute;
+		right: 10px;
+	}
+
+	/* border.html (Linie 28) */
+	div#typo3-docheader-row3.expulsed > div.docheader-row3-eject {
+		background-image: url(border_impulse.gif);
+		background-repeat: no-repeat;
+
+		position: relative;
+		bottom: auto;
+	}
+
+	/* border.html (Linie 22) */
+	div#typo3-docheader-row3.impulsed > div.docheader-row3-eject {
+		background-image: url(border_expulse.gif);
+		background-repeat: no-repeat;
+
+		position: absolute;
+		bottom: 0px;
+	}

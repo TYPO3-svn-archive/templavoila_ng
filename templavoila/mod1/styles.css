@@ -1,0 +1,80 @@
+	@import url("../res/optionsmenu.css");
+
+	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+	table.tv-container div.sortableItem > span > a,
+	table.tv-container div.sortableItem >        a {
+		display: inline;
+	}
+
+	table.tv-clipboard div.sortableItem > span > a,
+	table.tv-clipboard div.sortableItem >        a {
+		display: none;
+	}
+
+	table.tv-container td.sortableButtons > a.onoff {
+		visibility: visible !important;
+	}
+
+	table.tv-clipboard td.sortableButtons > a.onoff {
+		visibility: hidden !important;
+	}
+
+	table.tv-container table.tv-coe tr.sortableHandle > td + td > a:firstChild {
+		display: inline;
+	}
+
+	table.tv-clipboard table.tv-coe tr.sortableHandle > td + td > a:firstChild {
+		display: none;
+	}
+
+	table.tv-container img.new,
+	table.tv-container img.browse,
+	table.tv-container img.paste {
+		margin: 1px;
+		margin-bottom: 5px;
+	}
+
+	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+	table.tv-coe {
+		border: 1px solid black;
+		margin-bottom: 5px;
+	}
+
+	table.tv-coe tr.sortableHandle > td {
+		vertical-align: top;
+	}
+
+	table.tv-coe tr.sortableHandle > td + td {
+		text-align: right;
+	}
+
+	table.tv-coe tr.sortableHandle > td + td > a:firstChild {
+		text-decoration: none;
+	}
+
+	table.tv-coe tr.sortableHandle > td > span.nobr >     img,
+	table.tv-coe tr.sortableHandle > td > span.nobr > a > img {
+		text-align: center;
+		vertical-align: middle;
+		margin: 1px;
+	}
+
+	table.tv-coe tr.sortableHandle + tr td > a > img.bottom,
+	table.tv-coe tr.sortableHandle + tr td >     img.bottom {
+		text-align: center;
+		vertical-align: bottom;
+		margin: 1px;
+	}
+
+	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+	table.tv-elist td > span.nobr >     img,
+	table.tv-elist td > span.nobr > a > img {
+		text-align: center;
+		vertical-align: middle;
+		margin: 1px;
+	}
+
+	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+	div.tv-preview a {
+		text-decoration: none;
+	}

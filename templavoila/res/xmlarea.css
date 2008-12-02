@@ -1,0 +1,106 @@
+
+
+
+
+	div.xmlarea {
+	}
+
+	div.xmlarea ul {
+		min-height: 4px;
+	}
+
+	div.xmlarea ul.DS-tree {
+		padding-left: 0px;
+	}
+
+	div.xmlarea ul.DS-tree > li > div {
+		position: relative;
+		padding-left: 22px;
+		margin-top: -18px;
+	}
+
+	div.xmlarea ul.DS-tree > li > div > div.knob {
+		position: absolute;
+		left: 0px;
+		width: 18px;
+		height: 18px;
+		cursor: pointer;
+	}
+
+	div.xmlarea ul.DS-tree > li > div > div.nodename {
+		float: left;
+		overflow: hidden;
+		font-weight: bold;
+		cursor: move;
+		position: relative;
+	}
+
+	div.xmlarea ul.DS-tree > li > div > div.nodevalue {
+		float: right;
+		width: 50%;
+		text-align: left;
+		position: relative;
+	}
+
+	div.xmlarea ul.DS-tree > li > div > div.nodename > input,
+	div.xmlarea ul.DS-tree > li > div > div.nodevalue > input {
+		position: relative;
+		top: -2px;
+		left: -1px;
+	}
+
+	div.xmlarea ul.DS-tree > li > div > div.nodearray {
+		clear: both;
+		min-height: 4px;
+	}
+
+	div.xmlarea ul.DS-tree > li > div > div.nodearray > input {
+		display: none;
+	}
+
+	div.xmlarea ul.DS-tree > li > div > div.candidate > ul {
+	/*	border-left: 1px dashed black;
+		min-height: 22px; */
+
+		background: #E0E0E0;
+	}
+
+	div.xmlarea ul.DS-tree > li.closed {
+		list-style-image: url(/typo3/gfx/ol/plus.gif);
+		background: 0 0 url(/typo3/gfx/ol/line.gif) repeat-y transparent;
+	}
+
+	div.xmlarea ul.DS-tree > li.last-child.closed/*,
+	div.xmlarea ul.DS-tree > li:last-child.closed*/ {
+		list-style-image: url(/typo3/gfx/ol/blank.gif);
+		background: 0 0 url(/typo3/gfx/ol/plusbottom.gif) no-repeat transparent;
+	}
+
+	div.xmlarea ul.DS-tree > li.closed > div > div.nodearray > input,
+	div.xmlarea ul.DS-tree > li.closed > div > div.nodearray > ul {
+		display: none;
+	}
+
+	div.xmlarea ul.DS-tree > li.opened {
+		list-style-image: url(/typo3/gfx/ol/minus.gif);
+		background: 0 0 url(/typo3/gfx/ol/line.gif) repeat-y transparent;
+	}
+
+	div.xmlarea ul.DS-tree > li.last-child.opened/*,
+	div.xmlarea ul.DS-tree > li:last-child.opened*/ {
+		list-style-image: url(/typo3/gfx/ol/blank.gif);
+		background: 0 0 url(/typo3/gfx/ol/minusbottom.gif) no-repeat transparent;
+	}
+
+	div.xmlarea ul.DS-tree > li.opened > div > div.nodearray > input {
+		display: inline;
+	}
+
+	div.xmlarea ul.DS-tree > li.empty > div > div.nodearray > input {
+		display: none;
+	}
+
+	div.xmlarea input.inline {
+		padding: 0;
+		margin: 0;
+	}
