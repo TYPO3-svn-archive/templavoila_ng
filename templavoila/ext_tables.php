@@ -16,9 +16,9 @@ if (TYPO3_MODE=='BE') {
 
 		// Adding backend modules:
 	
-    t3lib_extMgm::addModulePath('xMOD_txtemplavoilaM1',t3lib_extMgm::extPath ($_EXTKEY).'mod1/');
-    t3lib_extMgm::addModulePath('xMOD_txtemplavoilaM2',t3lib_extMgm::extPath ($_EXTKEY).'mod2/');
-    t3lib_extMgm::addModule('web','txtemplavoilaM1','top',t3lib_extMgm::extPath($_EXTKEY).'mod1/');
+	t3lib_extMgm::addModulePath('web_txtemplavoilaM1',t3lib_extMgm::extPath ($_EXTKEY).'mod1/');
+	t3lib_extMgm::addModulePath('web_txtemplavoilaM2',t3lib_extMgm::extPath ($_EXTKEY).'mod2/');
+	t3lib_extMgm::addModule('web','txtemplavoilaM1','top',t3lib_extMgm::extPath($_EXTKEY).'mod1/');
 	t3lib_extMgm::addModule('web','txtemplavoilaM2','',t3lib_extMgm::extPath($_EXTKEY).'mod2/');
 	
 		// Adding backend templates:
