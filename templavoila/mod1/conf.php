@@ -2,10 +2,10 @@
 
 	// DO NOT REMOVE OR CHANGE THESE 3 LINES:
 define('TYPO3_MOD_PATH', 'ext/templavoila/mod1/');
-$BACK_PATH='../../../';
+$BACK_PATH='../../../../typo3/';
 $MCONF['name']='web_txtemplavoilaM1';
 
-    
+
 $MCONF['access']='user,group';
 $MCONF['script']='index.php';
 
