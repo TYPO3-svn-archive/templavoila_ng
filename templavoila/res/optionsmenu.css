@@ -106,7 +106,8 @@
 	}
 
 	#options-menu ul.group > li.radio.selected {
-		background: 4px 0 url(/typo3/gfx/state_checked.png) no-repeat transparent;
+	/*	background: 4px 0 url(/typo3/gfx/state_checked.png) no-repeat transparent;	*/
+		background: 4px 0 url(state_checked.png) no-repeat transparent;
 	}
 
 	#options-menu ul.group:hover > li.radio {
@@ -114,5 +115,6 @@
 	}
 
 	#options-menu ul.group:hover > li.radio:hover {
-		background: 4px 0 url(/typo3/gfx/state_checked.png) no-repeat transparent;
+	/*	background: 4px 0 url(/typo3/gfx/state_checked.png) no-repeat transparent;	*/
+		background: 4px 0 url(state_checked.png) no-repeat transparent;
 	}
