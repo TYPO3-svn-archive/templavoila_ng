@@ -15,11 +15,12 @@ if (TYPO3_MODE=='BE') {
 	include_once(t3lib_extMgm::extPath('templavoila').'class.tx_templavoila_handlestaticdatastructures.php');
 
 		// Adding backend modules:
-	#t3lib_extMgm::addModule('web','txtemplavoilaM1','top',t3lib_extMgm::extPath($_EXTKEY).'mod1/');
-	#t3lib_extMgm::addModule('web','txtemplavoilaM2','',t3lib_extMgm::extPath($_EXTKEY).'mod2/');
+	
     t3lib_extMgm::addModulePath('xMOD_txtemplavoilaM1',t3lib_extMgm::extPath ($_EXTKEY).'mod1/');
     t3lib_extMgm::addModulePath('xMOD_txtemplavoilaM2',t3lib_extMgm::extPath ($_EXTKEY).'mod2/');
-
+    t3lib_extMgm::addModule('web','txtemplavoilaM1','top',t3lib_extMgm::extPath($_EXTKEY).'mod1/');
+	t3lib_extMgm::addModule('web','txtemplavoilaM2','',t3lib_extMgm::extPath($_EXTKEY).'mod2/');
+	
 		// Adding backend templates:
 	$GLOBALS['TBE_STYLES']['htmlTemplates']['templates/control-center.html'] =
 		t3lib_extMgm::extRelPath($_EXTKEY).'templates/control-center.html';
