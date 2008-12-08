@@ -45,10 +45,10 @@
  */
 
 	// DEFAULT initialization of a module [BEGIN]
-unset($MCONF);
-require ('conf.php');
-require ($BACK_PATH.'init.php');
-require ($BACK_PATH.'template.php');
+#unset($MCONF);
+#require ('conf.php');
+#require ($BACK_PATH.'init.php');
+#require ($BACK_PATH.'template.php');
 $LANG->includeLLFile('EXT:templavoila/cm2/locallang.xml');
 require_once (PATH_t3lib.'class.t3lib_scbase.php');
 require_once (PATH_t3lib.'class.t3lib_flexformtools.php');

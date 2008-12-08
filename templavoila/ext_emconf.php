@@ -37,7 +37,7 @@ $EM_CONF[$_EXTKEY] = array(
 	),
 	'priority' => '',
 	'loadOrder' => '',
-	'module' => 'cm2,mod1,mod2',
+	'module' => '',
 	'state' => 'stable',
 	'internal' => 0,
 	'uploadfolder' => 0,
