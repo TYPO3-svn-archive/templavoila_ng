@@ -2796,7 +2796,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 		$this->pageinfo = t3lib_BEfunc::readPageAccess($this->id,$this->perms_clause);
 		$access = is_array($this->pageinfo) ? 1 : 0;
 
-		if (($this->id && $access) || ($BE_USER->user['admin'] && !$this->id) || is_array($this->altRoot)) {
+		if (($this->id && $access) /*|| ($BE_USER->user['admin'] && !$this->id)*/ || is_array($this->altRoot)) {
 				// calls from drag and drop
 			if (t3lib_div::_GP("ajaxPasteRecord")) {
 				$sourcePointer = $this->apiObj->flexform_getPointerFromString(t3lib_div::_GP('source'));
