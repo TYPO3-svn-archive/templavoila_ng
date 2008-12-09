@@ -1330,7 +1330,11 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 		if (count($output))	{
 			if (count($output)>1)	{
 				$outputString = '<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/icon_fatalerror.gif','width="18" height="16"').' alt="" class="absmiddle" />'.
-								'Invalid template values in '.(count($output)-1).' elements:';
+					'Invalid template objects (TOs) on '.(count($output)-1).' '.
+						($scope == 1 ? 'pages' :
+						($scope == 2 ? 'content elements' :
+						               'plugin elements')) .
+					':';
 				$this->setErrorLog($scope,'fatal',$outputString);
 
 				$outputString.='<table border="0" cellspacing="1" cellpadding="1" class="lrPadding">'.implode('',$output).'</table>';
