@@ -94,6 +94,8 @@ class tx_templavoila_dbnewcontentel {
 	var $content;					// Used to accumulate the content of the module.
 	var $access;					// Access boolean.
 
+	var $mod1Link;
+	
 	/**
 	 * Initialize internal variables.
 	 *
@@ -135,6 +137,8 @@ class tx_templavoila_dbnewcontentel {
 				$this->parentRecord = implode(SEPARATOR_PARMS, array('pages',$this->id,'sDEF','lDEF',$mainContentAreaFieldName,'vDEF',0));
 			}
 		}
+		
+		$this->mod1Link = 'mod.php?M=web_txtemplavoilaM1&';
 	}
 
 	/**
@@ -182,7 +186,7 @@ class tx_templavoila_dbnewcontentel {
 					$tableLinks=array();
 
 						// href URI for icon/title:
-					$newRecordLink = 'index.php?'.$this->linkParams().'&createNewRecord='.rawurlencode($this->parentRecord).$wizardItem['params'];
+					$newRecordLink = $this->mod1Link . $this->linkParams().'&createNewRecord='.rawurlencode($this->parentRecord).$wizardItem['params'];
 
 						// Icon:
 					$iInfo = @getimagesize($wizardItem['icon']);
