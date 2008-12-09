@@ -142,6 +142,8 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		'meta' => array('single'=>1),
 	);
 	var $extKey = 'templavoila';	// Extension key of this module
+	var $baseScript = 'index.php?';
+	var $mod2Script = '../mod2/index.php?';
 	var $dsTypes;			// chached DS-node icons
 	var $changedTO = false;		// detect changes in the TO for "revert"
 	var $changedDS = false;		// detect changes in the DS for "reimport"
@@ -193,6 +195,11 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 	function init() {
 		parent::init();
+
+		if (preg_match('/mod.php$/', PATH_thisScript)) {
+			$this->baseScript = 'mod.php?M=xMOD_txtemplavoilaCM1&';
+			$this->mod2Script = 'mod.php?M=web_txtemplavoilaM2&';
+		}
 
 			// General GPvars for module mode:
 		$this->displayFile  = t3lib_div::GPvar('file');
@@ -532,7 +539,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 							ret = ret.join(\'_\');
 
 						$(\'browser[context]\').innerHTML = label + \' <em>[pid: \'+rid+\']</em>\';
-						$(\'browser[communication]\').src = \'index.php?mode=browser&pid=\'+rid+\'&current=\' +
+						$(\'browser[communication]\').src = \'' . $this->baseScript . 'mode=browser&pid=\'+rid+\'&current=\' +
 						$(\'browser[result]\').value;
 					}
 				}
@@ -1695,7 +1702,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 					if ($fileref) {
 							// Link to updating DS/TO:
-						$onCl = 'index.php?id='.$this->id.'&file='.rawurlencode($fileref).'&_load_ds_xml=1&_load_ds_xml_to='.$TO_Row['uid'];
+						$onCl = $this->baseScript . 'id='.$this->id.'&file='.rawurlencode($fileref).'&_load_ds_xml=1&_load_ds_xml_to='.$TO_Row['uid'];
 						$onClMsg = '
 							if (confirm(unescape(\''.rawurlencode('Warning: You should only modify Data Structures and Template Objects which have not been manually edited.'.chr(10).'You risk that manual changes will be removed without further notice!').'\'))) {
 								document.location=\''.$onCl.'\';
@@ -1708,7 +1715,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 							<tr class="bgColor4">
 								<td>['.$TO_Row['uid'].']</td>
 								<td nowrap="nowrap">'.$this->doc->wrapClickMenuOnIcon($TOicon,'tx_templavoila_tmplobj',$TO_Row['uid'],1).
-									' <a href="'.htmlspecialchars('index.php?id='.$this->id.'&table=tx_templavoila_tmplobj&uid='.$TO_Row['uid'].'&_reload_from=1').'">'.
+									' <a href="'.htmlspecialchars($this->baseScript . 'id='.$this->id.'&table=tx_templavoila_tmplobj&uid='.$TO_Row['uid'].'&_reload_from=1').'">'.
 									t3lib_BEfunc::getRecordTitle('tx_templavoila_tmplobj',$TO_Row,1).'</a>'.
 									'</td>
 								<td nowrap="nowrap">'.htmlspecialchars($TO_Row['fileref']).' <strong>'.(!$fileref?'(NOT FOUND!)':'(OK)').'</strong></td>
@@ -3177,7 +3184,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 							<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/insert3.gif') . ' title="Context" alt="Load context"
 								 onclick="setFormValueOpenBrowser(\'db\',\'browser[communication]|||pages\');" style="cursor: pointer; vertical-align: middle;" />
 							<span id="browser[context]">root <em>[pid: 0]</em></span>
-							<iframe width="100%" height="400" style="border: 0;" id="browser[communication]" src="index.php?mode=browser&pid=&current='.$curValue['objPath'].'"></iframe>
+							<iframe width="100%" height="400" style="border: 0;" id="browser[communication]" src="' . $this->baseScript . 'mode=browser&pid=&current='.$curValue['objPath'].'"></iframe>
 						</div>
 					';
 					break;
@@ -3681,7 +3688,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		);
 		$p = t3lib_div::implodeArrayForUrl('',$theArray);
 
-		$content.='<strong><a href="'.htmlspecialchars('index.php?'.$p).'" target="display">'.$title.'</a></strong>';
+		$content.='<strong><a href="'.htmlspecialchars($this->baseScript.$p).'" target="display">'.$title.'</a></strong>';
 		return $content;
 	}
 
@@ -3702,7 +3709,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		);
 		$p = t3lib_div::implodeArrayForUrl('',array_merge($theArray,$array),'',1);
 
-		return htmlspecialchars('index.php?'.$p);
+		return htmlspecialchars($this->baseScript.$p);
 	}
 
 	/**
@@ -3717,7 +3724,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 * @see main_display()
 	 */
 	function makeIframeForVisual($file,$path,$limitTags,$showOnly,$preview=0)	{
-		$url = 'index.php?mode=display'.
+		$url = $this->baseScript . 'mode=display'.
 				'&file='.rawurlencode($file).
 				'&path='.rawurlencode($path).
 				'&preview='.($preview?1:0).
@@ -4764,7 +4771,7 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 				'</a>';
 		}
 		if ($this->id) {
-			$buttons['back'] = '<a href="' . htmlspecialchars('../mod2/index.php?id='.$this->id) . '">' .
+			$buttons['back'] = '<a href="' . htmlspecialchars($this->mod1Script.'id='.$this->id) . '">' .
 				'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/closedok.gif') . ' class="c-inputButton" title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.goBack', 1) . '" alt="" />' .
 				'</a>';
 		}

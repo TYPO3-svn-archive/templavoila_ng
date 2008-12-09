@@ -122,6 +122,9 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 	var $modTSconfig;					// This module's TSconfig
 	var $modSharedTSconfig;					// TSconfig from mod.SHARED
 	var $extKey = 'templavoila';				// Extension key of this module
+	var $baseScript = 'index.php?';
+	var $mod1Script = 'mod1/index.php?';
+	var $cm2Script = '../cm2/index.php?';
 
 	var $global_tt_content_elementRegister=array(); 	// Contains a list of all content elements which are used on the page currently being displayed (with version, sheet and language currently set). Mainly used for showing "unused elements" in sidebar.
 	var $global_localization_status=array(); 		// Contains structure telling the localization status of each element
@@ -165,6 +168,13 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 	 */
 	function init()    {
 		parent::init();
+
+		$this->mod1Script = t3lib_extMgm::extRelPath('templavoila') . $this->mod1Script;
+		if (preg_match('/mod.php$/', PATH_thisScript)) {
+			$this->baseScript = 'mod.php?M=web_txtemplavoilaM1&';
+			$this->mod1Script = 'mod.php?M=web_txtemplavoilaM1&';
+			$this->cm2Script = 'mod.php?M=web_txtemplavoilaCM2&';
+		}
 
 		$this->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->MOD_MENU, t3lib_div::_GP('SET'), $this->MCONF['name']);
 
@@ -326,7 +336,7 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 			$this->doc->docType= 'xhtml_trans';
 			$this->doc->backPath = $BACK_PATH;
 			$this->doc->divClass = '';
-			$this->doc->form='<form action="'.htmlspecialchars('index.php?'.$this->link_getParameters()).'" method="post" autocomplete="off">' .
+			$this->doc->form='<form action="'.htmlspecialchars($this->baseScript.$this->link_getParameters()).'" method="post" autocomplete="off">' .
 				'<input type="hidden" id="browser[communication]" name="browser[communication]" />';
 
 				// Add custom styles
@@ -619,7 +629,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 				}
 
 				function sortable_unlinkRecord(id) {
-					new Ajax.Request("index.php?' . $this->link_getParameters() . '&ajaxUnlinkRecord="+escape(id));
+					new Ajax.Request("' . $this->baseScript . $this->link_getParameters() . '&ajaxUnlinkRecord="+escape(id));
 					new Effect.Fade(id,
 						{ duration: 0.5,
 						  afterFinish: sortable_unlinkRecordCallBack });
@@ -634,7 +644,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 				}
 
 				function sortable_deleteRecord(id) {
-					new Ajax.Request("index.php?' . $this->link_getParameters() . '&ajaxDeleteRecord="+escape(id));
+					new Ajax.Request("' . $this->baseScript . $this->link_getParameters() . '&ajaxDeleteRecord="+escape(id));
 					new Effect.Fade(id,
 						{ duration: 0.5,
 						  afterFinish: sortable_deleteRecordCallBack });
@@ -709,7 +719,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 					while (node != null) {
 						if (node.className == "sortableItem") {
 							if (sortable_currentItem && node.id == sortable_currentItem.id ) {
-								var url = "index.php?' . $this->link_getParameters() . '&ajaxPasteRecord=cut&source=" + sortable_currentItem.id + "&destination=" + el.id + (i-1);
+								var url = "' . $this->baseScript . $this->link_getParameters() . '&ajaxPasteRecord=cut&source=" + sortable_currentItem.id + "&destination=" + el.id + (i-1);
 								new Ajax.Request(url);
 								sortable_updatePasteButtons(node.id, el.id + i);
 								sortable_currentItem = false;
@@ -790,7 +800,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 			// Create a back button if neccessary:
 		if (is_array($this->altRoot)) {
-			$output .= '<div style="text-align:right; width:100%; margin-bottom:5px;"><a href="index.php?id='.$this->id.'"><img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/goback.gif','').' title="'.htmlspecialchars($LANG->getLL ('goback')).'" alt="" /></a></div>';
+			$output .= '<div style="text-align:right; width:100%; margin-bottom:5px;"><a href="' . $this->baseScript . 'id='.$this->id.'"><img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/goback.gif','').' title="'.htmlspecialchars($LANG->getLL ('goback')).'" alt="" /></a></div>';
 		}
 
 			// Add the localization module if localization is enabled:
@@ -1609,7 +1619,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 									// Copy for language:
 								if ($this->rootElementLangParadigm =='free')	{
 									$sourcePointerString = $this->apiObj->flexform_getStringFromPointer($parentPointer);
-									$onClick = "document.location='index.php?".$this->link_getParameters().'&source='.rawurlencode($sourcePointerString).'&localizeElement='.$sLInfo['ISOcode']."'; return false;";
+									$onClick = "document.location='".$this->baseScript . $this->link_getParameters().'&source='.rawurlencode($sourcePointerString).'&localizeElement='.$sLInfo['ISOcode']."'; return false;";
 								} else {
 									$params='&cmd[tt_content]['.$contentTreeArr['el']['uid'].'][localize]='.$sys_language_uid;
 									$onClick = "document.location='".$GLOBALS['SOBE']->doc->issueCommand($params)."'; return false;";
@@ -1747,7 +1757,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 					}
 
 						// Render status:
-					$xmlUrl = '../cm2/index.php?viewRec[table]='.$entry['table'].'&viewRec[uid]='.$entry['uid'].'&viewRec[field_flex]=tx_templavoila_flex';
+					$xmlUrl = $this->cm2Script.'viewRec[table]='.$entry['table'].'&viewRec[uid]='.$entry['uid'].'&viewRec[field_flex]=tx_templavoila_flex';
 
 					if (md5($recRow['tx_templavoila_flex']) != md5($newXML)) {
 						$status = $this->doc->icons(1).'<a href="'.htmlspecialchars($xmlUrl).'">'.$LANG->getLL('outline_status_dirty',1).'</a><br />';
@@ -2156,7 +2166,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 				$table != 'pages' && ($this->calcPerms & 16)) &&
 				(!$this->translatorMode || $forced))	{
 					if ($table == "pages" && $this->currentLanguageUid) {
-						return '<a href="index.php?'.$this->link_getParameters().'&amp;editPageLanguageOverlay='.$this->currentLanguageUid.'">'.$label.'</a>';
+						return '<a href="'.$this->baseScript.$this->link_getParameters().'&amp;editPageLanguageOverlay='.$this->currentLanguageUid.'">'.$label.'</a>';
 					} else {
 						$onClick = t3lib_BEfunc::editOnClick('&edit['.$table.']['.$uid.']=edit', $this->doc->backPath);
 						return '<a href="#" onclick="'.htmlspecialchars($onClick).'">'.$label.'</a>';
@@ -2202,7 +2212,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 			'setFormValueOpenBrowser(\'db\',\'browser[communication]|||tt_content\');'.
 			'return false;';
 
-		return '<a href="#" id="index.php?'.$parameters.'" onclick="'.$browser.'">'.$label.'</a>';
+		return '<a href="#" id="'.$this->baseScript.$parameters.'" onclick="'.$browser.'">'.$label.'</a>';
 	}
 
 	/**
@@ -2273,10 +2283,10 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 		if ($realDelete) {
 			return '<a href="javascript:'.htmlspecialchars('if (confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('deleteRecordMsg')) . '))') . ' sortable_deleteRecord(\'' . $unlinkPointerString . '\');">' . $label . '</a>';
-//			return '<a href="index.php?' . $this->link_getParameters() . '&amp;deleteRecord=' . $unlinkPointerString . '" onclick="' . htmlspecialchars('return confirm(' . $LANG->JScharCode($LANG->getLL('deleteRecordMsg')) . ');') . '">' . $label . '</a>';
+//			return '<a href="' . $this->baseScript.$this->link_getParameters() . '&amp;deleteRecord=' . $unlinkPointerString . '" onclick="' . htmlspecialchars('return confirm(' . $LANG->JScharCode($LANG->getLL('deleteRecordMsg')) . ');') . '">' . $label . '</a>';
 		} else {
 			return '<a href="javascript:'.htmlspecialchars('if (confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('unlinkRecordMsg')) . '))') . ' sortable_unlinkRecord(\'' . $unlinkPointerString . '\');" class="onoff">' . $label . '</a>';
-//			return '<a href="index.php?' . $this->link_getParameters() . '&amp;unlinkRecord=' . $unlinkPointerString . '" onclick="' . htmlspecialchars('return confirm(' . $LANG->JScharCode($LANG->getLL('unlinkRecordMsg')) . ');') . '">' . $label . '</a>';
+//			return '<a href="' . $this->baseScript.$this->link_getParameters() . '&amp;unlinkRecord=' . $unlinkPointerString . '" onclick="' . htmlspecialchars('return confirm(' . $LANG->JScharCode($LANG->getLL('unlinkRecordMsg')) . ');') . '">' . $label . '</a>';
 		}
 	}
 
@@ -2304,7 +2314,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 	function link_makeLocal($label, $makeLocalPointer) {
 		global $LANG;
 
-		return '<a href="index.php?'.$this->link_getParameters().'&amp;makeLocalRecord='.rawurlencode($this->apiObj->flexform_getStringFromPointer($makeLocalPointer)).'" onclick="'.htmlspecialchars('return confirm('.$LANG->JScharCode($LANG->getLL('makeLocalMsg')).');').'">'.$label.'</a>';
+		return '<a href="'.$this->baseScript.$this->link_getParameters().'&amp;makeLocalRecord='.rawurlencode($this->apiObj->flexform_getStringFromPointer($makeLocalPointer)).'" onclick="'.htmlspecialchars('return confirm('.$LANG->JScharCode($LANG->getLL('makeLocalMsg')).');').'">'.$label.'</a>';
 	}
 
 	/**
@@ -2347,7 +2357,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 		foreach ($possibleCommands as $command) {
 			if (($commandParameters = t3lib_div::_GP($command)) != '') {
-				$redirectLocation = 'index.php?' . $this->link_getParameters();
+				$redirectLocation = $this->baseScript . $this->link_getParameters();
 
 				switch ($command) {
 					case 'clearCache':
@@ -2363,7 +2373,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 						$destinationPointer = $this->apiObj->flexform_getPointerFromString($commandParameters);
 						$newUid = $this->apiObj->insertElement($destinationPointer, $newRow);
 							// TODO If $newUid==0, than we could create new element. Need to handle it...
-						$redirectLocation = $GLOBALS['BACK_PATH'].'alt_doc.php?edit[tt_content]['.$newUid.']=edit&returnUrl='.rawurlencode(t3lib_extMgm::extRelPath('templavoila').'mod1/index.php?'.$this->link_getParameters());
+						$redirectLocation = $GLOBALS['BACK_PATH'].'alt_doc.php?edit[tt_content]['.$newUid.']=edit&returnUrl='.rawurlencode($this->mod1Script.$this->link_getParameters());
 						break;
 
 					case 'unlinkRecord':
@@ -2405,7 +2415,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 					case 'createNewPageTranslation':
 							// Create parameters and finally run the classic page module for creating a new page translation
 						$params = '&edit[pages_language_overlay]['.intval (t3lib_div::_GP('pid')).']=new&overrideVals[pages_language_overlay][sys_language_uid]='.intval($commandParameters);
-						$returnUrl = '&returnUrl='.rawurlencode(t3lib_extMgm::extRelPath('templavoila').'mod1/index.php?'.$this->link_getParameters());
+						$returnUrl = '&returnUrl='.rawurlencode($this->mod1Script.$this->link_getParameters());
 						$redirectLocation = $GLOBALS['BACK_PATH'].'alt_doc.php?'.$params.$returnUrl;
 						break;
 
@@ -2435,7 +2445,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 							$params = '&edit[pages]['.intval($this->id).']=edit';
 						}
 						if ($params) {
-							$returnUrl = '&returnUrl='.rawurlencode(t3lib_extMgm::extRelPath('templavoila').'mod1/index.php?'.$this->link_getParameters());
+							$returnUrl = '&returnUrl='.rawurlencode($this->mod1Script.$this->link_getParameters());
 							$redirectLocation = $GLOBALS['BACK_PATH'].'alt_doc.php?'.$params.$returnUrl;	//.'&localizationMode=text';
 						}
 						break;
@@ -2745,7 +2755,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 
 		/* general option-group */
 		{
-			$link = 'index.php?'.$this->link_getParameters().'&SET[tt_content_showHidden]=###';
+			$link = $this->baseScript.$this->link_getParameters().'&SET[tt_content_showHidden]=###';
 
 			$entries[] = '<li class="radio'.(!$this->MOD_SETTINGS['tt_content_showHidden']?' selected':'').'" name="tt_content_showHidden"><a href="' . str_replace('###', '', $link).'"'. '>' . $LANG->getLL('page_settings_hidden', 1) . '</a></li>';
 			$entries[] = '<li class="radio'.( $this->MOD_SETTINGS['tt_content_showHidden']?' selected':'').'" name="tt_content_showHidden"><a href="' . str_replace('###', '1', $link).'"'.'>' . $LANG->getLL('page_settings_all', 1) . '</a></li>';
@@ -2975,7 +2985,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 			$this->doc->JScode .= $CMparts[0];
 			$this->doc->JScode .= $this->doc->getDynTabMenuJScode();
 			$this->doc->postCode .= $CMparts[2];
-			$this->doc->form = '<form action="'.htmlspecialchars('index.php?'.$this->link_getParameters()).'" method="post" autocomplete="off">' .
+			$this->doc->form = '<form action="'.htmlspecialchars($this->baseScript.$this->link_getParameters()).'" method="post" autocomplete="off">' .
 				'<input type="hidden" id="browser[communication]" name="browser[communication]" />';
 
 				/* Prototype /Scriptaculous */
@@ -3093,7 +3103,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 
 			// Back
 		if (is_array($this->altRoot)) {
-			$buttons['back'] = '<a href="index.php?id='.$this->id.'" class="typo3-goBack">' .
+			$buttons['back'] = '<a href="' . $this->baseScript . 'id='.$this->id.'" class="typo3-goBack">' .
 				'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/goback.gif') . ' title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.goBack', 1) . '" alt="" />' .
 				'</a>';
 		}
@@ -3105,7 +3115,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 
 			// Up one level
 		if ($this->pageinfo['pid']) {
-			$buttons['level_up'] = '<a href="index.php?id='.$this->pageinfo['pid'].'" onclick="setHighlight(' . $this->pageinfo['pid'] . ')">' .
+			$buttons['level_up'] = '<a href="' . $this->baseScript . 'id='.$this->pageinfo['pid'].'" onclick="setHighlight(' . $this->pageinfo['pid'] . ')">' .
 						'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/i/pages_up.gif') . ' title="' . $LANG->sL('LLL:EXT:lang/locallang_core.php:labels.upOneLevel', 1) . '" alt="" />' .
 						'</a>';
 		}
@@ -3149,13 +3159,13 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 
 				// Cache
 			if (1 /*!$this->modTSconfig['properties']['disableAdvanced']*/) {
-				$buttons['cache'] = '<a href="index.php?'.$this->link_getParameters().'&clearCache=1">' .
+				$buttons['cache'] = '<a href="' . $this->baseScript . $this->link_getParameters() . '&clearCache=1">' .
 								'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/clear_cache.gif') . ' title="' . $LANG->sL('LLL:EXT:lang/locallang_core.php:labels.clear_cache', 1) . '" alt="" />' .
 								'</a>';
 			}
 
 				// Reload
-			$buttons['reload'] = '<a href="index.php?'.$this->link_getParameters().'">' .
+			$buttons['reload'] = '<a href="' . $this->baseScript . $this->link_getParameters() . '">' .
 							'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/refresh_n.gif') . ' title="' . $LANG->sL('LLL:EXT:lang/locallang_core.php:labels.reload', 1) . '" alt="" />' .
 							'</a>';
 		}

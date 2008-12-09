@@ -93,15 +93,16 @@ $BE_USER->modAccess($MCONF,1);
 class tx_templavoila_module2 extends t3lib_SCbase {
 
 		// External static:
-	var $templatesDir;
 	var $importPageUid = 0;	// Import as first page in root!
-
 
 	var $wizardData = array();	// Session data during wizard
 
 	var $pageinfo;
 	var $modTSconfig;
 	var $extKey = 'templavoila';			// Extension key of this module
+	var $baseScript = 'index.php?';
+	var $mod2Script = '../mod2/index.php?';
+	var $cm1Script = '../cm1/index.php?';
 
 	var $tFileList=array();
 	var $errorsWarnings=array();
@@ -109,7 +110,12 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 
 	function init() {
 		parent::init();
-		$this->templatesDir = $GLOBALS['TYPO3_CONF_VARS']['BE']['fileadminDir'] . 'templates/';
+
+		if (preg_match('/mod.php$/', PATH_thisScript)) {
+			$this->baseScript = 'mod.php?M=web_txtemplavoilaM2&';
+			$this->mod2Script = 'mod.php?M=web_txtemplavoilaM2&';
+			$this->cm1Script = 'mod.php?M=xMOD_txtemplavoilaCM1&';
+		}
 	}
 
 	/**
@@ -151,7 +157,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 			$this->doc->docType= 'xhtml_trans';
 			$this->doc->backPath = $BACK_PATH;
 			$this->doc->divClass = '';
-			$this->doc->form='<form action="'.htmlspecialchars('index.php?id='.$this->id).'" method="post" autocomplete="off">';
+			$this->doc->form='<form action="'.htmlspecialchars($this->baseScript . 'id='.$this->id) . '" method="post" autocomplete="off">';
 
 				// Add custom styles
 			$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath($this->extKey) . "mod2/styles.css";
@@ -190,7 +196,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 			$this->doc->docType= 'xhtml_trans';
 			$this->doc->backPath = $BACK_PATH;
 			$this->doc->divClass = '';
-			$this->doc->form='<form action="'.htmlspecialchars('index.php?id='.$this->id).'" method="post" autocomplete="off">';
+			$this->doc->form='<form action="'.htmlspecialchars($this->baseScript . 'id='.$this->id).'" method="post" autocomplete="off">';
 			$this->content.=$this->doc->startPage($LANG->getLL('title'));
 		}
 
@@ -311,7 +317,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 				if ($path)	{
 					$tRows[] = '
 						<tr class="bgColor4">
-							<td><a href="index.php?id='.$pid.'">'.htmlspecialchars($path).'</a></td>
+							<td><a href="' . $this->baseScript. 'id=' . $pid . '">' . htmlspecialchars($path) . '</a></td>
 							<td>'.htmlspecialchars($stat['DS']).'</td>
 							<td>'.htmlspecialchars($stat['TO']).'</td>
 						</tr>';
@@ -683,7 +689,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 			}
 
 				// Template status / link:
-			$linkUrl = '../cm1/index.php?id='.$this->id.'&table=tx_templavoila_datastructure&uid='.$dsR['uid'].'&returnUrl='.rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI'));
+			$linkUrl = $this->cm1Script.'id='.$this->id.'&table=tx_templavoila_datastructure&uid='.$dsR['uid'].'&returnUrl='.rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI'));
 			$templateStatus  = $this->findDSUsageWithImproperTOs($dsID, $toIdArray, $scope);
 			$templateStatus .= '<br/><a href="'.htmlspecialchars($linkUrl).'">[ '.$LANG->getLL('center_view_ds').' ]</a>';
 
@@ -859,7 +865,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 		}
 
 			// Mapping status / link:
-		$linkUrl = '../cm1/index.php?id='.$this->id.'&table=tx_templavoila_tmplobj&uid='.$toObj['uid'].'&_reload_from=1&returnUrl='.rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI'));
+		$linkUrl = $this->cm1Script.'id='.$this->id.'&table=tx_templavoila_tmplobj&uid='.$toObj['uid'].'&_reload_from=1&returnUrl='.rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI'));
 
 		$fileReference = t3lib_div::getFileAbsFileName($toObj['fileref']);
 		if (@is_file($fileReference))	{
@@ -1381,7 +1387,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 							'</a></td>
 						<td align="center">'.$count.'</td>
 						<td>'.
-							'<a href="'.htmlspecialchars('../cm1/index.php?id='.$this->id.'&file='.rawurlencode($tFile)).'&mapElPath=%5BROOT%5D">'.
+							'<a href="'.htmlspecialchars($this->cm1Script.'id='.$this->id.'&file='.rawurlencode($tFile)).'&mapElPath=%5BROOT%5D">'.
 							htmlspecialchars('Create...').
 							'</a></td>
 					</tr>';
@@ -1423,7 +1429,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 											'</a></td>
 										<td align="center">'.($this->tFileList[$tFile]?$this->tFileList[$tFile]:'-').'</td>
 										<td>'.
-											'<a href="'.htmlspecialchars('../cm1/index.php?id='.$this->id.'&file='.rawurlencode($tFile)).'&mapElPath=%5BROOT%5D">'.
+											'<a href="'.htmlspecialchars($this->cm1Script.'id='.$this->id.'&file='.rawurlencode($tFile)).'&mapElPath=%5BROOT%5D">'.
 											htmlspecialchars('Create...').
 											'</a></td>
 									</tr>';
@@ -1830,7 +1836,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 				$outputString.= '
 				<br/>
 				<br/>
-				<input type="submit" value="'.$LANG->getLL('wiz_start').'!" onclick="'.htmlspecialchars('document.location=\'index.php?SET[wiz_step]=1\'; return false;').'" />';
+				<input type="submit" value="' . $LANG->getLL('wiz_start') . '!" onclick="'.htmlspecialchars('document.location=\'' . $this->baseScript . 'SET[wiz_step]=1\'; return false;').'" />';
 			} else {
 				$outputString.= '
 				<br/>
@@ -1899,7 +1905,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 				break;
 			}
 
-			$outputString.= '<hr/><input type="submit" value="Cancel wizard" onclick="'.htmlspecialchars('document.location=\'index.php?SET[wiz_step]=0\'; return false;').'" />';
+			$outputString.= '<hr/><input type="submit" value="Cancel wizard" onclick="'.htmlspecialchars('document.location=\'' . $this->baseScript . 'SET[wiz_step]=0\'; return false;').'" />';
 
 				// Add output:
 			$this->content.= $this->doc->section('',$outputString,0,1);
@@ -2022,14 +2028,14 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 					<td>'.(count($tosForTemplate) ? 'Used '.count($tosForTemplate).' times' : 'Not used yet').'</td>
 					<td>'.
 						'<a href="#" onclick="'.htmlspecialchars($onClick).'">[Preview first]</a> '.
-						'<a href="'.htmlspecialchars('index.php?SET[wiz_step]=2&CFG[file]='.rawurlencode($file)).'">[Choose as Template]</a> '.
+						'<a href="'.htmlspecialchars($this->baseScript . 'SET[wiz_step]=2&CFG[file]=' . rawurlencode($file)) . '">[Choose as Template]</a> '.
 						'</td>
 				</tr>';
 			}
 			$outputString.= '<table border="0" cellpadding="1" cellspacing="1" class="lrPadding">'.implode('',$tRows).'</table>';
 
 				// Refresh button:
-			$outputString.= '<br/><input type="submit" value="Refresh" onclick="'.htmlspecialchars('document.location=\'index.php?SET[wiz_step]=1\'; return false;').'" />';
+			$outputString.= '<br/><input type="submit" value="Refresh" onclick="'.htmlspecialchars('document.location=\'' . $this->baseScript . 'SET[wiz_step]=1\'; return false;').'" />';
 
 				// Add output:
 			$this->content.= $this->doc->section('Step 1: Select the template HTML file',$outputString,0,1);
@@ -2183,7 +2189,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 
 			// If a template Object id was found, continue with mapping:
 		if ($this->wizardData['templateObjectId'])	{
-			$url = '../cm1/index.php?id='.$this->id.'&table=tx_templavoila_tmplobj&uid='.$this->wizardData['templateObjectId'].'&SET[selectHeaderContent]=0&_reload_from=1&returnUrl='.rawurlencode('../mod2/index.php?SET[wiz_step]=4');
+			$url = $this->cm1Script.'id='.$this->id.'&table=tx_templavoila_tmplobj&uid='.$this->wizardData['templateObjectId'].'&SET[selectHeaderContent]=0&_reload_from=1&returnUrl='.rawurlencode($this->mod2Script.'SET[wiz_step]=4');
 
 			$outputString.= '
 				You are now ready to point out at which position in the HTML code to insert the TYPO3 generated page content and the main menu. This process is called "mapping".<br/>
@@ -2205,7 +2211,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 	 * @return	void
 	 */
 	function wizard_step4()	{
-		$url = '../cm1/index.php?id='.$this->id.'&table=tx_templavoila_tmplobj&uid='.$this->wizardData['templateObjectId'].'&SET[selectHeaderContent]=1&_reload_from=1&returnUrl='.rawurlencode('../mod2/index.php?SET[wiz_step]=5');
+		$url = $this->cm1Script.'id='.$this->id.'&table=tx_templavoila_tmplobj&uid='.$this->wizardData['templateObjectId'].'&SET[selectHeaderContent]=1&_reload_from=1&returnUrl='.rawurlencode($this->mod2Script.'SET[wiz_step]=5');
 		$outputString.= '
 			Finally you also have to select which parts of the HTML header you want to include. For instance it is important that you select all sections with CSS styles in order to preserve the correct visual appearance of your website.<br/>
 			You can also select the body-tag of the template if you want to use the original body-tag.<br/>
@@ -2474,7 +2480,7 @@ lib.'.$menuType.'.1.ACT {
 
 		<br/>
 		<br/>
-		<input type="submit" value="Finish Wizard!" onclick="'.htmlspecialchars(t3lib_BEfunc::viewOnClick($this->wizardData['rootPageId'],$this->doc->backPath).'document.location=\'index.php?SET[wiz_step]=0\'; return false;').'" />
+		<input type="submit" value="Finish Wizard!" onclick="'.htmlspecialchars(t3lib_BEfunc::viewOnClick($this->wizardData['rootPageId'],$this->doc->backPath).'document.location=\'' . $this->baseScript . 'SET[wiz_step]=0\'; return false;').'" />
 		';
 
 			// Add output:
@@ -2627,10 +2633,17 @@ if (!function_exists('md5_file')) {
  */
 class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 
+	var $templatesDir;
+
 		// Internal, dynamic:
 	var $be_user_Array;
 	var $CALC_PERMS;
 	var $pageinfo;
+
+	function init() {
+		parent::init();
+		$this->templatesDir = $GLOBALS['TYPO3_CONF_VARS']['BE']['fileadminDir'] . 'templates/';
+	}
 
 	/**
 	 * Preparing menu content
@@ -2732,7 +2745,7 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 
 		/* general option-group */
 		{
-			$link = 'index.php?'.$this->link_getParameters().'&SET[set_details]=###';
+			$link = $this->baseScript . $this->link_getParameters() . '&SET[set_details]=###';
 
 			$entries[] = '<li class="radio'.(!$this->MOD_SETTINGS['set_details']?' selected':'').'" name="set_details"><a href="' . str_replace('###', '', $link).'"'. '>' . $LANG->getLL('center_settings_hidden', 1) . '</a></li>';
 			$entries[] = '<li class="radio'.( $this->MOD_SETTINGS['set_details']?' selected':'').'" name="set_details"><a href="' . str_replace('###', '1', $link).'"'.'>' . $LANG->getLL('center_settings_all', 1) . '</a></li>';
@@ -2827,7 +2840,7 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 		//	$this->doc->JScode .= $this->doc->getDynTabMenuJScode();
 			$this->doc->JScode .= $CMparts[0];
 			$this->doc->postCode .= $CMparts[2];
-			$this->doc->form = '<form action="'.htmlspecialchars('index.php?id='.$this->id).'" method="post" autocomplete="off">';
+			$this->doc->form = '<form action="'.htmlspecialchars($this->baseScript . 'id='.$this->id) . '" method="post" autocomplete="off">';
 
 				// Prototype /Scriptaculous
 			$this->doc->JScode .= '<script src="' . $this->doc->backPath . 'contrib/prototype/prototype.js" type="text/javascript"></script>';
