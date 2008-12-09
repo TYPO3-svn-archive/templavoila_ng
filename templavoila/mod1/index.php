@@ -155,7 +155,8 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 	var $apiObj;						// Instance of tx_templavoila_api
 	var $sortableContainers = array();			// Contains the containers for drag and drop
 
-
+    var $newElementWizardLink;
+    
 	/*******************************************
 	 *
 	 * Initialization functions
@@ -207,6 +208,8 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 		$this->wizardsObj = t3lib_div::getUserObj('&tx_templavoila_mod1_wizards','');
 		$this->wizardsObj->init($this);
 
+		$this->newElementWizardLink = 'mod.php?M=tx_templavoila_dbnewcontentel&';
+		
 			// Initialize TemplaVoila API class:
 		$apiClassName = t3lib_div::makeInstanceClassName('tx_templavoila_api');
 		$this->apiObj = new $apiClassName ($this->altRoot ? $this->altRoot : 'pages');
@@ -2241,7 +2244,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 			$this->link_getParameters().
 			'&amp;parentRecord='.rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer));
 
-		return '<a href="'.'db_new_content_el.php?'.$parameters.'">'.$label.'</a>';
+		return '<a href="'. $this->newElementWizardLink . $parameters.'">'.$label.'</a>';
 	}
 
 	/**
