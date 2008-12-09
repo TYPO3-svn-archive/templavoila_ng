@@ -6,7 +6,7 @@ $MCONF['script'] = '_DISPATCH';
 $ACONF['name'  ] = 'web_txtemplavoilaM2';
 $ACONF['access'] = 'user,group';
 
-if (isset($MCONF['_']))
+if (!strstr($_SERVER['REQUEST_URI'], 'ext/templavoila/cm1/index.php'))
 	return;
 
 	// DO NOT REMOVE OR CHANGE THESE 3 LINES:

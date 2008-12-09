@@ -2,7 +2,7 @@
 $MCONF['name'  ] = 'xMOD_tx_templavoila_cm2';
 $MCONF['script'] = '_DISPATCH';
 
-if (isset($MCONF['_']))
+if (!strstr($_SERVER['REQUEST_URI'], 'ext/templavoila/cm2/index.php'))
 	return;
 
 	// DO NOT REMOVE OR CHANGE THESE 3 LINES:
