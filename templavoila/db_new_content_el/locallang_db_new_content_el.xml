@@ -3,7 +3,7 @@
 	<meta type="array">
 		<description>Labels for the TemplaVoila New Content Element wizard</description>
 		<type>module</type>
-		<fileId>EXT:templavoila/mod1/locallang_db_new_content_el.xml</fileId>
+		<fileId>EXT:templavoila/locallang_db_new_content_el/locallang_db_new_content_el.xml</fileId>
 		<labelContext type="array">
 		</labelContext>
 	</meta>
