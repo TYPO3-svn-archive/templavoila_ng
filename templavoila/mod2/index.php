@@ -77,10 +77,12 @@
  *
  */
 
-$LANG->includeLLFile('EXT:templavoila/mod2/locallang.xml');
+require_once('conf.php');
+
 require_once (PATH_t3lib.'class.t3lib_scbase.php');
 require_once (PATH_t3lib.'class.t3lib_parsehtml.php');
 
+$LANG->includeLLFile('EXT:templavoila/mod2/locallang.xml');
 $BE_USER->modAccess($MCONF,1);
 
 /**

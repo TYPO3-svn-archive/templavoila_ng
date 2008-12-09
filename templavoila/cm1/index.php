@@ -81,17 +81,19 @@
  *
  */
 
-$LANG->includeLLFile('EXT:templavoila/cm1/locallang.xml');
-require_once (PATH_t3lib.'class.t3lib_scbase.php');
-require_once (PATH_t3lib.'class.t3lib_parsehtml.php');
+require_once('conf.php');
+
+require_once(PATH_t3lib . 'class.t3lib_scbase.php');
+require_once(PATH_t3lib . 'class.t3lib_parsehtml.php');
 
 require_once(PATH_t3lib . 'class.t3lib_page.php');
 require_once(PATH_t3lib . 'class.t3lib_tsparser.php');
 
-$BE_USER->modAccess($ACONF,1);
+$LANG->includeLLFile('EXT:templavoila/cm1/locallang.xml');
+$BE_USER->modAccess($ACONF, 1);
 
-require_once(t3lib_extMgm::extPath('templavoila').'class.tx_templavoila_htmlmarkup.php');
-require_once(PATH_t3lib.'class.t3lib_tcemain.php');
+require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_htmlmarkup.php');
+require_once(PATH_t3lib . 'class.t3lib_tcemain.php');
 
 if (t3lib_extMgm::isLoaded('lorem_ipsum')) {
 	// Dmitry: this dependency on lorem_ipsum is bad :(

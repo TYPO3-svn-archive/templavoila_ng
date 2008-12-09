@@ -85,10 +85,12 @@
  *
  */
 
+require_once('conf.php');
+
 	// Initialize module
-$LANG->includeLLFile('EXT:templavoila/mod1/locallang.xml');
 require_once (PATH_t3lib.'class.t3lib_scbase.php');
 
+$LANG->includeLLFile('EXT:templavoila/mod1/locallang.xml');
 $BE_USER->modAccess($MCONF,1);    								// This checks permissions and exits if the users has no permission for entry.
 
 t3lib_extMgm::isLoaded('cms',1);
