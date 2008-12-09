@@ -202,7 +202,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			$this->baseScript = 'mod.php?M=xMOD_txtemplavoilaCM1&';
 			$this->mod2Script = 'mod.php?M=web_txtemplavoilaM2&';
 		}
-
+        
 			// General GPvars for module mode:
 		$this->displayFile  = t3lib_div::GPvar('file');
 		$this->displayTable = t3lib_div::GPvar('table');
@@ -1694,14 +1694,14 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 							</tr>';
 
 				$TOicon = t3lib_iconworks::getIconImage('tx_templavoila_tmplobj',array(),$GLOBALS['BACK_PATH'],' align="top"');
-
+                  
 					// -----------------------------------------------------
 					// Listing Template Objects with links:
 				while(false !== ($TO_Row = $TYPO3_DB->sql_fetch_assoc($res)))	{
 					t3lib_BEfunc::workspaceOL('tx_templavoila_tmplobj',$TO_Row);
 
 					$fileref = t3lib_div::getFileAbsFileName($TO_Row['fileref']);
-
+                        
 					if ($fileref) {
 							// Link to updating DS/TO:
 						$onCl = $this->baseScript . 'id='.$this->id.'&file='.rawurlencode($fileref).'&_load_ds_xml=1&_load_ds_xml_to='.$TO_Row['uid'];
@@ -1860,7 +1860,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 							$tRows[] = $this->renderDS_type($DS_row);
 
 								// Link to updating DS/TO:
-							$onCl = 'index.php' .
+							$onCl = $this->baseScript .
 								'?id=' . $this->id .
 								'&file=' . rawurlencode($theFile) .
 								'&returnUrl=' . rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI')) .
