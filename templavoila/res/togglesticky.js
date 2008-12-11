@@ -30,6 +30,14 @@
  * $Id$
  */
 
+function getBaseScript(args) {
+	var mod = window.location.href.match(/mod.php\?M\=([^\&\=]+)\&?/);
+	if (mod[1])
+		return 'mod.php?M=' + mod[1] + '&' + args;
+	else
+		return 'index.php?' + args;
+}
+
 var StickyToggle = Class.create({
 
 	/**
@@ -91,8 +99,8 @@ var StickyToggle = Class.create({
 					stickyClass.className =
 					stickyClass.className.replace(/impulsed/, 'expulsed');
 
-					new Ajax.Request('?ajaxStick=1&SET[stick]=1', {
-						'method': 'get'
+					new Ajax.Request(getBaseScript('ajaxStick=1&SET[stick]=1'), {
+						'method': 'head'
 					});
 				}
 			}, 100);
@@ -117,8 +125,8 @@ var StickyToggle = Class.create({
 					stickyShift.style.top = '';
 					stickyShift.style.paddingTop = '';
 
-					new Ajax.Request('?ajaxStick=1&SET[stick]=0', {
-						'method': 'get'
+					new Ajax.Request(getBaseScript('ajaxStick=1&SET[stick]=0'), {
+						'method': 'head'
 					});
 				}
 			}, 100);
@@ -129,7 +137,7 @@ var StickyToggle = Class.create({
 		if (event) {
 			Event.stop(event);
 		}
-	}
+	},
 });
 
 var TYPO3BackendTVStickyToggle = new StickyToggle();

@@ -79,8 +79,8 @@
 
 require_once('conf.php');
 
-require_once (PATH_t3lib.'class.t3lib_scbase.php');
-require_once (PATH_t3lib.'class.t3lib_parsehtml.php');
+require_once(PATH_t3lib . 'class.t3lib_scbase.php');
+require_once(PATH_t3lib . 'class.t3lib_parsehtml.php');
 
 $LANG->includeLLFile('EXT:templavoila/mod2/locallang.xml');
 $BE_USER->modAccess($MCONF,1);
@@ -159,7 +159,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 			$this->doc->docType= 'xhtml_trans';
 			$this->doc->backPath = $BACK_PATH;
 			$this->doc->divClass = '';
-			$this->doc->form='<form action="'.htmlspecialchars($this->baseScript . 'id='.$this->id) . '" method="post" autocomplete="off">';
+			$this->doc->form='<form action="'.htmlspecialchars($this->baseScript . 'id=' . $this->id).'" method="post" autocomplete="off">';
 
 				// Add custom styles
 			$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath($this->extKey) . "mod2/styles.css";
@@ -198,7 +198,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 			$this->doc->docType= 'xhtml_trans';
 			$this->doc->backPath = $BACK_PATH;
 			$this->doc->divClass = '';
-			$this->doc->form='<form action="'.htmlspecialchars($this->baseScript . 'id='.$this->id).'" method="post" autocomplete="off">';
+			$this->doc->form='<form action="'.htmlspecialchars($this->baseScript . 'id=' . $this->id).'" method="post" autocomplete="off">';
 			$this->content.=$this->doc->startPage($LANG->getLL('title'));
 		}
 
@@ -319,7 +319,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 				if ($path)	{
 					$tRows[] = '
 						<tr class="bgColor4">
-							<td><a href="' . $this->baseScript. 'id=' . $pid . '">' . htmlspecialchars($path) . '</a></td>
+							<td><a href="' . $this->baseScript . 'id=' . $pid . '">' . htmlspecialchars($path) . '</a></td>
 							<td>'.htmlspecialchars($stat['DS']).'</td>
 							<td>'.htmlspecialchars($stat['TO']).'</td>
 						</tr>';
@@ -1842,7 +1842,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 				$outputString.= '
 				<br/>
 				<br/>
-				<input type="submit" value="' . $LANG->getLL('wiz_start') . '!" onclick="'.htmlspecialchars('document.location=\'' . $this->baseScript . 'SET[wiz_step]=1\'; return false;').'" />';
+				<input type="submit" value="' . $LANG->getLL('wiz_start') . '!" onclick="' . htmlspecialchars('document.location=\'' . $this->baseScript . 'SET[wiz_step]=1\'; return false;').'" />';
 			} else {
 				$outputString.= '
 				<br/>
@@ -2846,7 +2846,7 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 		//	$this->doc->JScode .= $this->doc->getDynTabMenuJScode();
 			$this->doc->JScode .= $CMparts[0];
 			$this->doc->postCode .= $CMparts[2];
-			$this->doc->form = '<form action="'.htmlspecialchars($this->baseScript . 'id='.$this->id) . '" method="post" autocomplete="off">';
+			$this->doc->form = '<form action="'.htmlspecialchars($this->baseScript . 'id=' . $this->id) . '" method="post" autocomplete="off">';
 
 				// Prototype /Scriptaculous
 			$this->doc->JScode .= '<script src="' . $this->doc->backPath . 'contrib/prototype/prototype.js" type="text/javascript"></script>';

@@ -6,8 +6,8 @@ if (!strstr($_SERVER['REQUEST_URI'], 'ext/templavoila/cm2/index.php'))
 	return;
 
 	// DO NOT REMOVE OR CHANGE THESE 3 LINES:
-define('TYPO3_MOD_PATH', '../typo3conf/ext/templavoila/cm2/');
-$BACK_PATH='../../../../typo3/';
+define('TYPO3_MOD_PATH', 'ext/templavoila/cm2/');
+$BACK_PATH='../../../';
 $MCONF['script'] = 'index.php';
 
 require($BACK_PATH . 'init.php');

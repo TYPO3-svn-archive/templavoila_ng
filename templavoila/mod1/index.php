@@ -87,7 +87,6 @@
 
 require_once('conf.php');
 
-	// Initialize module
 require_once (PATH_t3lib.'class.t3lib_scbase.php');
 
 $LANG->includeLLFile('EXT:templavoila/mod1/locallang.xml');
@@ -156,7 +155,7 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 	var $sortableContainers = array();			// Contains the containers for drag and drop
 
     var $newElementWizardLink;
-    
+
 	/*******************************************
 	 *
 	 * Initialization functions
@@ -209,7 +208,7 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 		$this->wizardsObj->init($this);
 
 		$this->newElementWizardLink = 'mod.php?M=tx_templavoila_dbnewcontentel&';
-		
+
 			// Initialize TemplaVoila API class:
 		$apiClassName = t3lib_div::makeInstanceClassName('tx_templavoila_api');
 		$this->apiObj = new $apiClassName ($this->altRoot ? $this->altRoot : 'pages');
@@ -341,7 +340,7 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 			$this->doc->docType= 'xhtml_trans';
 			$this->doc->backPath = $BACK_PATH;
 			$this->doc->divClass = '';
-			$this->doc->form='<form action="'.htmlspecialchars($this->baseScript.$this->link_getParameters()).'" method="post" autocomplete="off">' .
+			$this->doc->form='<form action="'.htmlspecialchars($this->baseScript . $this->link_getParameters()) . '" method="post" autocomplete="off">' .
 				'<input type="hidden" id="browser[communication]" name="browser[communication]" />';
 
 				// Add custom styles
@@ -2803,11 +2802,16 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 		}
 
 		// Access check...
-		// The page will show only if there is a valid page and if this page may be viewed by the user
-		$this->pageinfo = t3lib_BEfunc::readPageAccess($this->id,$this->perms_clause);
-		$access = is_array($this->pageinfo) ? 1 : 0;
+		if (is_array($this->altRoot)) {
+			$access = true;
+		}
+		else {
+			// The page will show only if there is a valid page and if this page may be viewed by the user
+			$this->pageinfo = t3lib_BEfunc::readPageAccess($this->id,$this->perms_clause);
+			$access = is_array($this->pageinfo) ? 1 : 0;
+		}
 
-		if (($this->id && $access) /*|| ($BE_USER->user['admin'] && !$this->id)*/ || is_array($this->altRoot)) {
+		if ($access) {
 				// calls from drag and drop
 			if (t3lib_div::_GP("ajaxPasteRecord")) {
 				$sourcePointer = $this->apiObj->flexform_getPointerFromString(t3lib_div::_GP('source'));
@@ -2990,7 +2994,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 			$this->doc->JScode .= $CMparts[0];
 			$this->doc->JScode .= $this->doc->getDynTabMenuJScode();
 			$this->doc->postCode .= $CMparts[2];
-			$this->doc->form = '<form action="'.htmlspecialchars($this->baseScript.$this->link_getParameters()).'" method="post" autocomplete="off">' .
+			$this->doc->form = '<form action="'.htmlspecialchars($this->baseScript . $this->link_getParameters()).'" method="post" autocomplete="off">' .
 				'<input type="hidden" id="browser[communication]" name="browser[communication]" />';
 
 				/* Prototype /Scriptaculous */
