@@ -940,6 +940,28 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 						// Split content by the solo tags
 					$soloParts = $this->htmlParse->splitTags($tagsSolo,$v);
 
+					// Conditional Comments
+					for ($key = 0; $key < count($soloParts); $key++) {
+						$value = $soloParts[$key];
+						//check for downlevel-hidden and downlevel-revealed syntax, see http://msdn.microsoft.com/de-de/library/ms537512(en-us,VS.85).aspx
+						if (substr(trim($value), 0, 7) == '<!--[if' || substr(trim($value), 0, 5) == '<![if') {
+							$soloParts[$key+1] = trim( $soloParts[$key] ) . ' ' . $soloParts[$key+1];
+							$soloParts[$key] = '';
+							$key += 1;
+						} elseif (substr(trim($value), 0, 12) == '<![endif]-->' || substr(trim($value), 0, 10) == '<![endif]>') {
+							/* it won't split 2 CC right after another, so we need to do it manually */
+							if ( strpos(trim($value), '<!--[if') || strpos(trim($value), '<![if') ) {
+								$tmp = preg_split("/\r\n\s*/", trim($value), -1);
+								$soloParts[$key-1] .= ' ' . $tmp[0];
+								$soloParts[$key+1] = $tmp[1] . ' ' . $soloParts[$key+1];
+								$soloParts[$key] = '';
+								$key += 1;
+							} else {
+								$soloParts[$key-1] .= ' ' . trim( $soloParts[$key] );
+								$soloParts[$key] = '';
+							}
+						}
+					}
 						// Traverse solo tags
 					foreach($soloParts as $kk => $vv)	{
 						if ($kk%2)	{
