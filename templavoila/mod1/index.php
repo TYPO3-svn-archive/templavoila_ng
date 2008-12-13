@@ -601,11 +601,11 @@ table.typo3-dyntabmenu td.disabled:hover {
 					];
 
 					if ($("typo3-docbody")) {
-						sortableParameters.scroll = $("typo3-docbody");
-						sortableParameters.scrollid = "typo3-docbody";
+						sortable_parameters.scroll = $("typo3-docbody");
+						sortable_parameters.scrollid = "typo3-docbody";
 					}
 
-					for (var s = 0; s < sortableContainers.length; s++) {
+					for (var s = 0; s < sortable_containers.length; s++) {
 						Sortable.create(sortable_containers[s], sortable_parameters);
 					}
 				});
