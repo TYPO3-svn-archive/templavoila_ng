@@ -440,6 +440,7 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 		//	$this->doc->JScode .= '<script src="' . $this->doc->backPath . 'contrib/scriptaculous/scriptaculous.js?load=effects,dragdrop" type="text/javascript"></script>';
 			$this->doc->JScode .= '<script src="' . $this->doc->backPath . 'contrib/scriptaculous/scriptaculous.js?load=effects" type="text/javascript"></script>';
 			$this->doc->JScode .= '<script src="' . t3lib_extMgm::extRelPath($this->extKey) . 'res/dragdrop.js" type="text/javascript"></script>';
+			$this->doc->JScode .= '<script src="' . t3lib_extMgm::extRelPath($this->extKey) . 'res/page-dnd.js" type="text/javascript"></script>';
 
 				// Set up JS for dynamic tab menu and side bar
 			$this->doc->JScode .= $this->doc->getDynTabMenuJScode();
@@ -590,190 +591,27 @@ table.typo3-dyntabmenu td.disabled:hover {
 			if (is_array($this->sortableContainers)) {
 				$content .= '
 				<script type="text/javascript" language="javascript">
-				<!--
-				var sortable_currentItem;
 
-				function sortable_unhideRecord(it, command) {
-					jumpToUrl(command);
-				}
+				Event.observe(window, \'load\', function() {
+					var sortableContainers = [
+						"'.implode('",
+						"', $this->sortableContainers).'"
+					];
 
-				function sortable_hideRecord(it, command) {' . ($this->MOD_SETTINGS['tt_content_showHidden'] ? '
-					jumpToUrl(command);' : '
-					while (it.className != \'sortableItem\') it = it.parentNode;
-					new Ajax.Request(command);
-					new Effect.Fade(it,
-						{ duration: 0.5,
-						  afterFinish: sortable_hideRecordCallBack });') . '
-				}
-
-				function sortable_hideRecordCallBack(obj) {
-					var el = obj.element;
-
-					while (el.lastChild)
-						el.removeChild(el.lastChild);
-				}
-
-				function sortable_unlinkRecordCallBack(obj) {
-					var el = obj.element;
-					var pn = el.parentNode;
-
-					pn.removeChild(el);
-					sortable_update(pn);
-
-					if (!el.innerHTML.match(/makeLocalRecord/)) {
-						if (!(pn = document.getElementById(\'tt_content:\')))
-							return;
-
-						pn.appendChild(el);
-						sortable_update(pn);
-
-						new Effect.Appear(el,
-							{ duration: 0.5 });
-					}
-				}
-
-				function sortable_unlinkRecord(id) {
-					new Ajax.Request("' . $this->baseScript . $this->link_getParameters() . '&ajaxUnlinkRecord="+escape(id));
-					new Effect.Fade(id,
-						{ duration: 0.5,
-						  afterFinish: sortable_unlinkRecordCallBack });
-				}
-
-				function sortable_deleteRecordCallBack(obj) {
-					var el = obj.element;
-					var pn = el.parentNode;
-
-					pn.removeChild(el);
-					sortable_update(pn);
-				}
-
-				function sortable_deleteRecord(id) {
-					new Ajax.Request("' . $this->baseScript . $this->link_getParameters() . '&ajaxDeleteRecord="+escape(id));
-					new Effect.Fade(id,
-						{ duration: 0.5,
-						  afterFinish: sortable_deleteRecordCallBack });
-				}
-
-				function sortable_updateItemButtons(el, position, pID) {
-					var p = new Array();
-					var p1 = new Array();
-					var href = "";	var i=0;
-					var childs = el.childElements();
-
-					/* hidden elements still carry around their marker, but nothing else */
-					if (!childs)
-						return;
-
-					var buttons = childs[0].childElements()[0].childElements()[0].childElements()[1].childNodes;
-					var eID = -1;
-					var newPos = escape(pID + position);
-
-				//	alert(el.descendantOf("clipboard"));
-
-					for (i = 0; i < buttons.length ;i++) {
-						if (buttons[i].nodeType != 1) continue;
-						href = buttons[i].href;
-
-						if (!href || href.charAt(href.length - 1) == "#")
-							continue;
-
-							 if ((p = href.split("unlinkRecord")).length == 2) {
-							buttons[i].href = p[0] + "unlinkRecord(\'" + newPos + "\');";
-						}
-						else if ((p = href.split("deleteRecord")).length == 2) {
-							buttons[i].href = p[0] + "deleteRecord(\'" + newPos + "\');";
-						}
-						else if((p = href.split("CB[el][tt_content")).length == 2) { p1 = p[1].split("=");
-							buttons[i].href = p[0] + "CB[el][tt_content" + p1[0]+ "="  + newPos;
-						}
-						else if ((p = href.split("&parentRecord=")).length == 2) {
-							buttons[i].href = p[0] + "&parentRecord=" + newPos;
-						}
-						else if ((p = href.split("&destination=")).length == 2) {
-							buttons[i].href = p[0] + "&destination=" + newPos;
-						}
-					}
-
-					if ((p = childs[2].href.split("&parentRecord=")).length == 2)
-						childs[2].href = p[0] + "&parentRecord=" + newPos;
-
-					buttons = childs[3].childElements()[0];
-					if (buttons && (p = buttons.href.split("&destination=")).length == 2)
-						buttons.href = p[0] + "&destination=" + newPos;
-				}
-
-				function sortable_updatePasteButtons(oldPos, newPos) {
-					var i = 0; var p = new Array; var href = "";
-					var buttons = document.getElementsByClassName("sortablePaste");
-					if (buttons[i].firstChild && buttons[i].firstChild.href.indexOf("&source="+escape(oldPos)) != -1) {
-						for (i = 0; i < buttons.length; i++) {
-							if (buttons[i].firstChild) {
-								href = buttons[i].firstChild.href;
-								if ((p = href.split("&source="+escape(oldPos))).length == 2) {
-									buttons[i].firstChild.href = p[0] + "&source=" + escape(newPos) + p[1];
-								}
-							}
-						}
-					}
-				}
-
-				function sortable_update(el) {
-					var node = el.firstChild;
-					var i = 1;
-					while (node != null) {
-						if (node.className == "sortableItem") {
-							if (sortable_currentItem && node.id == sortable_currentItem.id ) {
-								var url = "' . $this->baseScript . $this->link_getParameters() . '&ajaxPasteRecord=cut&source=" + sortable_currentItem.id + "&destination=" + el.id + (i-1);
-								new Ajax.Request(url);
-								sortable_updatePasteButtons(node.id, el.id + i);
-								sortable_currentItem = false;
-							}
-							sortable_updateItemButtons(node, i, el.id)
-							node.id = el.id + i;
-							i++;
-						}
-						node	= node.nextSibling;
-					}
-				}
-
-				function sortable_change(el) {
-					sortable_currentItem=el;
-				}
-
-				';
-				$content .='
-				var sortableContainers = [
-					"'.implode('",
-					"', $this->sortableContainers).'"
-				];
-				var sortableParameters = {
-					tag:"div",
-					ghosting:false,
-					format: /(.*)/,
-					handle:"sortableHandle",
-					dropOnEmpty:true,
-					constraint:false,
-					containment:sortableContainers,
-					scroll:window,
-					onChange:sortable_change,
-					onUpdate:sortable_update
-				};
-
-				Event.observe(window, \'load\', function(){
 					if ($("typo3-docbody")) {
 						sortableParameters.scroll = $("typo3-docbody");
 						sortableParameters.scrollid = "typo3-docbody";
 					}
 
+					sortable_removeHidden = ' . ($this->MOD_SETTINGS['tt_content_showHidden'] ? 'false' : 'true') . ';
+					sortable_baseLink = \'' . $this->baseScript . $this->link_getParameters() . '\';
+
 					for (var s = 0; s < sortableContainers.length; s++) {
 						Sortable.create(sortableContainers[s], sortableParameters);
 					}
 				});
-				';
 
-				$content .= '
-					// -->
-					</script>';
+				</script>';
 			}
 		}
 
@@ -3007,6 +2845,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 		//	$this->doc->JScode .= '<script src="' . $this->doc->backPath . 'contrib/scriptaculous/scriptaculous.js?load=effects,dragdrop" type="text/javascript"></script>';
 			$this->doc->JScode .= '<script src="' . $this->doc->backPath . 'contrib/scriptaculous/scriptaculous.js?load=effects" type="text/javascript"></script>';
 			$this->doc->JScode .= '<script src="' . $this->doc->backPath . t3lib_extMgm::extRelPath($this->extKey) . 'res/dragdrop.js" type="text/javascript"></script>';
+			$this->doc->JScode .= '<script src="' . $this->doc->backPath . t3lib_extMgm::extRelPath($this->extKey) . 'res/page-dnd.js" type="text/javascript"></script>';
 
 			$vContent = $this->doc->getVersionSelector($this->id,1);
 			if ($vContent)	{

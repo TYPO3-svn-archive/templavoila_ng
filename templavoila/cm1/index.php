@@ -2899,7 +2899,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					</dd>
 				</dl>';
 
-			/*	// The dam-tv-connector will substitute the text above, that's §$%*%&"$%, but well anyway, let's not break it
+			/*	// The dam-tv-connector will substitute the text above, that's $%*%&"$%, but well anyway, let's not break it
 				if (count($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['templavoila']['cm1']['eTypesExtraFormFields']) > 0) {
 				$form .= '
 						<optgroup class="c-divider" label="Extra Elements">';
