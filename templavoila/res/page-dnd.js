@@ -20,18 +20,16 @@ function sortable_unhideRecord(it, command) {
 }
 
 function sortable_hideRecord(it, command) {
-	if (!sortable_removeHidden) {
-		jumpToUrl(command);
-	}
-	else {
-		while (it.className != 'sortableItem')
-			it = it.parentNode;
+	if (!sortable_removeHidden)
+		return jumpToUrl(command);
 
-		new Ajax.Request(command);
-		new Effect.Fade(it,
-			{ duration: 0.5,
-			  afterFinish: sortable_hideRecordCallBack });
-	}
+	while (it.className != 'sortableItem')
+		it = it.parentNode;
+
+	new Ajax.Request(command);
+	new Effect.Fade(it,
+		{ duration: 0.5,
+		  afterFinish: sortable_hideRecordCallBack });
 }
 
 function sortable_hideRecordCallBack(obj) {
