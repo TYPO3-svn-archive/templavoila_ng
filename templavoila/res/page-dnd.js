@@ -1,14 +1,15 @@
 var sortable_currentItem;
 var sortable_baseLink;
+var sortable_containers;
 
-var sortableParameters = {
+var sortable_parameters = {
 	tag: "div",
 	ghosting: false,
 	format: /(.*)/,
 	handle: "sortableHandle",
 	dropOnEmpty: true,
 	constraint: false,
-	containment: sortableContainers,
+	containment: sortable_containers,
 	scroll: window,
 	onChange: sortable_change,
 	onUpdate: sortable_update

@@ -593,7 +593,9 @@ table.typo3-dyntabmenu td.disabled:hover {
 				<script type="text/javascript" language="javascript">
 
 				Event.observe(window, \'load\', function() {
-					var sortableContainers = [
+					sortable_removeHidden = ' . ($this->MOD_SETTINGS['tt_content_showHidden'] ? 'false' : 'true') . ';
+					sortable_baseLink = \'' . $this->baseScript . $this->link_getParameters() . '\';
+					sortable_containers = [
 						"'.implode('",
 						"', $this->sortableContainers).'"
 					];
@@ -603,11 +605,8 @@ table.typo3-dyntabmenu td.disabled:hover {
 						sortableParameters.scrollid = "typo3-docbody";
 					}
 
-					sortable_removeHidden = ' . ($this->MOD_SETTINGS['tt_content_showHidden'] ? 'false' : 'true') . ';
-					sortable_baseLink = \'' . $this->baseScript . $this->link_getParameters() . '\';
-
 					for (var s = 0; s < sortableContainers.length; s++) {
-						Sortable.create(sortableContainers[s], sortableParameters);
+						Sortable.create(sortable_containers[s], sortable_parameters);
 					}
 				});
 
