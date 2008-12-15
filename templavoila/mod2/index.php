@@ -697,13 +697,16 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 
 				// Links:
 			if ($BE_USER->check('tables_modify', 'tx_templavoila_datastructure')) {
-				$lpXML = '<a href="#" onclick="'.htmlspecialchars(t3lib_BEfunc::editOnClick('&edit[tx_templavoila_datastructure]['.$dsR['uid'].']=edit&columnsOnly=dataprot',$this->doc->backPath)).'">' .
-						'<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/edit2.gif','width="11" height="12"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:edit').'" alt="" class="absmiddle" />' .
+				$lpXML = '<a href="#" onclick="' . htmlspecialchars(t3lib_BEfunc::editOnClick('&edit[tx_templavoila_datastructure][' . $dsR['uid'].']=edit&columnsOnly=dataprot', $this->doc->backPath)) . '">' .
+						'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/edit2.gif', 'width="11" height="12"') . ' title="' . $LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:edit') . '" alt="" class="absmiddle" />' .
 						'</a>';
-				$editLink = '<a href="#" onclick="'.htmlspecialchars(t3lib_BEfunc::editOnClick('&edit[tx_templavoila_datastructure]['.$dsR['uid'].']=edit',$this->doc->backPath)).'">' .
-						'<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/edit2.gif','width="11" height="12"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:edit').'" alt="" class="absmiddle" />' .
+				$editLink = '<a href="#" onclick="' . htmlspecialchars(t3lib_BEfunc::editOnClick('&edit[tx_templavoila_datastructure][' . $dsR['uid'] . ']=delete', $this->doc->backPath)).'">' .
+						'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/garbage.gif', 'width="11" height="12"') . ' title="' . $LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:edit') . '" alt="" class="absmiddle" style="float: right;" />' .
 						'</a>';
-				$dsTitle = '<a href="'.htmlspecialchars($linkUrl).'" title="'.$LANG->getLL('center_view_ds').'">'.htmlspecialchars($dsR['title']).'</a>';
+				$editLink .= '<a href="#" onclick="' . htmlspecialchars(t3lib_BEfunc::editOnClick('&edit[tx_templavoila_datastructure][' . $dsR['uid'].']=edit', $this->doc->backPath)).'">' .
+						'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/edit2.gif', 'width="11" height="12"') . ' title="' . $LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:edit') . '" alt="" class="absmiddle" style="float: right;" />' .
+						'</a>';
+				$dsTitle = '<a href="' . htmlspecialchars($linkUrl) . '" title="' . $LANG->getLL('center_view_ds') . '">' . htmlspecialchars($dsR['title']) . '</a>';
 			}
 			else {
 				$lpXML = '';
@@ -939,13 +942,16 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 
 			// Links:
 		if ($BE_USER->check('tables_modify', 'tx_templavoila_tmplobj')) {
-			$lpXML = '<a href="#" onclick="'.htmlspecialchars(t3lib_BEfunc::editOnClick('&edit[tx_templavoila_tmplobj]['.$toObj['uid'].']=edit&columnsOnly=localprocessing',$this->doc->backPath)).'">' .
-					'<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/edit2.gif','width="11" height="12"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:edit').'" alt="" class="absmiddle" />' .
+			$lpXML = '<a href="#" onclick="' . htmlspecialchars(t3lib_BEfunc::editOnClick('&edit[tx_templavoila_tmplobj][' . $toObj['uid'] . ']=edit&columnsOnly=localprocessing',$this->doc->backPath)) . '">' .
+					'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/edit2.gif', 'width="11" height="12"') . ' title="' . $LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:edit') . '" alt="" class="absmiddle" />' .
 					'</a>';
-			$editLink = '<a href="#" onclick="'.htmlspecialchars(t3lib_BEfunc::editOnClick('&edit[tx_templavoila_tmplobj]['.$toObj['uid'].']=edit',$this->doc->backPath)).'">' .
-					'<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/edit2.gif','width="11" height="12"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:edit').'" alt="" class="absmiddle" />' .
+			$editLink = '<a href="#" onclick="' . htmlspecialchars(t3lib_BEfunc::editOnClick('&edit[tx_templavoila_tmplobj][' . $toObj['uid'] . ']=delete', $this->doc->backPath)) . '">' .
+					'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/garbage.gif', 'width="11" height="12"') . ' title="' . $LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:edit') . '" alt="" class="absmiddle" style="float: right;" />' .
 					'</a>';
-			$toTitle = '<a href="'.htmlspecialchars($linkUrl).'" title="'.$LANG->getLL('center_view_to').'">'.htmlspecialchars($toObj['title']).'</a>';
+			$editLink .= '<a href="#" onclick="' . htmlspecialchars(t3lib_BEfunc::editOnClick('&edit[tx_templavoila_tmplobj][' . $toObj['uid'] . ']=edit', $this->doc->backPath)) . '">' .
+					'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/edit2.gif', 'width="11" height="12"') . ' title="' . $LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:edit') . '" alt="" class="absmiddle" style="float: right;" />' .
+					'</a>';
+			$toTitle = '<a href="' . htmlspecialchars($linkUrl) . '" title="' . $LANG->getLL('center_view_to') . '">' . htmlspecialchars($toObj['title']) . '</a>';
 		}
 		else {
 			$lpXML = '';
