@@ -161,8 +161,8 @@ class tx_templavoila_mod1_specialdoktypes {
 				$url = 'http://'.$pageRecord['url'];
 			break;
 		}
-		$content = 
-			$this->doc->icons(1).	
+		$content =
+			$this->doc->icons(1).
 			$LANG->getLL ('cannotedit_externalurl_'.$pageRecord['urltype'],'',1).
 			' <br /><br /><strong><a href="'.$url.'" target="_new">'.htmlspecialchars(sprintf($LANG->getLL ('jumptoexternalurl'), $url)).'</a></strong>'
 		;
@@ -192,7 +192,7 @@ class tx_templavoila_mod1_specialdoktypes {
 										$LANG->getLL ('jumptoshortcutdestination', '',1).'</a></strong>';
 		}
 
-		$content = 
+		$content =
 			$this->doc->icons(1).
 			htmlspecialchars(sprintf ($LANG->getLL ('cannotedit_shortcut_'.intval($pageRecord['shortcut_mode'])), $shortcutSourcePageRecord['title'])).
 			'<br /><br />' .
@@ -227,7 +227,7 @@ class tx_templavoila_mod1_specialdoktypes {
 			<a href="index.php?id='.$pageRecord['mount_pid'].'">'.htmlspecialchars($LANG->getLL ('jumptomountsourcepage')).'</a>
 		';
 
-		$content = 
+		$content =
 			$this->doc->icons(1).
 			htmlspecialchars(sprintf ($LANG->getLL ('cannotedit_doktypemountpoint'), $mountSourcePageRecord['title'])).
 			$mountSourceButton.'<strong>'.$mountSourceLink.'</strong>
@@ -252,18 +252,18 @@ class tx_templavoila_mod1_specialdoktypes {
 		$editButton = $this->pObj->link_edit('<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/edit2.gif','').' title="'.htmlspecialchars($LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:editPage')).'" alt="" style="text-align: center; vertical-align: middle; border:0;" />', 'pages', $pageRecord['uid']);
 
 		if ($this->userHasAccessToListModule ()) {
-			$listModuleURL = $this->doc->backPath.'db_list.php?id='.intval($this->pObj->id);
-			$onClick = "top.nextLoadModuleUrl='".$listModuleURL."';top.fsMod.recentIds['web']=".intval($this->pObj->id).";top.goToModule('web_list',1);";
+			$listModuleURL = t3lib_div::getIndpEnv('TYPO3_SITE_URL') . TYPO3_mainDir . 'db_list.php?id=' . intval($this->pObj->id);
+			$onClick = "top.nextLoadModuleUrl='" . $listModuleURL . "';top.fsMod.recentIds['web']=" . intval($this->pObj->id).";top.goToModule('web_list',1);";
 			$listModuleLink = '<br /><br />
-				<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'mod/web/list/list.gif', '').' style="text-align:center; vertical-align: middle; border:0;" />
-				<strong><a href="#" onClick="'.$onClick.'">'.$LANG->getLL('editpage_sysfolder_switchtolistview','',1).'</a></strong>
+				<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'mod/web/list/list.gif', '') . ' style="text-align:center; vertical-align: middle; border:0;" />
+				<strong><a href="#" onClick="' . $onClick . '">' . $LANG->getLL('editpage_sysfolder_switchtolistview','',1).'</a></strong>
 			';
 		} else {
 			$listModuleLink = $LANG->getLL('editpage_sysfolder_listview_noaccess','',1);
 		}
 
-		$content = 
-			$this->doc->icons(1).		
+		$content =
+			$this->doc->icons(1).
 			$LANG->getLL('editpage_sysfolder_intro','',1).
 			$listModuleLink
 		;
