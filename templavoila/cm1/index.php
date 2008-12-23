@@ -4497,7 +4497,7 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 		}
 
 			// page/be_user TSconfig settings and blinding of menu-items
-		$this->modTSconfig = t3lib_BEfunc::getModTSconfig($this->id,'mod.'.$this->MCONF['name']);
+		$this->modTSconfig = t3lib_BEfunc::getModTSconfig($this->id, 'mod.' . $this->MCONF['name']);
 
 			// CLEANSE SETTINGS
 		$this->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->MOD_MENU, t3lib_div::GPvar('SET'), $this->MCONF['name']);
@@ -4536,7 +4536,7 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 								'</option>'));
 			}
 			if (count($options)) {
-				$onChange = 'jumpToUrl(\'' . $script . $elementName . '=\'+this.options[this.selectedIndex].value,this);';
+				$onChange = 'jumpToUrl(\'' . $script . '&' . $elementName . '=\'+this.options[this.selectedIndex].value,this);';
 				return '
 
 					<!-- Function Menu of module -->

@@ -2733,7 +2733,7 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 								'</option>'));
 			}
 			if (count($options)) {
-				$onChange = 'jumpToUrl(\''.$script.'?'.$mainParams.$addparams.'&'.$elementName.'=\'+this.options[this.selectedIndex].value,this);';
+				$onChange = 'jumpToUrl(\'' . $script . '?' . $mainParams . $addparams . '&' . $elementName . '=\'+this.options[this.selectedIndex].value,this);';
 				return '
 
 					<!-- Function Menu of module -->
