@@ -1858,7 +1858,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 * @return	array with content-blocks
 	 */
 	function renderTO($singleView)	{
-		global $BE_USER;
+		global $LANG, $BE_USER;
 
 		// Working on Header and Body of HTML source:
 		if (intval($this->displayUid) > 0) {
