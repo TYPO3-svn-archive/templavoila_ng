@@ -35,14 +35,15 @@
  *
  *
  *   71: class tx_templavoila_pi1 extends tslib_pibase
- *   88:     function main($content,$conf)
- *  101:     function main_page($content,$conf)
+ *   88:     function main($content, $conf)
+ *  101:     function main_page($content, $conf)
  *  131:     function initVars($conf)
- *  144:     function renderElement($row,$table)
- *  282:     function processDataValues(&$dataValues,$DSelements,$TOelements,$valueKey='vDEF')
- *  446:     function inheritValue($dV,$valueKey,$overlayMode='')
+ *  144:     function renderElement($row, $table)
+ *  282:     function processDataValues(&$dataValues, $DSelements, $TOelements, $valueKey='vDEF')
+ *  282:     function processDataValues_traverse(&$dataValues, $DSelements, $TOelements, $valueKey = 'vDEF', $xpath = '')
+ *  446:     function inheritValue($dV, $valueKey, $overlayMode='')
  *  486:     function formatError($string)
- *  519:     function visualID($content,$srcPointer,$DSrec,$TOrec,$row,$table)
+ *  519:     function visualID($content, $srcPointer, $DSrec, $TOrec, $row, $table)
  *
  * TOTAL FUNCTIONS: 8
  * (This index is automatically created/updated by the extension "extdeveval")
@@ -90,14 +91,14 @@ class tx_templavoila_pi1 extends tslib_pibase {
 	 * @param	array		TypoScript array for the plugin.
 	 * @return	string		HTML content for the Flexible Content elements.
 	 */
-	function main($content,$conf) {
+	function main($content, $conf) {
 		$this->initVars($conf);
 
 		return $this->renderElement($this->cObj->data, 'tt_content');
 	}
 
 	/**
-	 * Main function for rendering records from system tables (like fe_users) using TemplaVoila. Function creates fake flexform, ds and to fields for the record and calls {@link #renderElement($row,$table) renderElement} for processing.
+	 * Main function for rendering records from system tables (like fe_users) using TemplaVoila. Function creates fake flexform, ds and to fields for the record and calls {@link #renderElement($row, $table) renderElement} for processing.
 	 *
 	 * <strong>This is still undocumented and unsupported! Do not use unless you are ready to risk!</strong>.
 	 *
@@ -151,12 +152,12 @@ class tx_templavoila_pi1 extends tslib_pibase {
 			// Make correct language identifiers here!
 			if ($GLOBALS['TSFE']->sys_language_isocode) {
 				$srcPointer = $data['tx_templavoila_ds'];
-				if (t3lib_div::testInt($srcPointer))	{	// If integer, then its a record we will look up:
+				if (t3lib_div::testInt($srcPointer)) {	// If integer, then its a record we will look up:
 					$DSrec = $GLOBALS['TSFE']->sys_page->checkRecord('tx_templavoila_datastructure', $srcPointer);
 					$DS = t3lib_div::xml2array($DSrec['dataprot']);
 				} else {	// Otherwise expect it to be a file:
 					$file = t3lib_div::getFileAbsFileName($srcPointer);
-					if ($file && @is_file($file))	{
+					if ($file && @is_file($file)) {
 						$DS = t3lib_div::xml2array(t3lib_div::getUrl($file));
 					}
 				}
@@ -190,20 +191,20 @@ class tx_templavoila_pi1 extends tslib_pibase {
 	 * @param	array		TypoScript array for the plugin.
 	 * @return	string		HTML content for the Page Template elements.
 	 */
-	function main_page($content,$conf) {
+	function main_page($content, $conf) {
 		$this->initVars($conf);
 
 			// Current page record which we MIGHT manipulate a little:
 		$pageRecord = $GLOBALS['TSFE']->page;
 
 			// Find DS and Template in root line IF there is no Data Structure set for the current page:
-		if (!$pageRecord['tx_templavoila_ds'])	{
-			foreach($GLOBALS['TSFE']->tmpl->rootLine as $pRec)	{
-				if ($pageRecord['uid'] != $pRec['uid'])	{
-					if ($pRec['tx_templavoila_next_ds'])	{	// If there is a next-level DS:
+		if (!$pageRecord['tx_templavoila_ds']) {
+			foreach($GLOBALS['TSFE']->tmpl->rootLine as $pRec) {
+				if ($pageRecord['uid'] != $pRec['uid']) {
+					if ($pRec['tx_templavoila_next_ds']) {	// If there is a next-level DS:
 						$pageRecord['tx_templavoila_ds'] = $pRec['tx_templavoila_next_ds'];
 						$pageRecord['tx_templavoila_to'] = $pRec['tx_templavoila_next_to'];
-					} elseif ($pRec['tx_templavoila_ds'])	{	// Otherwise try the NORMAL DS:
+					} elseif ($pRec['tx_templavoila_ds']) {	// Otherwise try the NORMAL DS:
 						$pageRecord['tx_templavoila_ds'] = $pRec['tx_templavoila_ds'];
 						$pageRecord['tx_templavoila_to'] = $pRec['tx_templavoila_to'];
 					}
@@ -231,7 +232,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 	 * @param	array		TypoScript options
 	 * @return	void
 	 */
-	function initVars($conf)	{
+	function initVars($conf) {
 		$this->inheritValueFromDefault = $conf['dontInheritValueFromDefault'] ? 0 : 1;
 		$this->conf=$conf;
 	}
@@ -244,7 +245,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 	 * @param	string		Table name, either "pages" or "tt_content".
 	 * @return	string		HTML output.
 	 */
-	function renderElement($row,$table)	{
+	function renderElement($row, $table) {
 		global $TYPO3_CONF_VARS;
 
 			// First prepare user defined objects (if any) for hooks which extend this function:
@@ -256,7 +257,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 		}
 
 			// Hook: renderElement_preProcessRow
-		foreach($hookObjectsArr as $hookObj)	{
+		foreach($hookObjectsArr as $hookObj) {
 			if (method_exists ($hookObj, 'renderElement_preProcessRow')) {
 				$hookObj->renderElement_preProcessRow($row, $table, $this);
 			}
@@ -264,12 +265,12 @@ class tx_templavoila_pi1 extends tslib_pibase {
 
 			// Get data structure:
 		$srcPointer = $row['tx_templavoila_ds'];
-		if (t3lib_div::testInt($srcPointer))	{	// If integer, then its a record we will look up:
+		if (t3lib_div::testInt($srcPointer)) {	// If integer, then its a record we will look up:
 			$DSrec = $GLOBALS['TSFE']->sys_page->checkRecord('tx_templavoila_datastructure', $srcPointer);
 			$DS = t3lib_div::xml2array($DSrec['dataprot']);
 		} else {	// Otherwise expect it to be a file:
 			$file = t3lib_div::getFileAbsFileName($srcPointer);
-			if ($file && @is_file($file))	{
+			if ($file && @is_file($file)) {
 				$DS = t3lib_div::xml2array(t3lib_div::getUrl($file));
 			}
 		}
@@ -289,7 +290,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 				// Initialize:
 			$langChildren = $DS['meta']['langChildren'] ? 1 : 0;
 			$langDisabled = $DS['meta']['langDisable'] ? 1 : 0;
-			list ($dataStruct, $sheet, $singleSheet) = t3lib_div::resolveSheetDefInDS($DS,$renderSheet);
+			list ($dataStruct, $sheet, $singleSheet) = t3lib_div::resolveSheetDefInDS($DS, $renderSheet);
 
 				// Data from FlexForm field:
 			$data = t3lib_div::xml2array($row['tx_templavoila_flex']);
@@ -305,10 +306,10 @@ class tx_templavoila_pi1 extends tslib_pibase {
 			$this->markupObj->htmlParse = t3lib_div::makeInstance('t3lib_parsehtml');
 
 				// Get template record:
-			if ($row['tx_templavoila_to'])	{
+			if ($row['tx_templavoila_to']) {
 
 					// Initialize rendering type:
-				if ($this->conf['childTemplate'])	{
+				if ($this->conf['childTemplate']) {
 					$renderType = $this->conf['childTemplate'];
 				} else {	// Default:
 					$renderType = t3lib_div::GPvar('print') ? 'print' : '';
@@ -316,11 +317,11 @@ class tx_templavoila_pi1 extends tslib_pibase {
 
 					// Get Template Object record:
 				$TOrec = $this->markupObj->getTemplateRecord($row['tx_templavoila_to'], $renderType, $GLOBALS['TSFE']->sys_language_uid);
-				if (is_array($TOrec))	{
+				if (is_array($TOrec)) {
 
 						// Get mapping information from Template Record:
 					$TO = unserialize($TOrec['templatemapping']);
-					if (is_array($TO))	{
+					if (is_array($TO)) {
 
 							// Get local processing:
 						$TOproc = t3lib_div::xml2array($TOrec['localprocessing']);
@@ -330,25 +331,25 @@ class tx_templavoila_pi1 extends tslib_pibase {
 						if ($GLOBALS['TT']->LR) $GLOBALS['TT']->push('Processing data');
 							$vKey = ($GLOBALS['TSFE']->sys_language_isocode && !$langDisabled && $langChildren) ? 'v'.$GLOBALS['TSFE']->sys_language_isocode : 'vDEF';
 							$TOlocalProc = $singleSheet ? $TOproc['ROOT']['el'] : $TOproc['sheets'][$sheet]['ROOT']['el'];
-							$this->processDataValues($dataValues,$dataStruct['ROOT']['el'],$TOlocalProc,$vKey);
+							$this->processDataValues($dataValues, $dataStruct['ROOT']['el'], $TOlocalProc, $vKey);
 						if ($GLOBALS['TT']->LR) $GLOBALS['TT']->pull();
 
 							// Merge the processed data into the cached template structure:
 						if ($GLOBALS['TT']->LR) $GLOBALS['TT']->push('Merge data and TO');
 								// Getting the cached mapping data out (if sheets, then default to "sDEF" if no mapping exists for the specified sheet!)
 							$mappingDataBody = $singleSheet ? $TO['MappingData_cached'] : (is_array($TO['MappingData_cached']['sub'][$sheet]) ? $TO['MappingData_cached']['sub'][$sheet] : $TO['MappingData_cached']['sub']['sDEF']);
-							$content = $this->markupObj->mergeFormDataIntoTemplateStructure($dataValues,$mappingDataBody,'',$vKey);
-							$this->markupObj->setHeaderBodyParts($TO['MappingInfo_head'],$TO['MappingData_head_cached'],$TO['BodyTag_cached']);
+							$content = $this->markupObj->mergeFormDataIntoTemplateStructure($dataValues, $mappingDataBody,'', $vKey);
+							$this->markupObj->setHeaderBodyParts($TO['MappingInfo_head'], $TO['MappingData_head_cached'], $TO['BodyTag_cached']);
 						if ($GLOBALS['TT']->LR) $GLOBALS['TT']->pull();
 
 							// Edit icon (frontend editing):
 						$eIconf = array('styleAttribute'=>'position:absolute;');
 						if ($table=='pages')	$eIconf['beforeLastTag']=-1;	// For "pages", set icon in top, not after.
-						$content = $this->pi_getEditIcon($content,'tx_templavoila_flex','Edit element',$row,$table,$eIconf);
+						$content = $this->pi_getEditIcon($content,'tx_templavoila_flex','Edit element', $row, $table, $eIconf);
 
 							// Visual identification aids:
-						if ($GLOBALS['TSFE']->fePreview && $GLOBALS['TSFE']->beUserLogin && !$GLOBALS['TSFE']->workspacePreview && !$this->conf['disableExplosivePreview'])	{
-							$content = $this->visualID($content,$srcPointer,$DSrec,$TOrec,$row,$table);
+						if ($GLOBALS['TSFE']->fePreview && $GLOBALS['TSFE']->beUserLogin && !$GLOBALS['TSFE']->workspacePreview && !$this->conf['disableExplosivePreview']) {
+							$content = $this->visualID($content, $srcPointer, $DSrec, $TOrec, $row, $table);
 						}
 					} else {
 						$content = $this->formatError('Template Object could not be unserialized successfully.
@@ -383,39 +384,8 @@ class tx_templavoila_pi1 extends tslib_pibase {
 	 * @param	string		Value key
 	 * @return	void
 	 */
-	function processDataValues(&$dataValues,$DSelements,$TOelements,$valueKey='vDEF',$xpath='')	{
-		if (is_array($DSelements))	{
-
-				// Create local processing information array:
-			$LP = array();
-			foreach($DSelements as $key => $dsConf)	{
-					// For all non-sections:
-				if (($DSelements[$key]['type'] != 'array') ||
-				    ($DSelements[$key]['section'] != 1)) {
-						// Set base configuration:
-					$LP[$key] = $DSelements[$key]['tx_templavoila'];
-						// Overlaying local processing:
-					if (is_array($TOelements[$key]['tx_templavoila']))	{
-						if (is_array($LP[$key]))	{
-							$LP[$key] = t3lib_div::array_merge_recursive_overrule($LP[$key],$TOelements[$key]['tx_templavoila']);
-						} else {
-							$LP[$key] = $TOelements[$key]['tx_templavoila'];
-						}
-					}
-				}
-			}
-
-				// Prepare a fake data record for cObj (important to do now before processing takes place):
-			$dataRecord=array();
-			if (is_array($dataValues))	{
-				foreach($dataValues as $key => $values)	{
-					$dataRecord[$key] = $this->inheritValue($dataValues[$key],$valueKey,$LP[$key]['langOverlayMode']);
-				}
-			}
-
-			$cObj =t3lib_div::makeInstance('tslib_cObj');
-			$cObj->setParent($this->cObj->data,$this->cObj->currentRecord);
-			$cObj->start($dataRecord,'_NO_TABLE');
+	function processDataValues(&$dataValues, $DSelements, $TOelements, $valueKey='vDEF') {
+		if (is_array($DSelements)) {
 
 				// Check if information about parent record should be set. Note: we do not push/pop registers here because it may break LOAD_REGISTER/RESTORE_REGISTER data transfer between FCEs!
 			$sameParent = false;
@@ -457,170 +427,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 				}
 			}
 
-				// For each DS element:
-			foreach($DSelements as $key => $dsConf)	{
-					// Array/Section:
-				if ($DSelements[$key]['type']=='array')	{
-					/* no DS-childs: bail out
-					 * no EL-childs: progress (they may all be TypoScript elements without visual representation)
-					 */
-					if (is_array($DSelements[$key]['el'])/* &&
-					    is_array($TOelements[$key]['el'])*/) {
-						if (!isset($dataValues[$key]['el']))
-							$dataValues[$key]['el'] = array();
-
-						if ($DSelements[$key]['section'])	{
-							foreach($dataValues[$key]['el'] as $ik => $el)	{
-								if (is_array($el))	{
-						//			$theKey = key($el);
-						//			if (is_array($dataValues[$key]['el'][$ik][$theKey]['el']))	{
-						//				$this->processDataValues($dataValues[$key]['el'][$ik][$theKey]['el'],$DSelements[$key]['el'][$theKey]['el'],$TOelements[$key]['el'][$theKey]['el'],$valueKey,$xpath.$key.'/el/'.$theKey.'/el/');
-                                                //
-						//					// If what was an array is returned as a non-array (eg. string "__REMOVE") then unset the whole thing:
-						//				if (!is_array($dataValues[$key]['el'][$ik][$theKey]['el']))	{
-						//					unset($dataValues[$key]['el'][$ik]);
-						//				}
-						//			}
-
-									$this->processDataValues($dataValues[$key]['el'][$ik],$DSelements[$key]['el'],$TOelements[$key]['el'],$valueKey,$xpath.$key.'/el/');
-								}
-							}
-
-							$dataValues[$key][$valueKey] = '###GROUP###';
-						} else {
-							$this->processDataValues($dataValues[$key]['el'],$DSelements[$key]['el'],$TOelements[$key]['el'],$valueKey,$xpath.$key.'/el/');
-
-							$dataValues[$key][$valueKey] = '###GROUP###';
-
-							$cObj->setCurrentVal($dataValues[$key][$valueKey]);
-							$GLOBALS['TSFE']->register['tx_templavoila_pi1.parentRec.'.str_replace('ROOT/el/', '', $xpath . $key)] = $dataValues[$key][$valueKey];
-
-								// Various local quick-processing options:
-							$pOptions = $LP[$key]['proc'];
-
-							if (is_array($pOptions)) {
-								if (trim($pOptions['stdWrap']))	{
-										// BUG HERE: should convert array to TypoScript...
-									$tsparserObj = t3lib_div::makeInstance('t3lib_TSparser');
-									$tsparserObj->parse($pOptions['stdWrap']);
-
-									$dataValues[$key][$valueKey] = $cObj->stdWrap($dataValues[$key][$valueKey],$tsparserObj->setup);
-								}
-							}
-						}
-
-							// If what was an array is returned as a non-array (eg. string "__REMOVE") then unset the whole thing:
-						if (!is_array($dataValues[$key]['el']))	{
-							unset($dataValues);
-						}
-					}
-				}
-				else {
-						// Language inheritance:
-					if ($valueKey!='vDEF')	{
-						$dataValues[$key][$valueKey] = $this->inheritValue($dataValues[$key],$valueKey,$LP[$key]['langOverlayMode']);
-
-							// The value "__REMOVE" will trigger removal of the item!
-						if (is_array($dataValues[$key][$valueKey]) && !strcmp($dataValues[$key][$valueKey]['ERROR'],'__REMOVE'))	{
-							$dataValues = '__REMOVE';
-							return;
-						}
-					}
-
-					$cObj->setCurrentVal($dataValues[$key][$valueKey]);
-					$GLOBALS['TSFE']->register['tx_templavoila_pi1.parentRec.'.str_replace('ROOT/el/', '', $xpath . $key)] = $dataValues[$key][$valueKey];
-
-					        // Render localized labels for 'select' elements:
-					if ($DSelements[$key]['TCEforms']['config']['type'] == 'select') {
-						if (substr($dataValues[$key][$valueKey], 0, 4) == 'LLL:') {
-							$tempLangVal = $GLOBALS['TSFE']->sL($dataValues[$key][$valueKey]);
-							if ($tempLangVal != '') {
-								$dataValues[$key][$valueKey] = $tempLangVal;
-							}
-							unset($tempLangVal);
-						}
-					}
-
-						// TypoScript / TypoScriptObjPath:
-					if (trim($LP[$key]['TypoScript']) || trim($LP[$key]['TypoScriptObjPath']))	{
-						$tsparserObj = t3lib_div::makeInstance('t3lib_TSparser');
-
-						if (trim($LP[$key]['TypoScript']))	{
-
-								// If constants were found locally/internally in DS/TO:
-							if (is_array($LP[$key]['TypoScript_constants']))	{
-								foreach($LP[$key]['TypoScript_constants'] as $constant => $value)	{
-
-										// First, see if the constant is itself a constant referring back to TypoScript Setup Object Tree:
-									if (substr(trim($value),0,2)=='{$' && substr(trim($value),-1)=='}')	{
-										$objPath = substr(trim($value),2,-1);
-
-											// If no value for this object path reference was found, get value:
-										if (!isset($GLOBALS['TSFE']->applicationData['tx_templavoila']['TO_constantCache'][$objPath]))	{
-												// Get value from object path:
-											$cF = t3lib_div::makeInstance('t3lib_TSparser');
-											list($objPathValue) = $cF->getVal($objPath,$GLOBALS['TSFE']->tmpl->setup);
-												// Set value in cache table:
-											$GLOBALS['TSFE']->applicationData['tx_templavoila']['TO_constantCache'][$objPath].=''.$objPathValue;
-										}
-											// Setting value to the value of the TypoScript Setup object path referred to:
-										$value = $GLOBALS['TSFE']->applicationData['tx_templavoila']['TO_constantCache'][$objPath];
-									}
-
-										// Substitute constant:
-									$LP[$key]['TypoScript'] = str_replace('{$'.$constant.'}',$value,$LP[$key]['TypoScript']);
-								}
-							}
-
-								// If constants were found in Plugin configuration, "plugins.tx_templavoila_pi1.TSconst":
-							if (is_array($this->conf['TSconst.']))	{
-								foreach($this->conf['TSconst.'] as $constant => $value)	{
-									if (!is_array($value))	{
-											// Substitute constant:
-										$LP[$key]['TypoScript'] = str_replace('{$TSconst.'.$constant.'}',$value,$LP[$key]['TypoScript']);
-									}
-								}
-							}
-
-								// Copy current global TypoScript configuration except numerical objects:
-							if (is_array($GLOBALS['TSFE']->tmpl->setup)) {
-								foreach ($GLOBALS['TSFE']->tmpl->setup as $tsObjectKey => $tsObjectValue) {
-									if ($tsObjectKey !== intval($tsObjectKey)) {
-										$tsparserObj->setup[$tsObjectKey] = $tsObjectValue;
-									}
-								}
-							}
-
-							$tsparserObj->parse($LP[$key]['TypoScript']);
-							$dataValues[$key][$valueKey] = $cObj->cObjGet($tsparserObj->setup,'TemplaVoila_Proc.');
-						}
-
-						if (trim($LP[$key]['TypoScriptObjPath']))	{
-							list($name, $conf) = $tsparserObj->getVal(trim($LP[$key]['TypoScriptObjPath']),$GLOBALS['TSFE']->tmpl->setup);
-							$dataValues[$key][$valueKey] = $cObj->cObjGetSingle($name,$conf,'TemplaVoila_ProcObjPath--'.str_replace('.','*',$LP[$key]['TypoScriptObjPath']).'.');
-						}
-					}
-
-						// Various local quick-processing options:
-					$pOptions = $LP[$key]['proc'];
-
-					if (is_array($pOptions)) {
-							// HSC of all values by default:
-						if ($pOptions['int'])
-							$dataValues[$key][$valueKey] = intval($dataValues[$key][$valueKey]);
-						if ($pOptions['HSC'])
-							$dataValues[$key][$valueKey] = htmlspecialchars($dataValues[$key][$valueKey]);
-
-						if (trim($pOptions['stdWrap']))	{
-								// BUG HERE: should convert array to TypoScript...
-							$tsparserObj = t3lib_div::makeInstance('t3lib_TSparser');
-							$tsparserObj->parse($pOptions['stdWrap']);
-
-							$dataValues[$key][$valueKey] = $cObj->stdWrap($dataValues[$key][$valueKey],$tsparserObj->setup);
-						}
-					}
-				}
-			}
+			$this->processDataValues_traverse($dataValues, $DSelements, $TOelements, $valueKey);
 
 			if (!$sameParent) {
 					// Step 1: Unset curent parent record info
@@ -646,6 +453,220 @@ class tx_templavoila_pi1 extends tslib_pibase {
 	}
 
 	/**
+	 * Performing pre-processing of the data array.
+	 * This will transform the data in the data array according to various rules before the data is merged with the template HTML
+	 * Notice that $dataValues is changed internally as a reference so the function returns no content but internally changes the passed variable for $dataValues.
+	 *
+	 * @param	array		The data values from the XML file (converted to array). Passed by reference.
+	 * @param	array		The data structure definition which the data in the dataValues array reflects.
+	 * @param	array		The local XML processing information found in associated Template Objects (TO)
+	 * @param	string		Value key
+	 * @return	void
+	 */
+	function processDataValues_traverse(&$dataValues, $DSelements, $TOelements, $valueKey='vDEF', $xpath='') {
+		if (is_array($DSelements)) {
+
+				// Create local processing information array:
+			$LP = array();
+			foreach($DSelements as $key => $dsConf) {
+					// For all non-sections:
+				if (($DSelements[$key]['type'] != 'array') ||
+				    ($DSelements[$key]['section'] != 1)) {
+						// Set base configuration:
+					$LP[$key] = $DSelements[$key]['tx_templavoila'];
+						// Overlaying local processing:
+					if (is_array($TOelements[$key]['tx_templavoila'])) {
+						if (is_array($LP[$key])) {
+							$LP[$key] = t3lib_div::array_merge_recursive_overrule($LP[$key], $TOelements[$key]['tx_templavoila']);
+						} else {
+							$LP[$key] = $TOelements[$key]['tx_templavoila'];
+						}
+					}
+				}
+			}
+
+				// Prepare a fake data record for cObj (important to do now before processing takes place):
+			$dataRecord=array();
+			if (is_array($dataValues)) {
+				foreach($dataValues as $key => $values) {
+					$dataRecord[$key] = $this->inheritValue($dataValues[$key], $valueKey, $LP[$key]['langOverlayMode']);
+				}
+			}
+
+			$cObj = t3lib_div::makeInstance('tslib_cObj');
+			$cObj->setParent($this->cObj->data, $this->cObj->currentRecord);
+			$cObj->start($dataRecord,'_NO_TABLE');
+
+				// For each DS element:
+			foreach($DSelements as $key => $dsConf) {
+					// Array/Section:
+				if ($DSelements[$key]['type'] == 'array') {
+					/* no DS-childs: bail out
+					 * no EL-childs: progress (they may all be TypoScript elements without visual representation)
+					 */
+					if (is_array($DSelements[$key]['el'])/* &&
+					    is_array($TOelements[$key]['el'])*/) {
+						if (!isset($dataValues[$key]['el']))
+							$dataValues[$key]['el'] = array();
+
+						if ($DSelements[$key]['section']) {
+							foreach($dataValues[$key]['el'] as $ik => $el) {
+								if (is_array($el)) {
+						//			$theKey = key($el);
+						//			if (is_array($dataValues[$key]['el'][$ik][$theKey]['el'])) {
+						//				$this->processDataValues_traverse($dataValues[$key]['el'][$ik][$theKey]['el'], $DSelements[$key]['el'][$theKey]['el'], $TOelements[$key]['el'][$theKey]['el'], $valueKey, $xpath.$key.'/el/'.$theKey.'/el/');
+                                                //
+						//					// If what was an array is returned as a non-array (eg. string "__REMOVE") then unset the whole thing:
+						//				if (!is_array($dataValues[$key]['el'][$ik][$theKey]['el'])) {
+						//					unset($dataValues[$key]['el'][$ik]);
+						//				}
+						//			}
+
+									$this->processDataValues_traverse($dataValues[$key]['el'][$ik], $DSelements[$key]['el'], $TOelements[$key]['el'], $valueKey, $xpath.$key.'/el/');
+
+									$GLOBALS['TSFE']->register['tx_templavoila_pi1.parentRec.' . str_replace('ROOT/el/', '', $xpath . $key . '/position')] = $ik;
+								}
+							}
+
+							$dataValues[$key][$valueKey] = '###GROUP###';
+						} else {
+							$this->processDataValues_traverse($dataValues[$key]['el'], $DSelements[$key]['el'], $TOelements[$key]['el'], $valueKey, $xpath.$key.'/el/');
+
+							$dataValues[$key][$valueKey] = '###GROUP###';
+
+							$cObj->setCurrentVal($dataValues[$key][$valueKey]);
+							$GLOBALS['TSFE']->register['tx_templavoila_pi1.parentRec.'.str_replace('ROOT/el/', '', $xpath . $key)] = $dataValues[$key][$valueKey];
+
+								// Various local quick-processing options:
+							$pOptions = $LP[$key]['proc'];
+
+							if (is_array($pOptions)) {
+								if (trim($pOptions['stdWrap'])) {
+										// BUG HERE: should convert array to TypoScript...
+									$tsparserObj = t3lib_div::makeInstance('t3lib_TSparser');
+									$tsparserObj->parse($pOptions['stdWrap']);
+
+									$dataValues[$key][$valueKey] = $cObj->stdWrap($dataValues[$key][$valueKey], $tsparserObj->setup);
+								}
+							}
+						}
+
+							// If what was an array is returned as a non-array (eg. string "__REMOVE") then unset the whole thing:
+						if (!is_array($dataValues[$key]['el'])) {
+							unset($dataValues);
+						}
+					}
+				}
+				else {
+						// Language inheritance:
+					if ($valueKey!='vDEF') {
+						$dataValues[$key][$valueKey] = $this->inheritValue($dataValues[$key], $valueKey, $LP[$key]['langOverlayMode']);
+
+							// The value "__REMOVE" will trigger removal of the item!
+						if (is_array($dataValues[$key][$valueKey]) && !strcmp($dataValues[$key][$valueKey]['ERROR'],'__REMOVE')) {
+							$dataValues = '__REMOVE';
+							return;
+						}
+					}
+
+					$cObj->setCurrentVal($dataValues[$key][$valueKey]);
+					$GLOBALS['TSFE']->register['tx_templavoila_pi1.parentRec.'.str_replace('ROOT/el/', '', $xpath . $key)] = $dataValues[$key][$valueKey];
+
+					        // Render localized labels for 'select' elements:
+					if ($DSelements[$key]['TCEforms']['config']['type'] == 'select') {
+						if (substr($dataValues[$key][$valueKey], 0, 4) == 'LLL:') {
+							$tempLangVal = $GLOBALS['TSFE']->sL($dataValues[$key][$valueKey]);
+							if ($tempLangVal != '') {
+								$dataValues[$key][$valueKey] = $tempLangVal;
+							}
+							unset($tempLangVal);
+						}
+					}
+
+						// TypoScript / TypoScriptObjPath:
+					if (trim($LP[$key]['TypoScript']) || trim($LP[$key]['TypoScriptObjPath'])) {
+						$tsparserObj = t3lib_div::makeInstance('t3lib_TSparser');
+
+						if (trim($LP[$key]['TypoScript'])) {
+
+								// If constants were found locally/internally in DS/TO:
+							if (is_array($LP[$key]['TypoScript_constants'])) {
+								foreach($LP[$key]['TypoScript_constants'] as $constant => $value) {
+
+										// First, see if the constant is itself a constant referring back to TypoScript Setup Object Tree:
+									if (substr(trim($value),0,2)=='{$' && substr(trim($value),-1)=='}') {
+										$objPath = substr(trim($value),2,-1);
+
+											// If no value for this object path reference was found, get value:
+										if (!isset($GLOBALS['TSFE']->applicationData['tx_templavoila']['TO_constantCache'][$objPath])) {
+												// Get value from object path:
+											$cF = t3lib_div::makeInstance('t3lib_TSparser');
+											list($objPathValue) = $cF->getVal($objPath, $GLOBALS['TSFE']->tmpl->setup);
+												// Set value in cache table:
+											$GLOBALS['TSFE']->applicationData['tx_templavoila']['TO_constantCache'][$objPath].=''.$objPathValue;
+										}
+											// Setting value to the value of the TypoScript Setup object path referred to:
+										$value = $GLOBALS['TSFE']->applicationData['tx_templavoila']['TO_constantCache'][$objPath];
+									}
+
+										// Substitute constant:
+									$LP[$key]['TypoScript'] = str_replace('{$'.$constant.'}', $value, $LP[$key]['TypoScript']);
+								}
+							}
+
+								// If constants were found in Plugin configuration, "plugins.tx_templavoila_pi1.TSconst":
+							if (is_array($this->conf['TSconst.'])) {
+								foreach($this->conf['TSconst.'] as $constant => $value) {
+									if (!is_array($value)) {
+											// Substitute constant:
+										$LP[$key]['TypoScript'] = str_replace('{$TSconst.'.$constant.'}', $value, $LP[$key]['TypoScript']);
+									}
+								}
+							}
+
+								// Copy current global TypoScript configuration except numerical objects:
+							if (is_array($GLOBALS['TSFE']->tmpl->setup)) {
+								foreach ($GLOBALS['TSFE']->tmpl->setup as $tsObjectKey => $tsObjectValue) {
+									if ($tsObjectKey !== intval($tsObjectKey)) {
+										$tsparserObj->setup[$tsObjectKey] = $tsObjectValue;
+									}
+								}
+							}
+
+							$tsparserObj->parse($LP[$key]['TypoScript']);
+							$dataValues[$key][$valueKey] = $cObj->cObjGet($tsparserObj->setup,'TemplaVoila_Proc.');
+						}
+
+						if (trim($LP[$key]['TypoScriptObjPath'])) {
+							list($name, $conf) = $tsparserObj->getVal(trim($LP[$key]['TypoScriptObjPath']), $GLOBALS['TSFE']->tmpl->setup);
+							$dataValues[$key][$valueKey] = $cObj->cObjGetSingle($name, $conf,'TemplaVoila_ProcObjPath--'.str_replace('.','*', $LP[$key]['TypoScriptObjPath']).'.');
+						}
+					}
+
+						// Various local quick-processing options:
+					$pOptions = $LP[$key]['proc'];
+
+					if (is_array($pOptions)) {
+							// HSC of all values by default:
+						if ($pOptions['int'])
+							$dataValues[$key][$valueKey] = intval($dataValues[$key][$valueKey]);
+						if ($pOptions['HSC'])
+							$dataValues[$key][$valueKey] = htmlspecialchars($dataValues[$key][$valueKey]);
+
+						if (trim($pOptions['stdWrap'])) {
+								// BUG HERE: should convert array to TypoScript...
+							$tsparserObj = t3lib_div::makeInstance('t3lib_TSparser');
+							$tsparserObj->parse($pOptions['stdWrap']);
+
+							$dataValues[$key][$valueKey] = $cObj->stdWrap($dataValues[$key][$valueKey], $tsparserObj->setup);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
 	 * Processing of language fallback values (inheritance/overlaying)
 	 * You never need to call this function when "$valueKey" is "vDEF"
 	 *
@@ -654,12 +675,12 @@ class tx_templavoila_pi1 extends tslib_pibase {
 	 * @param	string		Overriding overlay mode from local processing in Data Structure / TO.
 	 * @return	string		The value
 	 */
-	function inheritValue($dV,$valueKey,$overlayMode='')	{
-#debug(array($dV['vDEF'],$valueKey,$overlayMode,$this->inheritValueFromDefault),'inheritValue()');
-		if ($valueKey!='vDEF')	{
+	function inheritValue($dV, $valueKey, $overlayMode='') {
+#debug(array($dV['vDEF'], $valueKey, $overlayMode, $this->inheritValueFromDefault),'inheritValue()');
+		if ($valueKey!='vDEF') {
 
 				// Consider overlay modes:
-			switch((string)$overlayMode)	{
+			switch((string)$overlayMode) {
 				case 'ifFalse':	// Normal inheritance based on whether the value evaluates false or not (zero or blank string)
 				return trim($dV[$valueKey]) ? $dV[$valueKey] : $dV['vDEF'];
 
@@ -670,13 +691,13 @@ class tx_templavoila_pi1 extends tslib_pibase {
 				return $dV[$valueKey];	// Always return its own value
 
 				case 'removeIfBlank':
-					if (!strcmp(trim($dV[$valueKey]),''))	{
+					if (!strcmp(trim($dV[$valueKey]),'')) {
 						return array('ERROR' => '__REMOVE');
 					}
 				default:
 
 						// If none of the overlay modes matched, simply use the default:
-					if ($this->inheritValueFromDefault)	{
+					if ($this->inheritValueFromDefault) {
 						return trim($dV[$valueKey]) ? $dV[$valueKey] : $dV['vDEF'];
 					}
 				break;
@@ -694,7 +715,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 	 * @return	string		Error message output
 	 * @string	string		Error message input
 	 */
-	function formatError($string)	{
+	function formatError($string) {
 
 			// Set no-cache since the error message shouldn't be cached of course...
 		$GLOBALS['TSFE']->set_no_cache();
@@ -727,12 +748,12 @@ class tx_templavoila_pi1 extends tslib_pibase {
 	 * @param	[type]		$table: ...
 	 * @return	[type]		...
 	 */
-	function visualID($content,$srcPointer,$DSrec,$TOrec,$row,$table)	{
+	function visualID($content, $srcPointer, $DSrec, $TOrec, $row, $table) {
 
 			// Create table rows:
 		$tRows = array();
 
-		switch ($table)	{
+		switch ($table) {
 			case 'pages':
 				$tRows[] = '<tr style="background-color: #ABBBB4;">
 						<td colspan="2"><b>Page:</b> '.htmlspecialchars(t3lib_div::fixed_lgd_cs($row['title'],30)).' <em>[UID:'.$row['uid'].']</em></td>
@@ -751,7 +772,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 		}
 
 			// Draw data structure:
-		if (is_numeric($srcPointer))	{
+		if (is_numeric($srcPointer)) {
 			$tRows[] = '<tr>
 					<td valign="top"><b>Data Structure:</b></td>
 					<td>'.htmlspecialchars(t3lib_div::fixed_lgd_cs($DSrec['title'],30)).' <em>[UID:'.$srcPointer.']</em>'.
@@ -772,7 +793,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 					($TOrec['previewicon'] ? '<br/><img src="uploads/tx_templavoila/'.$TOrec['previewicon'].'" alt="" />' : '').
 					'</td>
 			</tr>';
-		if ($TOrec['description'])	{
+		if ($TOrec['description']) {
 			$tRows[] = '<tr>
 					<td valign="top" nowrap="nowrap">&nbsp; &nbsp; &nbsp; Description:</td>
 					<td>'.htmlspecialchars($TOrec['description']).'</td>
@@ -797,7 +818,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 
 			// Compile information table:
 		$infoArray = '<table style="border:1px solid black; background-color: #D9D5C9; font-family: verdana,arial; font-size: 10px;" border="0" cellspacing="1" cellpadding="1">
-						'.implode('',$tRows).'
+						'.implode('', $tRows).'
 						</table>';
 
 			// Compile information:
