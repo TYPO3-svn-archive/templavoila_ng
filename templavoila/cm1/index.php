@@ -453,11 +453,11 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			// JavaScript
 		$this->doc->JScode.= $this->doc->wrapScriptTags('
 			script_ended = 0;
-			function jumpToUrl(URL)	{	//
+			function jumpToUrl(URL)	{ //
 				document.location = URL;
 			}
-			function updPath(inPath)	{	//
-				document.location = "'.t3lib_div::linkThisScript(array('htmlPath'=>'','doMappingOfPath'=>1)).'&htmlPath="+top.rawurlencode(inPath);
+			function updPath(inPath) {	//
+				document.location = "' . t3lib_div::linkThisScript(array('htmlPath' => '', 'doMappingOfPath' => 1)) . '&htmlPath=" + top.rawurlencode(inPath);
 			}
 		');
 
@@ -473,17 +473,17 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		$this->content .= $this->doc->spacer(5);
 
 		if ($this->returnUrl)	{
-			$this->content.='<p><a href="'.htmlspecialchars($this->returnUrl).'" class="typo3-goBack">'.
-				'<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/goback.gif','width="14" height="14"').' alt="" />'.
-				$LANG->sL('LLL:EXT:lang/locallang_misc.xml:goBack',1).
+			$this->content .= '<p><a href="' . htmlspecialchars($this->returnUrl) . '" class="typo3-goBack">'.
+				'<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/goback.gif', 'width="14" height="14"') . ' alt="" />'.
+				$LANG->sL('LLL:EXT:lang/locallang_misc.xml:goBack', 1) .
 				'</a></p><hr />';
 		}
 
 		$this->render_mode(false);
 
 			// Add spacer:
-		$this->content.= $this->doc->spacer(10);
-		$this->content = $this->doc->insertStylesAndJS($this->content);
+		$this->content .= $this->doc->spacer(10);
+		$this->content  = $this->doc->insertStylesAndJS($this->content);
 	}
 
 	/**
@@ -493,11 +493,11 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 * @return	array with content-blocks
 	 */
 	function render_mode($singleView = false) {
-		$this->doc->inDocStylesArray[]='
+		$this->doc->inDocStylesArray[] = '
 			DIV.typo3-noDoc { width: 98%; margin: 0 0 0 0; }
 			DIV.typo3-noDoc H2 { width: 100%; }
-			TABLE#c-mapInfo {margin-top: 10px; margin-bottom: 5px; }
-			TABLE#c-mapInfo TR TD {padding-right: 20px;}
+			TABLE#c-mapInfo { margin-top: 10px; margin-bottom: 5px; }
+			TABLE#c-mapInfo TR TD { padding-right: 20px; }
 		';
 
 			// Add Prototype /Scriptaculous + t3editor
@@ -522,11 +522,11 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 			// TS-browser
 		$this->doc->JScode .= $this->doc->wrapScriptTags('
-				var browserPos=null, browserWin="";
+				var browserPos = null, browserWin = "";
 				function setFormValueOpenBrowser(mode,params) {	//
-					var url = "'.$GLOBALS['BACK_PATH'].'browser.php?mode="+mode+"&bparams="+params;
+					var url = "' . $GLOBALS['BACK_PATH'] . 'browser.php?mode=" + mode + "&bparams=" + params;
 
-					browserWin = window.open(url,"Typo3WinBrowser - TemplaVoila Element Selector","height=350,width="+(mode=="db"?650:600)+",status=0,menubar=0,resizable=1,scrollbars=1");
+					browserWin = window.open(url, "Typo3WinBrowser - TemplaVoila Element Selector", "height=350,width=" + (mode == "db" ? 650 : 600) + ",status=0,menubar=0,resizable=1,scrollbars=1");
 					browserWin.focus();
 				}
 				function setFormValueFromBrowseWin(fName,value,label,exclusiveValues){
@@ -535,8 +535,8 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 						var rid = ret.pop();
 							ret = ret.join(\'_\');
 
-						$(\'browser[context]\').innerHTML = label + \' <em>[pid: \'+rid+\']</em>\';
-						$(\'browser[communication]\').src = \'' . $this->baseScript . 'mode=browser&pid=\'+rid+\'&current=\' +
+						$(\'browser[context]\').innerHTML = label + \' <em>[pid: \' + rid + \']</em>\';
+						$(\'browser[communication]\').src = \'' . $this->baseScript . 'mode=browser&pid=\' + rid + \'&current=\' +
 						$(\'browser[result]\').value;
 					}
 				}
@@ -872,7 +872,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 * @return	void
 	 */
 	function renderFile_editProcessing($singleView, $cmd = '') {
-		global $BE_USER, $TYPO3_DB;
+		global $LANG, $BE_USER, $TYPO3_DB;
 
 		// Got an override?:
 		$msg = array();
@@ -1437,7 +1437,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					0,
 					TRUE).
 					$this->doc->section(
-					'UPDATE existing Data Structure / Template Object: ' . $this->cshItem('xMOD_tx_templavoila','mapping_file_updateDSTO',$this->doc->backPath,''),
+					'UPDATE existing Data Structure / Template Object: ' . $this->cshItem('xMOD_tx_templavoila', 'mapping_file_updateDSTO', $this->doc->backPath, ''),
 					'<table border="0" cellpadding="2" cellspacing="2">
 						<tr>
 							<td class="bgColor5"><strong>Select TO:</strong></td>
@@ -1450,7 +1450,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 						</tr>
 					</table>
 
-					<input type="submit" name="_save_dsto" value="UPDATE TO (and DS)" onclick="return confirm(\'Are you sure you want to override the current contents of these records?\nThis feature is meant to support the process of creating new Data Structures which have not been manually edited yet.\');" />
+					<input type="submit" name="_save_dsto" value="UPDATE TO (and DS)" onclick="return confirm(\'' . $LANG->getLL('mess.onOverwriteAlert') . '\');" />
 					<input type="submit" name="_" value="Cancel" />',
 					FALSE,
 					TRUE,
@@ -1652,7 +1652,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 * @return	array with content-blocks
 	 */
 	function renderDSO($singleView) {
-		global $BE_USER, $TYPO3_DB;
+		global $LANG, $BE_USER, $TYPO3_DB;
 
 		// Working on Header and Body of HTML source:
 		if (intval($this->displayUid) > 0) {
@@ -1695,7 +1695,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					-->
 					<div id="c-ds">'.
 						$this->doc->section(
-							'Data Structure in record: '.$this->cshItem('xMOD_tx_templavoila','mapping_ds',$this->doc->backPath,''),
+							'Data Structure in record: ' . $this->cshItem('xMOD_tx_templavoila','mapping_ds',$this->doc->backPath,''),
 							'<table border="0" cellspacing="2" cellpadding="2">
 									<tr class="bgColor5">
 										<td nowrap="nowrap"><strong>Data Element:</strong>'.
@@ -1749,17 +1749,12 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					$fileref = t3lib_div::getFileAbsFileName($TO_Row['fileref']);
 
 					if ($fileref) {
-							// Link to updating DS/TO:
+						// Link to updating DS/TO:
 						$onCl = $this->baseScript . 'id=' . $this->id . '&file=' . rawurlencode($fileref) . '&_load_ds_xml=1&_load_ds_xml_to=' . $TO_Row['uid'];
-						$onClMsg = '
-							if (confirm(unescape(\'' . rawurlencode('Warning: You should only modify Data Structures and Template Objects which have not been manually edited.'.chr(10).'You risk that manual changes will be removed without further notice!').'\'))) {
-								document.location=\'' . $onCl . '\';
-							}
-							return false;
-							';
+						$onClMsg = 'if (confirm(\'' . $LANG->getLL('mess.onModifyAlert') . '\')) { document.location=\'' . $onCl . '\'; } return false;';
 					}
 
-					$tRows[]='
+					$tRows[] = '
 							<tr class="bgColor4">
 								<td>['.$TO_Row['uid'].']</td>
 								<td nowrap="nowrap">'.$this->doc->wrapClickMenuOnIcon($TOicon,'tx_templavoila_tmplobj',$TO_Row['uid'],1).
@@ -1774,7 +1769,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				}
 
 				$this->doc->sectionBegin();
-				$content.='
+				$content .= '
 					<!--
 						Template Objects attached to Data Structure Record:
 					-->
@@ -1913,12 +1908,8 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 								'&returnUrl=' . rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI')) .
 								'&_load_ds_xml=1' .
 								'&_load_ds_xml_to=' . $row['uid'];
-							$onClMsg = '
-								if (confirm(unescape(\''.rawurlencode('Warning: You should only modify Data Structures and Template Objects which have not been manually edited.'.chr(10).'You risk that manual changes will be removed without further notice!').'\'))) {
-									document.location=\''.$onCl.'\';
-								}
-								return false;
-								';
+							$onClMsg = 'if (confirm(\'' . $LANG->getLL('mess.onModifyAlert') . '\')) { document.location=\'' . $onCl . '\'; } return false;';
+
 							$this->parts['modify'] =
 								'<input type="submit" name="_" value="Modify DS / TO" onclick="'.htmlspecialchars($onClMsg).'"/>';
 
@@ -2611,7 +2602,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 * @return	array		Table rows as an array of <tr> tags, $tRows
 	 */
 	function drawDataStructureMap($dataStruct,$mappingMode=0,$currentMappingInfo=array(),$pathLevels=array(),$optDat=array(),$contentSplittedByMapping=array(),$level=0,$tRows=array(),$formPrefix='',$path='',$mapOK=1)	{
-		global $BE_USER;
+		global $LANG, $BE_USER;
 
 		$bInfo = t3lib_div::clientInfo();
 		$multilineTooltips = ($bInfo['BROWSER'] == 'msie');
@@ -2769,7 +2760,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 						'</a>';
 
 						$editAddCol.= '<a href="'.$this->linkThisScript(array('DS_element_DELETE'=>$formPrefix.'['.$key.']')).'">'.
-						'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],'gfx/garbage.gif','width="11" height="12"').' hspace="2" border="0" alt="" title="DELETE entry" onclick=" return confirm(\'Are you sure to delete this Data Structure entry?\');" />'.
+						'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],'gfx/garbage.gif','width="11" height="12"').' hspace="2" border="0" alt="" title="DELETE entry" onclick=" return confirm(\'' . $LANG->getLL('mess.onDeleteAlert') . '\');" />'.
 						'</a>';
 
 						$editAddCol = '<td nowrap="nowrap">'.$editAddCol.'</td>';
@@ -4872,6 +4863,7 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 			$buttons['undo'] = '<a href="' . $this->linkThisScript(array('_reload_from' => '1', 'SET[page]' => 'structure')) . '">' .
 					'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/undo.gif') . ' class="c-inputButton" title="Reverting structure data to last imported data" alt="Revert all" />' .
 					'</a>';
+
 				// Clear all
 			$buttons['clear'] = '<div id="clear-mapping-actions-menu">';
 			$buttons['clear'] .= '<a href="#" class="toolbar-item">' .
@@ -4915,6 +4907,7 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 				$buttons['undo'] = '<a href="' . $this->linkThisScript(array('_reload_from' => '1', 'SET[page]' => $this->MOD_SETTINGS['page'])) . '">' .
 						'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/undo.gif') . ' class="c-inputButton" title="Reverting mapping data to original data in the Template Object" alt="Revert all" />' .
 						'</a>';
+
 					// Clear all
 				$buttons['clear'] = '<div id="clear-mapping-actions-menu">';
 				$buttons['clear'] .= '<a href="#" class="toolbar-item">' .

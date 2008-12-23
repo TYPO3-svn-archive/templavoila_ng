@@ -52,6 +52,9 @@
 			<label index="errorNoUidFound">No UID was found pointing to a Template Object record.</label>
 			<label index="errorFileNotFound">File to create Datastructe from hasn't been found.</label>
 			<label index="mess.onChangeAlert">This change will affect which fields are available in the form.\nWould you like to save now in order to refresh the display?</label>
+			<label index="mess.onOverwriteAlert">Are you sure you want to override the current contents of these records?\nThis feature is meant to support the process of creating new Data Structures which have not been manually edited yet.</label>
+			<label index="mess.onModifyAlert">Warning: You should only modify Data Structures and Template Objects which have not been manually edited.\nYou risk that manual changes will be removed without further notice!</label>
+			<label index="mess.onDeleteAlert">Are you sure to delete this Data Structure entry?</label>
 		</languageKey>
 	</data>
 	<orig_hash type="array">
