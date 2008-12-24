@@ -156,9 +156,10 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	var $markupFile = '';		// Used to store the name of the file to mark up with a given path.
 	var $markupObj = '';
 	var $elNames = array();
-	var $editDataStruct=0;		// Setting whether we are editing a data structure or not.
+	var $zebraRows = 0;
+	var $editDataStruct = 0;	// Setting whether we are editing a data structure or not.
 	var $storageFolders = array();	// Storage folders as key(uid) / value (title) pairs.
-	var $storageFolders_pidList=0;	// The storageFolders pids imploded to a comma list including "0"
+	var $storageFolders_pidList = 0;// The storageFolders pids imploded to a comma list including "0"
 
 		// GPvars:
 	var $mode;			// Looking for "&mode", which defines if we draw a frameset (default), the module (mod) or display (display)
@@ -1199,7 +1200,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				);
 
 				// Clear cached header info because save_dsto_into always resets headers
-				$sesDat['currentMappingInfo_head'] = '';
+				// $sesDat['currentMappingInfo_head'] = '';
 
 				$GLOBALS['BE_USER']->setAndSaveSessionData($this->MCONF['name'] . '_mappingInfo', $sesDat);
 				$GLOBALS['BE_USER']->setAndSaveSessionData($this->MCONF['name'] . '_origin', $orgDat);
@@ -1265,7 +1266,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					$msg[] = '<img' . t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/icon_note.gif', 'width="18" height="16"') . ' border="0" align="top" class="absmiddle" alt="" />' . sprintf($GLOBALS['LANG']->getLL('msgDSTOUpdated'), $dsREC['uid'], $toREC['uid']);
 
 					// Clear cached header info because save_dsto always resets headers
-					$sesDat['currentMappingInfo_head'] = '';
+					// $sesDat['currentMappingInfo_head'] = '';
 
 					$GLOBALS['BE_USER']->setAndSaveSessionData($this->MCONF['name'] . '_mappingInfo', $sesDat);
 					$GLOBALS['BE_USER']->setAndSaveSessionData($this->MCONF['name'] . '_origin', $orgDat);
@@ -2167,7 +2168,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				}
 
 				$sesDat['currentMappingInfo_head'] = $currentMappingInfo_head;
-				$GLOBALS['BE_USER']->setAndSaveSessionData($this->MCONF['name'].'_mappingInfo',$sesDat);
+				$GLOBALS['BE_USER']->setAndSaveSessionData($this->MCONF['name'] . '_mappingInfo', $sesDat);
 			}
 		}
 
@@ -2415,7 +2416,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 * @param	string		HTML content to show after the Data Structure table.
 	 * @return	string		HTML table.
 	 */
-	function renderTemplateMapper($displayFile,$path,$dataStruct=array(),$currentMappingInfo=array(),$htmlAfterDSTable='')	{
+	function renderTemplateMapper($displayFile, $path, $dataStruct = array(), $currentMappingInfo = array(), $htmlAfterDSTable = '') {
 		global $BE_USER;
 
 		// Get file content
@@ -2429,17 +2430,17 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		$contentSplittedByMapping = $this->markupObj->splitContentToMappingInfo($fileContent,$currentMappingInfo);
 
 		// Show path:
-		$pathRendered=t3lib_div::trimExplode('|',$path,1);
+		$pathRendered = t3lib_div::trimExplode('|', $path, 1);
 		$acc=array();
-		foreach($pathRendered as $k => $v)	{
-			$acc[]=$v;
-			$pathRendered[$k]=$this->linkForDisplayOfPath($v,implode('|',$acc));
+		foreach($pathRendered as $k => $v) {
+			$acc[] = $v;
+			$pathRendered[$k] = $this->linkForDisplayOfPath($v, implode('|', $acc));
 		}
-		array_unshift($pathRendered,$this->linkForDisplayOfPath('[ROOT]',''));
+		array_unshift($pathRendered, $this->linkForDisplayOfPath('[ROOT]', ''));
 
 		// Get attributes of the extracted content:
 		$attrDat=array();
-		$contentFromPath = $this->markupObj->splitByPath($fileContent,$path);	// ,'td#content table[1] tr[1]','td#content table[1]','map#cdf / INNER','td#content table[2] tr[1] td[1] table[1] tr[4] td.bckgd1[2] table[1] tr[1] td[1] table[1] tr[1] td.bold1px[1] img[1] / RANGE:img[2]'
+		$contentFromPath = $this->markupObj->splitByPath($fileContent, $path);	// ,'td#content table[1] tr[1]','td#content table[1]','map#cdf / INNER','td#content table[2] tr[1] td[1] table[1] tr[4] td.bckgd1[2] table[1] tr[1] td[1] table[1] tr[1] td.bold1px[1] img[1] / RANGE:img[2]'
 		$firstTag = $this->markupObj->htmlParse->getFirstTag($contentFromPath[1]);
 		list($attrDat) = $this->markupObj->htmlParse->get_tag_attributes($firstTag,1);
 
@@ -2447,12 +2448,12 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		$pathLevels = $this->markupObj->splitPath($path);
 		$lastEl = end($pathLevels);
 
-		$optDat=array();
-		$optDat[$lastEl['path']]='OUTER (Include tag)';
-		$optDat[$lastEl['path'].'/INNER']='INNER (Exclude tag)';
+		$optDat = array();
+		$optDat[$lastEl['path']] = 'OUTER (Include tag)';
+		$optDat[$lastEl['path'] . '/INNER'] = 'INNER (Exclude tag)';
 
 		// Tags, which will trigger "INNER" to be listed on top (because it is almost always INNER-mapping that is needed)
-		if (t3lib_div::inList('body,span,h1,h2,h3,h4,h5,h6,div,td,p,b,i,u,a',$lastEl['el']))	{
+		if (t3lib_div::inList('body,span,h1,h2,h3,h4,h5,h6,div,td,p,b,i,u,a', $lastEl['el'])) {
 			$optDat = array_reverse($optDat);
 		}
 
@@ -2486,32 +2487,32 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			<table border="0" cellspacing="2" cellpadding="2">
 			<tr class="bgColor5">
 				<td nowrap="nowrap"><strong>Data Element:</strong>'.
-					$this->cshItem('xMOD_tx_templavoila','mapping_head_dataElement', $this->doc->backPath, '', TRUE).
+					$this->cshItem('xMOD_tx_templavoila', 'mapping_head_dataElement', $this->doc->backPath, '', TRUE).
 					'</td>
 				' . ($this->editDataStruct ? '
 				<td nowrap="nowrap"><strong>Field:</strong>'.
-					$this->cshItem('xMOD_tx_templavoila','mapping_head_Field', $this->doc->backPath, '', TRUE).
+					$this->cshItem('xMOD_tx_templavoila', 'mapping_head_Field', $this->doc->backPath, '', TRUE).
 					'</td>' : '').'
-				<td nowrap="nowrap"><strong>'.(!$this->_preview?'Mapping instructions:':'Sample Data:').'</strong>'.
-					$this->cshItem('xMOD_tx_templavoila','mapping_head_' . (!$this->_preview?'mapping_instructions':'sample_data'),$this->doc->backPath,'',TRUE).
+				<td nowrap="nowrap"><strong>'.(!$this->_preview ? 'Mapping instructions:' : 'Sample Data:').'</strong>'.
+					$this->cshItem('xMOD_tx_templavoila', 'mapping_head_' . (!$this->_preview ? 'mapping_instructions' : 'sample_data'), $this->doc->backPath, '', TRUE).
 					'<br /><img src="clear.gif" width="200" height="1" alt="" /></td>
 				<td nowrap="nowrap"><strong>Rules:</strong>'.
-					$this->cshItem('xMOD_tx_templavoila','mapping_head_Rules', $this->doc->backPath, '', TRUE).
+					$this->cshItem('xMOD_tx_templavoila', 'mapping_head_Rules', $this->doc->backPath, '', TRUE).
 					'</td>
 				<td nowrap="nowrap"><strong>HTML-path:</strong>'.
-					$this->cshItem('xMOD_tx_templavoila','mapping_head_HTMLpath', $this->doc->backPath, '', TRUE).
+					$this->cshItem('xMOD_tx_templavoila', 'mapping_head_HTMLpath', $this->doc->backPath, '', TRUE).
 					'</td>
 				' . ($BE_USER->check('tables_modify', 'tx_templavoila_tmplobj') ? '
 				<td nowrap="nowrap"><strong>Action:</strong>'.
-					$this->cshItem('xMOD_tx_templavoila','mapping_head_Action', $this->doc->backPath, '', TRUE).
+					$this->cshItem('xMOD_tx_templavoila', 'mapping_head_Action', $this->doc->backPath, '', TRUE).
 					'</td>' : '').'
 				' . ($this->editDataStruct && !$this->_preview ? '
 				<td nowrap="nowrap"><strong>Edit:</strong>'.
-					$this->cshItem('xMOD_tx_templavoila','mapping_head_Edit', $this->doc->backPath, '', TRUE).
+					$this->cshItem('xMOD_tx_templavoila', 'mapping_head_Edit', $this->doc->backPath, '', TRUE).
 					'</td>' : '').'
 			</tr>
-			'.implode('',$this->drawDataStructureMap($dataStruct,1,$currentMappingInfo,$pathLevels,$optDat,$contentSplittedByMapping)).'</table>
-			'.$htmlAfterDSTable;
+			'. implode('', $this->drawDataStructureMap($dataStruct, 1, $currentMappingInfo, $pathLevels, $optDat, $contentSplittedByMapping)) . '</table>
+			'. $htmlAfterDSTable;
 
 		// Make mapping window:
 		$limitTags = implode(',', array_keys($this->explodeMappingToTagsStr($this->mappingToTags, 1)));
@@ -2521,8 +2522,8 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				Visual Mapping Window (Iframe)
 			-->
 			<p>'.
-				t3lib_BEfunc::getFuncMenu('','SET[displayMode]',$this->MOD_SETTINGS['displayMode'],$this->MOD_MENU['displayMode'],'',t3lib_div::implodeArrayForUrl('',$_GET,'',1,1)).
-				$this->cshItem('xMOD_tx_templavoila','mapping_window_modes',$this->doc->backPath,'').
+				t3lib_BEfunc::getFuncMenu('', 'SET[displayMode]', $this->MOD_SETTINGS['displayMode'], $this->MOD_MENU['displayMode'], '', t3lib_div::implodeArrayForUrl('', $_GET, '', 1, 1)).
+				$this->cshItem('xMOD_tx_templavoila', 'mapping_window_modes', $this->doc->backPath,'').
 				'</p>';
 
 			if ($this->_preview && !$this->mapElPath) {
@@ -2601,7 +2602,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 * @param	boolean		If true, the "Map" link can be shown, otherwise not. Used internally in the recursions.
 	 * @return	array		Table rows as an array of <tr> tags, $tRows
 	 */
-	function drawDataStructureMap($dataStruct,$mappingMode=0,$currentMappingInfo=array(),$pathLevels=array(),$optDat=array(),$contentSplittedByMapping=array(),$level=0,$tRows=array(),$formPrefix='',$path='',$mapOK=1)	{
+	function drawDataStructureMap($dataStruct, $mappingMode = 0, $currentMappingInfo = array(), $pathLevels = array(), $optDat = array(), $contentSplittedByMapping = array(), $level = 0, $tRows = array(), $formPrefix = '', $path = '', $mapOK = 1) {
 		global $LANG, $BE_USER;
 
 		$bInfo = t3lib_div::clientInfo();
@@ -2774,7 +2775,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					}
 
 						// Getting editing row, if applicable:
-					list($addEditRows,$placeBefore) = $this->drawDataStructureMap_editItem($formPrefix,$key,$value,$level);
+					list($addEditRows,$placeBefore) = $this->drawDataStructureMap_editItem($formPrefix, $key, $value, $level);
 
 						// Add edit-row if found and destined to be set BEFORE:
 					if ($addEditRows && $placeBefore)	{
@@ -2810,10 +2811,10 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 							$pathLevels,
 							$optDat,
 							$contentSplittedByMapping['sub'][$key],
-							$level+1,
+							$level + 1,
 							$tRows,
 							$formPrefix.'['.$key.'][el]',
-							$path.($path?'|':'').$currentMappingInfo[$key]['MAP_EL'],
+							$path . ($path ? '|' : '') . $currentMappingInfo[$key]['MAP_EL'],
 							$isMapOK
 						);
 					}
@@ -3405,37 +3406,37 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 							/* preserve previous config, if of the right kind */
 							if ($reset || !trim($elArray[$key]['tx_templavoila']['TypoScript'])) {
-								if ($elArray[$key]['tx_templavoila']['eType']=='image')	{
+								if ($elArray[$key]['tx_templavoila']['eType'] == 'image') {
 									$elArray[$key]['tx_templavoila']['TypoScript'] = '
-	10 = '.$typoScriptImageObject.'
+	10 = ' . $typoScriptImageObject . '
 	10.file.import = uploads/tx_templavoila/
 	10.file.import.current = 1
 	10.file.import.listNum = 0
-	10.file.maxW = '.$maxW.'
+	10.file.maxW = ' . $maxW . '
 					';			// Proper alignment (at least for the first level)
 								} else {
 									$elArray[$key]['tx_templavoila']['TypoScript'] = '
-	10 = '.$typoScriptImageObject.'
-	10.file.XY = '.$maxW.','.$maxH.'
+	10 = ' . $typoScriptImageObject . '
+	10.file.XY = ' . $maxW . ',' . $maxH . '
 #	10.file.format = jpg
 #	10.file.quality = 80
 	10.file.import = uploads/tx_templavoila/
 	10.file.import.current = 1
 	10.file.import.listNum = 0
-	10.file.maxW = '.$maxW.'
-	10.file.minW = '.$maxW.'
-	10.file.maxH = '.$maxH.'
-	10.file.minH = '.$maxH.'
+	10.file.maxW = ' . $maxW . '
+	10.file.minW = ' . $maxW . '
+	10.file.maxH = ' . $maxH . '
+	10.file.minH = ' . $maxH . '
 					';			// Proper alignment (at least for the first level)
 								}
 							}
 
-								// Finding link-fields on same level and set the image to be linked by that TypoLink:
+							// Finding link-fields on same level and set the image to be linked by that TypoLink:
 							$elArrayKeys = array_keys($elArray);
-							foreach($elArrayKeys as $theKey)	{
-								if ($elArray[$theKey]['tx_templavoila']['eType']=='link')	{
-									$elArray[$key]['tx_templavoila']['TypoScript'].= '
-	10.stdWrap.typolink.parameter.field = '.$theKey.'
+							foreach($elArrayKeys as $theKey) {
+								if ($elArray[$theKey]['tx_templavoila']['eType'] == 'link') {
+									$elArray[$key]['tx_templavoila']['TypoScript'] .= '
+	10.stdWrap.typolink.parameter.field = ' . $theKey . '
 					';			// Proper alignment (at least for the first level)
 									break;
 								}
@@ -3749,7 +3750,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 * @param	array		Overriding parameters.
 	 * @see drawDataStructureMap()
 	 */
-	function linkThisScript($array=array())	{
+	function linkThisScript($array = array()) {
 		$theArray=array(
 			'id' => $this->id,
 			'file' => $this->displayFile,
@@ -3757,9 +3758,9 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			'uid' => $this->displayUid,
 			'returnUrl' => $this->returnUrl
 		);
-		$p = t3lib_div::implodeArrayForUrl('',array_merge($theArray,$array),'',1);
+		$p = t3lib_div::implodeArrayForUrl('', array_merge($theArray,$array), '', 1);
 
-		return htmlspecialchars($this->baseScript.$p);
+		return htmlspecialchars($this->baseScript . $p);
 	}
 
 	/**
