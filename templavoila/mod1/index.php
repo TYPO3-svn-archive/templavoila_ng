@@ -175,7 +175,7 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 		if (preg_match('/mod.php$/', PATH_thisScript)) {
 			$this->baseScript = 'mod.php?M=web_txtemplavoilaM1&';
 			$this->mod1Script = 'mod.php?M=web_txtemplavoilaM1&';
-			$this->cm2Script = 'mod.php?M=web_txtemplavoilaCM2&';
+			$this->cm2Script = 'mod.php?M=xMOD_txtemplavoilaCM2&';
 		}
 
 		$this->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->MOD_MENU, t3lib_div::_GP('SET'), $this->MCONF['name']);
