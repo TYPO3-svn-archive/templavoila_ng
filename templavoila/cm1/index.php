@@ -501,12 +501,14 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			TABLE#c-mapInfo TR TD { padding-right: 20px; }
 		';
 
-			// Add Prototype /Scriptaculous + t3editor
+		$this->doc->loadJavascriptLib('tab.js');
+
+		// Add Prototype /Scriptaculous + t3editor
 		if (t3lib_extMgm::isLoaded('t3editor')) {
 			$this->t3e = t3lib_div::getUserObj('EXT:t3editor/class.tx_t3editor.php:&tx_t3editor');
 			$this->doc->JScode .= $this->t3e->getJavascriptCode($this->doc);
 		}
-			/* Add Prototype /Scriptaculous */
+		/* Add Prototype /Scriptaculous */
 		else {
 			$this->doc->loadJavascriptLib('contrib/prototype/prototype.js');
 
@@ -570,7 +572,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				' : '') . '
 		');
 
-			// Finding Storage folder:
+		// Finding Storage folder:
 		$this->findingStorageFolderIds();
 
 			// Icons
