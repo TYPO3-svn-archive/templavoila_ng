@@ -44,9 +44,8 @@
  *
  */
 
-
-
-
+// Include class which contains the constants and definitions of TV
+require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_defines.php');
 
 /**
  * Class/Function which manipulates the item-array for table/field tx_templavoila_tmplobj_datastructure.
@@ -86,7 +85,7 @@ class tx_templavoila_handleStaticDataStructures {
 	function main_scope1(&$params,&$pObj)    {
 		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures']))	{
 			foreach($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'] as $val)	{
-				if ($val['scope']==1)	{
+				if ($val['scope'] == TVDS_SCOPE_PAGE)	{
 					$params['items'][]=Array($this->prefix.$val['title'], $val['path'], $val['icon']);
 				}
 			}
@@ -105,7 +104,7 @@ class tx_templavoila_handleStaticDataStructures {
 	function main_scope2(&$params,&$pObj)    {
 		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures']))	{
 			foreach($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'] as $val)	{
-				if ($val['scope']==2)	{
+				if ($val['scope'] == TVDS_SCOPE_FCE)	{
 					$params['items'][]=Array($this->prefix.$val['title'], $val['path'], $val['icon']);
 				}
 			}
@@ -158,9 +157,9 @@ class tx_templavoila_handleStaticDataStructures {
 	 * @param	t3lib_TCEforms	$pObj	Calling class
 	 * @return	void
 	 */
-	public function templateObjectItemsProcFunc(array &$params, t3lib_TCEforms &$pObj) {
+	function templateObjectItemsProcFunc(array &$params, t3lib_TCEforms &$pObj) {
 		// Find DS scope
-		$scope = ($params['table'] == 'pages' ? 1 : 2);
+		$scope = ($params['table'] == 'pages' ? TVDS_SCOPE_PAGE : TVDS_SCOPE_FCE);
 
 		// Get storage folder
 		$storagePid = intval($pObj->cachedTSconfig[$params['table'].':'.$params['row']['uid']]['_STORAGE_PID']);		// This should be the Storage PID (at least if the pObj is TCEforms! and t3lib_transferdata is not triggering this function since it is not a real foreign-table thing...)
@@ -224,7 +223,7 @@ class tx_templavoila_handleStaticDataStructures {
 	 * @param	string	$tableName	Table name
 	 * @return	string	Additional WHERE expression (starting from ' AND') or empty string
 	 */
-	protected function enableFields($tableName) {
+	function enableFields($tableName) {
 		$where1 = trim(t3lib_BEfunc::BEenableFields($tableName));
 		if (strcasecmp($where1, 'AND') == 0) {
 			$where1 = '';
@@ -246,7 +245,7 @@ class tx_templavoila_handleStaticDataStructures {
 	 * @see	uksort()
 	 * @see	strcmp()
 	 */
-	public function sortTemplateObjects($key1, $key2) {
+	function sortTemplateObjects($key1, $key2) {
 		$result = 0;
 		$row1 = $this->toRows[$key1];
 		$row2 = $this->toRows[$key2];

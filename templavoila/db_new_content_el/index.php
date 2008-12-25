@@ -39,18 +39,19 @@
  *
  *
  *
- *   88: class tx_templavoila_dbnewcontentel
+ *   86: class tx_templavoila_dbnewcontentel
  *  108:     function init()
- *  152:     function main()
- *  236:     function printContent()
- *  246:     function linkParams()
+ *  154:     function main()
+ *  235:     function printContent()
+ *  245:     function linkParams()
  *
  *              SECTION: OTHER FUNCTIONS:
- *  272:     function getWizardItems()
- *  282:     function wizardArray()
- *  447:     function removeInvalidElements(&$wizardItems)
+ *  271:     function getWizardItems()
+ *  281:     function wizardArray()
+ *  448:     function removeInvalidElements(&$wizardItems)
+ *  512:     function buildRecordWhere($table)
  *
- * TOTAL FUNCTIONS: 7
+ * TOTAL FUNCTIONS: 8
  * (This index is automatically created/updated by the extension "extdeveval")
  *
  */
@@ -59,18 +60,21 @@
 ;
 
 
-	// Merging locallang files/arrays:
+// Merging locallang files/arrays:
 $GLOBALS['LANG']->includeLLFile('EXT:lang/locallang_misc.xml');
+
 $LOCAL_LANG_orig = $GLOBALS['LOCAL_LANG'];
+
 $GLOBALS['LANG']->includeLLFile('EXT:templavoila/db_new_content_el/locallang_db_new_content_el.xml');
+
 $LOCAL_LANG = t3lib_div::array_merge_recursive_overrule($LOCAL_LANG_orig, $GLOBALS['LOCAL_LANG']);
 
-	// Exits if 'cms' extension is not loaded:
-t3lib_extMgm::isLoaded('cms',1);
+// Exits if 'cms' extension is not loaded:
+t3lib_extMgm::isLoaded('cms', 1);
 
-	// Include needed libraries:
-require_once (PATH_t3lib.'class.t3lib_page.php');
-require_once (t3lib_extMgm::extPath ('templavoila').'class.tx_templavoila_api.php');
+// Include needed libraries:
+require_once(PATH_t3lib . 'class.t3lib_page.php');
+require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_api.php');
 
 /**
  * Script Class for the New Content element wizard
@@ -95,7 +99,7 @@ class tx_templavoila_dbnewcontentel {
 	var $access;					// Access boolean.
 
 	var $mod1Link;
-	
+
 	/**
 	 * Initialize internal variables.
 	 *
@@ -137,7 +141,7 @@ class tx_templavoila_dbnewcontentel {
 				$this->parentRecord = implode(SEPARATOR_PARMS, array('pages',$this->id,'sDEF','lDEF',$mainContentAreaFieldName,'vDEF',0));
 			}
 		}
-		
+
 		$this->mod1Link = 'mod.php?M=web_txtemplavoilaM1&';
 	}
 
@@ -375,7 +379,7 @@ class tx_templavoila_dbnewcontentel {
         $res = $TYPO3_DB->exec_SELECTquery(
         	'*',
         	'tx_templavoila_datastructure',
-        	'pid='.intval($storageFolderPID).' AND scope=2' . $addWhere .
+        	'pid=' . intval($storageFolderPID) . ' AND scope=' . TVDS_SCOPE_FCE . $addWhere .
         		t3lib_BEfunc::deleteClause('tx_templavoila_datastructure').
         		t3lib_BEfunc::versioningPlaceholderClause('tx_templavoila_datastructure')
         );
@@ -502,8 +506,8 @@ class tx_templavoila_dbnewcontentel {
 	/**
 	 * Create sql condition for given table to limit records according to user access.
 	 *
-	 * @param	string	$table	Table nme to fetch records from
-	 * @return	string	Condition or empty string
+	 * @param	string		$table	Table nme to fetch records from
+	 * @return	string		Condition or empty string
 	 */
 	function buildRecordWhere($table) {
 		$result = array();

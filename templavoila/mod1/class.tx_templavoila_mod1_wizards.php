@@ -59,7 +59,7 @@
  * @package		TYPO3
  * @subpackage	tx_templavoila
  */
- 
+
 require_once(PATH_t3lib.'class.t3lib_tceforms.php');
 
 class tx_templavoila_mod1_wizards {
@@ -266,7 +266,7 @@ class tx_templavoila_mod1_wizards {
 				$tTO = 'tx_templavoila_tmplobj';
 				$tDS = 'tx_templavoila_datastructure';
 				$where = $tTO . '.parent=0 AND ' . $tTO . '.pid=' .
-						intval($storageFolderPID).' AND ' . $tDS . '.scope=1' .
+						intval($storageFolderPID) . ' AND ' . $tDS . '.scope=' . TVDS_SCOPE_PAGE .
 						$this->buildRecordWhere($tTO) . $this->buildRecordWhere($tDS) .
 						t3lib_befunc::deleteClause ($tTO).t3lib_befunc::deleteClause ($tDS).
 						t3lib_BEfunc::versioningPlaceholderClause($tTO).t3lib_BEfunc::versioningPlaceholderClause($tDS);
@@ -413,7 +413,7 @@ class tx_templavoila_mod1_wizards {
 
 	/**
 	 * Create sql condition for given table to limit records according to user access.
-	 * 
+	 *
 	 * @param	string	$table	Table nme to fetch records from
 	 * @return	string	Condition or empty string
 	 */
@@ -424,7 +424,7 @@ class tx_templavoila_mod1_wizards {
 			foreach($GLOBALS['BE_USER']->userGroups as $group) {
 				$items = t3lib_div::trimExplode(',', $group['tx_templavoila_access'], 1);
 				foreach ($items as $ref) {
-					if (strstr($ref, $table)) { 
+					if (strstr($ref, $table)) {
 						$result[] = intval(substr($ref, $prefLen));
 					}
 				}

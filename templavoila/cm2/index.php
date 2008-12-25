@@ -34,27 +34,23 @@
  *
  *
  *
- *   67: class tx_templavoila_cm2 extends t3lib_SCbase
- *   80:     function main()
- *  113:     function printContent()
- *  125:     function markUpXML($str)
+ *   62: class tx_templavoila_cm2 extends t3lib_SCbase
+ *   75:     function main()
+ *  183:     function printContent()
+ *  195:     function markUpXML($str)
  *
  * TOTAL FUNCTIONS: 3
  * (This index is automatically created/updated by the extension "extdeveval")
  *
  */
 
-	// DEFAULT initialization of a module [BEGIN]
+// DEFAULT initialization of a module [BEGIN]
 $LANG->includeLLFile('EXT:templavoila/cm2/locallang.xml');
+
 require_once (PATH_t3lib.'class.t3lib_scbase.php');
 require_once (PATH_t3lib.'class.t3lib_flexformtools.php');
 require_once (PATH_t3lib.'class.t3lib_tcemain.php');
 require_once (PATH_t3lib.'class.t3lib_diff.php');
-
-
-
-
-
 
 /**
  * Class for displaying color-marked-up version of FlexForm XML content.
@@ -79,59 +75,60 @@ class tx_templavoila_cm2 extends t3lib_SCbase {
 	function main()	{
 		global $LANG,$BACK_PATH;
 
-			// Check admin: If this is changed some day to other than admin users we HAVE to check if there is read access to the record being selected!
-		if (!$GLOBALS['BE_USER']->isAdmin())	die('no access.');
+		// Check admin: If this is changed some day to other than admin users we HAVE to check if there is read access to the record being selected!
+		if (!$GLOBALS['BE_USER']->isAdmin())
+			die('no access.');
 
-			// Draw the header.
+		// Draw the header.
 		$this->doc = t3lib_div::makeInstance('noDoc');
 		$this->doc->backPath = $BACK_PATH;
 		$this->doc->docType = 'xhtml_trans';
-
 
 		$this->content.=$this->doc->startPage($LANG->getLL('title'));
 		$this->content.=$this->doc->header($LANG->getLL('title'));
 		$this->content.=$this->doc->spacer(5);
 
-			// XML code:
+		// XML code:
 		$this->viewTable = t3lib_div::_GP('viewRec');
-		$record = t3lib_BEfunc::getRecordWSOL($this->viewTable['table'], $this->viewTable['uid']);	// Selecting record based on table/uid since adding the field might impose a SQL-injection problem; at least the field name would have to be checked first.
+		// Selecting record based on table/uid since adding the field might impose a SQL-injection problem; at least the field name would have to be checked first.
+		$record = t3lib_BEfunc::getRecordWSOL($this->viewTable['table'], $this->viewTable['uid']);
 		if (is_array($record))	{
-			
-				// Set current XML data:
+
+			// Set current XML data:
 			$currentXML = $record[$this->viewTable['field_flex']];
 
-				// Clean up XML:
+			// Clean up XML:
 			$cleanXML = '';
 			if ($GLOBALS['BE_USER']->isAdmin())	{
 				if ('tx_templavoila_flex' == $this->viewTable['field_flex'])	{
 					$flexObj = t3lib_div::makeInstance('t3lib_flexformtools');
 					if ($record['tx_templavoila_flex'])	{
 						$cleanXML = $flexObj->cleanFlexFormXML($this->viewTable['table'],'tx_templavoila_flex',$record);
-						
-							// If the clean-button was pressed, save right away:
+
+						// If the clean-button was pressed, save right away:
 						if (t3lib_div::_POST('_CLEAN_XML'))	{
 							$dataArr = array();
 							$dataArr[$this->viewTable['table']][$this->viewTable['uid']]['tx_templavoila_flex'] = $cleanXML;
-							
-								// Init TCEmain object and store:
+
+							// Init TCEmain object and store:
 							$tce = t3lib_div::makeInstance('t3lib_TCEmain');
 							$tce->stripslashes_values=0;
 							$tce->start($dataArr,array());
 							$tce->process_datamap();
 
-								// Re-fetch record:
+							// Re-fetch record:
 							$record = t3lib_BEfunc::getRecordWSOL($this->viewTable['table'], $this->viewTable['uid']);
 							$currentXML = $record[$this->viewTable['field_flex']];
-						}	
+						}
 					}
 				}
 			}
-				
+
 			if (md5($currentXML)!=md5($cleanXML))	{
-					// Create diff-result:
+				// Create diff-result:
 				$t3lib_diff_Obj = t3lib_div::makeInstance('t3lib_diff');
 				$diffres = $t3lib_diff_Obj->makeDiffDisplay($currentXML,$cleanXML);
-				
+
 				$xmlContentMarkedUp = '
 				<b>'.$this->doc->icons(1).$LANG->getLL('needsCleaning',1).'</b>
 				<table border="0">
@@ -153,15 +150,15 @@ class tx_templavoila_cm2 extends t3lib_SCbase {
 					<tr>
 						<td>'.$diffres.'
 						<br/><br/><br/>
-								
+
 						<form action="'.t3lib_div::getIndpEnv('REQUEST_URI').'" method="post">
 							<input type="submit" value="'.$LANG->getLL('cleanUp',1).'" name="_CLEAN_XML" />
 						</form>
-						
+
 						</td>
 					</tr>
 				</table>
-				
+
 				';
 			} else {
 				$xmlContentMarkedUp = '';
@@ -170,11 +167,11 @@ class tx_templavoila_cm2 extends t3lib_SCbase {
 				}
 				$xmlContentMarkedUp.= $this->markUpXML($currentXML);
 			}
-			
+
 			$this->content.=$this->doc->section('',$xmlContentMarkedUp,0,1);
 		}
 
-			// Add spacer:
+		// Add spacer:
 		$this->content.=$this->doc->spacer(10);
 	}
 
@@ -198,10 +195,10 @@ class tx_templavoila_cm2 extends t3lib_SCbase {
 	function markUpXML($str)	{
 		require_once(PATH_t3lib.'class.t3lib_syntaxhl.php');
 
-			// Make instance of syntax highlight class:
+		// Make instance of syntax highlight class:
 		$hlObj = t3lib_div::makeInstance('t3lib_syntaxhl');
 
-			// Check which document type, if applicable:
+		// Check which document type, if applicable:
 		if (strstr(substr($str,0,100),'<T3DataStructure'))	{
 			$title = 'Syntax highlighting <T3DataStructure> XML:';
 			$formattedContent = $hlObj->highLight_DS($str);
@@ -213,7 +210,7 @@ class tx_templavoila_cm2 extends t3lib_SCbase {
 			$formattedContent = '<span style="font-style: italic; color: #666666;">'.htmlspecialchars($str).'</span>';
 		}
 
-			// Check line number display:
+		// Check line number display:
 		if ($this->option_linenumbers)	{
 			$lines = explode(chr(10),$formattedContent);
 			foreach($lines as $k => $v)	{
@@ -222,7 +219,7 @@ class tx_templavoila_cm2 extends t3lib_SCbase {
 			$formattedContent = implode(chr(10),$lines);
 		}
 
-			// Output:
+		// Output:
 		return '
 			<h3>'.htmlspecialchars($title).'</h3>
 			<pre class="ts-hl">'.$formattedContent.'</pre>

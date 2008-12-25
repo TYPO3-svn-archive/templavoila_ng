@@ -29,86 +29,117 @@
  * @author     Robert Lemke <robert@typo3.org>
  * @coauthor   Kasper Skaarhoj <kasperYYYY@typo3.com>
  * @coauthor   Dmitry Dulepov <dmitry@typo3.org>
+ * @coauthor   Niels Fröhling <niels@frohling.biz>
  */
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
  *
  *
  *
- *  122: class tx_templavoila_module1 extends t3lib_SCbase
+ *  152: class tx_templavoila_module1 extends t3lib_SCbase
  *
  *              SECTION: Initialization functions
- *  162:     function init()
- *  213:     function menuConfig()
+ *  202:     function init()
+ *  262:     function menuConfig()
  *
  *              SECTION: Main functions
- *  271:     function main()
- *  451:     function printContent()
+ *  318:     function main()
+ *  457:     function setFormValueFromBrowseWin(fName,value,label,exclusiveValues)
+ *  571:     function printContent()
  *
  *              SECTION: Rendering functions
- *  471:     function render_editPageScreen()
+ *  591:     function renderModuleContent($singleView=false)
+ *  665:     function render_editPageScreen($singleView)
  *
  *              SECTION: Framework rendering functions
- *  538:     function render_framework_allSheets($contentTreeArr, $languageKey='DEF', $parentPointer=array(), $parentDsMeta=array())
- *  576:     function render_framework_singleSheet($contentTreeArr, $languageKey, $sheet, $parentPointer=array(), $parentDsMeta=array())
- *  699:     function render_framework_subElements($elementContentTreeArr, $languageKey, $sheet)
+ *  747:     function render_framework_allSheets($singleView, $contentTreeArr, $languageKey='DEF', $parentPointer=array(), $parentDsMeta=array())
+ *  791:     function render_framework_singleSheet($singleView, $contentTreeArr, $languageKey, $sheet, $parentPointer=array(), $parentDsMeta=array())
+ *  934:     function render_framework_singleSheet_traverse($singleView, $elementContentTreeArr, $languageKey, $sheet, $group = '')
+ * 1061:     function render_framework_singleSheet_flush(&$cells, &$headerCells)
+ * 1097:     function render_framework_subElement($singleView, $elementContentTreeArr, $languageKey, $sheet, $fieldID)
+ * 1212:     function render_framework_previewData($elementContentTreeArr, $languageKey, $sheet, $fieldID)
  *
- *              SECTION: Rendering functions for certain subparts
- *  818:     function render_previewData($previewData, $elData, $ds_meta, $languageKey, $sheet)
- *  885:     function render_previewContent($row)
- *  971:     function render_localizationInfoTable($contentTreeArr, $parentPointer, $parentDsMeta=array())
+ *              SECTION: Rendering functions for certain elements
+ * 1326:     function render_previewContent($row)
+ * 1411:     function render_previewContent_extraPluginInfo($row)
+ * 1437:     function render_localizationInfoTable($contentTreeArr, $parentPointer, $parentDsMeta=array())
  *
  *              SECTION: Outline rendering:
- * 1111:     function render_outline($contentTreeArr)
- * 1217:     function render_outline_element($contentTreeArr, &$entries, $indentLevel=0, $parentPointer=array(), $controls='')
- * 1319:     function render_outline_subElements($contentTreeArr, $sheet, &$entries, $indentLevel)
- * 1404:     function render_outline_localizations($contentTreeArr, &$entries, $indentLevel)
+ * 1582:     function render_outline($singleView, $contentTreeArr)
+ * 1691:     function render_outline_element($singleView, $contentTreeArr, &$entries, $indentLevel=0, $parentPointer=array(), $controls='')
+ * 1801:     function render_outline_subElements($contentTreeArr, $sheet, &$entries, $indentLevel)
+ * 1892:     function render_outline_localizations($contentTreeArr, &$entries, $indentLevel)
  *
  *              SECTION: Link functions (protected)
- * 1466:     function link_edit($label, $table, $uid, $forced=FALSE)
- * 1487:     function link_new($label, $parentPointer)
- * 1505:     function link_unlink($label, $unlinkPointer, $realDelete=FALSE)
- * 1525:     function link_makeLocal($label, $makeLocalPointer)
- * 1537:     function link_getParameters()
+ * 1955:     function icon_view($el)
+ * 1973:     function link_view($label, $table, $uid)
+ * 1989:     function icon_hide($el)
+ * 2017:     function link_hide($label, $table, $uid, $hidden, $forced=FALSE)
+ * 2055:     function icon_edit($el)
+ * 2076:     function link_edit($label, $table, $uid, $forced=FALSE)
+ * 2103:     function icon_browse($parentPointer)
+ * 2139:     function icon_new($parentPointer)
+ * 2156:     function link_new($label, $parentPointer)
+ * 2174:     function icon_unlink($unlinkPointer, $realDelete=0)
+ * 2205:     function link_unlink($label, $unlinkPointer, $realDelete=FALSE)
+ * 2227:     function icon_makeLocal($makeLocalPointer, $realDup=0)
+ * 2247:     function link_makeLocal($label, $makeLocalPointer)
+ * 2259:     function link_getParameters()
  *
  *              SECTION: Processing and structure functions (protected)
- * 1565:     function handleIncomingCommands()
+ * 2288:     function handleIncomingCommands()
+ * 2399:     function clearCache()
  *
  *              SECTION: Miscelleaneous helper functions (protected)
- * 1689:     function getAvailableLanguages($id=0, $onlyIsoCoded=true, $setDefault=true, $setMulti=false)
- * 1763:     function hooks_prepareObjectsArray ($hookName)
- * 1780:     function alternativeLanguagesDefined()
- * 1790:     function displayElement($subElementArr)
+ * 2427:     function getAvailableLanguages($id=0, $onlyIsoCoded=true, $setDefault=true, $setMulti=false)
+ * 2501:     function hooks_prepareObjectsArray ($hookName)
+ * 2518:     function alternativeLanguagesDefined()
+ * 2528:     function displayElement($subElementArr)
+ * 2548:     function localizedFFLabel($label, $hsc)
+ * 2567:     function getRecordStatHookValue($table,$id)
+ * 2579:     function hasFCEAccess($row)
  *
- * TOTAL FUNCTIONS: 25
+ *
+ * 2604: class tx_templavoila_module1_integral extends tx_templavoila_module1
+ * 2616:     function menuConfig()
+ * 2653:     function getFuncMenuNoHSC($mainParams, $elementName, $currentValue, $menuItems, $script = '', $addparams = '')
+ * 2692:     function getOptsMenuNoHSC()
+ * 2737:     function main()
+ * 2911:     function setFormValueFromBrowseWin(fName,value,label,exclusiveValues)
+ * 3023:     function printContent()
+ * 3033:     function getButtons()
+ * 3144:     function getPagePath($pageRecord)
+ * 3165:     function getPageInfo($pageRecord)
+ *
+ * TOTAL FUNCTIONS: 52
  * (This index is automatically created/updated by the extension "extdeveval")
  *
  */
 
 require_once('conf.php');
-
-require_once (PATH_t3lib.'class.t3lib_scbase.php');
+require_once(PATH_t3lib . 'class.t3lib_scbase.php');
 
 $LANG->includeLLFile('EXT:templavoila/mod1/locallang.xml');
-$BE_USER->modAccess($MCONF,1);    								// This checks permissions and exits if the users has no permission for entry.
+$BE_USER->modAccess($MCONF, 1);    								// This checks permissions and exits if the users has no permission for entry.
 
-t3lib_extMgm::isLoaded('cms',1);
+t3lib_extMgm::isLoaded('cms', 1);
 
-	// We need the TCE forms functions
-require_once (PATH_t3lib.'class.t3lib_loaddbgroup.php');
-require_once (PATH_t3lib.'class.t3lib_tcemain.php');
-require_once (PATH_t3lib.'class.t3lib_clipboard.php');
+// We need the TCE forms functions
+require_once(PATH_t3lib . 'class.t3lib_loaddbgroup.php');
+require_once(PATH_t3lib . 'class.t3lib_tcemain.php');
+require_once(PATH_t3lib . 'class.t3lib_clipboard.php');
 
-	// Include TemplaVoila API
-require_once (t3lib_extMgm::extPath('templavoila').'class.tx_templavoila_api.php');
+// Include class which contains the constants and definitions of TV
+require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_defines.php');
+require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_api.php');
 
-	// Include class for rendering the side bar and wizards:
-require_once (t3lib_extMgm::extPath('templavoila').'mod1/class.tx_templavoila_mod1_sidebar.php');
-require_once (t3lib_extMgm::extPath('templavoila').'mod1/class.tx_templavoila_mod1_wizards.php');
-require_once (t3lib_extMgm::extPath('templavoila').'mod1/class.tx_templavoila_mod1_clipboard.php');
-require_once (t3lib_extMgm::extPath('templavoila').'mod1/class.tx_templavoila_mod1_localization.php');
-require_once (t3lib_extMgm::extPath('templavoila').'mod1/class.tx_templavoila_mod1_records.php');
-require_once (t3lib_extMgm::extPath('templavoila').'mod1/class.tx_templavoila_mod1_specialdoktypes.php');
+// Include class for rendering the side bar and wizards:
+require_once(t3lib_extMgm::extPath('templavoila') . 'mod1/class.tx_templavoila_mod1_sidebar.php');
+require_once(t3lib_extMgm::extPath('templavoila') . 'mod1/class.tx_templavoila_mod1_wizards.php');
+require_once(t3lib_extMgm::extPath('templavoila') . 'mod1/class.tx_templavoila_mod1_clipboard.php');
+require_once(t3lib_extMgm::extPath('templavoila') . 'mod1/class.tx_templavoila_mod1_localization.php');
+require_once(t3lib_extMgm::extPath('templavoila') . 'mod1/class.tx_templavoila_mod1_records.php');
+require_once(t3lib_extMgm::extPath('templavoila') . 'mod1/class.tx_templavoila_mod1_specialdoktypes.php');
 
 /**
  * Module 'Page' for the 'templavoila' extension.
@@ -154,7 +185,7 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 	var $apiObj;						// Instance of tx_templavoila_api
 	var $sortableContainers = array();			// Contains the containers for drag and drop
 
-    var $newElementWizardLink;
+	var $newElementWizardLink;
 
 	/*******************************************
 	 *
@@ -417,6 +448,12 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 					browserPos.firstChild.src = browserPlus;
 				}
 
+	/**
+	 * [Describe function...]
+	 *
+	 * @param	[type]		$fName,value,label,exclusiveValues: ...
+	 * @return	[type]		...
+	 */
 				function setFormValueFromBrowseWin(fName,value,label,exclusiveValues){
 					if (value) {
 						var ret = value.split(\'_\');
@@ -548,6 +585,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 	/**
 	 * Renders module content:
 	 *
+	 * @param	[type]		$singleView: ...
 	 * @return	void
 	 */
 	function renderModuleContent($singleView=false)	{
@@ -620,6 +658,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 	/**
 	 * Displays the default view of a page, showing the nested structure of elements.
 	 *
+	 * @param	[type]		$singleView: ...
 	 * @return	string		The modules content
 	 * @access protected
 	 */
@@ -700,6 +739,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @param	string		$languageKey: Language key for the display
 	 * @param	array		$parentPointer: Flexform Pointer to parent element
 	 * @param	array		$parentDsMeta: Meta array from parent DS (passing information about parent containers localization mode)
+	 * @param	[type]		$parentDsMeta: ...
 	 * @return	string		HTML
 	 * @access protected
 	 * @see	render_framework_singleSheet()
@@ -743,6 +783,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @param	string		$sheet: The sheet key of the sheet which should be rendered
 	 * @param	array		$parentPointer: Flexform pointer to parent element
 	 * @param	array		$parentDsMeta: Meta array from parent DS (passing information about parent containers localization mode)
+	 * @param	[type]		$parentDsMeta: ...
 	 * @return	string		HTML
 	 * @access protected
 	 * @see	render_framework_singleSheet()
@@ -885,6 +926,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @param	string		$languageKey: Language key for current display
 	 * @param	string		$sheet: Key of the sheet we want to render
 	 * @param	string		$group: Specific group to be rendred, is used for recursion mainly
+	 * @param	[type]		$group: ...
 	 * @return	string		HTML output (a table) of the sub elements and some "insert new" and "paste" buttons
 	 * @access protected
 	 * @see render_framework_allSheets(), render_framework_singleSheet()
@@ -1047,6 +1089,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @param	string		$languageKey: Language key for current display
 	 * @param	string		$sheet: Key of the sheet we want to render
 	 * @param	string		$fieldID: The field to render
+	 * @param	[type]		$fieldID: ...
 	 * @return	string		HTML output (a table) of the sub elements and some "insert new" and "paste" buttons
 	 * @access protected
 	 * @see render_framework_allSheets(), render_framework_singleSheet()
@@ -1362,8 +1405,8 @@ table.typo3-dyntabmenu td.disabled:hover {
 	/**
 	 * Renders additional information about plugins (if available)
 	 *
-	 * @param	array	$row	Row from database
-	 * @return	string	Information
+	 * @param	array		$row	Row from database
+	 * @return	string		Information
 	 */
 	function render_previewContent_extraPluginInfo($row) {
 		if (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['cms/layout/class.tx_cms_layout.php']['list_type_Info'][$row['list_type']]))	{
@@ -1533,6 +1576,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * Rendering the outline display of the page structure
 	 *
 	 * @param	array		$contentTreeArr: DataStructure info array (the whole tree)
+	 * @param	[type]		$contentTreeArr: ...
 	 * @return	string		HTML
 	 */
 	function render_outline($singleView, $contentTreeArr) {
@@ -1639,6 +1683,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @param	integer		$indentLevel: Indentation level
 	 * @param	array		$parentPointer: Element position in structure
 	 * @param	string		$controls: HTML for controls to add for this element
+	 * @param	[type]		$controls: ...
 	 * @return	void
 	 * @access protected
 	 * @see	render_outline_allSheets()
@@ -1917,6 +1962,14 @@ table.typo3-dyntabmenu td.disabled:hover {
 		return $this->link_view($label, $el['table'], $el['uid']);
 	}
 
+	/**
+	 * [Describe function...]
+	 *
+	 * @param	[type]		$label: ...
+	 * @param	[type]		$table: ...
+	 * @param	[type]		$uid: ...
+	 * @return	[type]		...
+	 */
 	function link_view($label, $table, $uid) {
 		$onClick = t3lib_BEfunc::viewOnClick($uid, $this->doc->backPath, t3lib_BEfunc::BEgetRootLine($uid),'','',($this->currentLanguageUid?'&L='.$this->currentLanguageUid:''));
 
@@ -1951,6 +2004,16 @@ table.typo3-dyntabmenu td.disabled:hover {
 		return $this->link_hide($label, $el['table'], $el['uid'], $el['isHidden']);
 	}
 
+	/**
+	 * [Describe function...]
+	 *
+	 * @param	[type]		$label: ...
+	 * @param	[type]		$table: ...
+	 * @param	[type]		$uid: ...
+	 * @param	[type]		$hidden: ...
+	 * @param	[type]		$forced: ...
+	 * @return	[type]		...
+	 */
 	function link_hide($label, $table, $uid, $hidden, $forced=FALSE) {
 		if ($label) {
 			if (($table == 'pages' && ($this->calcPerms & 2) ||
@@ -2001,6 +2064,15 @@ table.typo3-dyntabmenu td.disabled:hover {
 		return $this->link_edit($label, $el['table'], $el['uid']);
 	}
 
+	/**
+	 * [Describe function...]
+	 *
+	 * @param	[type]		$label: ...
+	 * @param	[type]		$table: ...
+	 * @param	[type]		$uid: ...
+	 * @param	[type]		$forced: ...
+	 * @return	[type]		...
+	 */
 	function link_edit($label, $table, $uid, $forced=FALSE)	{
 		if ($label) {
 			if (($table == 'pages' && ($this->calcPerms & 2) ||
@@ -2064,7 +2136,6 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @return	string		HTML anchor tag containing the label and the correct link
 	 * @access protected
 	 */
-
 	function icon_new($parentPointer) {
 		global $LANG;
 
@@ -2075,6 +2146,13 @@ table.typo3-dyntabmenu td.disabled:hover {
 		return $this->link_new($label, $parentPointer);
 	}
 
+	/**
+	 * [Describe function...]
+	 *
+	 * @param	[type]		$label: ...
+	 * @param	[type]		$parentPointer: ...
+	 * @return	[type]		...
+	 */
 	function link_new($label, $parentPointer) {
 		$parameters =
 			$this->link_getParameters().
@@ -2093,7 +2171,6 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @return	string		HTML anchor tag containing the label and the unlink-link
 	 * @access protected
 	 */
-
 	function icon_unlink($unlinkPointer, $realDelete=0) {
 		global $LANG;
 
@@ -2117,6 +2194,14 @@ table.typo3-dyntabmenu td.disabled:hover {
 		}
 	}
 
+	/**
+	 * [Describe function...]
+	 *
+	 * @param	[type]		$label: ...
+	 * @param	[type]		$unlinkPointer: ...
+	 * @param	[type]		$realDelete: ...
+	 * @return	[type]		...
+	 */
 	function link_unlink($label, $unlinkPointer, $realDelete=FALSE)	{
 		global $LANG;
 
@@ -2152,6 +2237,13 @@ table.typo3-dyntabmenu td.disabled:hover {
 			return '';
 	}
 
+	/**
+	 * [Describe function...]
+	 *
+	 * @param	[type]		$label: ...
+	 * @param	[type]		$makeLocalPointer: ...
+	 * @return	[type]		...
+	 */
 	function link_makeLocal($label, $makeLocalPointer) {
 		global $LANG;
 
@@ -2449,9 +2541,9 @@ table.typo3-dyntabmenu td.disabled:hover {
 	/**
 	 * Returns label, localized and converted to current charset. Label must be from FlexForm (= always in UTF-8).
 	 *
-	 * @param	string	$label	Label
-	 * @param	boolean	$hsc	<code>true</code> if HSC required
-	 * @return	string	Converted label
+	 * @param	string		$label	Label
+	 * @param	boolean		$hsc	<code>true</code> if HSC required
+	 * @return	string		Converted label
 	 */
 	function localizedFFLabel($label, $hsc) {
 		global	$LANG, $TYPO3_CONF_VARS;
@@ -2465,6 +2557,13 @@ table.typo3-dyntabmenu td.disabled:hover {
 		return $result;
 	}
 
+	/**
+	 * [Describe function...]
+	 *
+	 * @param	[type]		$table: ...
+	 * @param	[type]		$id: ...
+	 * @return	[type]		...
+	 */
 	function getRecordStatHookValue($table,$id)	{
 			// Call stats information hook
 		if (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['GLOBAL']['recStatInfoHooks']))	{
@@ -2585,6 +2684,11 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 		}
 	}
 
+	/**
+	 * [Describe function...]
+	 *
+	 * @return	[type]		...
+	 */
 	function getOptsMenuNoHSC() {
 		global $LANG;
 
@@ -2798,6 +2902,12 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 					browserPos.firstChild.src = browserPlus;
 				}
 
+	/**
+	 * [Describe function...]
+	 *
+	 * @param	[type]		$fName,value,label,exclusiveValues: ...
+	 * @return	[type]		...
+	 */
 				function setFormValueFromBrowseWin(fName,value,label,exclusiveValues){
 					if (value) {
 						if (!browserPos) {
@@ -2918,7 +3028,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 	/**
 	 * Create the panel of buttons for submitting the form or otherwise perform operations.
 	 *
-	 * @return	array	all available buttons as an assoc. array
+	 * @return	array		all available buttons as an assoc. array
 	 */
 	function getButtons()	{
 		global $TCA, $LANG, $BACK_PATH, $BE_USER;
@@ -3028,8 +3138,8 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 	/**
 	 * Generate the page path for docheader
 	 *
-	 * @param 	array	Current page
-	 * @return	string	Page path
+	 * @param	array		Current page
+	 * @return	string		Page path
 	 */
 	function getPagePath($pageRecord) {
 		global $LANG;
@@ -3049,8 +3159,8 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 	/**
 	 * Setting page icon with clickmenu + uid for docheader
 	 *
-	 * @param 	array	Current page
-	 * @return	string	Page info
+	 * @param	array		Current page
+	 * @return	string		Page info
 	 */
 	function getPageInfo($pageRecord) {
 		global $BE_USER;

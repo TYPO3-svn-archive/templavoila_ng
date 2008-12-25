@@ -34,33 +34,29 @@
  *
  *
  *
- *   71: class tx_templavoila_pi1 extends tslib_pibase
- *   88:     function main($content, $conf)
- *  101:     function main_page($content, $conf)
- *  131:     function initVars($conf)
- *  144:     function renderElement($row, $table)
- *  282:     function processDataValues(&$dataValues, $DSelements, $TOelements, $valueKey='vDEF')
- *  282:     function processDataValues_traverse(&$dataValues, $DSelements, $TOelements, $valueKey = 'vDEF', $xpath = '')
- *  446:     function inheritValue($dV, $valueKey, $overlayMode='')
- *  486:     function formatError($string)
- *  519:     function visualID($content, $srcPointer, $DSrec, $TOrec, $row, $table)
+ *   69: class tx_templavoila_pi1 extends tslib_pibase
+ *   90:     function main($content, $conf)
+ *  135:     function main_record($content, $conf)
+ *  190:     function main_page($content, $conf)
+ *  231:     function initVars($conf)
+ *  244:     function renderElement($row, $table)
+ *  383:     function processDataValues(&$dataValues, $DSelements, $TOelements, $valueKey='vDEF')
+ *  463:     function processDataValues_traverse(&$dataValues, $DSelements, $TOelements, $valueKey='vDEF', $xpath='')
+ *  675:     function inheritValue($dV, $valueKey, $overlayMode='')
+ *  715:     function formatError($string)
+ *  748:     function visualID($content, $srcPointer, $DSrec, $TOrec, $row, $table)
  *
- * TOTAL FUNCTIONS: 8
+ * TOTAL FUNCTIONS: 10
  * (This index is automatically created/updated by the extension "extdeveval")
  *
  */
 
+require_once(PATH_tslib . 'class.tslib_pibase.php');
 
+// Include class which contains the constants and definitions of TV
+require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_defines.php');
+require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_htmlmarkup.php');
 
-
-
-
-
-
-
-
-require_once(PATH_tslib.'class.tslib_pibase.php');
-require_once(t3lib_extMgm::extPath('templavoila').'class.tx_templavoila_htmlmarkup.php');
 require_once(PATH_t3lib . 'class.t3lib_flexformtools.php');
 
 /**
@@ -71,11 +67,11 @@ require_once(PATH_t3lib . 'class.t3lib_flexformtools.php');
  * @subpackage tx_templavoila
  */
 class tx_templavoila_pi1 extends tslib_pibase {
-	var $prefixId = 'tx_templavoila_pi1';        // Same as class name
-	var $scriptRelPath = 'pi1/class.tx_templavoila_pi1.php';    // Path to this script relative to the extension dir.
-	var $extKey = 'templavoila';    // The extension key.
+	var $prefixId = 'tx_templavoila_pi1';        			// Same as class name
+	var $scriptRelPath = 'pi1/class.tx_templavoila_pi1.php';	// Path to this script relative to the extension dir.
+	var $extKey = 'templavoila';    				// The extension key.
 
-	var $inheritValueFromDefault=1;		// If set, children-translations will take the value from the default if "false" (zero or blank)
+	var $inheritValueFromDefault = 1;				// If set, children-translations will take the value from the default if "false" (zero or blank)
 
 	/**
 	 * Markup object
@@ -114,10 +110,10 @@ class tx_templavoila_pi1 extends tslib_pibase {
 	 * 	renderObj = USER
 	 * 	renderObj {
 	 * 		userFunc = tx_templavoila_pi1->main_record
-	 *		ds = 2
+	 * 		ds = 2
 	 * 		to = 4
 	 * 		table = fe_users
-	 *	}
+	 * 	}
 	 * }
 	 * </pre/></code>
 	 * This example lists all frontend users using DS with DS=2 and TO=4.
@@ -129,9 +125,9 @@ class tx_templavoila_pi1 extends tslib_pibase {
 	 * 	<li><code>table</code> - table of the record
 	 * </ul>
 	 *
-	 * @param string $content Unused
-	 * @param array $conf Configuration (see above for entries)
-	 * @return string Generated content
+	 * @param	string		$content Unused
+	 * @param	array		$conf Configuration (see above for entries)
+	 * @return	string		Generated content
 	 * @todo Create a new content element with this functionality and DS/TO selector?
 	 * @todo Create TS element with this functionality?
 	 * @todo Support sheet selector?
@@ -461,6 +457,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 	 * @param	array		The data structure definition which the data in the dataValues array reflects.
 	 * @param	array		The local XML processing information found in associated Template Objects (TO)
 	 * @param	string		Value key
+	 * @param	[type]		$xpath: ...
 	 * @return	void
 	 */
 	function processDataValues_traverse(&$dataValues, $DSelements, $TOelements, $valueKey='vDEF', $xpath='') {
@@ -522,7 +519,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 						//				}
 						//			}
 
-									$this->processDataValues_traverse($dataValues[$key]['el'][$ik], $DSelements[$key]['el'], $TOelements[$key]['el'], $valueKey, $xpath.$key.'/el/');
+									$this->processDataValues_traverse($dataValues[$key]['el'][$ik], $DSelements[$key]['el'], $TOelements[$key]['el'], $valueKey, $xpath . $key . '/el/');
 
 									$GLOBALS['TSFE']->register['tx_templavoila_pi1.parentRec.' . str_replace('ROOT/el/', '', $xpath . $key . '/position')] = $ik;
 								}
@@ -530,7 +527,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 
 							$dataValues[$key][$valueKey] = '###GROUP###';
 						} else {
-							$this->processDataValues_traverse($dataValues[$key]['el'], $DSelements[$key]['el'], $TOelements[$key]['el'], $valueKey, $xpath.$key.'/el/');
+							$this->processDataValues_traverse($dataValues[$key]['el'], $DSelements[$key]['el'], $TOelements[$key]['el'], $valueKey, $xpath . $key . '/el/');
 
 							$dataValues[$key][$valueKey] = '###GROUP###';
 
