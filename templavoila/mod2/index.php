@@ -828,8 +828,8 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 		{
 			$link = $this->baseScript . $this->link_getParameters() . '&SET[set_details]=###';
 
-			$entries[] = '<li class="radio'.(!$this->MOD_SETTINGS['set_details']?' selected':'').'" name="set_details"><a href="' . str_replace('###', '', $link).'"'. '>' . $LANG->getLL('center_settings_hidden', 1) . '</a></li>';
-			$entries[] = '<li class="radio'.( $this->MOD_SETTINGS['set_details']?' selected':'').'" name="set_details"><a href="' . str_replace('###', '1', $link).'"'.'>' . $LANG->getLL('center_settings_all', 1) . '</a></li>';
+			$entries[] = '<li class="mradio'.(!$this->MOD_SETTINGS['set_details']?' selected':'').'" name="set_details"><a href="' . str_replace('###', '', $link).'"'. '>' . $LANG->getLL('center_settings_hidden', 1) . '</a></li>';
+			$entries[] = '<li class="mradio'.( $this->MOD_SETTINGS['set_details']?' selected':'').'" name="set_details"><a href="' . str_replace('###', '1', $link).'"'.'>' . $LANG->getLL('center_settings_all', 1) . '</a></li>';
 
 			$group = '<ul class="group">'.implode(chr(10), $entries).'</ul>';
 			$options .= '<li class="group">' . $group . '</li>';
