@@ -327,23 +327,24 @@ class tx_templavoila_mod2_to {
 			// USED FILES:
 			$tRows = array();
 			$tRows[] = '
-				<tr class="bgColor5 tableheader">
+				<tr class="c-headLineTable" style="font-weight: bold; color: #FFFFFF;">
 					<td>File</td>
-					<td>Usage count:</td>
-					<td>New DS/TO?</td>
+					<td align="center">Usage count</td>
+					<td>New DS/TO</td>
 				</tr>';
 
+			$i = 0;
 			foreach ($this->tFileList as $tFile => $count) {
 				$tRows[] = '
-					<tr class="bgColor4">
+					<tr class="' . ($i++ % 2 == 0 ? 'bgColor4' : 'bgColor6') . '">
 						<td>' .
 							'<a href="' . htmlspecialchars($this->doc->backPath . '../' . substr($tFile, strlen(PATH_site))) . '" target="_blank">'.
-							htmlspecialchars(substr($tFile,strlen(PATH_site))) .
+							'<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/zoom.gif','width="11" height="12"').' alt="" class="absmiddle" /> ' . htmlspecialchars(substr($tFile,strlen(PATH_site))) .
 							'</a></td>
 						<td align="center">' . $count . '</td>
 						<td>' .
 							'<a href="'.htmlspecialchars($this->pObj->cm1Script . 'id=' . $this->pObj->id . '&file=' . rawurlencode($tFile)) . '&mapElPath=%5BROOT%5D">'.
-							htmlspecialchars('Create...') .
+							'<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/new_el.gif','width="11" height="12"').' alt="" class="absmiddle" /> ' . htmlspecialchars('Create...') .
 							'</a></td>
 					</tr>';
 			}
@@ -351,7 +352,7 @@ class tx_templavoila_mod2_to {
 			if (count($tRows) > 1) {
 				$output .= '
 				<h3>Used files:</h3>
-				<table border="0" cellpadding="1" cellspacing="1" class="lrPadding">
+				<table border="0" cellpadding="1" cellspacing="1" class="typo3-dblist">
 					' . implode('', $tRows) . '
 				</table>
 				';
@@ -368,23 +369,24 @@ class tx_templavoila_mod2_to {
 							// USED FILES:
 							$tRows = array();
 							$tRows[] = '
-								<tr class="bgColor5 tableheader">
+								<tr class="c-headLineTable" style="font-weight: bold; color: #FFFFFF;">
 									<td>File</td>
-									<td>Usage count:</td>
-									<td>New DS/TO?</td>
+									<td align="center">Usage count</td>
+									<td>New DS/TO</td>
 								</tr>';
-
+                            
+                            $i = 0;
 							foreach($files as $tFile) {
 								$tRows[] = '
-									<tr class="bgColor4">
+									<tr class="' . ($i++ % 2 == 0 ? 'bgColor4' : 'bgColor6') . '">
 										<td>'.
 											'<a href="' . htmlspecialchars($this->doc->backPath . '../' . substr($tFile, strlen(PATH_site))) . '" target="_blank">' .
-											htmlspecialchars(substr($tFile, strlen(PATH_site))) .
+											'<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/zoom.gif','width="11" height="12"').' alt="" class="absmiddle" /> ' . htmlspecialchars(substr($tFile, strlen(PATH_site))) .
 											'</a></td>
 										<td align="center">' . ($this->tFileList[$tFile] ? $this->tFileList[$tFile] : '-') . '</td>
 										<td>'.
 											'<a href="' . htmlspecialchars($this->pObj->cm1Script . 'id=' . $this->pObj->id . '&file=' . rawurlencode($tFile)) . '&mapElPath=%5BROOT%5D">' .
-											htmlspecialchars('Create...') .
+											'<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/new_el.gif','width="11" height="12"').' alt="" class="absmiddle" /> ' . htmlspecialchars('Create...') .
 											'</a></td>
 									</tr>';
 							}
@@ -392,7 +394,7 @@ class tx_templavoila_mod2_to {
 							if (count($tRows) > 1)	{
 								$output .= '
 								<h3>Template Archive:</h3>
-								<table border="0" cellpadding="1" cellspacing="1" class="lrPadding">
+								<table border="0" cellpadding="1" cellspacing="1" class="typo3-dblist">
 									' . implode('', $tRows) . '
 								</table>
 								';
