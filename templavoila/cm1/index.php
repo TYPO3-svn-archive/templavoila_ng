@@ -3000,7 +3000,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 							</textarea>' :
 							str_replace('<br/>', '', $this->t3e->getCodeEditor(
 								$formFieldName . '[tx_templavoila][TypoScript]',
-								'ts',
+								'fixed-font enable-tab ts',
 								htmlspecialchars($insertDataArray['tx_templavoila']['TypoScript']),
 								'cols="' . $this->textareaCols . '" rows="10" rel="tx_templavoila.TypoScript" id="dsel-t3editor"'))) . '
 						</dd>
