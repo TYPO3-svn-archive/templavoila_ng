@@ -29,7 +29,7 @@
 	}
 
 	#typo3-docheader-row2 .toolbar-item-active {
-		background-image: url(/typo3/gfx/toolbar_item_active_bg.png);
+		background-image: url(toolbar_item_active_bg.png);
 	}
 
 	/* ----- Caching ----- */
@@ -84,13 +84,7 @@
 	}
 
 	#options-menu li + li.group {
-		background: left top url(/typo3/gfx/shortcutgroups-bg.png) repeat-x transparent;
-		margin-top: -4px;
-		padding-top: 4px;
-	}
-
-	#options-menu li.group + li {
-		background: left top url(/typo3/gfx/shortcutgroups-bg.png) repeat-x transparent;
+		background: left top url(shortcutgroups-bg.png) repeat-x transparent;
 		margin-top: -4px;
 		padding-top: 4px;
 	}
