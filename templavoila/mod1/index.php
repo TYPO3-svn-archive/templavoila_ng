@@ -116,7 +116,6 @@
  *
  */
 
-require_once('conf.php');
 require_once(PATH_t3lib . 'class.t3lib_scbase.php');
 
 $LANG->includeLLFile('EXT:templavoila/mod1/locallang.xml');
@@ -2702,8 +2701,8 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 		{
 			$link = $this->baseScript.$this->link_getParameters().'&SET[tt_content_showHidden]=###';
 
-			$entries[] = '<li class="radio'.(!$this->MOD_SETTINGS['tt_content_showHidden']?' selected':'').'" name="tt_content_showHidden"><a href="' . str_replace('###', '', $link).'"'. '>' . $LANG->getLL('page_settings_hidden', 1) . '</a></li>';
-			$entries[] = '<li class="radio'.( $this->MOD_SETTINGS['tt_content_showHidden']?' selected':'').'" name="tt_content_showHidden"><a href="' . str_replace('###', '1', $link).'"'.'>' . $LANG->getLL('page_settings_all', 1) . '</a></li>';
+			$entries[] = '<li class="mradio'.(!$this->MOD_SETTINGS['tt_content_showHidden']?' selected':'').'" name="tt_content_showHidden"><a href="' . str_replace('###', '', $link).'"'. '>' . $LANG->getLL('page_settings_hidden', 1) . '</a></li>';
+			$entries[] = '<li class="mradio'.( $this->MOD_SETTINGS['tt_content_showHidden']?' selected':'').'" name="tt_content_showHidden"><a href="' . str_replace('###', '1', $link).'"'.'>' . $LANG->getLL('page_settings_all', 1) . '</a></li>';
 
 			$group = '<ul class="group">'.implode(chr(10), $entries).'</ul>';
 			$options .= '<li class="group">' . $group . '</li>';

@@ -190,9 +190,9 @@ class tx_templavoila_mod1_localization {
 			$link = 'index.php?'.$this->pObj->link_getParameters().'&SET[langDisplayMode]=###';
 
 			$entries = array();
-			$entries[] = t3lib_div::inList($this->pObj->modTSconfig['properties']['disableDisplayMode'], 'default'         )?'':'<li class="radio'.($this->pObj->MOD_SETTINGS['langDisplayMode']===''                ?' selected':'').'" name="langDisplayMode"><a href="' . str_replace('###', '', $link).'"'.                '>'.$LANG->sL('LLL:EXT:lang/locallang_general.xml:LGL.default_value').'</a></li>';
-			$entries[] = t3lib_div::inList($this->pObj->modTSconfig['properties']['disableDisplayMode'], 'selectedLanguage')?'':'<li class="radio'.($this->pObj->MOD_SETTINGS['langDisplayMode']==='selectedLanguage'?' selected':'').'" name="langDisplayMode"><a href="' . str_replace('###', 'selectedLanguage', $link).'"'.'>'.$LANG->getLL('pageLocalizationDisplayMode_selectedLanguage').'</a></li>';
-			$entries[] = t3lib_div::inList($this->pObj->modTSconfig['properties']['disableDisplayMode'], 'onlyLocalized'   )?'':'<li class="radio'.($this->pObj->MOD_SETTINGS['langDisplayMode']==='onlyLocalized'   ?' selected':'').'" name="langDisplayMode"><a href="' . str_replace('###', 'onlyLocalized', $link).'"'.   '>'.$LANG->getLL('pageLocalizationDisplayMode_onlyLocalized').'</a></li>';
+			$entries[] = t3lib_div::inList($this->pObj->modTSconfig['properties']['disableDisplayMode'], 'default'         )?'':'<li class="mradio'.($this->pObj->MOD_SETTINGS['langDisplayMode']===''                ?' selected':'').'" name="langDisplayMode"><a href="' . str_replace('###', '', $link).'"'.                '>'.$LANG->sL('LLL:EXT:lang/locallang_general.xml:LGL.default_value').'</a></li>';
+			$entries[] = t3lib_div::inList($this->pObj->modTSconfig['properties']['disableDisplayMode'], 'selectedLanguage')?'':'<li class="mradio'.($this->pObj->MOD_SETTINGS['langDisplayMode']==='selectedLanguage'?' selected':'').'" name="langDisplayMode"><a href="' . str_replace('###', 'selectedLanguage', $link).'"'.'>'.$LANG->getLL('pageLocalizationDisplayMode_selectedLanguage').'</a></li>';
+			$entries[] = t3lib_div::inList($this->pObj->modTSconfig['properties']['disableDisplayMode'], 'onlyLocalized'   )?'':'<li class="mradio'.($this->pObj->MOD_SETTINGS['langDisplayMode']==='onlyLocalized'   ?' selected':'').'" name="langDisplayMode"><a href="' . str_replace('###', 'onlyLocalized', $link).'"'.   '>'.$LANG->getLL('pageLocalizationDisplayMode_onlyLocalized').'</a></li>';
 
 			return '<ul class="group">'.implode(chr(10), $entries).'</ul>';
 		}

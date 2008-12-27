@@ -101,20 +101,20 @@
 		list-style: none;
 	}
 
-	#options-menu ul.group > li.radio {
+	#options-menu ul.group > li.mradio {
 		padding-left: 27px;
 	}
 
-	#options-menu ul.group > li.radio.selected {
+	#options-menu ul.group > li.mradio.selected {
 	/*	background: 4px 0 url(/typo3/gfx/state_checked.png) no-repeat transparent;	*/
 		background: 4px 0 url(state_checked.png) no-repeat transparent;
 	}
 
-	#options-menu ul.group:hover > li.radio {
+	#options-menu ul.group:hover > li.mradio {
 		background: none;
 	}
 
-	#options-menu ul.group:hover > li.radio:hover {
+	#options-menu ul.group:hover > li.mradio:hover {
 	/*	background: 4px 0 url(/typo3/gfx/state_checked.png) no-repeat transparent;	*/
 		background: 4px 0 url(state_checked.png) no-repeat transparent;
 	}
