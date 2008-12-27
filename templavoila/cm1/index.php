@@ -2922,7 +2922,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					   ($insertDataArray['type'] != 'section') ? '
 					<!-- non-array options ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 					<dt><label>Sample Data:</label></dt>
-					<dd><textarea class="fixed-font enable-tab" cols="80" rows="5" name="'.$formFieldName.'[tx_templavoila][sample_data][]">'.t3lib_div::deHSCentities(htmlspecialchars($insertDataArray['tx_templavoila']['sample_data'][0])).'</textarea>
+					<dd><textarea class="fixed-font enable-tab" cols="' . $this->textareaCols . '" rows="5" name="'.$formFieldName.'[tx_templavoila][sample_data][]">'.t3lib_div::deHSCentities(htmlspecialchars($insertDataArray['tx_templavoila']['sample_data'][0])).'</textarea>
 					'.$this->lipsumLink($formFieldName.'[tx_templavoila][sample_data]').'</dd>
 
 					<dt><label>Element Preset:</label></dt>
@@ -2987,12 +2987,12 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					$form .= '
 					<dl id="dsel-ts" class="DS-config">
 						<dt><label>Typoscript Constants:</label></dt>
-						<dd><textarea class="fixed-font enable-tab xml" cols="80" rows="10" name="'.$formFieldName.'[tx_templavoila][TypoScript_constants]" rel="tx_templavoila.TypoScript_constants">'.htmlspecialchars($this->flattenarray($insertDataArray['tx_templavoila']['TypoScript_constants'])).'</textarea></dd>
+						<dd><textarea class="fixed-font enable-tab xml" cols="' . $this->textareaCols . '" rows="10" name="'.$formFieldName.'[tx_templavoila][TypoScript_constants]" rel="tx_templavoila.TypoScript_constants">'.htmlspecialchars($this->flattenarray($insertDataArray['tx_templavoila']['TypoScript_constants'])).'</textarea></dd>
 						<dt><label>Typoscript Code:</label></dt>
 						<dd>' . (!$this->t3e ? '
 							<textarea
 								class="fixed-font enable-tab ts"
-								cols="80"
+								cols="' . $this->textareaCols . '"
 								rows="10"
 								name="'.$formFieldName.'[tx_templavoila][TypoScript]"
 								rel="tx_templavoila.TypoScript">'.
@@ -3002,7 +3002,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 								$formFieldName . '[tx_templavoila][TypoScript]',
 								'ts',
 								htmlspecialchars($insertDataArray['tx_templavoila']['TypoScript']),
-								'cols="80" rows="10" rel="tx_templavoila.TypoScript" id="dsel-t3editor"'))) . '
+								'cols="' . $this->textareaCols . '" rows="10" rel="tx_templavoila.TypoScript" id="dsel-t3editor"'))) . '
 						</dd>
 					</dl>';
 
