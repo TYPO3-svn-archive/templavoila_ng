@@ -204,6 +204,9 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	var $limitTags;			// String, list of tags to limit display by
 	var $path;			// HTML-path to explode in template.
 
+	var $textareaCols = 60; //default coös for textareas
+	
+	
 	function init() {
 		parent::init();
 
@@ -3047,7 +3050,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 						</dd>
 
 						<dt><label>Custom stdWrap:</label></dt>
-						<dd><textarea class="fixed-font enable-tab ts" cols="80" rows="10" name="'.$formFieldName.'[tx_templavoila][proc][stdWrap]" rel="tx_templavoila.proc.stdWrap">'.htmlspecialchars($insertDataArray['tx_templavoila']['proc']['stdWrap']).'</textarea></dd>
+						<dd><textarea class="fixed-font enable-tab ts" cols="' . $this->textareaCols . '" rows="10" name="'.$formFieldName.'[tx_templavoila][proc][stdWrap]" rel="tx_templavoila.proc.stdWrap">'.htmlspecialchars($insertDataArray['tx_templavoila']['proc']['stdWrap']).'</textarea></dd>
 					</dl>';
 
 					/* The basic XML-structure of an TCEforms-entry is:
@@ -3064,7 +3067,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 						<dd><input type="text" size="80" name="'.$formFieldName.'[TCEforms][label]" value="'.htmlspecialchars($insertDataArray['TCEforms']['label']).'" /></dd>
 
 						<dt><label>TCE Configuration:</label></dt>
-						<dd><textarea class="fixed-font enable-tab xml" cols="80" rows="10" name="'.$formFieldName.'[TCEforms][config]" rel="TCEforms.config">'.htmlspecialchars($this->flattenarray($insertDataArray['TCEforms']['config'])).'</textarea></dd>
+						<dd><textarea class="fixed-font enable-tab xml" cols="' . $this->textareaCols . '" rows="10" name="'.$formFieldName.'[TCEforms][config]" rel="TCEforms.config">'.htmlspecialchars($this->flattenarray($insertDataArray['TCEforms']['config'])).'</textarea></dd>
 
 						<dt><label>TCE Extras:</label></dt>
 						<dd><input type="text" size="80" name="'.$formFieldName.'[TCEforms][defaultExtras]" value="'.htmlspecialchars($insertDataArray['TCEforms']['defaultExtras']).'" /></dd>
@@ -3082,7 +3085,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					$form .= '
 					<dl id="dsel-proc" class="DS-config">
 						<dt><label>Custom stdWrap:</label></dt>
-						<dd><textarea class="fixed-font enable-tab ts" cols="80" rows="10" name="'.$formFieldName.'[tx_templavoila][proc][stdWrap]" rel="tx_templavoila.proc.stdWrap">'.htmlspecialchars($insertDataArray['tx_templavoila']['proc']['stdWrap']).'</textarea></dd>
+						<dd><textarea class="fixed-font enable-tab ts" cols="' . $this->textareaCols . '" rows="10" name="'.$formFieldName.'[tx_templavoila][proc][stdWrap]" rel="tx_templavoila.proc.stdWrap">'.htmlspecialchars($insertDataArray['tx_templavoila']['proc']['stdWrap']).'</textarea></dd>
 					</dl>';
 				}
 
