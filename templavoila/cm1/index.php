@@ -568,13 +568,13 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				}
 
 				' . (t3lib_extMgm::isLoaded('t3editor') ? '
-					/* overwrite ajax-hadling, we dont need it */
+				/* overwrite ajax-hadling, we dont need it */
 				T3editor.prototype.saveFunction = function(event) {
 					if (t3e_instances[0])
 						t3e_instances[0].textarea.value = t3e_instances[0].mirror.editor.getCode();
 				};
 
-						// callback if ajax saving was successful
+				// callback if ajax saving was successful
 				T3editor.prototype.saveFunctionComplete = function(ajaxrequest) {
 				};
 
@@ -598,21 +598,21 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 		foreach ($this->dsTypes as $id => $title) {
 			$this->dsTypes[$id] = array(
-					// abbrevation
+				// abbrevation
 				$id,
-					// descriptive title
+				// descriptive title
 				$title,
-					// image-path
+				// image-path
 				t3lib_iconWorks::skinImg($this->doc->backPath,t3lib_extMgm::extRelPath('templavoila').'cm1/item_'.$id.'.gif','width="24" height="16" border="0" style="margin-right: 5px;"'),
-					// background-path
+				// background-path
 				t3lib_iconWorks::skinImg($this->doc->backPath,t3lib_extMgm::extRelPath('templavoila').'cm1/item_'.$id.'.gif','',1)
 			);
 
-				// information
+			// information
 			$this->dsTypes[$id][4] = @getimagesize($this->dsTypes[$id][3]);
 		}
 
-			// Render content, depending on input values:
+		// Render content, depending on input values:
 		if ($this->displayFile)	{
 			// Browsing file directly, possibly creating a template/data object records.
 			$this->renderFile($singleView);

@@ -65,11 +65,11 @@ class tx_templavoila_handleStaticDataStructures {
 	 * @param	object		The parent object (t3lib_TCEforms / t3lib_transferData depending on context)
 	 * @return	void
 	 */
-	function main(&$params,&$pObj)    {
+	function main(&$params, &$pObj) {
 		// Adding an item!
-		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures']))	{
-			foreach($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'] as $val)	{
-				$params['items'][]=Array($this->prefix.(substr($val['title'], 0, 4) == 'LLL:' ? $GLOBALS['LANG']->sL($val['title']) : $val['title']), $val['path'], $val['icon']);
+		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'])) {
+			foreach($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'] as $val) {
+				$params['items'][] = Array($this->prefix . (substr($val['title'], 0, 4) == 'LLL:' ? $GLOBALS['LANG']->sL($val['title']) : $val['title']), $val['path'], $val['icon']);
 			}
 		}
 	}
@@ -82,14 +82,15 @@ class tx_templavoila_handleStaticDataStructures {
 	 * @param	object		The parent object (t3lib_TCEforms / t3lib_transferData depending on context)
 	 * @return	void
 	 */
-	function main_scope1(&$params,&$pObj)    {
-		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures']))	{
-			foreach($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'] as $val)	{
-				if ($val['scope'] == TVDS_SCOPE_PAGE)	{
-					$params['items'][]=Array($this->prefix.$val['title'], $val['path'], $val['icon']);
+	function main_scope1(&$params, &$pObj) {
+		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'])) {
+			foreach($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'] as $val) {
+				if ($val['scope'] == TVDS_SCOPE_PAGE) {
+					$params['items'][] = Array($this->prefix.$val['title'], $val['path'], $val['icon']);
 				}
 			}
 		}
+
 		tx_templavoila_handleStaticDataStructures::check_permissions($params, $pObj);
 	}
 
@@ -101,14 +102,15 @@ class tx_templavoila_handleStaticDataStructures {
 	 * @param	object		The parent object (t3lib_TCEforms / t3lib_transferData depending on context)
 	 * @return	void
 	 */
-	function main_scope2(&$params,&$pObj)    {
-		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures']))	{
+	function main_scope2(&$params, &$pObj) {
+		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'])) {
 			foreach($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'] as $val)	{
-				if ($val['scope'] == TVDS_SCOPE_FCE)	{
-					$params['items'][]=Array($this->prefix.$val['title'], $val['path'], $val['icon']);
+				if ($val['scope'] == TVDS_SCOPE_FCE) {
+					$params['items'][] = Array($this->prefix.$val['title'], $val['path'], $val['icon']);
 				}
 			}
 		}
+
 		tx_templavoila_handleStaticDataStructures::check_permissions($params, $pObj);
 	}
 
@@ -121,29 +123,35 @@ class tx_templavoila_handleStaticDataStructures {
 	 */
 	function pi_templates(&$params,$pObj)	{
 		global $TYPO3_DB;
-			// Find the template data structure that belongs to this plugin:
-		$piKey = $params['row']['list_type'];
-		$templateRef = $GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['piKey2DSMap'][$piKey];	// This should be a value of a Data Structure.
-		$storagePid = intval($pObj->cachedTSconfig[$params['table'].':'.$params['row']['uid']]['_STORAGE_PID']);		// This should be the Storage PID (at least if the pObj is TCEforms! and t3lib_transferdata is not triggering this function since it is not a real foreign-table thing...)
 
-		if ($templateRef && $storagePid)	{
-				// Load the table:
+		// Find the template data structure that belongs to this plugin:
+		$piKey = $params['row']['list_type'];
+		// This should be a value of a Data Structure.
+		$templateRef = $GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['piKey2DSMap'][$piKey];
+		// This should be the Storage PID (at least if the pObj is TCEforms! and t3lib_transferdata is not triggering this function since it is not a real foreign-table thing...)
+		$storagePid = intval($pObj->cachedTSconfig[$params['table'].':'.$params['row']['uid']]['_STORAGE_PID']);
+
+		if ($templateRef && $storagePid) {
+			// Load the table:
 			t3lib_div::loadTCA('tx_templavoila_tmplobj');
 
-				// Select all Template Object Records from storage folder, which are parent records and which has the data structure for the plugin:
+			// Select all Template Object Records from storage folder, which are parent records and which has the data structure for the plugin:
 			$res = $TYPO3_DB->exec_SELECTquery (
 				'title,uid,previewicon',
 				'tx_templavoila_tmplobj',
-				'tx_templavoila_tmplobj.pid='.$storagePid.' AND tx_templavoila_tmplobj.datastructure='.$TYPO3_DB->fullQuoteStr($templateRef, 'tx_templavoila_tmplobj').' AND tx_templavoila_tmplobj.parent=0',
+				'tx_templavoila_tmplobj.pid=' . $storagePid . ' AND tx_templavoila_tmplobj.datastructure='.$TYPO3_DB->fullQuoteStr($templateRef, 'tx_templavoila_tmplobj').' AND tx_templavoila_tmplobj.parent=0',
 				'',
 				'tx_templavoila_tmplobj.title'
 			);
 
-				// Traverse these and add them. Icons are set too if applicable.
+			// Traverse these and add them. Icons are set too if applicable.
 			while(false != ($row=$TYPO3_DB->sql_fetch_assoc($res)))	{
-				if ($row['previewicon'])	{
-					$icon='../'.$GLOBALS['TCA']['tx_templavoila_tmplobj']['columns']['previewicon']['config']['uploadfolder'].'/'.$row['previewicon'];
-				} else $icon='';
+				if ($row['previewicon']) {
+					$icon = '../' . $GLOBALS['TCA']['tx_templavoila_tmplobj']['columns']['previewicon']['config']['uploadfolder'] . '/' . $row['previewicon'];
+				} else {
+					$icon = '';
+				}
+
 				$params['items'][]=Array($row['title'],$row['uid'],$icon);
 			}
 		}
@@ -162,13 +170,15 @@ class tx_templavoila_handleStaticDataStructures {
 		$scope = ($params['table'] == 'pages' ? TVDS_SCOPE_PAGE : TVDS_SCOPE_FCE);
 
 		// Get storage folder
-		$storagePid = intval($pObj->cachedTSconfig[$params['table'].':'.$params['row']['uid']]['_STORAGE_PID']);		// This should be the Storage PID (at least if the pObj is TCEforms! and t3lib_transferdata is not triggering this function since it is not a real foreign-table thing...)
+		// This should be the Storage PID (at least if the pObj is TCEforms! and t3lib_transferdata is not triggering this function since it is not a real foreign-table thing...)
+		$storagePid = intval($pObj->cachedTSconfig[$params['table'].':'.$params['row']['uid']]['_STORAGE_PID']);
 
 		// Get all DSes from the current storage folder
 		$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('uid,title', 'tx_templavoila_datastructure',
 					'scope=' . $scope . ' AND pid=' . $storagePid .
 					self::enableFields('tx_templavoila_datastructure'),
 					'', 'title');
+
 		$this->dsList = array();
 		foreach ($rows as $row) {
 			$this->dsList[$row['uid']] = $row['title'];
@@ -181,6 +191,7 @@ class tx_templavoila_handleStaticDataStructures {
 						'uid,title,previewicon,datastructure', 'tx_templavoila_tmplobj',
 						'datastructure IN (' . implode(',', array_keys($this->dsList)) . ')' .
 						self::enableFields('tx_templavoila_tmplobj'));
+
 			// Sort by DS name than by TO name
 			uksort($this->toRows, array($this, 'sortTemplateObjects'));
 			$currentDS = 0;
@@ -190,6 +201,7 @@ class tx_templavoila_handleStaticDataStructures {
 					'', ''
 				)
 			);
+
 			// Create items sorted visually by DS and title
 			foreach ($this->toRows as $row) {
 				// Check if we got a new DS
@@ -200,11 +212,13 @@ class tx_templavoila_handleStaticDataStructures {
 					);
 					$currentDS = $row['datastructure'];
 				}
+
 				// Add TO
 				$icon = '';
 				if ($row['previewicon']) {
 					$icon = $iconPath . $row['previewicon'];
 				}
+
 				$params['items'][] = array(
 					$row['title'],
 					$row['uid'],
@@ -212,6 +226,7 @@ class tx_templavoila_handleStaticDataStructures {
 				);
 			}
 		}
+
 		unset($this->dsList);
 		unset($this->toRows);
 	}
@@ -228,10 +243,12 @@ class tx_templavoila_handleStaticDataStructures {
 		if (strcasecmp($where1, 'AND') == 0) {
 			$where1 = '';
 		}
+
 		$where2 = trim(t3lib_BEfunc::deleteClause($tableName));
 		if (strcasecmp($where2, 'AND') == 0) {
 			$where2 = '';
 		}
+
 		$where = trim($where1 . ' ' . $where2);
 		return ($where ? ' ' . $where : '');
 	}
