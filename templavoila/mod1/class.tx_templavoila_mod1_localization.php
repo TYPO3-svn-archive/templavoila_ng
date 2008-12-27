@@ -187,7 +187,7 @@ class tx_templavoila_mod1_localization {
 		global $LANG, $BE_USER, $BACK_PATH;
 
 		if ($this->pObj->currentLanguageUid >= 0 && (($this->pObj->rootElementLangMode === 'disable') || ($this->pObj->rootElementLangParadigm === 'bound'))) {
-			$link = 'index.php?'.$this->pObj->link_getParameters().'&SET[langDisplayMode]=###';
+			$link = $this->pObj->mod1Script . $this->pObj->link_getParameters().'&SET[langDisplayMode]=###';
 
 			$entries = array();
 			$entries[] = t3lib_div::inList($this->pObj->modTSconfig['properties']['disableDisplayMode'], 'default'         )?'':'<li class="mradio'.($this->pObj->MOD_SETTINGS['langDisplayMode']===''                ?' selected':'').'" name="langDisplayMode"><a href="' . str_replace('###', '', $link).'"'.                '>'.$LANG->sL('LLL:EXT:lang/locallang_general.xml:LGL.default_value').'</a></li>';
