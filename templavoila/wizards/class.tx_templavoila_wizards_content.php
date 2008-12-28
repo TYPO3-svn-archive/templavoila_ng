@@ -56,20 +56,6 @@
  *
  */
 
-// Merging locallang files/arrays:
-$GLOBALS['LANG']->includeLLFile('EXT:lang/locallang_misc.xml');
-$LOCAL_LANG_orig = $GLOBALS['LOCAL_LANG'];
-
-$GLOBALS['LANG']->includeLLFile('EXT:templavoila/db_new_content_el/locallang_db_new_content_el.xml');
-$LOCAL_LANG = t3lib_div::array_merge_recursive_overrule($LOCAL_LANG_orig, $GLOBALS['LOCAL_LANG']);
-
-// Exits if 'cms' extension is not loaded:
-t3lib_extMgm::isLoaded('cms', 1);
-
-// Include needed libraries:
-require_once(PATH_t3lib . 'class.t3lib_page.php');
-require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_api.php');
-
 /**
  * Script Class for the New Content element wizard
  *
@@ -77,66 +63,50 @@ require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_api.ph
  * @package TYPO3
  * @subpackage templavoila
  */
-class tx_templavoila_dbnewcontentel {
+class tx_templavoila_wizards_content {
 
-		// Internal, static (from GPvars):
-	var $id;					// Page id
-	var $parentRecord;			// Parameters for the new record
-	var $altRoot;				// Array with alternative table, uid and flex-form field (see index.php in module for details, same thing there.)
 
-		// Internal, static:
-	var $doc;					// Internal backend template object
+	// References to the page module object
+	var $pObj;		// A pointer to the parent object, that is the templavoila page module script. Set by calling the method init() of this class.
+	var $doc;		// A reference to the doc object of the parent object.
+	var $extKey;		// A reference to extension key of the parent object.
 
-		// Internal, dynamic:
+
+	// Internal, static (from GPvars):
+	var $id;			// Page id
+	var $parentRecord;		// Parameters for the new record
+	var $altRoot;			// Array with alternative table, uid and flex-form field (see index.php in module for details, same thing there.)
+
+	// Internal, dynamic:
 	var $include_once = array();	// Includes a list of files to include between init() and main() - see init()
-	var $content;					// Used to accumulate the content of the module.
-	var $access;					// Access boolean.
-
-	var $mod1Link;
+	var $content;			// Used to accumulate the content of the module.
+	var $access;			// Access boolean.
 
 	/**
 	 * Initialize internal variables.
 	 *
 	 * @return	void
 	 */
-	function init()	{
-		global $BE_USER,$BACK_PATH,$TBE_MODULES_EXT;
+	function init(&$pObj) {
+		// Make local reference to some important variables:
+		$this->pObj =& $pObj;
+		$this->doc =& $this->pObj->doc;
+		$this->extKey =& $this->pObj->extKey;
+		$this->apiObj =& $this->pObj->apiObj;
 
-			// Setting class files to include:
-		if (is_array($TBE_MODULES_EXT['xMOD_db_new_content_el']['addElClasses']))	{
-			$this->include_once = array_merge($this->include_once,$TBE_MODULES_EXT['xMOD_db_new_content_el']['addElClasses']);
-		}
-
-			// Setting internal vars:
+		// Setting internal vars:
 		$this->id = intval(t3lib_div::GPvar('id'));
 		$this->parentRecord = t3lib_div::GPvar('parentRecord');
 		$this->altRoot = t3lib_div::GPvar('altRoot');
 		$this->defVals = t3lib_div::GPvar('defVals');
 
-			// Starting the document template object:
-		$this->doc = t3lib_div::makeInstance('mediumDoc');
-		$this->doc->docType= 'xhtml_trans';
-		$this->doc->backPath = $BACK_PATH;
-		$this->doc->JScode='';
-		$this->doc->form='<form action="" name="editForm">';
-
-			// Getting the current page and receiving access information (used in main())
-		$perms_clause = $BE_USER->getPagePermsClause(1);
-		$pageinfo = t3lib_BEfunc::readPageAccess($this->id,$perms_clause);
-		$this->access = is_array($pageinfo) ? 1 : 0;
-
-
-		$this->apiObj = t3lib_div::makeInstance ('tx_templavoila_api');
-
-			// If no parent record was specified, find one:
+		// If no parent record was specified, find one:
 		if (!$this->parentRecord) {
-			$mainContentAreaFieldName = $this->apiObj->ds_getFieldNameByColumnPosition ($this->id, 0);
+			$mainContentAreaFieldName = $this->apiObj->ds_getFieldNameByColumnPosition($this->id, 0);
 			if ($mainContentAreaFieldName != FALSE) {
-				$this->parentRecord = implode(SEPARATOR_PARMS, array('pages',$this->id,'sDEF','lDEF',$mainContentAreaFieldName,'vDEF',0));
+				$this->parentRecord = implode(SEPARATOR_PARMS, array('pages', $this->id, 'sDEF', 'lDEF', $mainContentAreaFieldName, 'vDEF', 0));
 			}
 		}
-
-		$this->mod1Link = 'mod.php?M=web_txtemplavoilaM1&';
 	}
 
 	/**
@@ -145,90 +115,68 @@ class tx_templavoila_dbnewcontentel {
 	 * @return	void
 	 * @todo	provide position mapping if no position is given already. Like the columns selector but for our cascading element style ...
 	 */
-	function main()	{
-		global $LANG,$BACK_PATH;
+	function renderWizard_createNewContentElement()	{
+		global $BACK_PATH;
 
-		if ($this->id && $this->access)	{
+		$elRow = t3lib_BEfunc::getRecordWSOL('pages', $this->id);
+		$header = t3lib_iconWorks::getIconImage('pages', $elRow, $BACK_PATH, ' title="' . htmlspecialchars(t3lib_BEfunc::getRecordIconAltText($elRow,'pages')).'" align="top"');
+		$header .= t3lib_BEfunc::getRecordTitle('pages', $elRow, 1);
 
-				// Creating content
-			$this->content='';
-			$this->content.=$this->doc->startPage($LANG->getLL('newContentElement'));
-			$this->content.=$this->doc->header($LANG->getLL('newContentElement'));
-			$this->content.=$this->doc->spacer(5);
+		// Wizard
+		$wizardCode = '';
+		$tableRows = array();
+		$wizardItems = $this->getWizardItems();
 
-			$elRow = t3lib_BEfunc::getRecordWSOL('pages',$this->id);
-			$header= t3lib_iconWorks::getIconImage('pages',$elRow,$BACK_PATH,' title="'.htmlspecialchars(t3lib_BEfunc::getRecordIconAltText($elRow,'pages')).'" align="top"');
-			$header.= t3lib_BEfunc::getRecordTitle('pages',$elRow,1);
-			$this->content.=$this->doc->section('',$header,0,1);
-			$this->content.=$this->doc->spacer(10);
+		// Traverse items for the wizard.
+		// An item is either a header or an item rendered with a title/description and icon:
+		$counter = 0;
+		foreach($wizardItems as $key => $wizardItem) {
+			if ($wizardItem['header'])	{
+				if ($counter > 0)
+					$tableRows[] = '
+					<tr>
+						<td colspan="3"><br /></td>
+					</tr>';
 
-				// Wizard
-			$wizardCode='';
-			$tableRows=array();
-			$wizardItems = $this->getWizardItems();
+				$tableRows[] = '
+					<tr class="bgColor5">
+						<td colspan="3"><strong>' . htmlspecialchars($wizardItem['header']) . '</strong></td>
+					</tr>';
+			} else {
+				$tableLinks=array();
 
-				// Traverse items for the wizard.
-				// An item is either a header or an item rendered with a title/description and icon:
-			$counter=0;
-			foreach($wizardItems as $key => $wizardItem)	{
-				if ($wizardItem['header'])	{
-					if ($counter>0) $tableRows[]='
-						<tr>
-							<td colspan="3"><br /></td>
-						</tr>';
-					$tableRows[]='
-						<tr class="bgColor5">
-							<td colspan="3"><strong>'.htmlspecialchars($wizardItem['header']).'</strong></td>
-						</tr>';
-				} else {
-					$tableLinks=array();
+				// href URI for icon/title:
+				$newRecordLink = $this->pObj->mod1Script . $this->linkParams() . '&createNewRecord=' . rawurlencode($this->parentRecord) . $wizardItem['params'];
 
-						// href URI for icon/title:
-					$newRecordLink = $this->mod1Link . $this->linkParams().'&createNewRecord='.rawurlencode($this->parentRecord).$wizardItem['params'];
+				// Icon:
+				$iInfo = @getimagesize($wizardItem['icon']);
+				$tableLinks[]='<a href="' . $newRecordLink . '"><img'.t3lib_iconWorks::skinImg($this->doc->backPath,$wizardItem['icon'], '') . ' alt="" /></a>';
 
-						// Icon:
-					$iInfo = @getimagesize($wizardItem['icon']);
-					$tableLinks[]='<a href="'.$newRecordLink.'"><img'.t3lib_iconWorks::skinImg($this->doc->backPath,$wizardItem['icon'],'').' alt="" /></a>';
+				// Title + description:
+				$tableLinks[]='<a href="' . $newRecordLink . '"><strong>' . htmlspecialchars($wizardItem['title']) . '</strong><br />' . nl2br(htmlspecialchars(trim($wizardItem['description']))).'</a>';
 
-						// Title + description:
-					$tableLinks[]='<a href="'.$newRecordLink.'"><strong>'.htmlspecialchars($wizardItem['title']).'</strong><br />'.nl2br(htmlspecialchars(trim($wizardItem['description']))).'</a>';
+				// Finally, put it together in a table row:
+				$tableRows[]='
+					<tr>
+						<td valign="top">' . implode('</td>
+						<td valign="top">', $tableLinks) . '</td>
+					</tr>';
 
-						// Finally, put it together in a table row:
-					$tableRows[]='
-						<tr>
-							<td valign="top">'.implode('</td>
-							<td valign="top">',$tableLinks).'</td>
-						</tr>';
-					$counter++;
-				}
+				$counter++;
 			}
-				// Add the wizard table to the content:
-			$wizardCode .= $LANG->getLL('sel1',1).'<br /><br />
-
-			<!--
-				Content Element wizard table:
-			-->
-				<table border="0" cellpadding="1" cellspacing="2" id="typo3-ceWizardTable">
-					'.implode('',$tableRows).'
-				</table>';
-			$this->content .= $this->doc->section($LANG->getLL('1_selectType'), $wizardCode, 0, 1);
-
-		} else {		// In case of no access:
-			$this->content='';
-			$this->content.=$this->doc->startPage($LANG->getLL('newContentElement'));
-			$this->content.=$this->doc->header($LANG->getLL('newContentElement'));
-			$this->content.=$this->doc->spacer(5);
 		}
-	}
 
-	/**
-	 * Print out the accumulated content:
-	 *
-	 * @return	void
-	 */
-	function printContent()	{
-		$this->content.= $this->doc->endPage();
-		echo $this->content;
+		// Add the wizard table to the content:
+		$wizardCode .= $GLOBALS['LANG']->getLL('sel1', 1) . '<br /><br />
+
+		<!--
+			Content Element wizard table:
+		-->
+			<table border="0" cellpadding="1" cellspacing="2" id="typo3-ceWizardTable">
+				'.implode('',$tableRows).'
+			</table>';
+
+		return $this->doc->section($GLOBALS['LANG']->getLL('1_selectType'), $wizardCode, 0, 1);
 	}
 
 	/**
@@ -237,18 +185,10 @@ class tx_templavoila_dbnewcontentel {
 	 * @return	[type]		...
 	 */
 	function linkParams()	{
-		$output = 'id='.$this->id.
-				(is_array($this->altRoot) ? t3lib_div::implodeArrayForUrl('altRoot',$this->altRoot) : '');
+		$output = 'id=' . $this->id . (is_array($this->altRoot) ? t3lib_div::implodeArrayForUrl('altRoot', $this->altRoot) : '');
+
 		return $output;
 	}
-
-
-
-
-
-
-
-
 
 	/***************************
 	 *
@@ -262,7 +202,7 @@ class tx_templavoila_dbnewcontentel {
 	 *
 	 * @return	array		Returns the content of wizardArray() function...
 	 */
-	function getWizardItems()	{
+	function getWizardItems() {
 		return $this->wizardArray();
 	}
 
@@ -273,67 +213,78 @@ class tx_templavoila_dbnewcontentel {
 	 * @return	array
 	 */
 	function wizardArray()	{
-		global $LANG,$TBE_MODULES_EXT,$TYPO3_DB;
+		global $LANG, $TBE_MODULES_EXT, $TYPO3_DB;
 
 		$defVals = t3lib_div::implodeArrayForUrl('defVals', is_array($this->defVals) ? $this->defVals : array());
 
 		$wizardItems = array(
 			'common' => array('header'=>$LANG->getLL('common')),
+
 			'common_1' => array(
 				'icon'=>'gfx/c_wiz/regular_text.gif',
 				'title'=>$LANG->getLL('common_1_title'),
 				'description'=>$LANG->getLL('common_1_description'),
 				'params'=>'&defVals[tt_content][CType]=text'.$defVals,
 			),
+
 			'common_2' => array(
 				'icon'=>'gfx/c_wiz/text_image_below.gif',
 				'title'=>$LANG->getLL('common_2_title'),
 				'description'=>$LANG->getLL('common_2_description'),
 				'params'=>'&defVals[tt_content][CType]=textpic&defVals[tt_content][imageorient]=8'.$defVals,
 			),
+
 			'common_3' => array(
 				'icon'=>'gfx/c_wiz/text_image_right.gif',
 				'title'=>$LANG->getLL('common_3_title'),
 				'description'=>$LANG->getLL('common_3_description'),
 				'params'=>'&defVals[tt_content][CType]=textpic&defVals[tt_content][imageorient]=17'.$defVals,
 			),
+
 			'common_4' => array(
 				'icon'=>'gfx/c_wiz/images_only.gif',
 				'title'=>$LANG->getLL('common_4_title'),
 				'description'=>$LANG->getLL('common_4_description'),
 				'params'=>'&defVals[tt_content][CType]=image&defVals[tt_content][imagecols]=2'.$defVals,
 			),
+
 			'common_5' => array(
 				'icon'=>'gfx/c_wiz/bullet_list.gif',
 				'title'=>$LANG->getLL('common_5_title'),
 				'description'=>$LANG->getLL('common_5_description'),
 				'params'=>'&defVals[tt_content][CType]=bullets'.$defVals,
 			),
+
 			'common_6' => array(
 				'icon'=>'gfx/c_wiz/table.gif',
 				'title'=>$LANG->getLL('common_6_title'),
 				'description'=>$LANG->getLL('common_6_description'),
 				'params'=>'&defVals[tt_content][CType]=table'.$defVals,
 			),
+
 			'special' => array('header'=>$LANG->getLL('special')),
+
 			'special_1' => array(
 				'icon'=>'gfx/c_wiz/filelinks.gif',
 				'title'=>$LANG->getLL('special_1_title'),
 				'description'=>$LANG->getLL('special_1_description'),
 				'params'=>'&defVals[tt_content][CType]=uploads'.$defVals,
 			),
+
 			'special_2' => array(
 				'icon'=>'gfx/c_wiz/multimedia.gif',
 				'title'=>$LANG->getLL('special_2_title'),
 				'description'=>$LANG->getLL('special_2_description'),
 				'params'=>'&defVals[tt_content][CType]=multimedia'.$defVals,
 			),
+
 			'special_3' => array(
 				'icon'=>'gfx/c_wiz/sitemap2.gif',
 				'title'=>$LANG->getLL('special_3_title'),
 				'description'=>$LANG->getLL('special_3_description'),
 				'params'=>'&defVals[tt_content][CType]=menu&defVals[tt_content][menu_type]=2'.$defVals,
 			),
+
 			'special_4' => array(
 				'icon'=>'gfx/c_wiz/html.gif',
 				'title'=>$LANG->getLL('special_4_title'),
@@ -341,20 +292,22 @@ class tx_templavoila_dbnewcontentel {
 				'params'=>'&defVals[tt_content][CType]=html'.$defVals,
 			),
 
-
 			'forms' => array('header'=>$LANG->getLL('forms')),
+
 			'forms_1' => array(
 				'icon'=>'gfx/c_wiz/mailform.gif',
 				'title'=>$LANG->getLL('forms_1_title'),
 				'description'=>$LANG->getLL('forms_1_description'),
 				'params'=>'&defVals[tt_content][CType]=mailform&defVals[tt_content][bodytext]='.rawurlencode(trim($LANG->getLL ('forms_1_example'))).$defVals,
 			),
+
 			'forms_2' => array(
 				'icon'=>'gfx/c_wiz/searchform.gif',
 				'title'=>$LANG->getLL('forms_2_title'),
 				'description'=>$LANG->getLL('forms_2_description'),
 				'params'=>'&defVals[tt_content][CType]=search'.$defVals,
 			),
+
 			'forms_3' => array(
 				'icon'=>'gfx/c_wiz/login_form.gif',
 				'title'=>$LANG->getLL('forms_3_title'),
@@ -363,23 +316,24 @@ class tx_templavoila_dbnewcontentel {
 			),
 		);
 
-			// Flexible content elements:
-        $positionPid = $this->id;
-        $dataStructureRecords = array();
-        $storageFolderPID = $this->apiObj->getStorageFolderPid($positionPid);
+		// Flexible content elements:
+        	$positionPid = $this->id;
+        	$dataStructureRecords = array();
+        	$storageFolderPID = $this->apiObj->getStorageFolderPid($positionPid);
 
         	// Fetch data structures stored in the database:
-        $addWhere = $this->buildRecordWhere('tx_templavoila_datastructure');
-        $res = $TYPO3_DB->exec_SELECTquery(
-        	'*',
-        	'tx_templavoila_datastructure',
-        	'pid=' . intval($storageFolderPID) . ' AND scope=' . TVDS_SCOPE_FCE . $addWhere .
-        		t3lib_BEfunc::deleteClause('tx_templavoila_datastructure').
-        		t3lib_BEfunc::versioningPlaceholderClause('tx_templavoila_datastructure')
-        );
-        while(FALSE !== ($row = $TYPO3_DB->sql_fetch_assoc($res))) {
-        	$dataStructureRecords[$row['uid']] = $row;
-        }
+        	$addWhere = $this->buildRecordWhere('tx_templavoila_datastructure');
+        	$res = $TYPO3_DB->exec_SELECTquery(
+        		'*',
+        		'tx_templavoila_datastructure',
+        		'pid=' . intval($storageFolderPID) . ' AND scope=' . TVDS_SCOPE_FCE . $addWhere .
+        			t3lib_BEfunc::deleteClause('tx_templavoila_datastructure').
+        			t3lib_BEfunc::versioningPlaceholderClause('tx_templavoila_datastructure')
+        	);
+
+        	while(FALSE !== ($row = $TYPO3_DB->sql_fetch_assoc($res))) {
+        		$dataStructureRecords[$row['uid']] = $row;
+        	}
 /*
         	// Fetch static data structures which are stored in XML files:
 		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures']))	{
@@ -391,7 +345,7 @@ class tx_templavoila_dbnewcontentel {
 */
 			// Fetch all template object records which uare based one of the previously fetched data structures:
 		$templateObjectRecords = array();
-        $addWhere = $this->buildRecordWhere('tx_templavoila_tmplobj');
+		$addWhere = $this->buildRecordWhere('tx_templavoila_tmplobj');
 		$res = $TYPO3_DB->exec_SELECTquery(
 			'*',
 			'tx_templavoila_tmplobj',
@@ -399,34 +353,40 @@ class tx_templavoila_dbnewcontentel {
 				t3lib_BEfunc::deleteClause('tx_templavoila_tmplobj').
 				t3lib_BEfunc::versioningPlaceholderClause('tx_templavoila_tmpl'), '', 'sorting'
 		);
+
 		while(FALSE !== ($row = $TYPO3_DB->sql_fetch_assoc($res))) {
 			if (is_array($dataStructureRecords[$row['datastructure']])) {
 				$templateObjectRecords[] = $row;
 			}
 		}
 
-			// Add the filtered set of TO entries to the wizard list:
+		// Add the filtered set of TO entries to the wizard list:
 		$wizardItems['fce']['header'] = $LANG->getLL('fce');
-        foreach($templateObjectRecords as $index => $templateObjectRecord) {
-            $tmpFilename = 'uploads/tx_templavoila/'.$templateObjectRecord['previewicon'];
-            $wizardItems['fce_'.$index]['icon'] = (@is_file(PATH_site.$tmpFilename)) ? ('../' . $tmpFilename) : ('../' . t3lib_extMgm::siteRelPath('templavoila').'res1/default_previewicon.gif');
-            $wizardItems['fce_'.$index]['description'] = $templateObjectRecord['description'] ? htmlspecialchars($templateObjectRecord['description']) : $LANG->getLL ('template_nodescriptionavailable');
-            $wizardItems['fce_'.$index]['title'] = $templateObjectRecord['title'];
-            $wizardItems['fce_'.$index]['params'] = '&defVals[tt_content][CType]=templavoila_pi1&defVals[tt_content][tx_templavoila_ds]='.$templateObjectRecord['datastructure'].'&defVals[tt_content][tx_templavoila_to]='.$templateObjectRecord['uid'].$defVals;
-            $index ++;
-        }
+        	foreach($templateObjectRecords as $index => $templateObjectRecord) {
+        	    $tmpFilename = 'uploads/tx_templavoila/'.$templateObjectRecord['previewicon'];
 
-			// PLUG-INS:
-		if (is_array($TBE_MODULES_EXT['xMOD_db_new_content_el']['addElClasses']))	{
-			$wizardItems['plugins'] = array('header'=>$LANG->getLL('plugins'));
+        	    $wizardItems['fce_'.$index]['icon'] = (@is_file(PATH_site.$tmpFilename)) ? ('../' . $tmpFilename) : ('../' . t3lib_extMgm::siteRelPath('templavoila').'res1/default_previewicon.gif');
+        	    $wizardItems['fce_'.$index]['description'] = $templateObjectRecord['description'] ? htmlspecialchars($templateObjectRecord['description']) : $LANG->getLL ('template_nodescriptionavailable');
+        	    $wizardItems['fce_'.$index]['title'] = $templateObjectRecord['title'];
+        	    $wizardItems['fce_'.$index]['params'] = '&defVals[tt_content][CType]=templavoila_pi1&defVals[tt_content][tx_templavoila_ds]='.$templateObjectRecord['datastructure'].'&defVals[tt_content][tx_templavoila_to]='.$templateObjectRecord['uid'].$defVals;
+
+        	    $index++;
+        	}
+
+		// PLUG-INS:
+		if (is_array($TBE_MODULES_EXT['xMOD_db_new_content_el']['addElClasses'])) {
+			$wizardItems['plugins'] = array('header' => $LANG->getLL('plugins'));
+
 			reset($TBE_MODULES_EXT['xMOD_db_new_content_el']['addElClasses']);
-			while(list($class,$path)=each($TBE_MODULES_EXT['xMOD_db_new_content_el']['addElClasses']))	{
+			while(list($class, $path) = each($TBE_MODULES_EXT['xMOD_db_new_content_el']['addElClasses'])) {
+				include_once($path);
+
 				$modObj = t3lib_div::makeInstance($class);
 				$wizardItems = $modObj->proc($wizardItems);
 			}
 		}
 
-			// Remove elements where preset values are not allowed:
+		// Remove elements where preset values are not allowed:
 		$this->removeInvalidElements($wizardItems);
 
 		return $wizardItems;
@@ -439,25 +399,26 @@ class tx_templavoila_dbnewcontentel {
 	 * @param	array		Wizard items, passed by reference
 	 * @return	void
 	 */
-	function removeInvalidElements(&$wizardItems)	{
+	function removeInvalidElements(&$wizardItems) {
 		global $TCA;
 
-			// Load full table definition:
+		// Load full table definition:
 		t3lib_div::loadTCA('tt_content');
 
-            // Get TCEFORM from TSconfig of current page
-        $TCEFORM_TSconfig = t3lib_BEfunc::getTCEFORM_TSconfig('tt_content', array('pid' => $this->id));
-        $removeItems = t3lib_div::trimExplode(',',$TCEFORM_TSconfig['CType']['removeItems'],1);
+		// Get TCEFORM from TSconfig of current page
+        	$TCEFORM_TSconfig = t3lib_BEfunc::getTCEFORM_TSconfig('tt_content', array('pid' => $this->id));
+        	$removeItems = t3lib_div::trimExplode(',', $TCEFORM_TSconfig['CType']['removeItems'], 1);
 
 		$headersUsed = Array();
-			// Traverse wizard items:
-		foreach($wizardItems as $key => $cfg)	{
 
-				// Exploding parameter string, if any (old style)
+		// Traverse wizard items:
+		foreach($wizardItems as $key => $cfg) {
+			// Exploding parameter string, if any (old style)
 			if ($wizardItems[$key]['params'])	{
-					// Explode GET vars recursively
+				// Explode GET vars recursively
 				$tempGetVars = t3lib_div::explodeUrl2Array($wizardItems[$key]['params'],TRUE);
-					// If tt_content values are set, merge them into the tt_content_defValues array, unset them from $tempGetVars and re-implode $tempGetVars into the param string (in case remaining parameters are around).
+
+				// If tt_content values are set, merge them into the tt_content_defValues array, unset them from $tempGetVars and re-implode $tempGetVars into the param string (in case remaining parameters are around).
 				if (is_array($tempGetVars['defVals']['tt_content']))	{
 					$wizardItems[$key]['tt_content_defValues'] = array_merge(is_array($wizardItems[$key]['tt_content_defValues']) ? $wizardItems[$key]['tt_content_defValues'] : array(), $tempGetVars['defVals']['tt_content']);
 					unset($tempGetVars['defVals']['tt_content']);
@@ -465,22 +426,21 @@ class tx_templavoila_dbnewcontentel {
 				}
 			}
 
-				// If tt_content_defValues are defined...:
-			if (is_array($wizardItems[$key]['tt_content_defValues']))	{
-
-					// Traverse field values:
-				foreach($wizardItems[$key]['tt_content_defValues'] as $fN => $fV)	{
-					if (is_array($TCA['tt_content']['columns'][$fN]))	{
-							// Get information about if the field value is OK:
+			// If tt_content_defValues are defined...:
+			if (is_array($wizardItems[$key]['tt_content_defValues'])) {
+				// Traverse field values:
+				foreach($wizardItems[$key]['tt_content_defValues'] as $fN => $fV) {
+					if (is_array($TCA['tt_content']['columns'][$fN])) {
+						// Get information about if the field value is OK:
 						$config = &$TCA['tt_content']['columns'][$fN]['config'];
 						$authModeDeny = $config['type']=='select' && $config['authMode'] && !$GLOBALS['BE_USER']->checkAuthMode('tt_content',$fN,$fV,$config['authMode']);
 
-						if ($authModeDeny || in_array($fV,$removeItems))	{
-								// Remove element all together:
+						if ($authModeDeny || in_array($fV,$removeItems)) {
+							// Remove element all together:
 							unset($wizardItems[$key]);
 							break;
 						} else {
-								// Add the parameter:
+							// Add the parameter:
 							$wizardItems[$key]['params'].= '&defVals[tt_content]['.$fN.']='.rawurlencode($fV);
 							$tmp = explode('_', $key);
 							$headersUsed[$tmp[0]] = $tmp[0];
@@ -490,10 +450,11 @@ class tx_templavoila_dbnewcontentel {
 			}
 		}
 
-			// Remove headers without elements
+		// Remove headers without elements
 		foreach ($wizardItems as $key => $cfg)	{
-			list ($itemCategory, $dummy) = explode('_', $key);
-			if (!isset ($headersUsed[$itemCategory])) unset ($wizardItems[$key]);
+			list($itemCategory, $dummy) = explode('_', $key);
+			if (!isset($headersUsed[$itemCategory]))
+				unset($wizardItems[$key]);
 		}
 	}
 
@@ -505,6 +466,7 @@ class tx_templavoila_dbnewcontentel {
 	 */
 	function buildRecordWhere($table) {
 		$result = array();
+
 		if (!$GLOBALS['BE_USER']->isAdmin()) {
 			$prefLen = strlen($table) + 1;
 			foreach($GLOBALS['BE_USER']->userGroups as $group) {
@@ -516,23 +478,13 @@ class tx_templavoila_dbnewcontentel {
 				}
 			}
 		}
+
 		return (count($result) > 0 ? ' AND uid NOT IN (' . implode(',', $result) . ') ' : '');
 	}
 }
 
-// Include extension?
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/templavoila/mod1/db_new_content_el.php'])	{
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/templavoila/mod1/db_new_content_el.php']);
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/templavoila/wizards/class.tx_templavoila_wizards_content.php'])	{
+	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/templavoila/wizards/class.tx_templavoila_wizards_content.php']);
 }
 
-// Make instance:
-$SOBE = t3lib_div::makeInstance('tx_templavoila_dbnewcontentel');
-$SOBE->init();
-
-// Include files?
-foreach($SOBE->include_once as $INC_FILE)
-	include_once($INC_FILE);
-
-$SOBE->main();
-$SOBE->printContent();
 ?>

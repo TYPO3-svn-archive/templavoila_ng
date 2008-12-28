@@ -47,10 +47,10 @@
 // DEFAULT initialization of a module [BEGIN]
 $LANG->includeLLFile('EXT:templavoila/cm2/locallang.xml');
 
-require_once (PATH_t3lib.'class.t3lib_scbase.php');
-require_once (PATH_t3lib.'class.t3lib_flexformtools.php');
-require_once (PATH_t3lib.'class.t3lib_tcemain.php');
-require_once (PATH_t3lib.'class.t3lib_diff.php');
+require_once (PATH_t3lib . 'class.t3lib_scbase.php');
+require_once (PATH_t3lib . 'class.t3lib_flexformtools.php');
+require_once (PATH_t3lib . 'class.t3lib_tcemain.php');
+require_once (PATH_t3lib . 'class.t3lib_diff.php');
 
 /**
  * Class for displaying color-marked-up version of FlexForm XML content.

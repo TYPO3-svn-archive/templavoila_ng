@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<T3locallang>
+	<meta type="array">
+		<description>Labels for the TemplaVoila wizard</description>
+		<type>module</type>
+		<fileId>EXT:templavoila/wizards/locallang.xml</fileId>
+		<labelContext type="array">
+		</labelContext>
+	</meta>
+	<data type="array">
+		<languageKey index="default" type="array">
+			<label index="title">TemplaVoilà Wizard</label>
+		</languageKey>
+	</data>
+</T3locallang>

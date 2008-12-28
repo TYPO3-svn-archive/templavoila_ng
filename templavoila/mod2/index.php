@@ -92,7 +92,7 @@ require_once(t3lib_extMgm::extPath('templavoila') . 'mod2/class.tx_templavoila_m
  */
 class tx_templavoila_module2 extends t3lib_SCbase {
 
-		// External static:
+	// External static:
 	var $pageinfo;
 	var $modTSconfig;
 	var $extKey = 'templavoila';			// Extension key of this module
@@ -100,7 +100,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 	var $mod2Script = '../mod2/index.php?';
 	var $cm1Script = '../cm1/index.php?';
 
-	var $errorsWarnings=array();
+	var $errorsWarnings = array();
 
 
 	function init() {
@@ -125,10 +125,10 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 			'wiz_step' => ''
 		);
 
-			// page/be_user TSconfig settings and blinding of menu-items
-		$this->modTSconfig = t3lib_BEfunc::getModTSconfig($this->id,'mod.'.$this->MCONF['name']);
+		// page/be_user TSconfig settings and blinding of menu-items
+		$this->modTSconfig = t3lib_BEfunc::getModTSconfig($this->id, 'mod.'. $this->MCONF['name']);
 
-			// CLEANSE SETTINGS
+		// CLEANSE SETTINGS
 		$this->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->MOD_MENU, t3lib_div::GPvar('SET'), $this->MCONF['name']);
 	}
 
@@ -137,62 +137,62 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 	 *
 	 * @return	void		Nothing.
 	 */
-	function main()    {
-		global $BE_USER, $LANG, $BACK_PATH;
+	function main() {
+		global $BE_USER, $BACK_PATH;
 
-			// Access check!
-			// The page will show only if there is a valid page and if this page may be viewed by the user
-		$this->pageinfo = t3lib_BEfunc::readPageAccess($this->id,$this->perms_clause);
+		// Access check!
+		// The page will show only if there is a valid page and if this page may be viewed by the user
+		$this->pageinfo = t3lib_BEfunc::readPageAccess($this->id, $this->perms_clause);
 		$access = is_array($this->pageinfo) ? 1 : 0;
 
-		if ($access)    {
-
-				// Draw the header.
+		if ($access) {
+			// Draw the header.
 			$this->doc = t3lib_div::makeInstance('noDoc');
 			$this->doc->docType= 'xhtml_trans';
 			$this->doc->backPath = $BACK_PATH;
 			$this->doc->divClass = '';
-			$this->doc->form='<form action="'.htmlspecialchars($this->baseScript . 'id=' . $this->id).'" method="post" autocomplete="off">';
+			$this->doc->form = '<form action="' . htmlspecialchars($this->baseScript . 'id=' . $this->id) . '" method="post" autocomplete="off">';
 
-				// Add custom styles
+			// Add custom styles
 			$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath($this->extKey) . "mod2/styles.css";
 
-				// Adding classic jumpToUrl function, needed for the function menu.
-				// Also, the id in the parent frameset is configured.
-			$this->doc->JScode=$this->doc->wrapScriptTags('
+			// Adding classic jumpToUrl function, needed for the function menu.
+			// Also, the id in the parent frameset is configured.
+			$this->doc->JScode = $this->doc->wrapScriptTags('
 				function jumpToUrl(URL)	{ //
 					document.location = URL;
 					return false;
 				}
-				if (top.fsMod) top.fsMod.recentIds["web"] = '.intval($this->id).';
+				if (top.fsMod) top.fsMod.recentIds["web"] = ' . intval($this->id) . ';
 			');
 
-				// Setting up support for context menus (when clicking the items icon)
+			// Setting up support for context menus (when clicking the items icon)
 			$CMparts = $this->doc->getContextMenuCode();
 			$this->doc->bodyTagAdditions = $CMparts[1];
 			$this->doc->JScode .= $CMparts[0];
 			$this->doc->JScode .= $this->doc->getDynTabMenuJScode();
 			$this->doc->postCode.= $CMparts[2];
 
-			$this->content .= $this->doc->startPage($LANG->getLL('title'));
-			$this->content .= $this->doc->header($LANG->getLL('title'));
+			$this->content .= $this->doc->startPage($GLOBALS['LANG']->getLL('title'));
+			$this->content .= $this->doc->header($GLOBALS['LANG']->getLL('title'));
 			$this->content .= $this->doc->spacer(5);
 
-				// Rendering module content
+			// Rendering module content
 			$this->renderModuleContent(false);
 
 			if ($BE_USER->mayMakeShortcut()) {
-				$this->content.='<br /><br />'.$this->doc->makeShortcutIcon('id',implode(',',array_keys($this->MOD_MENU)),$this->MCONF['name']);
+				$this->content .= '<br /><br />' . $this->doc->makeShortcutIcon('id', implode(',', array_keys($this->MOD_MENU)), $this->MCONF['name']);
 			}
-		} else {	// No access or no current uid:
-
-				// Draw the header.
+		// No access or no current uid:
+		} else {
+			// Draw the header.
 			$this->doc = t3lib_div::makeInstance('noDoc');
 			$this->doc->docType= 'xhtml_trans';
 			$this->doc->backPath = $BACK_PATH;
 			$this->doc->divClass = '';
-			$this->doc->form='<form action="'.htmlspecialchars($this->baseScript . 'id=' . $this->id).'" method="post" autocomplete="off">';
-			$this->content.=$this->doc->startPage($LANG->getLL('title'));
+			$this->doc->form = '<form action="' . htmlspecialchars($this->baseScript . 'id=' . $this->id) . '" method="post" autocomplete="off">';
+
+			$this->content .= $this->doc->startPage($GLOBALS['LANG']->getLL('title'));
 		}
 
 		$this->content .= $this->doc->endPage();
@@ -203,7 +203,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 	 *
 	 * @return	void
 	 */
-	function printContent()    {
+	function printContent() {
 		echo $this->content;
 	}
 
@@ -255,12 +255,14 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 			// Initialize the overview
 			$overviewObj =& t3lib_div::getUserObj('&tx_templavoila_mod2_overview', '');
 			$overviewObj->init($this);
+
 			// Render the overview
 			$this->content .= $overviewObj->renderModuleContent_searchForTODS();
 
 			// Initialize the wizard
 			$wizardObj =& t3lib_div::getUserObj('&tx_templavoila_mod2_wizard', '');
 			$wizardObj->init($this);
+
 			// Render the wizard
 			$this->content .= $wizardObj->renderNewSiteWizard_overview();
 
@@ -269,6 +271,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 			// Initialize the wizard
 			$wizardObj =& t3lib_div::getUserObj('&tx_templavoila_mod2_wizard', '');
 			$wizardObj->init($this);
+
 			// Render the wizard
 			$this->content .= $wizardObj->renderNewSiteWizard_run();
 
@@ -283,8 +286,6 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 	 * @return	void
 	 */
 	function renderModuleContent_mainView($singleView) {
-		global $LANG;
-
 		// Initialize the datastructure-submodule
 		$this->dsObj =& t3lib_div::getUserObj('&tx_templavoila_mod2_ds', '');
 		$this->dsObj->init($this);
@@ -350,21 +351,21 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 			switch (intval($scopePointer)) {
 				case TVDS_SCOPE_PAGE:
 					$func = 'pagetmpl';
-					$label = $LANG->getLL('center_tab_pagetmpl');
+					$label = $GLOBALS['LANG']->getLL('center_tab_pagetmpl');
 					$scopeIcon = t3lib_iconWorks::getIconImage('pages', array(), $this->doc->backPath, 'class="absmiddle"');
 					break;
 				case TVDS_SCOPE_FCE:
 					$func = 'fcetmpl';
-					$label = $LANG->getLL('center_tab_fcetmpl');
+					$label = $GLOBALS['LANG']->getLL('center_tab_fcetmpl');
 					$scopeIcon = t3lib_iconWorks::getIconImage('tt_content', array(), $this->doc->backPath, 'class="absmiddle"');
 					break;
 				case TVDS_SCOPE_OTHER:
 					$func = 'other';
-					$label = $LANG->getLL('center_tab_other');
+					$label = $GLOBALS['LANG']->getLL('center_tab_other');
 					break;
 				default:
 					$func = 'unknown';
-					$label = $LANG->getLL('center_tab_unknown') . ' "' . $scopePointer . '"';
+					$label = $GLOBALS['LANG']->getLL('center_tab_unknown') . ' "' . $scopePointer . '"';
 					break;
 			}
 
@@ -403,7 +404,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 			// Add parts for Tab menu:
 		if ($lostTOs) {
 			$parts['lost'][] = array(
-				'label' => $LANG->getLL('center_tab_lost') . ' ['.$lostTOCount.']',
+				'label' => $GLOBALS['LANG']->getLL('center_tab_lost') . ' ['.$lostTOCount.']',
 				'content' => $lostTOs
 			);
 
@@ -413,14 +414,14 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 		}
 		else if ($singleView) {
 			$parts['lost'][] = array(
-				'label' => $LANG->getLL('center_tab_lost')
+				'label' => $GLOBALS['LANG']->getLL('center_tab_lost')
 			);
 		}
 
 		// -----------------------------------------------------
 		// Complete Template File List
 		$parts['tmplfiles'][] = array(
-			'label' => $LANG->getLL('center_tab_tmplfiles'),
+			'label' => $GLOBALS['LANG']->getLL('center_tab_tmplfiles'),
 			'content' => $this->toObj->completeTemplateFileList()
 		);
 
@@ -428,7 +429,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 		// Errors:
 		if (false !== ($errStat = $this->getErrorLog('_ALL'))) {
 			$parts['errors'][] = array(
-				'label' => $LANG->getLL('center_tab_errors') . ' (' . $errStat['count'] . ')',
+				'label' => $GLOBALS['LANG']->getLL('center_tab_errors') . ' (' . $errStat['count'] . ')',
 				'content' => $errStat['content'],
 				'stateIcon' => $errStat['iconCode']
 			);
@@ -439,7 +440,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 		}
 		else if ($singleView) {
 			$parts['errors'][] = array(
-				'label' => $LANG->getLL('center_tab_errors')
+				'label' => $GLOBALS['LANG']->getLL('center_tab_errors')
 			);
 		}
 
@@ -466,7 +467,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 			foreach ($list as $cnf) {
 				$this->content .= $this->doc->section(
 					$cnf['label'] ? $cnf['label'] : $this->MOD_MENU['page'][$this->MOD_SETTINGS['page']],
-					$cnf['content'] ? $cnf['content'] : $LANG->getLL('none'),
+					$cnf['content'] ? $cnf['content'] : $GLOBALS['LANG']->getLL('none'),
 					FALSE,
 					TRUE);
 			}
@@ -480,8 +481,8 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 
 			// Create setting handlers:
 			$settings = '<p>'.
-					t3lib_BEfunc::getFuncCheck('','SET[set_details]',$this->MOD_SETTINGS['set_details'],'',t3lib_div::implodeArrayForUrl('',$_GET,'',1,1)).
-					' '.$LANG->getLL('center_details').' &nbsp;&nbsp;&nbsp;'.
+					t3lib_BEfunc::getFuncCheck('', 'SET[set_details]', $this->MOD_SETTINGS['set_details'], '', t3lib_div::implodeArrayForUrl('', $_GET, '', 1, 1)).
+					' ' . $GLOBALS['LANG']->getLL('center_details') . ' &nbsp;&nbsp;&nbsp;'.
 				'</p><hr />';
 
 			// Add output:
@@ -500,7 +501,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 	 * @return	array		Returns array with three elements: 0: content, 1: number of DS shown, 2: number of root-level template objects shown.
 	 */
 	function renderDSlisting($dsScopeArray, &$toRecords, $scope) {
-		global $LANG, $BE_USER;
+		global $BE_USER;
 
 		$dsCount = 0;
 		$toCount = 0;
@@ -560,14 +561,14 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 
 					// Module may be allowed, but modify may not
 					if ($BE_USER->check('tables_modify', 'tx_templavoila_tmplobj')) {
-							// New-TO link:
+						// New-TO link:
 						$TOcontent.= '<a href="#" onclick="'.htmlspecialchars(t3lib_BEfunc::editOnClick(
-									'&edit[tx_templavoila_tmplobj]['.$newPid.']=new'.
-									'&defVals[tx_templavoila_tmplobj][datastructure]='.rawurlencode($dsID).
-									'&defVals[tx_templavoila_tmplobj][title]='.rawurlencode($newTitle).
-									'&defVals[tx_templavoila_tmplobj][fileref]='.rawurlencode($newFileRef)
-									,$this->doc->backPath)).'">' .
-								'<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/new_el.gif','width="11" height="12"').' alt="" class="absmiddle" /> '.$LANG->getLL('center_view_to_new').
+									'&edit[tx_templavoila_tmplobj][' . $newPid . ']=new'.
+									'&defVals[tx_templavoila_tmplobj][datastructure]=' . rawurlencode($dsID) .
+									'&defVals[tx_templavoila_tmplobj][title]=' . rawurlencode($newTitle) .
+									'&defVals[tx_templavoila_tmplobj][fileref]=' . rawurlencode($newFileRef)
+									,$this->doc->backPath)) . '">' .
+								'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/new_el.gif', 'width="11" height="12"') . ' alt="" class="absmiddle" /> ' . $GLOBALS['LANG']->getLL('center_view_to_new') .
 								'</a>';
 					}
 				}
@@ -597,20 +598,20 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 			}
 		}
 
-		if ($index)	{
+		if ($index) {
 			$content = '
-				<h4>'.$LANG->getLL('center_list_overview').':</h4>
+				<h4>' . $GLOBALS['LANG']->getLL('center_list_overview') . ':</h4>
 				<table border="0" cellpadding="0" cellspacing="1">
 					<tr class="bgColor5 tableheader">
-						<td colspan="2">'.$LANG->getLL('center_list_title').':</td>
-						<td>'.$LANG->getLL('center_list_loc').':</td>
-						<td>'.$LANG->getLL('center_list_costatus').':</td>
-						<td>'.$LANG->getLL('center_list_mapstatus').':</td>
-						<td>'.$LANG->getLL('center_list_usage').':</td>
+						<td colspan="2">'.$GLOBALS['LANG']->getLL('center_list_title') . ':</td>
+						<td>' . $GLOBALS['LANG']->getLL('center_list_loc') . ':</td>
+						<td>' . $GLOBALS['LANG']->getLL('center_list_costatus') . ':</td>
+						<td>' . $GLOBALS['LANG']->getLL('center_list_mapstatus') . ':</td>
+						<td>' . $GLOBALS['LANG']->getLL('center_list_usage') . ':</td>
 					</tr>
 				' . $index . '
 				</table>
-				<h4>' . $LANG->getLL('center_list_listing') . ':</h4>'.
+				<h4>' . $GLOBALS['LANG']->getLL('center_list_listing') . ':</h4>'.
 				$content;
 		}
 
@@ -727,25 +728,25 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 	 * @return	void
 	 */
 	function menuConfig() {
-		global $BE_USER, $LANG;
+		global $BE_USER;
 
 		parent::menuConfig();
 
 		$this->MOD_MENU['page'] =
 			array(
-				'pagetmpl'  => $LANG->getLL('center_tab_pagetmpl', 1),
-				'fcetmpl'   => $LANG->getLL('center_tab_fcetmpl', 1),
-				'other'     => $LANG->getLL('center_tab_other', 1),
-				'unknown'   => $LANG->getLL('center_tab_unknown', 1),
-				'lost'      => $LANG->getLL('center_tab_lost', 1),
-				'tmplfiles' => $LANG->getLL('center_tab_tmplfiles', 1),
-				'errors'    => $LANG->getLL('center_tab_errors', 1)
+				'pagetmpl'  => $GLOBALS['LANG']->getLL('center_tab_pagetmpl', 1),
+				'fcetmpl'   => $GLOBALS['LANG']->getLL('center_tab_fcetmpl', 1),
+				'other'     => $GLOBALS['LANG']->getLL('center_tab_other', 1),
+				'unknown'   => $GLOBALS['LANG']->getLL('center_tab_unknown', 1),
+				'lost'      => $GLOBALS['LANG']->getLL('center_tab_lost', 1),
+				'tmplfiles' => $GLOBALS['LANG']->getLL('center_tab_tmplfiles', 1),
+				'errors'    => $GLOBALS['LANG']->getLL('center_tab_errors', 1)
 			);
 
-			// page/be_user TSconfig settings and blinding of menu-items
-		$this->modTSconfig = t3lib_BEfunc::getModTSconfig($this->id,'mod.'.$this->MCONF['name']);
+		// page/be_user TSconfig settings and blinding of menu-items
+		$this->modTSconfig = t3lib_BEfunc::getModTSconfig($this->id, 'mod.' . $this->MCONF['name']);
 
-			// CLEANSE SETTINGS
+		// CLEANSE SETTINGS
 		$this->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->MOD_MENU, t3lib_div::GPvar('SET'), $this->MCONF['name']);
 	}
 
@@ -816,11 +817,9 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 	 * @return	[type]		...
 	 */
 	function getOptsMenuNoHSC() {
-		global $LANG;
-
 		$options  = '<div id="options-menu">';
 		$options .=  '<a href="#" class="toolbar-item">' .
-				'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/options.gif') . ' title="' . $LANG->getLL('center_settings', 1) . '" alt="Options" />' .
+				'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/options.gif') . ' title="' . $GLOBALS['LANG']->getLL('center_settings', 1) . '" alt="Options" />' .
 				'</a>';
 		$options .= '<ul class="toolbar-item-menu" style="display: none; width: 185px;">';
 
@@ -828,8 +827,8 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 		{
 			$link = $this->baseScript . $this->link_getParameters() . '&SET[set_details]=###';
 
-			$entries[] = '<li class="mradio'.(!$this->MOD_SETTINGS['set_details']?' selected':'').'" name="set_details"><a href="' . str_replace('###', '', $link).'"'. '>' . $LANG->getLL('center_settings_hidden', 1) . '</a></li>';
-			$entries[] = '<li class="mradio'.( $this->MOD_SETTINGS['set_details']?' selected':'').'" name="set_details"><a href="' . str_replace('###', '1', $link).'"'.'>' . $LANG->getLL('center_settings_all', 1) . '</a></li>';
+			$entries[] = '<li class="mradio'.(!$this->MOD_SETTINGS['set_details']?' selected':'').'" name="set_details"><a href="' . str_replace('###', '', $link).'"'. '>' . $GLOBALS['LANG']->getLL('center_settings_hidden', 1) . '</a></li>';
+			$entries[] = '<li class="mradio'.( $this->MOD_SETTINGS['set_details']?' selected':'').'" name="set_details"><a href="' . str_replace('###', '1', $link).'"'.'>' . $GLOBALS['LANG']->getLL('center_settings_all', 1) . '</a></li>';
 
 			$group = '<ul class="group">'.implode(chr(10), $entries).'</ul>';
 			$options .= '<li class="group">' . $group . '</li>';
@@ -854,7 +853,7 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 	 * @return	void
 	 */
 	function main()	{
-		global $BE_USER,$LANG,$BACK_PATH;
+		global $BE_USER, $BACK_PATH;
 
 		// Access check...
 		// The page will show only if there is a valid page and if this page may be viewed by the user
@@ -952,7 +951,7 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 			);
 
 				// Build the <body> for the module
-			$this->content  = $this->doc->startPage($LANG->getLL('title'));
+			$this->content  = $this->doc->startPage($GLOBALS['LANG']->getLL('title'));
 			$this->content .= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $markers);
 			$this->content .= $this->doc->endPage();
 			$this->content  = $this->doc->insertStylesAndJS($this->content);
@@ -961,8 +960,8 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 			$this->doc = t3lib_div::makeInstance('mediumDoc');
 			$this->doc->backPath = $BACK_PATH;
 
-			$this->content .= $this->doc->startPage($LANG->getLL('title'));
-			$this->content .= $this->doc->header($LANG->getLL('title'));
+			$this->content .= $this->doc->startPage($GLOBALS['LANG']->getLL('title'));
+			$this->content .= $this->doc->header($GLOBALS['LANG']->getLL('title'));
 			$this->content .= $this->doc->spacer(5);
 			$this->content .= $this->doc->spacer(10);
 			$this->content .= $this->doc->endPage();
@@ -986,7 +985,7 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 	 * @return	array		all available buttons as an assoc. array
 	 */
 	function getButtons()	{
-		global $TCA, $LANG, $BACK_PATH, $BE_USER;
+		global $TCA, $BACK_PATH, $BE_USER;
 
 		$this->R_URI = t3lib_div::_GP('returnUrl');
 
@@ -1041,7 +1040,7 @@ $SOBE->init();
 
 // Include files?
 foreach($SOBE->include_once as $INC_FILE)	include_once($INC_FILE);
-$SOBE->checkExtObj();	// Checking for first level external objects
+$SOBE->checkExtObj();		// Checking for first level external objects
 
 // Repeat Include files! - if any files has been added by second-level extensions
 foreach($SOBE->include_once as $INC_FILE)	include_once($INC_FILE);
