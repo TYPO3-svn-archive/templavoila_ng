@@ -13,6 +13,8 @@ t3lib_extMgm::addPageTSConfig('
 	#set default templates-dir (fileadmin/templates)
 	mod.web_txtemplavoilaM2.templatePath = templates
 ');
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['newPageWiz']['templavoila'] = 'mod.php?M=web_txtemplavoilaM1';
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['newContentWiz']['templavoila'] = 'mod.php?M=tx_templavoila_dbnewcontentel';
 
  	// Use templavoila instead of the default page module
  t3lib_extMgm::addUserTSConfig('
