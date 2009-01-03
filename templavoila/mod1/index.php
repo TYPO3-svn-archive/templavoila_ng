@@ -133,9 +133,8 @@ require_once(PATH_t3lib . 'class.t3lib_clipboard.php');
 require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_defines.php');
 require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_api.php');
 
-// Include class for rendering the side bar and wizards:
+// Include class for rendering the side bar:
 require_once(t3lib_extMgm::extPath('templavoila') . 'mod1/class.tx_templavoila_mod1_sidebar.php');
-require_once(t3lib_extMgm::extPath('templavoila') . 'mod1/class.tx_templavoila_mod1_wizards.php');
 require_once(t3lib_extMgm::extPath('templavoila') . 'mod1/class.tx_templavoila_mod1_clipboard.php');
 require_once(t3lib_extMgm::extPath('templavoila') . 'mod1/class.tx_templavoila_mod1_localization.php');
 require_once(t3lib_extMgm::extPath('templavoila') . 'mod1/class.tx_templavoila_mod1_records.php');
@@ -157,7 +156,7 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 	var $baseScript = 'index.php?';
 	var $mod1Script = 'mod1/index.php?';
 	var $cm2Script = '../cm2/index.php?';
-	var $newElScript = '../db_new_content_el/index.php?';
+	var $wizScript = '../wizards/index.php?';
 
 	var $global_tt_content_elementRegister=array(); 	// Contains a list of all content elements which are used on the page currently being displayed (with version, sheet and language currently set). Mainly used for showing "unused elements" in sidebar.
 	var $global_localization_status=array(); 		// Contains structure telling the localization status of each element
@@ -176,7 +175,6 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 
 	var $doc;						// Instance of template doc class
 	var $sideBarObj;					// Instance of sidebar class
-	var $wizardsObj;					// Instance of wizards class
 	var $clipboardObj;					// Instance of clipboard class
 	var $recordsObj;					// Instance of records class
 
@@ -206,7 +204,7 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 			$this->baseScript = 'mod.php?M=web_txtemplavoilaM1&';
 			$this->mod1Script = 'mod.php?M=web_txtemplavoilaM1&';
 			$this->cm2Script = 'mod.php?M=xMOD_txtemplavoilaCM2&';
-			$this->newElScript = 'mod.php?M=tx_templavoila_dbnewcontentel&';
+			$this->wizScript = 'mod.php?M=tx_templavoila_wizards&wiz=content&';
 		}
 
 		$this->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->MOD_MENU, t3lib_div::_GP('SET'), $this->MCONF['name']);
@@ -230,13 +228,10 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 			$this->translatorMode = TRUE;
 		}
 
-		// Initialize side bar and wizards:
+		// Initialize side bar:
 		$this->sideBarObj =& t3lib_div::getUserObj ('&tx_templavoila_mod1_sidebar', '');
 		$this->sideBarObj->init($this);
 		$this->sideBarObj->position = isset($this->modTSconfig['properties']['sideBarPosition']) ? $this->modTSconfig['properties']['sideBarPosition'] : 'toptabs';
-
-		$this->wizardsObj = t3lib_div::getUserObj('&tx_templavoila_mod1_wizards', '');
-		$this->wizardsObj->init($this);
 
 		// Initialize TemplaVoila API class:
 		$apiClassName = t3lib_div::makeInstanceClassName('tx_templavoila_api');
@@ -313,8 +308,8 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 	 * @return	void
 	 * @access public
 	 */
-	function main()    {
-		global $BE_USER,$LANG,$BACK_PATH;
+	function main() {
+		global $BE_USER, $LANG, $BACK_PATH;
 
 		if (!is_callable(array('t3lib_div', 'int_from_ver')) || t3lib_div::int_from_ver(TYPO3_version) < 4000000) {
 			$this->content = 'Fatal error:This version of TemplaVoila does not work with TYPO3 versions lower than 4.0.0! Please upgrade your TYPO3 core installation.';
@@ -534,26 +529,12 @@ table.typo3-dyntabmenu td.disabled:hover {
 				$this->content .= $sideBarTop.$content.$shortCut;
 			}
 
-		}
 		// No access or no current page uid:
-		else {
+		} else {
 			$this->doc = t3lib_div::makeInstance('mediumDoc');
-			$this->doc->docType= 'xhtml_trans';
+			$this->doc->docType = 'xhtml_trans';
 			$this->doc->backPath = $BACK_PATH;
-			$this->content.=$this->doc->startPage($LANG->getLL('title'));
-
-			switch ($cmd) {
-				// Create a new page
-				case 'crPage' :
-					// Output the page creation form
-					$this->content .= $this->wizardsObj->renderWizard_createNewPage (t3lib_div::_GP ('positionPid'));
-					break;
-
-					// If no access or if ID == zero
-				default:
-					$this->content .= $this->doc->header($LANG->getLL('title'));
-					$this->content .= $LANG->getLL('default_introduction');
-			}
+			$this->content .= $this->doc->startPage($LANG->getLL('title'));
 		}
 
 		$this->content .= $this->doc->endPage();
@@ -585,7 +566,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @param	[type]		$singleView: ...
 	 * @return	void
 	 */
-	function renderModuleContent($singleView=false)	{
+	function renderModuleContent($singleView = false) {
 		global $LANG;
 
 		$content = '';
@@ -677,7 +658,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 			// Create a back button if neccessary:
 		if (is_array($this->altRoot)) {
-			$output .= '<div style="text-align:right; width:100%; margin-bottom:5px;"><a href="' . $this->baseScript . 'id='.$this->id.'"><img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/goback.gif','').' title="'.htmlspecialchars($LANG->getLL ('goback')).'" alt="" /></a></div>';
+			$output .= '<div style="text-align:right; width:100%; margin-bottom:5px;"><a href="' . $this->baseScript . 'id=' . $this->id . '"><img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/goback.gif','').' title="'.htmlspecialchars($LANG->getLL ('goback')).'" alt="" /></a></div>';
 		}
 
 			// Add the localization module if localization is enabled:
@@ -1500,14 +1481,14 @@ table.typo3-dyntabmenu td.disabled:hover {
 									// Copy for language:
 								if ($this->rootElementLangParadigm =='free')	{
 									$sourcePointerString = $this->apiObj->flexform_getStringFromPointer($parentPointer);
-									$onClick = "document.location='".$this->baseScript . $this->link_getParameters().'&source='.rawurlencode($sourcePointerString).'&localizeElement='.$sLInfo['ISOcode']."'; return false;";
+									$onClick = "document.location='".$this->baseScript . $this->link_getParameters() . '&source=' . rawurlencode($sourcePointerString) . '&localizeElement=' . $sLInfo['ISOcode'] . "'; return false;";
 								} else {
-									$params='&cmd[tt_content]['.$contentTreeArr['el']['uid'].'][localize]='.$sys_language_uid;
-									$onClick = "document.location='".$GLOBALS['SOBE']->doc->issueCommand($params)."'; return false;";
+									$params='&cmd[tt_content]['.$contentTreeArr['el']['uid'].'][localize]=' . $sys_language_uid;
+									$onClick = "document.location='".$GLOBALS['SOBE']->doc->issueCommand($params) . "'; return false;";
 								}
 
-								$linkLabel = $LANG->getLL('createcopyfortranslation',1).' ('.htmlspecialchars($sLInfo['title']).')';
-								$localizeIcon = '<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/clip_copy.gif','width="12" height="12"').' class="bottom" title="'.$linkLabel.'" alt="" />';
+								$linkLabel = $LANG->getLL('createcopyfortranslation', 1) . ' (' . htmlspecialchars($sLInfo['title']) . ')';
+								$localizeIcon = '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/clip_copy.gif', 'width="12" height="12"') . ' class="bottom" title="' . $linkLabel . '" alt="" />';
 
 								$l10nInfo = '<a href="#" onclick="'.htmlspecialchars($onClick).'">'.$localizeIcon.'</a>';
 								$l10nInfo .= ' <em><a href="#" onclick="'.htmlspecialchars($onClick).'">'.$linkLabel.'</a></em>';
@@ -2076,10 +2057,10 @@ table.typo3-dyntabmenu td.disabled:hover {
 				$table != 'pages' && ($this->calcPerms & 16)) &&
 				(!$this->translatorMode || $forced))	{
 					if ($table == "pages" && $this->currentLanguageUid) {
-						return '<a href="'.$this->baseScript.$this->link_getParameters().'&amp;editPageLanguageOverlay='.$this->currentLanguageUid.'">'.$label.'</a>';
+						return '<a href="'.$this->baseScript . $this->link_getParameters() . '&amp;editPageLanguageOverlay=' . $this->currentLanguageUid . '">' . $label . '</a>';
 					} else {
-						$onClick = t3lib_BEfunc::editOnClick('&edit['.$table.']['.$uid.']=edit', $this->doc->backPath);
-						return '<a href="#" onclick="'.htmlspecialchars($onClick).'">'.$label.'</a>';
+						$onClick = t3lib_BEfunc::editOnClick('&edit[' . $table . '][' . $uid . ']=edit', $this->doc->backPath);
+						return '<a href="#" onclick="' . htmlspecialchars($onClick) . '">' . $label . '</a>';
 					}
 				} else {
 					return $label;
@@ -2152,10 +2133,10 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 */
 	function link_new($label, $parentPointer) {
 		$parameters =
-			$this->link_getParameters().
-			'&amp;parentRecord='.rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer));
+			$this->link_getParameters() .
+			'&amp;parentRecord=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer));
 
-		return '<a href="'. $this->newElScript . $parameters . '">' . $label . '</a>';
+		return '<a href="' . $this->wizScript . $parameters . '">' . $label . '</a>';
 	}
 
 	/**
@@ -2244,7 +2225,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 	function link_makeLocal($label, $makeLocalPointer) {
 		global $LANG;
 
-		return '<a href="'.$this->baseScript.$this->link_getParameters().'&amp;makeLocalRecord='.rawurlencode($this->apiObj->flexform_getStringFromPointer($makeLocalPointer)).'" onclick="'.htmlspecialchars('return confirm('.$LANG->JScharCode($LANG->getLL('makeLocalMsg')).');').'">'.$label.'</a>';
+		return '<a href="' . $this->baseScript . $this->link_getParameters() . '&amp;makeLocalRecord=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($makeLocalPointer)) . '" onclick="' . htmlspecialchars('return confirm(' . $LANG->JScharCode($LANG->getLL('makeLocalMsg')) . ');') . '">' . $label . '</a>';
 	}
 
 	/**
@@ -2255,9 +2236,9 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 */
 	function link_getParameters()	{
 		$output =
-			'id='.$this->id.
-			(is_array($this->altRoot) ? t3lib_div::implodeArrayForUrl('altRoot',$this->altRoot) : '') .
-			($this->versionId ? '&amp;versionId='.rawurlencode($this->versionId) : '');
+			'id=' . $this->id .
+			(is_array($this->altRoot) ? t3lib_div::implodeArrayForUrl('altRoot', $this->altRoot) : '') .
+			($this->versionId ? '&amp;versionId=' . rawurlencode($this->versionId) : '');
 
 		return $output;
 	}
@@ -2303,7 +2284,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 						$destinationPointer = $this->apiObj->flexform_getPointerFromString($commandParameters);
 						$newUid = $this->apiObj->insertElement($destinationPointer, $newRow);
 							// TODO If $newUid==0, than we could create new element. Need to handle it...
-						$redirectLocation = $GLOBALS['BACK_PATH'].'alt_doc.php?edit[tt_content]['.$newUid.']=edit&returnUrl='.rawurlencode($this->mod1Script.$this->link_getParameters());
+						$redirectLocation = $GLOBALS['BACK_PATH'] . 'alt_doc.php?edit[tt_content][' . $newUid . ']=edit&returnUrl=' . rawurlencode($this->mod1Script . $this->link_getParameters());
 						break;
 
 					case 'unlinkRecord':
@@ -2344,9 +2325,9 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 					case 'createNewPageTranslation':
 							// Create parameters and finally run the classic page module for creating a new page translation
-						$params = '&edit[pages_language_overlay]['.intval (t3lib_div::_GP('pid')).']=new&overrideVals[pages_language_overlay][sys_language_uid]='.intval($commandParameters);
-						$returnUrl = '&returnUrl='.rawurlencode($this->mod1Script.$this->link_getParameters());
-						$redirectLocation = $GLOBALS['BACK_PATH'].'alt_doc.php?'.$params.$returnUrl;
+						$params = '&edit[pages_language_overlay][' . intval (t3lib_div::_GP('pid')) . ']=new&overrideVals[pages_language_overlay][sys_language_uid]=' . intval($commandParameters);
+						$returnUrl = '&returnUrl=' . rawurlencode($this->mod1Script . $this->link_getParameters());
+						$redirectLocation = $GLOBALS['BACK_PATH'] . 'alt_doc.php?' . $params.$returnUrl;
 						break;
 
 					case 'editPageLanguageOverlay':
@@ -2375,8 +2356,8 @@ table.typo3-dyntabmenu td.disabled:hover {
 							$params = '&edit[pages]['.intval($this->id).']=edit';
 						}
 						if ($params) {
-							$returnUrl = '&returnUrl='.rawurlencode($this->mod1Script.$this->link_getParameters());
-							$redirectLocation = $GLOBALS['BACK_PATH'].'alt_doc.php?'.$params.$returnUrl;	//.'&localizationMode=text';
+							$returnUrl = '&returnUrl=' . rawurlencode($this->mod1Script . $this->link_getParameters());
+							$redirectLocation = $GLOBALS['BACK_PATH'] . 'alt_doc.php?' . $params . $returnUrl;	//.'&localizationMode=text';
 						}
 						break;
 				}
@@ -2426,7 +2407,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 		t3lib_div::loadTCA ('sys_language');
 		$flagAbsPath = t3lib_div::getFileAbsFileName($TCA['sys_language']['columns']['flag']['config']['fileFolder']);
-		$flagIconPath = $BACK_PATH.'../'.substr($flagAbsPath, strlen(PATH_site));
+		$flagIconPath = $BACK_PATH . '../' . substr($flagAbsPath, strlen(PATH_site));
 
 		$output = array();
 		$excludeHidden = $BE_USER->isAdmin() ? '1=1' : 'sys_language.hidden=0';
@@ -2600,7 +2581,7 @@ table.typo3-dyntabmenu td.disabled:hover {
  */
 class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 
-		// Internal, dynamic:
+	// Internal, dynamic:
 	var $be_user_Array;
 	var $CALC_PERMS;
 	var $pageinfo;
@@ -2888,7 +2869,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 				    browserInsert = "'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/insert3.gif','', 1).'";
 
 				function setFormValueOpenBrowser(mode,params) {	//
-					var url = "'.$BACK_PATH.'browser.php?mode="+mode+"&bparams="+params;
+					var url = "' . $BACK_PATH . 'browser.php?mode=" + mode + "&bparams=" + params;
 
 					browserWin = window.open(url,"Typo3WinBrowser - TemplaVoila Element Selector","height=350,width="+(mode=="db"?650:600)+",status=0,menubar=0,resizable=1,scrollbars=1");
 					browserWin.focus();
@@ -2936,9 +2917,9 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 			$CMparts = $this->doc->getContextMenuCode();
 			$this->doc->bodyTagAdditions = $CMparts[1];
 			$this->doc->JScode .= $CMparts[0];
-			$this->doc->JScode .= $this->doc->getDynTabMenuJScode();
+		//	$this->doc->JScode .= $this->doc->getDynTabMenuJScode();
 			$this->doc->postCode .= $CMparts[2];
-			$this->doc->form = '<form action="'.htmlspecialchars($this->baseScript . $this->link_getParameters()).'" method="post" autocomplete="off">' .
+			$this->doc->form = '<form action="'.htmlspecialchars($this->baseScript . $this->link_getParameters()) . '" method="post" autocomplete="off">' .
 				'<input type="hidden" id="browser[communication]" name="browser[communication]" />';
 
 			/* Prototype /Scriptaculous */
@@ -2964,22 +2945,10 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 			$this->content .= t3lib_BEfunc::cshItem('_MOD_web_tv', '', $GLOBALS['BACK_PATH'], '<br/>|', FALSE, 'margin-top: 30px;');
 		//	$this->content .= $this->doc->spacer(10);
 
-			if (($cmd = t3lib_div::_GP('cmd'))) {
-				$pid = t3lib_div::_GP('positionPid');
-
-				// Create a new page
-				if (($cmd == 'crPage') && intval($pid)) {
-					$this->content .= $this->wizardsObj->renderWizard_createNewPage($pid);
-				}
-				// Render nothing
-				else
-					$this->content  = '';
-			}
-			else if ($this->id) {
+			if ($this->id) {
 				// Rendering module content
 				$this->content .= $this->renderModuleContent(true);
-			}
-			else {
+			} else {
 				// Render nothing
 				$this->content  = '';
 			}
@@ -3061,7 +3030,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 
 		// Back
 		if (is_array($this->altRoot)) {
-			$buttons['back'] = '<a href="' . $this->baseScript . 'id='.$this->id.'" class="typo3-goBack">' .
+			$buttons['back'] = '<a href="' . $this->baseScript . 'id=' . $this->id . '" class="typo3-goBack">' .
 				'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/goback.gif') . ' title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.goBack', 1) . '" alt="" />' .
 				'</a>';
 		}
@@ -3073,8 +3042,8 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 
 		// Up one level
 		if ($this->pageinfo['pid']) {
-			$buttons['level_up'] = '<a href="' . $this->baseScript . 'id='.$this->pageinfo['pid'].'" onclick="setHighlight(' . $this->pageinfo['pid'] . ')">' .
-						'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/i/pages_up.gif') . ' title="' . $LANG->sL('LLL:EXT:lang/locallang_core.php:labels.upOneLevel', 1) . '" alt="" />' .
+			$buttons['level_up'] = '<a href="' . $this->baseScript . 'id=' . $this->pageinfo['pid'] . '" onclick="setHighlight(' . $this->pageinfo['pid'] . ')">' .
+						'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/i/pages_up.gif') . ' title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.upOneLevel', 1) . '" alt="" />' .
 						'</a>';
 		}
 
@@ -3088,6 +3057,12 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 					'</a>';
 
 			if ($this->CALC_PERMS & 2) {
+				// Create new page wizard
+				$params = 'id=' . $this->id . '&pagesOnly=1';
+				$buttons['new'] = '<a href="' . $this->doc->backPath . 'db_new.php?' . $params . '&returnUrl=' . rawurlencode($this->baseScript . $this->link_getParameters()) . '">' .
+					'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/new_page.gif', 'width="13" height="12"') . ' title="' . htmlspecialchars($GLOBALS['LANG']->getLL('clickForWizard')) . '" alt="" />' .
+					'</a>';
+
 				// Edit page properties
 				$params = '&edit[pages][' . $this->id . ']=edit';
 				$buttons['edit_page'] = '<a href="#" onclick="' . htmlspecialchars(t3lib_BEfunc::editOnClick($params, $BACK_PATH)) . '">' .

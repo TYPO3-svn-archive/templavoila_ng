@@ -75,13 +75,12 @@ $BE_USER->modAccess($MCONF, 1);
 // Include class which contains the constants and definitions of TV
 require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_defines.php');
 
-// Include class for rendering the different sections and wizards:
+// Include class for rendering the different sections:
 require_once(t3lib_extMgm::extPath('templavoila') . 'mod2/class.tx_templavoila_mod2_overview.php');
 require_once(t3lib_extMgm::extPath('templavoila') . 'mod2/class.tx_templavoila_mod2_ds.php');
 require_once(t3lib_extMgm::extPath('templavoila') . 'mod2/class.tx_templavoila_mod2_to.php');
 require_once(t3lib_extMgm::extPath('templavoila') . 'mod2/class.tx_templavoila_mod2_xml.php');
 require_once(t3lib_extMgm::extPath('templavoila') . 'mod2/class.tx_templavoila_mod2_files.php');
-require_once(t3lib_extMgm::extPath('templavoila') . 'mod2/class.tx_templavoila_mod2_wizard.php');
 
 /**
  * Module 'TemplaVoila' for the 'templavoila' extension.
@@ -99,6 +98,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 	var $baseScript = 'index.php?';
 	var $mod2Script = '../mod2/index.php?';
 	var $cm1Script = '../cm1/index.php?';
+	var $wizScript = '../wizards/index.php?';
 
 	var $errorsWarnings = array();
 
@@ -110,6 +110,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 			$this->baseScript = 'mod.php?M=web_txtemplavoilaM2&';
 			$this->mod2Script = 'mod.php?M=web_txtemplavoilaM2&';
 			$this->cm1Script = 'mod.php?M=xMOD_txtemplavoilaCM1&';
+			$this->wizScript = 'mod.php?M=tx_templavoila_wizards&wiz=content&';
 		}
 	}
 
@@ -223,8 +224,8 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 	 */
 	function renderModuleContent($singleView=false)	{
 
-		// Run wizard instead of showing overview.
-		if (!$this->MOD_SETTINGS['wiz_step']) {
+		// Show overview.
+		{
 			// Select all Data Structures in the PID and put into an array:
 			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 				'count(*)',
@@ -251,7 +252,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 			}
 		}
 
-		if (!$this->MOD_SETTINGS['wiz_step']) {
+		{
 			// Initialize the overview
 			$overviewObj =& t3lib_div::getUserObj('&tx_templavoila_mod2_overview', '');
 			$overviewObj->init($this);
@@ -259,21 +260,17 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 			// Render the overview
 			$this->content .= $overviewObj->renderModuleContent_searchForTODS();
 
+			// Hmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm :-(
+			$LOCAL_LANG_orig = $GLOBALS['LOCAL_LANG'];
+			$GLOBALS['LANG']->includeLLFile('EXT:templavoila/wizards/locallang_site.xml');
+			$GLOBALS['LOCAL_LANG'] = t3lib_div::array_merge_recursive_overrule($LOCAL_LANG_orig, $GLOBALS['LOCAL_LANG']);
+
 			// Initialize the wizard
-			$wizardObj =& t3lib_div::getUserObj('&tx_templavoila_mod2_wizard', '');
+			$wizardObj =& t3lib_div::getUserObj('EXT:templavoila/wizards/class.tx_templavoila_wizards_site.php:&tx_templavoila_wizards_site', '');
 			$wizardObj->init($this);
 
 			// Render the wizard
 			$this->content .= $wizardObj->renderNewSiteWizard_overview();
-
-			return false;
-		} else {
-			// Initialize the wizard
-			$wizardObj =& t3lib_div::getUserObj('&tx_templavoila_mod2_wizard', '');
-			$wizardObj->init($this);
-
-			// Render the wizard
-			$this->content .= $wizardObj->renderNewSiteWizard_run();
 
 			return false;
 		}

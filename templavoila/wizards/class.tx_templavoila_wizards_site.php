@@ -109,7 +109,7 @@ class tx_templavoila_wizards_site {
 				$outputString .= '
 				<br/>
 				<br/>
-				<input type="submit" value="' . $GLOBALS['LANG']->getLL('wiz_start') . '!" onclick="' . htmlspecialchars('document.location=\'' . $this->pObj->baseScript . 'SET[wiz_step]=1\'; return false;').'" />';
+				<input type="submit" value="' . $GLOBALS['LANG']->getLL('wiz_start') . '!" onclick="' . htmlspecialchars('document.location=\'' . $this->pObj->wizScript . 'wiz=site&SET[wiz_step]=1\'; return false;').'" />';
 			} else {
 				$outputString .= '
 				<br/>
@@ -181,7 +181,7 @@ class tx_templavoila_wizards_site {
 					break;
 			}
 
-			$outputString .= '<hr/><input type="submit" value="Cancel wizard" onclick="' . htmlspecialchars('document.location=\'' . $this->pObj->baseScript . 'SET[wiz_step]=0\'; return false;').'" />';
+			$outputString .= '<hr/><input type="submit" value="Cancel wizard" onclick="' . htmlspecialchars('document.location=\'' . $this->pObj->mod2Script . 'SET[wiz_step]=0\'; return false;').'" />';
 
 			// Add output:
 			$this->content .= $this->doc->section('', $outputString, 0, 1);
@@ -303,14 +303,14 @@ class tx_templavoila_wizards_site {
 					<td>'.(count($tosForTemplate) ? 'Used '.count($tosForTemplate).' times' : 'Not used yet').'</td>
 					<td>'.
 						'<a href="#" onclick="'.htmlspecialchars($onClick).'">[Preview first]</a> '.
-						'<a href="'.htmlspecialchars($this->pObj->baseScript . 'SET[wiz_step]=2&CFG[file]=' . rawurlencode($file)) . '">[Choose as Template]</a> '.
+						'<a href="'.htmlspecialchars($this->pObj->wizScript . 'wiz=site&SET[wiz_step]=2&CFG[file]=' . rawurlencode($file)) . '">[Choose as Template]</a> '.
 						'</td>
 				</tr>';
 			}
 			$outputString.= '<table border="0" cellpadding="1" cellspacing="1" class="lrPadding">'.implode('',$tRows).'</table>';
 
 				// Refresh button:
-			$outputString.= '<br/><input type="submit" value="Refresh" onclick="'.htmlspecialchars('document.location=\'' . $this->pObj->baseScript . 'SET[wiz_step]=1\'; return false;').'" />';
+			$outputString.= '<br/><input type="submit" value="Refresh" onclick="'.htmlspecialchars('document.location=\'' . $this->pObj->wizScript . 'wiz=site&SET[wiz_step]=1\'; return false;').'" />';
 
 				// Add output:
 			$this->content.= $this->doc->section('Step 1: Select the template HTML file',$outputString,0,1);
@@ -464,7 +464,7 @@ class tx_templavoila_wizards_site {
 
 			// If a template Object id was found, continue with mapping:
 		if ($this->wizardData['templateObjectId'])	{
-			$url = $this->pObj->cm1Script . 'id=' . $this->pObj->id . '&table=tx_templavoila_tmplobj&uid=' . $this->wizardData['templateObjectId'] . '&SET[selectHeaderContent]=0&_reload_from=1&returnUrl=' . rawurlencode($this->pObj->baseScript . 'SET[wiz_step]=4');
+			$url = $this->pObj->cm1Script . 'id=' . $this->pObj->id . '&table=tx_templavoila_tmplobj&uid=' . $this->wizardData['templateObjectId'] . '&SET[selectHeaderContent]=0&_reload_from=1&returnUrl=' . rawurlencode($this->pObj->wizScript . 'wiz=site&SET[wiz_step]=4');
 
 			$outputString .= '
 				You are now ready to point out at which position in the HTML code to insert the TYPO3 generated page content and the main menu. This process is called "mapping".<br/>
@@ -486,7 +486,7 @@ class tx_templavoila_wizards_site {
 	 * @return	void
 	 */
 	function wizard_step4()	{
-		$url = $this->pObj->cm1Script . 'id=' . $this->pObj->id . '&table=tx_templavoila_tmplobj&uid=' . $this->wizardData['templateObjectId'] . '&SET[selectHeaderContent]=1&_reload_from=1&returnUrl=' . rawurlencode($this->pObj->baseScript . 'SET[wiz_step]=5');
+		$url = $this->pObj->cm1Script . 'id=' . $this->pObj->id . '&table=tx_templavoila_tmplobj&uid=' . $this->wizardData['templateObjectId'] . '&SET[selectHeaderContent]=1&_reload_from=1&returnUrl=' . rawurlencode($this->pObj->wizScript . 'wiz=site&SET[wiz_step]=5');
 		$outputString.= '
 			Finally you also have to select which parts of the HTML header you want to include. For instance it is important that you select all sections with CSS styles in order to preserve the correct visual appearance of your website.<br/>
 			You can also select the body-tag of the template if you want to use the original body-tag.<br/>
@@ -755,7 +755,7 @@ lib.'.$menuType.'.1.ACT {
 
 		<br/>
 		<br/>
-		<input type="submit" value="Finish Wizard!" onclick="'.htmlspecialchars(t3lib_BEfunc::viewOnClick($this->wizardData['rootPageId'],$this->doc->backPath).'document.location=\'' . $this->pObj->baseScript . 'SET[wiz_step]=0\'; return false;').'" />
+		<input type="submit" value="Finish Wizard!" onclick="' . htmlspecialchars(t3lib_BEfunc::viewOnClick($this->wizardData['rootPageId'], $this->doc->backPath) . 'document.location=\'' . $this->pObj->mod2Script . 'SET[wiz_step]=0\'; return false;').'" />
 		';
 
 			// Add output:

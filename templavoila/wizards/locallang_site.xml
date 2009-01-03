@@ -9,6 +9,18 @@
 	</meta>
 	<data type="array">
 		<languageKey index="default" type="array">
+			<label index="createnewsite_title">New site</label>
+
+			<label index="wiz_title">New site wizard</label>
+			<label index="wiz_start">Start wizard now!</label>
+			<label index="wiz_step">Step %s</label>
+		</languageKey>
+		<languageKey index="de" type="array">
+			<label index="createnewsite_title">Neue Webpräsenz</label>
+
+			<label index="wiz_title">Assistent zur Erstellung einer Beispiel-Seite</label>
+			<label index="wiz_start">Assistenten starten!</label>
+			<label index="wiz_step">Schritt %s</label>
 		</languageKey>
 	</data>
 </T3locallang>

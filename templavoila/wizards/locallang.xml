@@ -10,6 +10,31 @@
 	<data type="array">
 		<languageKey index="default" type="array">
 			<label index="title">TemplaVoilà Wizard</label>
+
+			<label index="template_nodescriptionavailable">No description available.</label>
+			<label index="template_titledefault">Default template</label>
+			<label index="template_descriptiondefault">Standard Layout, definiert durch den Designer dieser Website.</label>
+		</languageKey>
+		<languageKey index="dk" type="array">
+			<label index="template_nodescriptionavailable">Ingen beskrivelse tilgængelig.</label>
+			<label index="template_titledefault">Standard skabelon</label>
+			<label index="template_descriptiondefault">Standard skabelon, defineret af websitets designer.</label>
+		</languageKey>
+		<languageKey index="nl" type="array">
+			<label index="template_nodescriptionavailable">Geen beschrijving beschikbaar</label>
+			<label index="template_titledefault">Standaard sjabloon</label>
+		</languageKey>
+		<languageKey index="ru" type="array">
+			<label index="template_nodescriptionavailable">Описание недоступно.</label>
+			<label index="template_titledefault">Шаблон по умочанию</label>
+		</languageKey>
+		<languageKey index="lv" type="array">
+			<label index="template_nodescriptionavailable">Apraksts nav pieejams.</label>
+			<label index="template_titledefault">Paraugs pēc noklusēšanas</label>
+		</languageKey>
+		<languageKey index="de" type="array">
+			<label index="template_nodescriptionavailable">Keine Beschreibung verfügbar.</label>
+			<label index="template_titledefault">Standard Vorlage</label>
 		</languageKey>
 	</data>
 </T3locallang>

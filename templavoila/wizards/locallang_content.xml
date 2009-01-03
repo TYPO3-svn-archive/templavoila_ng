@@ -9,6 +9,8 @@
 	</meta>
 	<data type="array">
 		<languageKey index="default" type="array">
+			<label index="createnewcontent_title">New content element</label>
+
 			<label index="sel1">Please select which kind of page content you wish to create:</label>
 			<label index="sel2">Now, click at the position where you wish to place the element on the page:</label>
 			<label index="common">Typical page content</label>
@@ -46,6 +48,8 @@
 			<label index="fce">Flexible content</label>
 		</languageKey>
 		<languageKey index="dk" type="array">
+			<label index="createnewcontent_title">Nyt indholdselement</label>
+
 			<label index="sel1">Vælg hvilken slags sideindhold du ønsker at oprette:</label>
 			<label index="sel2">Klik så på den position, hvor du ønsker at indsætte elementet på siden:</label>
 			<label index="common">Typisk sideindhold</label>
@@ -83,6 +87,8 @@
 			<label index="fce">Flexibelt indhold</label>
 		</languageKey>
 		<languageKey index="de" type="array">
+			<label index="createnewcontent_title">Neues Inhaltselement</label>
+
 			<label index="sel1">Wählen Sie bitte den Type des Seiteninhalts aus, den Sie erzeugen wollen:</label>
 			<label index="sel2">Wählen Sie nun die Position aus, an der das Element auf der Seite positioniert werden soll:</label>
 			<label index="common">Typischer Seiteninhalt</label>
@@ -262,6 +268,8 @@
 			<label index="plugins_1_description">Si deseas insertar un plugin que no se encuentre entre las opciones de más abajo, selecciona este tipo de elemento y podrás seleccionar el plugin que buscas más tarde.</label>
 		</languageKey>
 		<languageKey index="nl" type="array">
+			<label index="createnewcontent_title">Nieuw inhoud element</label>
+
 			<label index="sel1">Kies het aan te maken soort pagina-inhoud:</label>
 			<label index="sel2">Selecteer nu de positie waar het element geplaatst wordt in de pagina:</label>
 			<label index="common">Specifieke pagina-inhoud</label>
@@ -537,6 +545,8 @@
 			<label index="plugins">Adicionais</label>
 		</languageKey>
 		<languageKey index="ru" type="array">
+			<label index="createnewcontent_title">Новый элемент страницы</label>
+
 			<label index="sel1">Выберите, пожалуйста, какой тип контент-элемента вы хотите создать:</label>
 			<label index="sel2">Теперь нажмите в странице на то место, куда вы хотите поместить элемент:</label>
 			<label index="common">Типичные контент-элементы страниц</label>
@@ -944,6 +954,8 @@
 		<languageKey index="ua" type="array">
 		</languageKey>
 		<languageKey index="lv" type="array">
+			<label index="createnewcontent_title">Jauns satura elements</label>
+
 			<label index="sel1">Lūdzu izvēlieties, kāda tipa satura elementu jūs vēlaties izveidot:</label>
 			<label index="sel2">Tagad uzklikšķiniet tajā vietā uz lapas, kur jūs vēlaties ievietot elementu.</label>
 			<label index="common">Tipiskais lapas saturs</label>

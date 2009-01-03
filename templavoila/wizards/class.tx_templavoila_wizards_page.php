@@ -102,7 +102,7 @@ class tx_templavoila_wizards_page {
 	 * @todo Check required field(s), support t3d
 	 */
 	function renderWizard_createNewPage($positionPid) {
-		global $LANG, $BE_USER, $TYPO3_CONF_VARS;
+		global $BE_USER, $TYPO3_CONF_VARS;
 
 		// The user already submitted the create page form:
 		if (t3lib_div::_GP('doCreate')) {
@@ -111,15 +111,17 @@ class tx_templavoila_wizards_page {
 			$httpHost = t3lib_div::getIndpEnv('TYPO3_HOST_ONLY');
 			if ($httpHost == $refInfo['host'] || t3lib_div::_GP('vC') == $BE_USER->veriCode() || $TYPO3_CONF_VARS['SYS']['doNotCheckReferer']) {
 				// Create new page
-				$newID = $this->createPage (t3lib_div::_GP('data'), $positionPid);
+				$newID = $this->createPage(t3lib_div::_GP('data'), $positionPid);
 				if ($newID > 0) {
+					$this->pObj->id = $newID;
+
 					// Get TSconfig for a different selection of fields in the editing form
 					$TSconfig = t3lib_BEfunc::getModTSconfig($newID, 'mod.web_txtemplavoilaM1.createPageWizard.fieldNames');
 					$fieldNames = isset ($TSconfig['value']) ? $TSconfig['value'] : 'hidden,title,alias';
 
-						// Create parameters and finally run the classic page module's edit form for the new page:
+					// Create parameters and finally run the classic page module's edit form for the new page:
 					$params = '&edit[pages][' . $newID . ']=edit&columnsOnly=' . rawurlencode($fieldNames);
-					$returnUrl = rawurlencode(t3lib_div::getIndpEnv('SCRIPT_NAME') . '?id=' . $newID . '&updatePageTree=1');
+					$returnUrl = rawurlencode($this->pObj->mod1Script . $this->pObj->link_getParameters() . '&updatePageTree=1');
 
 					header('Location: ' . t3lib_div::locationHeaderUrl($this->doc->backPath . 'alt_doc.php?returnUrl=' . $returnUrl . $params));
 					exit();
@@ -144,8 +146,9 @@ class tx_templavoila_wizards_page {
 
 					// Find the new page id (root page):
 					$newID = $import->import_mapId['pages'][$origPageId];
-
 					if ($newID) {
+						$this->pObj->id = $newID;
+
 						// If the page was destined to be inserted after another page, move it now:
 						if ($positionPid < 0) {
 							$cmd = array();
@@ -159,11 +162,11 @@ class tx_templavoila_wizards_page {
 						// PLAIN COPY FROM ABOVE - BEGIN
 						// Get TSconfig for a different selection of fields in the editing form
 						$TSconfig = t3lib_BEfunc::getModTSconfig($newID, 'tx_templavoila.mod1.createPageWizard.fieldNames');
-						$fieldNames = isset ($TSconfig['value']) ? $TSconfig['value'] : 'hidden,title,alias';
+						$fieldNames = isset($TSconfig['value']) ? $TSconfig['value'] : 'hidden,title,alias';
 
 						// Create parameters and finally run the classic page module's edit form for the new page:
-						$params = '&edit[pages]['.$newID.']=edit&columnsOnly='.rawurlencode($fieldNames);
-						$returnUrl = rawurlencode(t3lib_div::getIndpEnv('SCRIPT_NAME').'?id='.$newID.'&updatePageTree=1');
+						$params = '&edit[pages][' . $newID . ']=edit&columnsOnly=' . rawurlencode($fieldNames);
+						$returnUrl = rawurlencode($this->pObj->mod1Script . $this->pObj->link_getParameters() . '&updatePageTree=1');
 
 						header('Location: ' . t3lib_div::locationHeaderUrl($this->doc->backPath . 'alt_doc.php?returnUrl=' . $returnUrl . $params));
 						exit();
@@ -189,30 +192,30 @@ class tx_templavoila_wizards_page {
 
 		// Add template selectors
 		$tmplSelectorCode = '';
-		$tmplSelector = $this->renderTemplateSelector($positionPid,'tmplobj');
+		$tmplSelector = $this->renderTemplateSelector($positionPid, 'tmplobj');
 		if ($tmplSelector) {
-#			$tmplSelectorCode .= '<em>' . $LANG->getLL('createnewpage_templateobject_createemptypage') . '</em>';
+#			$tmplSelectorCode .= '<em>' . $GLOBALS['LANG']->getLL('createnewpage_templateobject_createemptypage') . '</em>';
 			$tmplSelectorCode .= $this->doc->spacer(5);
 			$tmplSelectorCode .= $tmplSelector;
 			$tmplSelectorCode .= $this->doc->spacer(10);
 		}
 
-		$tmplSelector = $this->renderTemplateSelector($positionPid,'t3d');
+		$tmplSelector = $this->renderTemplateSelector($positionPid, 't3d');
 		if ($tmplSelector) {
-#			$tmplSelectorCode .= '<em>' . $LANG->getLL('createnewpage_templateobject_createpagewithdefaultcontent') . '</em>';
+#			$tmplSelectorCode .= '<em>' . $GLOBALS['LANG']->getLL('createnewpage_templateobject_createpagewithdefaultcontent') . '</em>';
 			$tmplSelectorCode .= $this->doc->spacer(5);
 			$tmplSelectorCode .= $tmplSelector;
 			$tmplSelectorCode .= $this->doc->spacer(10);
 		}
 
 		if ($tmplSelectorCode) {
-			$content .= '<h3>' . htmlspecialchars($LANG->getLL ('createnewpage_selecttemplate')) . '</h3>';
-			$content .= $LANG->getLL('createnewpage_templateobject_description');
+			$content .= '<h3>' . htmlspecialchars($GLOBALS['LANG']->getLL('createnewpage_selecttemplate')) . '</h3>';
+			$content .= $GLOBALS['LANG']->getLL('createnewpage_templateobject_description');
 			$content .= $this->doc->spacer(10);
 			$content .= $tmplSelectorCode;
 		}
 
-		$content .= '<input type="hidden" name="positionPid" value="'.$positionPid.'" />';
+		$content .= '<input type="hidden" name="positionPid" value="' . $positionPid . '" />';
 		$content .= '<input type="hidden" name="doCreate" value="1" />';
 		$content .= '<input type="hidden" name="cmd" value="crPage" />';
 
@@ -237,7 +240,7 @@ class tx_templavoila_wizards_page {
 	 * @return	string		HTML output containing a table with the template selector
 	 */
 	function renderTemplateSelector ($positionPid, $templateType='tmplobj') {
-		global $LANG, $TYPO3_DB;
+		global $TYPO3_DB;
 
 		$storageFolderPID = $this->apiObj->getStorageFolderPid($positionPid);
 		$tmplHTML = array();
@@ -246,11 +249,11 @@ class tx_templavoila_wizards_page {
 			case 'tmplobj':
 				// Create the "Default template" entry
 				$previewIconFilename = $GLOBALS['BACK_PATH'] . '../' . t3lib_extMgm::siteRelPath($this->extKey) . 'res/default_previewicon.gif';
-				$previewIcon = '<input type="image" class="c-inputButton" name="i0" value="0" src="'.$previewIconFilename.'" title="" />';
-				$description = htmlspecialchars($LANG->getLL ('template_descriptiondefault'));
+				$previewIcon = '<input type="image" class="c-inputButton" name="i0" value="0" src="' . $previewIconFilename . '" title="" />';
+				$description = htmlspecialchars($GLOBALS['LANG']->getLL('template_descriptiondefault'));
 				$tmplHTML [] = '<table style="float:left; width: 100%;" valign="top"><tr><td colspan="2" nowrap="nowrap">
-					<h3 class="bgColor3-20">'.htmlspecialchars($LANG->getLL ('template_titledefault')).'</h3></td></tr>
-					<tr><td valign="top">'.$previewIcon.'</td><td width="120" valign="top"><p>'.$description.'</p></td></tr></table>';
+					<h3 class="bgColor3-20">' . htmlspecialchars($GLOBALS['LANG']->getLL('template_titledefault')) . '</h3></td></tr>
+					<tr><td valign="top">' . $previewIcon . '</td><td width="120" valign="top"><p>' . $description . '</p></td></tr></table>';
 
 				$tTO = 'tx_templavoila_tmplobj';
 				$tDS = 'tx_templavoila_datastructure';
@@ -273,7 +276,7 @@ class tx_templavoila_wizards_page {
 
 					// Note: we cannot use value of image input element because MSIE replaces this value with mouse coordinates! Thus on click we set value to a hidden field. See http://bugs.typo3.org/view.php?id=3376
 					$previewIcon = '<input type="image" class="c-inputButton" name="i' .$row['uid'] . '" onclick="document.getElementById(\'data_tx_templavoila_to\').value='.$row['uid'].'" src="'.$previewIconFilename.'" title="" />';
-					$description = $row['description'] ? htmlspecialchars($row['description']) : $LANG->getLL ('template_nodescriptionavailable');
+					$description = $row['description'] ? htmlspecialchars($row['description']) : $GLOBALS['LANG']->getLL ('template_nodescriptionavailable');
 					$tmplHTML [] = '<table style="width: 100%;" valign="top"><tr><td colspan="2" nowrap="nowrap"><h3 class="bgColor3-20">'.htmlspecialchars($row['title']).'</h3></td></tr>'.
 						'<tr><td valign="top">'.$previewIcon.'</td><td width="120" valign="top"><p>'.$description.'</p></td></tr></table>';
 				}
@@ -370,7 +373,7 @@ class tx_templavoila_wizards_page {
 
 		// If no data structure is set, try to find one by using the template object
 		if ($dataArr['pages']['NEW']['tx_templavoila_to'] && !$dataArr['pages']['NEW']['tx_templavoila_ds']) {
-			$templateObjectRow = t3lib_BEfunc::getRecordWSOL('tx_templavoila_tmplobj',$dataArr['pages']['NEW']['tx_templavoila_to'],'uid,pid,datastructure');
+			$templateObjectRow = t3lib_BEfunc::getRecordWSOL('tx_templavoila_tmplobj', $dataArr['pages']['NEW']['tx_templavoila_to'], 'uid,pid,datastructure');
 			$dataArr['pages']['NEW']['tx_templavoila_ds'] = $templateObjectRow['datastructure'];
 		}
 

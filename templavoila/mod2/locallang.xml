@@ -35,10 +35,6 @@
 			<label index="list_tos">Template Objects</label>
 			<label index="list_intro">The following pages in the root line contain data structures and template objects</label>
 
-			<label index="wiz_title">New site wizard</label>
-			<label index="wiz_start">Start wizard now!</label>
-			<label index="wiz_step">Step %s</label>
-
 			<label index="center_details">Show Details</label>
 			<label index="center_tab_pagetmpl">Page templates</label>
 			<label index="center_tab_fcetmpl">Flexible CE</label>
@@ -113,10 +109,6 @@
 			<label index="list_tos">Vorlagenobjekte</label>
 			<label index="list_intro">Die folgenden Seiten im Seitenbaum enthalten TV-Datenstrukturen und TV-Vorlagen</label>
 
-			<label index="wiz_title">Assistent zur Erstellung einer Beispiel-Seite</label>
-			<label index="wiz_start">Assistenten starten!</label>
-			<label index="wiz_step">Schritt %s</label>
-
 			<label index="center_details">Detailansicht</label>
 			<label index="center_tab_pagetmpl">Seitenvorlagen</label>
 			<label index="center_tab_fcetmpl">Flexible CE</label>
@@ -166,11 +158,4 @@
 			<label index="center_mapping_note">It might also mean that the TO was mapped with an older version of TemplaVoila - then just go and save the mapping again at this will be updated.</label>
 		</languageKey>
 	</data>
-	<orig_hash type="array">
-		<languageKey index="de" type="array">
-			<label index="title" type="integer">91448319</label>
-			<label index="wiz_title" type="integer">205980870</label>
-			<label index="wiz_step" type="integer">256549070</label>
-		</languageKey>
-	</orig_hash>
 </T3locallang>
