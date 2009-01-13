@@ -905,19 +905,42 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 	 * @return	string		HTML
 	 */
 	function recursiveBlockSplitting($content,$tagsBlock,$tagsSolo,$mode,$path='',$recursion=0)	{
-#debug($tagsBlock,'$tagsBlock');
+
 			// Splitting HTML string by all block-tags
 		$blocks = $this->htmlParse->splitIntoBlock($tagsBlock,$content,1);
 		$this->rangeEndSearch[$recursion]='';
 		$this->rangeStartPath[$recursion]='';
+            
+        $startCCTag = $endCCTag = '';
 
+        //pre-processing of blocks             
+       	if ((t3lib_div::inList($tagsBlock, 'script') && t3lib_div::inList($tagsBlock, 'style'))  && count($blocks) > 1) {
+       		// header is splitted, if tag style is found, array count is 3 index 0: script, index 1: style, index 2: rest
+			if($blocks[0] && $blocks[1]) {
+				// possible that CC for style start in first block and end in 3rd
+				$matchCount1 = preg_match_all('/<!([-]+)?\[if(.+)\]([-]+)?>/', $blocks[0], $matches1);
+				$matchCount2 = preg_match_all('/<!([-]+)?\[endif\]([-]+)?>/', $blocks[0], $matches2);
+				if ($matchCount2 < $matchCount1) {
+					$startCCTag = $matches1[0][$matchCount1 - 1];
+					//endtag is start of block3
+					$matchCount2 = preg_match_all('/<!([-]+)?\[endif\]([-]+)?>/', $blocks[2], $matches2);
+					$endCCTag = $matches2[0][0];
+					//manipulate blocks					
+					$blocks[0] = substr(rtrim($blocks[0]), 0, -1 * strlen($startCCTag));
+					$blocks[1] = $startCCTag . chr(10) . trim($blocks[1]) . chr(10) . $endCCTag;	
+					$blocks[2] = substr(ltrim($blocks[2]), strlen($endCCTag));					
+					    									
+				}
+			}   		
+       	} 
+        
 			// Traverse all sections of blocks
 		foreach($blocks as $k=>$v) {	// INSIDE BLOCK: Processing of block content. This includes a recursive call to this function for the inner content of the block tags.
 				// If inside a block tag
 			if ($k%2)	{
 				$firstTag = $this->htmlParse->getFirstTag($v);	// The first tag's content
 				$firstTagName = strtolower($this->htmlParse->getFirstTagName($v));	// The 'name' of the first tag
-				$endTag = '</'.$firstTagName.'>';	// Create proper end-tag
+				$endTag = $firstTag == $startCCTag ? $endCCTag : '</' . $firstTagName . '>';	// Create proper end-tag
 				$v = $this->htmlParse->removeFirstAndLastTag($v);	// Finally remove the first tag (unless we do this, the recursivity will be eternal!
 				$params = $this->htmlParse->get_tag_attributes($firstTag,1);	// Get attributes
 
@@ -934,37 +957,42 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 				} else {
 					$v = $firstTag.$v.$endTag;
 				}
+				
 			} else {
 				if ($tagsSolo) {	// OUTSIDE of block; Processing of SOLO tags in there...
 
 						// Split content by the solo tags
 					$soloParts = $this->htmlParse->splitTags($tagsSolo,$v);
-
-					// Conditional Comments
-					for ($key = 0; $key < count($soloParts); $key++) {
-						$value = $soloParts[$key];
-						//check for downlevel-hidden and downlevel-revealed syntax, see http://msdn.microsoft.com/de-de/library/ms537512(en-us,VS.85).aspx
-						if (substr(trim($value), 0, 7) == '<!--[if' || substr(trim($value), 0, 5) == '<![if') {
-							$soloParts[$key+1] = trim( $soloParts[$key] ) . ' ' . $soloParts[$key+1];
-							$soloParts[$key] = '';
-							$key += 1;
-						} elseif (substr(trim($value), 0, 12) == '<![endif]-->' || substr(trim($value), 0, 10) == '<![endif]>') {
-							/* it won't split 2 CC right after another, so we need to do it manually */
-							if ( strpos(trim($value), '<!--[if') || strpos(trim($value), '<![if') ) {
-								$tmp = preg_split("/\r\n\s*/", trim($value), -1);
-								$soloParts[$key-1] .= ' ' . $tmp[0];
-								$soloParts[$key+1] = $tmp[1] . ' ' . $soloParts[$key+1];
-								$soloParts[$key] = '';
-								$key += 1;
-							} else {
-								$soloParts[$key-1] .= ' ' . trim( $soloParts[$key] );
-								$soloParts[$key] = '';
+                    
+                    //search for conditional comments  
+					$startTag = '';
+					if(count($soloParts) > 0 && $recursion == 0) {   
+						foreach($soloParts as $key => $value) {        
+							//check for downlevel-hidden and downlevel-revealed syntax, see http://msdn.microsoft.com/de-de/library/ms537512(en-us,VS.85).aspx
+							$matchCount1 = preg_match_all('/<!([-]+)?\[if(.+)\]([-]+)?>/', $value, $matches1);
+							$matchCount2 = preg_match_all('/<!([-]+)?\[endif\]([-]+)?>/', $value, $matches2);
+							
+							// startTag was in last element
+							if ($startTag) {
+								$soloParts[$key] = $startTag . chr(10) . $soloParts[$key];
+								$startTag = '';
 							}
-						}
+							// starttag found: store and remove from element
+							if ($matchCount1) {
+								$startTag = $matches1[0][0];
+								$soloParts[$key] = str_replace($startTag, '', $soloParts[$key]); 
+							}
+							// endtag found: store in last element and remove from element
+							if ($matchCount2) {
+								$soloParts[$key - 1] .= chr(10) . $matches2[0][0];
+								$soloParts[$key] = str_replace($matches2[0][0], '', $soloParts[$key]); 
+							}
+						}               #debug($soloParts);          
 					}
-						// Traverse solo tags
+									
+						// Traverse solo tags 
 					foreach($soloParts as $kk => $vv)	{
-						if ($kk%2)	{
+						if ($kk % 2)	{
 							$firstTag = $vv;	// The first tag's content
 							$firstTagName = strtolower($this->htmlParse->getFirstTagName($vv));	// The 'name' of the first tag
 							$params = $this->htmlParse->get_tag_attributes($firstTag,1);
@@ -989,7 +1017,8 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 						}
 						$soloParts[$kk]=$vv;
 					}
-					$v = implode('',$soloParts);
+					$v = implode('',$soloParts); 
+					
 				}
 			}
 			$blocks[$k]=$v;
@@ -1201,6 +1230,8 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 	 * @return	string		Formatted input.
 	 */
 	function checkboxDisplay($str,$recursion,$path,$gnyf='',$valueStr=0)	{
+		static $rows = 0;
+		
 		if ($valueStr)	{
 			return trim($str) ? '
 				<tr class="bgColor4">
@@ -1210,7 +1241,7 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 				</tr>' : '';
 		}
 		return '
-				<tr class="bgColor4">
+				<tr class="bgColor' . ($rows++ % 2 == 0 ? '4' : '6') . '">
 					<td><input type="checkbox" name="checkboxElement[]" value="'.$path.'"'.(in_array($path,$this->checkboxPathsSet)?' checked="checked"':'').' /></td>
 					<td>'.$gnyf.'</td>
 					<td><pre>'.trim(htmlspecialchars($str)).'</pre></td>
