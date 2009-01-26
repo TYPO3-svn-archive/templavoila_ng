@@ -216,30 +216,30 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		}
 
 			// General GPvars for module mode:
-		$this->displayFile  = t3lib_div::GPvar('file');
-		$this->displayTable = t3lib_div::GPvar('table');
-		$this->displayUid   = t3lib_div::GPvar('uid');
-		$this->displayPath  = t3lib_div::GPvar('htmlPath');
-		$this->returnUrl = t3lib_div::GPvar('returnUrl');
+		$this->displayFile  = t3lib_div::_GP('file');
+		$this->displayTable = t3lib_div::_GP('table');
+		$this->displayUid   = t3lib_div::_GP('uid');
+		$this->displayPath  = t3lib_div::_GP('htmlPath');
+		$this->returnUrl = t3lib_div::_GP('returnUrl');
 
 			// GPvars specific to the DS listing/table and mapping features:
-		$this->_preview = t3lib_div::GPvar('_preview'  ) ||
-				  t3lib_div::GPvar('_preview_x') ;
-		$this->mapElPath = t3lib_div::GPvar('mapElPath');
-		$this->doMappingOfPath = t3lib_div::GPvar('doMappingOfPath');
-		$this->showPathOnly = t3lib_div::GPvar('showPathOnly');
-		$this->mappingToTags = t3lib_div::GPvar('mappingToTags');
-		$this->DS_element = t3lib_div::GPvar('DS_element');
-		$this->DS_cmd = t3lib_div::GPvar('DS_cmd');
-		$this->DS_element_DELETE = t3lib_div::GPvar('DS_element_DELETE');
-		$this->DS_element_MUP = t3lib_div::GPvar('DS_element_MUP');
-		$this->DS_element_MDOWN = t3lib_div::GPvar('DS_element_MDOWN');
-		$this->fieldName = t3lib_div::GPvar('fieldName');
+		$this->_preview = t3lib_div::_GP('_preview'  ) ||
+				  t3lib_div::_GP('_preview_x') ;
+		$this->mapElPath = t3lib_div::_GP('mapElPath');
+		$this->doMappingOfPath = t3lib_div::_GP('doMappingOfPath');
+		$this->showPathOnly = t3lib_div::_GP('showPathOnly');
+		$this->mappingToTags = t3lib_div::_GP('mappingToTags');
+		$this->DS_element = t3lib_div::_GP('DS_element');
+		$this->DS_cmd = t3lib_div::_GP('DS_cmd');
+		$this->DS_element_DELETE = t3lib_div::_GP('DS_element_DELETE');
+		$this->DS_element_MUP = t3lib_div::_GP('DS_element_MUP');
+		$this->DS_element_MDOWN = t3lib_div::_GP('DS_element_MDOWN');
+		$this->fieldName = t3lib_div::_GP('fieldName');
 
 			// GPvars specific for DS creation from a file.
-		$this->_load_ds_xml_content = t3lib_div::GPvar('_load_ds_xml_content');
-		$this->_load_ds_xml_to = t3lib_div::GPvar('_load_ds_xml_to');
-		$this->_save_dsto_spec = t3lib_div::GPvar('_save_dsto_spec');
+		$this->_load_ds_xml_content = t3lib_div::_GP('_load_ds_xml_content');
+		$this->_load_ds_xml_to = t3lib_div::_GP('_load_ds_xml_to');
+		$this->_save_dsto_spec = t3lib_div::_GP('_save_dsto_spec');
 	}
 
 	/**
@@ -294,7 +294,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 */
 	function main()	{
 			// Setting GPvars:
-		$this->mode = t3lib_div::GPvar('mode');
+		$this->mode = t3lib_div::_GP('mode');
 
 			// Selecting display or module mode:
 		switch((string)$this->mode)	{
@@ -894,46 +894,46 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		$msg = array();
 		if (!$cmd)
 		// Converting GPvars into a "cmd" value:
-		if (t3lib_div::GPvar('_reload_from') ||
-		    t3lib_div::GPvar('_reload_from_x')) {			// Reverting to old values in TO
+		if (t3lib_div::_GP('_reload_from') ||
+		    t3lib_div::_GP('_reload_from_x')) {			// Reverting to old values in TO
 			$cmd = 'reload_from';
-		} elseif (t3lib_div::GPvar('_load_ds_xml')) {			// Loading DS from XML or TO uid
+		} elseif (t3lib_div::_GP('_load_ds_xml')) {			// Loading DS from XML or TO uid
 			$cmd = 'load_ds_xml';
-		} elseif (t3lib_div::GPvar('_clear') == TVDS_CLEAR_MAPPING) {	// Resetting all Mapping
+		} elseif (t3lib_div::_GP('_clear') == TVDS_CLEAR_MAPPING) {	// Resetting all Mapping
 			$cmd = 'clear_mapping';
-		} elseif (t3lib_div::GPvar('_clear') == TVDS_CLEAR_ALL ||
-			  t3lib_div::GPvar('_clear_x'))	{			// Resetting all Mapping/DS
+		} elseif (t3lib_div::_GP('_clear') == TVDS_CLEAR_ALL ||
+			  t3lib_div::_GP('_clear_x'))	{			// Resetting all Mapping/DS
 			$cmd = 'clear';
-		} elseif (t3lib_div::GPvar('_save_dsto_into')) {		// Saving DS and TO to records.
+		} elseif (t3lib_div::_GP('_save_dsto_into')) {		// Saving DS and TO to records.
 			$cmd = 'save_dsto_into';
-		} elseif (t3lib_div::GPvar('_save_dsto') ||
-			  t3lib_div::GPvar('_save_dsto_x') ||
-			  t3lib_div::GPvar('_save_dsto_preview') ||
-			  t3lib_div::GPvar('_save_dsto_preview_x') ||
-			  t3lib_div::GPvar('_save_dsto_return') ||
-			  t3lib_div::GPvar('_save_dsto_return_x')) {		// Updating DS and TO
+		} elseif (t3lib_div::_GP('_save_dsto') ||
+			  t3lib_div::_GP('_save_dsto_x') ||
+			  t3lib_div::_GP('_save_dsto_preview') ||
+			  t3lib_div::_GP('_save_dsto_preview_x') ||
+			  t3lib_div::_GP('_save_dsto_return') ||
+			  t3lib_div::_GP('_save_dsto_return_x')) {		// Updating DS and TO
 			$cmd = 'save_dsto';
-		} elseif (t3lib_div::GPvar('_showXMLDS')) {			// Showing current DS as XML
+		} elseif (t3lib_div::_GP('_showXMLDS')) {			// Showing current DS as XML
 			$cmd = 'showXMLDS';
-		} elseif (t3lib_div::GPvar('_preview') ||
-			  t3lib_div::GPvar('_preview_x')) {			// Previewing mappings
+		} elseif (t3lib_div::_GP('_preview') ||
+			  t3lib_div::_GP('_preview_x')) {			// Previewing mappings
 			$cmd = 'preview';
-		} elseif (t3lib_div::GPvar('_save_data_mapping')) {		// Saving mapping to Session
+		} elseif (t3lib_div::_GP('_save_data_mapping')) {		// Saving mapping to Session
 			$cmd = 'save_data_mapping';
-		} elseif (t3lib_div::GPvar('_updateDS') ||
-			  t3lib_div::GPvar('_updateDS_x')) {
+		} elseif (t3lib_div::_GP('_updateDS') ||
+			  t3lib_div::_GP('_updateDS_x')) {
 			$cmd = 'updateDS';
-		} elseif (t3lib_div::GPvar('DS_element_DELETE')) {
+		} elseif (t3lib_div::_GP('DS_element_DELETE')) {
 			$cmd = 'DS_element_DELETE';
-		} elseif (t3lib_div::GPvar('DS_element_MUP')) {
+		} elseif (t3lib_div::_GP('DS_element_MUP')) {
 			$cmd = 'DS_element_MUP';
-		} elseif (t3lib_div::GPvar('DS_element_MDOWN')) {
+		} elseif (t3lib_div::_GP('DS_element_MDOWN')) {
 			$cmd = 'DS_element_MDOWN';
-		} elseif (t3lib_div::GPvar('_saveScreen') ||
-			  t3lib_div::GPvar('_saveScreen_x')) {
+		} elseif (t3lib_div::_GP('_saveScreen') ||
+			  t3lib_div::_GP('_saveScreen_x')) {
 			$cmd = 'saveScreen';
-		} elseif (t3lib_div::GPvar('_loadScreen') ||
-			  t3lib_div::GPvar('_loadScreen_x')) {
+		} elseif (t3lib_div::_GP('_loadScreen') ||
+			  t3lib_div::_GP('_loadScreen_x')) {
 			$cmd = 'loadScreen';
 		}
 
@@ -1048,7 +1048,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 			// Saving incoming Mapping Data to session data:
 			case 'save_data_mapping':
-				$inputData = t3lib_div::GPvar('dataMappingForm',1);
+				$inputData = t3lib_div::_GP('dataMappingForm',1);
 				if (is_array($inputData)) {
 					$sesDat['currentMappingInfo'] = $currentMappingInfo = $this->array_merge_recursive_overrule($currentMappingInfo,$inputData);
 					$sesDat['dataStruct'] = $dataStruct;
@@ -1058,7 +1058,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 			// Saving incoming Data Structure settings to session data:
 			case 'updateDS':
-				$inDS = t3lib_div::GPvar('autoDS', 1);
+				$inDS = t3lib_div::_GP('autoDS', 1);
 				if (is_array($inDS))	{
 					$sesDat['dataStruct'] = $sesDat['autoDS'] = $dataStruct = $this->array_merge_recursive_overrule($dataStruct,$inDS);
 					$GLOBALS['BE_USER']->setAndSaveSessionData($this->MCONF['name'] . '_mappingInfo', $sesDat);
@@ -1286,14 +1286,14 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					$GLOBALS['BE_USER']->setAndSaveSessionData($this->MCONF['name'] . '_mappingInfo', $sesDat);
 					$GLOBALS['BE_USER']->setAndSaveSessionData($this->MCONF['name'] . '_origin', $orgDat);
 
-					if (t3lib_div::GPvar('_save_dsto_return') ||
-					    t3lib_div::GPvar('_save_dsto_return_x')) {
+					if (t3lib_div::_GP('_save_dsto_return') ||
+					    t3lib_div::_GP('_save_dsto_return_x')) {
 						header('Location: ' . t3lib_div::locationHeaderUrl($this->returnUrl));
 						exit;
 					}
 
-					if (t3lib_div::GPvar('_save_dsto_preview') ||
-					    t3lib_div::GPvar('_save_dsto_preview_x')) {
+					if (t3lib_div::_GP('_save_dsto_preview') ||
+					    t3lib_div::_GP('_save_dsto_preview_x')) {
 						header('Location: ' . t3lib_div::locationHeaderUrl($_SERVER['REQUEST_URI']) . '&SET[page]=preview');
 						exit;
 					}
@@ -2101,24 +2101,24 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		// Converting GPvars into a "cmd" value:
 		$msg = array();
 		$cmd = '';
-		if (t3lib_div::GPvar('_reload_from') ||
-		    t3lib_div::GPvar('_reload_from_x')) {			// Reverting to old values in TO
+		if (t3lib_div::_GP('_reload_from') ||
+		    t3lib_div::_GP('_reload_from_x')) {			// Reverting to old values in TO
 			$cmd = 'reload_from';
-		} elseif (t3lib_div::GPvar('_clear') == TVTO_CLEAR_HEAD) {	// Resetting Head-Mapping
+		} elseif (t3lib_div::_GP('_clear') == TVTO_CLEAR_HEAD) {	// Resetting Head-Mapping
 			$cmd = 'clear_head';
-		} elseif (t3lib_div::GPvar('_clear') == TVTO_CLEAR_BODY) {	// Resetting Body-Mapping
+		} elseif (t3lib_div::_GP('_clear') == TVTO_CLEAR_BODY) {	// Resetting Body-Mapping
 			$cmd = 'clear_body';
-		} elseif (t3lib_div::GPvar('_clear') == TVTO_CLEAR_ALL ||
-			  t3lib_div::GPvar('_clear_x'))	{			// Resetting all Mappings
+		} elseif (t3lib_div::_GP('_clear') == TVTO_CLEAR_ALL ||
+			  t3lib_div::_GP('_clear_x'))	{			// Resetting all Mappings
 			$cmd = 'clear';
-		} elseif (t3lib_div::GPvar('_save_data_mapping')) {		// Saving to Session
+		} elseif (t3lib_div::_GP('_save_data_mapping')) {		// Saving to Session
 			$cmd = 'save_data_mapping';
-		} elseif (t3lib_div::GPvar('_save_to') ||
-			  t3lib_div::GPvar('_save_to_x') ||
-			  t3lib_div::GPvar('_save_to_preview') ||
-			  t3lib_div::GPvar('_save_to_preview_x') ||
-			  t3lib_div::GPvar('_save_to_return') ||
-			  t3lib_div::GPvar('_save_to_return_x')) {		// Saving to Template Object
+		} elseif (t3lib_div::_GP('_save_to') ||
+			  t3lib_div::_GP('_save_to_x') ||
+			  t3lib_div::_GP('_save_to_preview') ||
+			  t3lib_div::_GP('_save_to_preview_x') ||
+			  t3lib_div::_GP('_save_to_return') ||
+			  t3lib_div::_GP('_save_to_return_x')) {		// Saving to Template Object
 			$cmd = 'save_to';
 		}
 
@@ -2162,9 +2162,9 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 		// Perform processing for head -----------------------------------------------------
 		// GPvars, incoming data
-		$headerData = t3lib_div::GPvar('headMappingForm', 1);
-		$checkboxElement = t3lib_div::GPvar('checkboxElement',1);
-		$addBodyTag = t3lib_div::GPvar('addBodyTag');
+		$headerData = t3lib_div::_GP('headMappingForm', 1);
+		$checkboxElement = t3lib_div::_GP('checkboxElement',1);
+		$addBodyTag = t3lib_div::_GP('addBodyTag');
 
 		// Update session data:
 		if ($cmd == 'reload_from' || $cmd == 'clear' || $cmd == 'clear_head') {
@@ -2189,7 +2189,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 		// Perform processing for body ----------------------------------------------------
 		// GPvars, incoming data
-		$inputData = t3lib_div::GPvar('dataMappingForm', 1);
+		$inputData = t3lib_div::_GP('dataMappingForm', 1);
 
 		// Update session data:
 		if ($cmd == 'reload_from' || $cmd == 'clear' || $cmd == 'clear_body') {
@@ -2274,14 +2274,14 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			$row = t3lib_BEfunc::getRecordWSOL('tx_templavoila_tmplobj',$this->displayUid);
 			$templatemapping = unserialize($row['templatemapping']);
 
-			if (t3lib_div::GPvar('_save_to_return') ||
-			    t3lib_div::GPvar('_save_to_return_x')) {
+			if (t3lib_div::_GP('_save_to_return') ||
+			    t3lib_div::_GP('_save_to_return_x')) {
 				header('Location: ' . t3lib_div::locationHeaderUrl($this->returnUrl));
 				exit;
 			}
 
-			if (t3lib_div::GPvar('_save_to_preview') ||
-			    t3lib_div::GPvar('_save_to_preview_x')) {
+			if (t3lib_div::_GP('_save_to_preview') ||
+			    t3lib_div::_GP('_save_to_preview_x')) {
 				header('Location: ' . t3lib_div::locationHeaderUrl($_SERVER['REQUEST_URI']) . '&SET[page]=preview');
 				exit;
 			}
@@ -3147,7 +3147,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					<td valign="top" style="padding: 0.8em 2px 0.8em 2px;" colspan="3">
 						' . $form . '
 						<script type="text/javascript">
-							var dsel_act = "' . (t3lib_div::GPvar('dsel_act') ? t3lib_div::GPvar('dsel_act') : 'general') . '";
+							var dsel_act = "' . (t3lib_div::_GP('dsel_act') ? t3lib_div::_GP('dsel_act') : 'general') . '";
 							var dsel_menu = [
 								{"id" : "general",		"avail" : true,	"label" : "Configuration",	"title" : "edit general configuration",	"childs" : [
 									{"id" : "ts",		"avail" : true,	"label" : "Typo-Script",	"title" : "edit TypoScript specializations"},
@@ -4165,7 +4165,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		$this->tmpl->tt_track = 0;
 
 		// Get rootline for current PID
-		$rootline = $this->sys_page->getRootLine(t3lib_div::GPvar('pid'));
+		$rootline = $this->sys_page->getRootLine(t3lib_div::_GP('pid'));
 
 		// Start TS template
 		$this->tmpl->start($rootline);
@@ -4188,7 +4188,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 		// Storage
 		$htmlCode = array();
-		$curr = t3lib_div::GPvar('current');
+		$curr = t3lib_div::_GP('current');
 
 		// Process each object of the configuration array
 		foreach($conf as $key => $value) {
@@ -4262,11 +4262,11 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	function render_display() {
 
 			// Setting GPvars:
-		$this->displayFile = t3lib_div::GPvar('file');
-		$this->show = t3lib_div::GPvar('show');
-		$this->preview = t3lib_div::GPvar('preview');
-		$this->limitTags = t3lib_div::GPvar('limitTags');
-		$this->path = t3lib_div::GPvar('path');
+		$this->displayFile = t3lib_div::_GP('file');
+		$this->show = t3lib_div::_GP('show');
+		$this->preview = t3lib_div::_GP('preview');
+		$this->limitTags = t3lib_div::_GP('limitTags');
+		$this->path = t3lib_div::_GP('path');
 
 			// Checking if the displayFile parameter is set:
 		if (@is_file($this->displayFile) && t3lib_div::getFileAbsFileName($this->displayFile))		{	// FUTURE: grabbing URLS?: 		.... || substr($this->displayFile,0,7)=='http://'
@@ -4513,8 +4513,8 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 		$this->MOD_MENU['stick'] = '';
 
 			// Render content, depending on input values:
-		if (t3lib_div::GPvar('mode') == 'display' ||
-			t3lib_div::GPvar('mode') == 'browser') {
+		if (t3lib_div::_GP('mode') == 'display' ||
+			t3lib_div::_GP('mode') == 'browser') {
 				// Data source display
 			$this->MOD_MENU['page'] =
 				array(
@@ -4526,7 +4526,7 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 					'mapping'   => '',
 					'preview'   => ''
 				);
-		} elseif (t3lib_div::GPvar('file')) {
+		} elseif (t3lib_div::_GP('file')) {
 				// Browsing file directly, possibly creating a template/data object records.
 			$this->MOD_MENU['page'] =
 				array(
@@ -4535,7 +4535,7 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 					'preview'   => 'Preview',
 					'xml'       => 'XML'
 				);
-		} elseif (t3lib_div::GPvar('table') == 'tx_templavoila_datastructure') {
+		} elseif (t3lib_div::_GP('table') == 'tx_templavoila_datastructure') {
 				// Data source display
 			$this->MOD_MENU['page'] =
 				array(
@@ -4543,7 +4543,7 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 					'overview'  => 'Information',
 					'xml'       => 'XML'
 				);
-		} elseif (t3lib_div::GPvar('table') == 'tx_templavoila_tmplobj') {
+		} elseif (t3lib_div::_GP('table') == 'tx_templavoila_tmplobj') {
 				// Data source display
 			$this->MOD_MENU['page'] =
 				array(
@@ -4563,12 +4563,12 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 		$this->modTSconfig = t3lib_BEfunc::getModTSconfig($this->id, 'mod.' . $this->MCONF['name']);
 
 			// CLEANSE SETTINGS
-		$this->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->MOD_MENU, t3lib_div::GPvar('SET'), $this->MCONF['name']);
+		$this->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->MOD_MENU, t3lib_div::_GP('SET'), $this->MCONF['name']);
 
 			// Fallback on multi-pages
-		if (t3lib_div::GPvar('_loadScreen'))
+		if (t3lib_div::_GP('_loadScreen'))
 			$this->MOD_SETTINGS['page'] = 'structure';
-		if (t3lib_div::GPvar('_saveScreen'))
+		if (t3lib_div::_GP('_saveScreen'))
 			$this->MOD_SETTINGS['page'] = 'structure';
 	}
 
@@ -4635,7 +4635,7 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 		if (($this->id && $access) || ($BE_USER->user['admin'] && !$this->id))	{
 				// calls from sticky
 			if (t3lib_div::_GP("ajaxStick")) {
-				$this->MOD_SETTINGS = t3lib_BEfunc::getModuleData(array('stick'=>''), t3lib_div::GPvar('SET'), $this->MCONF['name']);
+				$this->MOD_SETTINGS = t3lib_BEfunc::getModuleData(array('stick'=>''), t3lib_div::_GP('SET'), $this->MCONF['name']);
 				exit;
 			}
 
@@ -4718,7 +4718,7 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 		//	$this->content .= $this->doc->spacer(10);
 
 				// Setting GPvars:
-			$this->mode = t3lib_div::GPvar('mode');
+			$this->mode = t3lib_div::_GP('mode');
 
 				// Selecting display or module mode:
 			switch((string)$this->mode) {

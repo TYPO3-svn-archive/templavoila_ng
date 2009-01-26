@@ -95,10 +95,10 @@ class tx_templavoila_wizards_content {
 		$this->apiObj =& $this->pObj->apiObj;
 
 		// Setting internal vars:
-		$this->id = intval(t3lib_div::GPvar('id'));
-		$this->parentRecord = t3lib_div::GPvar('parentRecord');
-		$this->altRoot = t3lib_div::GPvar('altRoot');
-		$this->defVals = t3lib_div::GPvar('defVals');
+		$this->id = intval(t3lib_div::_GP('id'));
+		$this->parentRecord = t3lib_div::_GP('parentRecord');
+		$this->altRoot = t3lib_div::_GP('altRoot');
+		$this->defVals = t3lib_div::_GP('defVals');
 
 		// If no parent record was specified, find one:
 		if (!$this->parentRecord) {
