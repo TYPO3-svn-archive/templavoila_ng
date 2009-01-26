@@ -77,7 +77,7 @@ CREATE TABLE tx_templavoila_datastructure (
 CREATE TABLE tt_content (
 	tx_templavoila_ds varchar(100) DEFAULT '' NOT NULL,
 	tx_templavoila_to int(11) DEFAULT '0' NOT NULL,
-    tx_templavoila_flex mediumtext NOT NULL,
+    tx_templavoila_flex mediumtext DEFAULT '' NOT NULL,
     tx_templavoila_pito int(11) DEFAULT '0' NOT NULL
 );
 
@@ -89,7 +89,7 @@ CREATE TABLE pages (
 	tx_templavoila_to int(11) DEFAULT '0' NOT NULL,
 	tx_templavoila_next_ds varchar(100) DEFAULT '' NOT NULL,
 	tx_templavoila_next_to int(11) DEFAULT '0' NOT NULL,
-    tx_templavoila_flex mediumtext NOT NULL,
+    tx_templavoila_flex mediumtext DEFAULT '' NOT NULL,
 
 );
 
@@ -97,5 +97,5 @@ CREATE TABLE pages (
 # Table structure for table 'be_groups'
 #
 CREATE TABLE be_groups (
-	tx_templavoila_access text NOT NULL,
+	tx_templavoila_access text DEFAULT '' NOT NULL,
 );
