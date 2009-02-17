@@ -409,7 +409,7 @@ class tx_templavoila_mod1_clipboard {
 		$rows = $TYPO3_DB->exec_SELECTgetRows(
 			'*',
 			'sys_refindex',
-			'ref_table='.$TYPO3_DB->fullQuoteStr('tt_content','sys_refindex').
+			'ref_table='.$TYPO3_DB->fullQuoteStr('tt_content', 'sys_refindex') .
 				' AND ref_uid='.intval($uid).
 				' AND deleted=0'
 		);
@@ -418,12 +418,12 @@ class tx_templavoila_mod1_clipboard {
 		$infoData = array();
 		if (is_array($rows))	{
 			foreach($rows as $row)	{
-				$infoData[] = $row['tablename'].':'.$row['recuid'].':'.$row['field'];
+				$infoData[] = $row['tablename'] . ':' . $row['recuid'] . ':' . $row['field'];
 			}
 		}
 
 		if (count($infoData))	{
-			return '<a href="#" onclick="'.htmlspecialchars('top.launchView(\'tt_content\', \''.$uid.'\'); return false;').'" title="'.htmlspecialchars(t3lib_div::fixed_lgd(implode(' / ',$infoData),100)).'">Ref: '.count($infoData).'</a>';
+			return '<a href="#" onclick="'.htmlspecialchars('top.launchView(\'tt_content\', \'' . $uid . '\'); return false;') . '" title="' . htmlspecialchars(t3lib_div::fixed_lgd_cs(implode(' / ',$infoData),100)).'">Ref: '.count($infoData).'</a>';
 		} elseif (0===$BE_USER->workspace) {
 			$this->deleteUids[] = $uid;
 

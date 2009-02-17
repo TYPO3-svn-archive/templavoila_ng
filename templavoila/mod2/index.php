@@ -433,7 +433,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 
 			if ($singleView)
 				$this->MOD_MENU['page']['errors'] = '<span style="color: red;">' .
-				$this->MOD_MENU['page']['errors'] . ' ('.$errStat['count'].')</span>';
+				$this->MOD_MENU['page']['errors'] . ' (' . $errStat['count'] . ')</span>';
 		}
 		else if ($singleView) {
 			$parts['errors'][] = array(

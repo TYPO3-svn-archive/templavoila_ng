@@ -339,12 +339,12 @@ class tx_templavoila_mod2_to {
 					<tr class="' . ($i++ % 2 == 0 ? 'bgColor4' : 'bgColor6') . '">
 						<td>' .
 							'<a href="' . htmlspecialchars($this->doc->backPath . '../' . substr($tFile, strlen(PATH_site))) . '" target="_blank">'.
-							'<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/zoom.gif','width="11" height="12"').' alt="" class="absmiddle" /> ' . htmlspecialchars(substr($tFile,strlen(PATH_site))) .
+							'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/zoom.gif', 'width="11" height="12"') . ' alt="" class="absmiddle" /> ' . htmlspecialchars(substr($tFile,strlen(PATH_site))) .
 							'</a></td>
 						<td align="center">' . $count . '</td>
 						<td>' .
 							'<a href="'.htmlspecialchars($this->pObj->cm1Script . 'id=' . $this->pObj->id . '&file=' . rawurlencode($tFile)) . '&mapElPath=%5BROOT%5D">'.
-							'<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/new_el.gif','width="11" height="12"').' alt="" class="absmiddle" /> ' . htmlspecialchars('Create...') .
+							'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/new_el.gif', 'width="11" height="12"') . ' alt="" class="absmiddle" /> ' . htmlspecialchars('Create...') .
 							'</a></td>
 					</tr>';
 			}
@@ -360,21 +360,21 @@ class tx_templavoila_mod2_to {
 
 			// TEMPLATE ARCHIVE:
 			if ($this->modTSconfig['properties']['templatePath']) {
-				$paths = t3lib_div::trimExplode(',', $this->modTSconfig['properties']['templatePath'], true); 
-				$prefix = t3lib_div::getFileAbsFileName($GLOBALS['TYPO3_CONF_VARS']['BE']['fileadminDir']); 
-				if (count($paths) > 0 && is_array($GLOBALS['FILEMOUNTS']))	{
+				$paths = t3lib_div::trimExplode(',', $this->modTSconfig['properties']['templatePath'], true);
+				$prefix = t3lib_div::getFileAbsFileName($GLOBALS['TYPO3_CONF_VARS']['BE']['fileadminDir']);
+				if (count($paths) > 0 && is_array($GLOBALS['FILEMOUNTS'])) {
 					foreach($GLOBALS['FILEMOUNTS'] as $mountCfg)	{
 						// look in paths if it's part of mounted path
 						$isPart = false;
 						$files = array();
 						foreach ($paths as $path) {
 							if (t3lib_div::isFirstPartOfStr($prefix . $path, $mountCfg['path'])) {
-								$isPart = true;   
-								$files = array_merge(t3lib_div::getFilesInDir($prefix . $path, 'html,htm,tmpl',1), $files);
-							}	
+								$isPart = true;
+								$files = array_merge(t3lib_div::getFilesInDir($prefix . $path, 'html,htm,tmpl', 1), $files);
+							}
 						}
-						if ($isPart) {
 
+						if ($isPart) {
 							// USED FILES:
 							$tRows = array();
 							$tRows[] = '
@@ -383,8 +383,8 @@ class tx_templavoila_mod2_to {
 									<td align="center">Usage count</td>
 									<td>New DS/TO</td>
 								</tr>';
-                            
-                            $i = 0;
+
+                            				$i = 0;
 							foreach($files as $tFile) {
 								$tRows[] = '
 									<tr class="' . ($i++ % 2 == 0 ? 'bgColor4' : 'bgColor6') . '">
@@ -395,7 +395,7 @@ class tx_templavoila_mod2_to {
 										<td align="center">' . ($this->tFileList[$tFile] ? $this->tFileList[$tFile] : '-') . '</td>
 										<td>'.
 											'<a href="' . htmlspecialchars($this->pObj->cm1Script . 'id=' . $this->pObj->id . '&file=' . rawurlencode($tFile)) . '&mapElPath=%5BROOT%5D">' .
-											'<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/new_el.gif','width="11" height="12"').' alt="" class="absmiddle" /> ' . htmlspecialchars('Create...') .
+											'<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/new_el.gif','width="11" height="12"').' alt="" class="absmiddle" /> ' . htmlspecialchars('Create...') .
 											'</a></td>
 									</tr>';
 							}

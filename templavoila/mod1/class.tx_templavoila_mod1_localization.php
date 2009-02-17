@@ -94,17 +94,18 @@ class tx_templavoila_mod1_localization {
 		$optionsArr = array ();
 		foreach ($availableLanguagesArr as $languageArr) {
 			if ($languageArr['uid'] <= 0 || $BE_USER->checkLanguageAccess($languageArr['uid'])) {
+				$style = $languageArr['PLO_hidden'] ? 'Filter: alpha(opacity=25); -moz-opacity: 0.25; opacity: 0.25;' : '';
 				$flag = ($languageArr['flagIcon'] != '' ? $languageArr['flagIcon'] : $BACK_PATH . 'gfx/flags/unknown.gif');
 
-				$style = isset ($languageArr['flagIcon']) ? 'background: 1px center url(' . $flag . ') no-repeat; padding-left: 22px;' : '';
-				$optionsArr[] = '<option style="'.$style.'" value="'.$languageArr['uid'].'"'.($this->pObj->MOD_SETTINGS['language'] == $languageArr['uid'] ? ' selected="selected"' : '').'>'.htmlspecialchars($languageArr['title']).'</option>';
+				$style .= isset($languageArr['flagIcon']) ? 'background: 1px center url(' . $flag . ') no-repeat; padding-left: 22px;' : '';
+				$optionsArr[] = '<option style="' . $style . '" value="' . $languageArr['uid'] . '"' . ($this->pObj->MOD_SETTINGS['language'] == $languageArr['uid'] ? ' selected="selected"' : '') . '>' . htmlspecialchars($languageArr['title']) . '</option>';
 				$sstyle = ($this->pObj->MOD_SETTINGS['language'] == $languageArr['uid'] ? $style : $sstyle);
 			}
 		}
 
-		$link = '\'index.php?'.$this->pObj->link_getParameters().'&SET[language]=\'+this.options[this.selectedIndex].value';
+		$link = '\'index.php?' . $this->pObj->link_getParameters() . '&SET[language]=\'+this.options[this.selectedIndex].value';
 
-		return '<select onchange="document.location='.$link.'" style="'.$sstyle.'">'.implode ('', $optionsArr).'</select>';
+		return '<select onchange="document.location=' . $link . '" style="' . $sstyle . '">' . implode('', $optionsArr) . '</select>';
 	}
 
 	/**
@@ -118,14 +119,17 @@ class tx_templavoila_mod1_localization {
 		global $LANG, $BE_USER, $BACK_PATH;
 
 		$availableLanguagesArr = $this->pObj->translatedLanguagesArr;
-		if (count($availableLanguagesArr) <= 1) return FALSE;
+		if (count($availableLanguagesArr) <= 1) {
+			return FALSE;
+		}
 
 		foreach ($availableLanguagesArr as $languageArr) {
 			if ($languageArr['uid'] <= 0 || $BE_USER->checkLanguageAccess($languageArr['uid'])) {
+				$style = $languageArr['PLO_hidden'] ? ' style="Filter: alpha(opacity=25); -moz-opacity: 0.25; opacity: 0.25;"' : '';
 				$flag = ($languageArr['flagIcon'] != '' ? $languageArr['flagIcon'] : $BACK_PATH . 'gfx/flags/unknown.gif');
 
-					// Link to editing of language header:
-				$availableTranslationsFlags .= '<a href="index.php?'.$this->pObj->link_getParameters().'&editPageLanguageOverlay='.$languageArr['uid'].'"><img src="' . $flag . '" title="Edit '.htmlspecialchars($languageArr['title']).'" alt="" /></a> ';
+				// Link to editing of language header:
+				$availableTranslationsFlags .= '<a href="index.php?' . $this->pObj->link_getParameters() . '&editPageLanguageOverlay=' . $languageArr['uid'] . '"><img src="' . $flag . '" title="Edit ' . htmlspecialchars($languageArr['title']) . '" alt=""' . $style . ' /></a> ';
 			}
 		}
 

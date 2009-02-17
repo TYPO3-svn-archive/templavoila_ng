@@ -194,7 +194,7 @@ class tx_templavoila_referenceElementsWizard extends t3lib_extobjbase {
 		$unreferencedElementRecordsArr = $this->getUnreferencedElementsRecords($pageUid);
 		foreach ($unreferencedElementRecordsArr as $elementUid => $elementRecord) {
 
-			$contentAreaFieldName = $this->templavoilaAPIObj->ds_getFieldNameByColumnPosition($pageUid, $elementRecord['colpos']);
+			$contentAreaFieldName = $this->templavoilaAPIObj->ds_getFieldNameByColumnPosition($pageUid, $elementRecord['colPos']);
 			if ($contentAreaFieldName !== FALSE) {
 				$destinationPointer = array (
 					'table' => 'pages',
@@ -216,7 +216,7 @@ class tx_templavoila_referenceElementsWizard extends t3lib_extobjbase {
 	 * the page with the given uid (= parent id).
 	 *
 	 * @param	integer		$pid: Parent id of the content elements (= uid of the page)
-	 * @return	array		Array of tt_content records with the following fields: uid, header, bodytext, sys_language_uid and colpos
+	 * @return	array		Array of tt_content records with the following fields: uid, header, bodytext, sys_language_uid and colPos
 	 * @access	protected
 	 */
 	function getUnreferencedElementsRecords($pid) {
@@ -247,8 +247,8 @@ class tx_templavoila_referenceElementsWizard extends t3lib_extobjbase {
 }
 
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/templavoila/func_wizards/class.tx_templavoila_referenceelementswizard.php'])    {
-    include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/templavoila/func_wizards/class.tx_templavoila_referenceelementswizard.php']);
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/templavoila/wizards_func/class.tx_templavoila_referenceelementswizard.php'])    {
+    include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/templavoila/wizards_func/class.tx_templavoila_referenceelementswizard.php']);
 }
 
 

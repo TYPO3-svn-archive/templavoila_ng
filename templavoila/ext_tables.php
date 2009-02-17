@@ -296,10 +296,11 @@ if (TYPO3_MODE=='BE')	{
 	t3lib_extMgm::insertModuleFunction(
 		'web_func',
 		'tx_templavoila_referenceElementsWizard',
-		t3lib_extMgm::extPath($_EXTKEY) . 'func_wizards/class.tx_templavoila_referenceelementswizard.php',
+		t3lib_extMgm::extPath($_EXTKEY) . 'wizards_func/class.tx_templavoila_referenceelementswizard.php',
 		'LLL:EXT:templavoila/locallang.xml:wiz_refElements',
 		'wiz'
 	);
+
 	t3lib_extMgm::addLLrefForTCAdescr('_MOD_web_func','EXT:wizard_crpages/locallang_csh.xml');
 }
 

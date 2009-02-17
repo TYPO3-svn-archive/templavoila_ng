@@ -138,10 +138,10 @@ if (t3lib_extMgm::isLoaded('t3editor')) {
  */
 class tx_templavoila_cm1 extends t3lib_SCbase {
 
-		// t3editor
+	// t3editor
 	var $t3e = null;
 
-		// Static:
+	// Static:
 	var $theDisplayMode = '';	// Set to ->MOD_SETTINGS[]
 	var $head_markUpTags = array(
 			// Block elements:
@@ -162,7 +162,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	var $databaseDSTO = false;	// the DS/TO originally comes from a database-entry
 	var $parts = array();		// rendered parts
 
-		// Internal, dynamic:
+	// Internal, dynamic:
 	var $markupFile = '';		// Used to store the name of the file to mark up with a given path.
 	var $markupObj = '';
 	var $elNames = array();
@@ -171,10 +171,10 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	var $storageFolders = array();	// Storage folders as key(uid) / value (title) pairs.
 	var $storageFolders_pidList = 0;// The storageFolders pids imploded to a comma list including "0"
 
-		// GPvars:
+	// GPvars:
 	var $mode;			// Looking for "&mode", which defines if we draw a frameset (default), the module (mod) or display (display)
 
-		// GPvars for MODULE mode
+	// GPvars for MODULE mode
 	var $displayFile = '';		// (GPvar "file", shared with DISPLAY mode!) The file to display, if file is referenced directly from filelist module. Takes precedence over displayTable/displayUid
 	var $displayTable = '';		// (GPvar "table") The table from which to display element (Data Structure object [tx_templavoila_datastructure], template object [tx_templavoila_tmplobj])
 	var $displayUid = '';		// (GPvar "uid") The UID to display (from ->displayTable)
@@ -182,7 +182,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	var $returnUrl = '';		// (GPvar "returnUrl") Return URL if the script is supplied with that.
 	var $sessionBuffer = '';	// (GPvar "sessionBuffer") The session-buffer to choose for DS/TO-editing.
 
-		// GPvars for MODULE mode, specific to mapping a DS:
+	// GPvars for MODULE mode, specific to mapping a DS:
 	var $_preview;
 	var $htmlPath;
 	var $mapElPath;
@@ -193,20 +193,20 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	var $DS_cmd;
 	var $fieldName;
 
-		// GPvars for MODULE mode, specific to creating a DS:
+	// GPvars for MODULE mode, specific to creating a DS:
 	var $_load_ds_xml_content;
 	var $_load_ds_xml_to;
 	var $_save_dsto_spec;
 
-		// GPvars for DISPLAY mode:
+	// GPvars for DISPLAY mode:
 	var $show;			// Boolean; if true no mapping-links are rendered.
 	var $preview;			// Boolean; if true, the currentMappingInfo preview data is merged in
 	var $limitTags;			// String, list of tags to limit display by
 	var $path;			// HTML-path to explode in template.
 
 	var $textareaCols = 60; //default coös for textareas
-	
-	
+
+
 	function init() {
 		parent::init();
 

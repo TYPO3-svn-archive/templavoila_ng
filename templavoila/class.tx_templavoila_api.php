@@ -334,19 +334,22 @@ class tx_templavoila_api {
 			}
 		}
 
-			// Instantiate TCEmain and create the record:
+		// Instantiate TCEmain and create the record:
 		$tce = t3lib_div::makeInstance('t3lib_TCEmain');
 		/* @var $tce t3lib_TCEmain */
 
 		// set default TCA values specific for the user
-		$TCAdefaultOverride = $GLOBALS['BE_USER']->getTSConfigProp('TCAdefaults');
+		$userTS = $GLOBALS['BE_USER']->getTSConfigProp('TCAdefaults');
 		$pageTS = t3lib_BEfunc::getPagesTSconfig($newRecordPid, true);
-		if (isset($pageTS['TCAdefaults.'])) {
+
+		$TCAdefaultOverride = array();
+		if (is_array($userTS)) {
+			$TCAdefaultOverride = array_merge($TCAdefaultOverride, $userTS);
+		}
+		if (is_array($pageTS['TCAdefaults.'])) {
 			$TCAdefaultOverride = array_merge($TCAdefaultOverride, $pageTS['TCAdefaults.']);
 		}
-		if (is_array($TCAdefaultOverride))	{
-			$tce->setDefaultsFromUserTS($TCAdefaultOverride);
-		}
+		$tce->setDefaultsFromUserTS($TCAdefaultOverride);
 
 		$tce->stripslashes_values = 0;
 		$flagWasSet = $this->getTCEmainRunningFlag();
@@ -1613,13 +1616,13 @@ class tx_templavoila_api {
 			'CType' => $row['CType'],
 		);
 
-		if ($this->includePreviewData)	{
+		if ($this->includePreviewData) {
 			$tree['previewData'] = array(
 				'fullRow' => $row
 			);
 		}
 
-			// If element is a Flexible Content Element (or a page) then look at the content inside:
+		// If element is a Flexible Content Element (or a page) then look at the content inside:
 		if ($table == 'pages' || $table == $this->rootTable || ($table=='tt_content' && $row['CType']=='templavoila_pi1'))	{
 
 			t3lib_div::loadTCA($table);
@@ -1646,17 +1649,17 @@ class tx_templavoila_api {
 			if (!is_array($flexformContentArr))
 				$flexformContentArr = array();
 
-				// Respect the currently selected language, for both concepts - with langChildren enabled and disabled:
+			// Respect the currently selected language, for both concepts - with langChildren enabled and disabled:
 			$langChildren = intval($tree['ds_meta']['langChildren']);
 			$langDisable = intval($tree['ds_meta']['langDisable']);
 
 			$lKeys = $langDisable ? array('lDEF') : ($langChildren ? array('lDEF') : $this->allSystemWebsiteLanguages['all_lKeys']);
 			$vKeys = $langDisable ? array('vDEF') : ($langChildren ? $this->allSystemWebsiteLanguages['all_vKeys'] : array('vDEF'));
 
-				// Traverse each sheet in the FlexForm Structure:
+			// Traverse each sheet in the FlexForm Structure:
 			foreach($expandedDataStructureArr as $sheetKey => $sheetData)	{
 
-					// Add some sheet meta information:
+				// Add some sheet meta information:
 				$tree['sub'][$sheetKey] = array();
 				$tree['contentFields'][$sheetKey] = array();
 				$tree['meta'][$sheetKey] = array(
@@ -1665,7 +1668,7 @@ class tx_templavoila_api {
 					'short' => (is_array($sheetData) && $sheetData['ROOT']['TCEforms']['sheetShortDescr'] ? $LANG->sL($sheetData['ROOT']['TCEforms']['sheetShortDescr']) : ''),
 				);
 
-					// Traverse the sheet's elements:
+				// Traverse the sheet's elements:
 				if (is_array($sheetData) && is_array($sheetData['ROOT']['el']))	{
 					$xpath         = '';							//'ROOT/el/';
 					$fieldList     = $sheetData['ROOT']['el'];				// DS
@@ -1688,17 +1691,17 @@ class tx_templavoila_api {
 						&$tt_content_elementRegister, $prevRecList
 					);
 
-						// flat list of XPathed element labels
+					// flat list of XPathed element labels
 					$tree['sub'][$sheetKey] = $sub;
-						// flat it of XPathed content-fields
+					// flat it of XPathed content-fields
 					$tree['contentFields'][$sheetKey] = $contentFields;
-						// hierarchical tree ef elements
+					// hierarchical tree ef elements
 					$tree['previewData']['sheets'][$sheetKey] = $previewData;
 				}
 			}
 		}
 
-			// Add localization info for this element:
+		// Add localization info for this element:
 		$tree['localizationInfo'] = $this->getContentTree_getLocalizationInfoForElement($tree, $tt_content_elementRegister);
 
 		return $tree;
@@ -1891,15 +1894,23 @@ class tx_templavoila_api {
 	 */
 	function getStorageFolderPid($pageUid)	{
 
-			// Negative PID values is pointing to a page on the same level as the current.
+		// Negative PID values is pointing to a page on the same level as the current.
 		if ($pageUid < 0) {
 			$pidRow = t3lib_BEfunc::getRecordWSOL('pages',abs($pageUid),'pid');
 			$pageUid = $pidRow['pid'];
 		}
-		$row = t3lib_BEfunc::getRecordWSOL('pages',$pageUid);
 
+		$row = t3lib_BEfunc::getRecordWSOL('pages', $pageUid);
 		$TSconfig = t3lib_BEfunc::getTCEFORM_TSconfig('pages', $row);
-		return intval($TSconfig['_STORAGE_PID']);
+		$storagePid = intval($TSconfig['_STORAGE_PID']);
+
+		// Check for alternative storage folder
+		$modTSConfig = t3lib_BEfunc::getModTSconfig($pageUid, 'tx_templavoila.storagePid');
+		if (is_array($modTSConfig) && t3lib_div::testInt($modTSConfig['value'])) {
+			$storagePid = intval($modTSConfig['value']);
+		}
+
+		return $storagePid;
 	}
 
 	/**

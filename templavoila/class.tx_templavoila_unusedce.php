@@ -69,6 +69,8 @@ class tx_templavoila_unusedce extends tx_lowlevel_cleaner_core {
 	var $genTree_traverseDeleted = FALSE;
 	var $genTree_traverseVersions = FALSE;
 
+	var $excludePageIdList = array();
+
 
 	/**
 	 * Constructor
@@ -82,6 +84,7 @@ class tx_templavoila_unusedce extends tx_lowlevel_cleaner_core {
 		$this->cli_options[] = array('--echotree level', 'When "level" is set to 1 or higher you will see the page of the page tree outputted as it is traversed. A value of 2 for "level" will show even more information.');
 		$this->cli_options[] = array('--pid id', 'Setting start page in page tree. Default is the page tree root, 0 (zero)');
 		$this->cli_options[] = array('--depth int', 'Setting traversal depth. 0 (zero) will only analyse start page (see --pid), 1 will traverse one level of subpages etc.');
+		$this->cli_options[] = array('--excludePageIdList commalist', 'Specifies page ids to exclude from the processing.');
 
 		$this->cli_help['name'] = 'tx_templavoila_unusedce -- Find unused content elements on pages';
 		$this->cli_help['description'] = trim('
@@ -116,6 +119,7 @@ Automatic Repair:
 
 		$startingPoint = $this->cli_isArg('--pid') ? t3lib_div::intInRange($this->cli_argValue('--pid'),0) : 0;
 		$depth = $this->cli_isArg('--depth') ? t3lib_div::intInRange($this->cli_argValue('--depth'),0) : 1000;
+		$this->excludePageIdList = $this->cli_isArg('--excludePageIdList') ? t3lib_div::intExplode(',', $this->cli_argValue('--excludePageIdList')) : array();
 
 		$this->resultArray = &$resultArray;
 		$this->genTree($startingPoint,$depth,(int)$this->cli_argValue('--echotree'),'main_parseTreeCallBack');
@@ -136,52 +140,73 @@ Automatic Repair:
 	 * @param	integer		Is root version (see calling function
 	 * @return	void
 	 */
-	function main_parseTreeCallBack($tableName,$uid,$echoLevel,$versionSwapmode,$rootIsVersion)	{
+	function main_parseTreeCallBack($tableName,$uid,$echoLevel,$versionSwapmode,$rootIsVersion) {
 
-		if ($tableName=='pages' && $uid>0)	{
-			if (!$versionSwapmode)	{
+		if ($tableName == 'pages' && $uid > 0 && !in_array($uid, $this->excludePageIdList)) {
+			if (!$versionSwapmode) {
 
-					// Initialize TemplaVoila API class:
+				// Initialize TemplaVoila API class:
 				$apiClassName = t3lib_div::makeInstanceClassName('tx_templavoila_api');
 				$apiObj = new $apiClassName ('pages');
 
-					// Fetch the content structure of page:
+				// Fetch the content structure of page:
 				$contentTreeData = $apiObj->getContentTree('pages', t3lib_BEfunc::getRecordRaw('pages','uid='.intval($uid)));
-				if ($contentTreeData['tree']['ds_is_found'])	{
+				if ($contentTreeData['tree']['ds_is_found']) {
 					$usedUids = array_keys($contentTreeData['contentElementUsage']);
 					$usedUids[] = 0;
 
-						// Look up all content elements that are NOT used on this page...
+					// Look up all content elements that are NOT used on this page...
 					$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery (
 						'uid, header',
 						'tt_content',
 						'pid='.intval($uid).' '.
-							'AND uid NOT IN ('.implode(',',$usedUids).') '.
-							'AND t3ver_state!=1'.
+							'AND uid NOT IN ('.implode(',',$usedUids).') ' .
+							'AND t3ver_state!=1 ' .
+							'AND t3ver_state!=3 ' .
 							t3lib_BEfunc::deleteClause('tt_content').
 							t3lib_BEfunc::versioningPlaceholderClause('tt_content'),
 						'',
 						'uid'
 					);
 
-						// Traverse, for each find references if any and register them.
-					while(false !== ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)))	{
+					// Traverse, for each find references if any and register them.
+					while(false !== ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
 
-							// Look up references to elements:
+						// Look up references to elements:
 						$refrows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-							'*',
+							'hash',
 							'sys_refindex',
 							'ref_table='.$GLOBALS['TYPO3_DB']->fullQuoteStr('tt_content','sys_refindex').
 								' AND ref_uid='.intval($row['uid']).
 								' AND deleted=0'
 						);
 
-							// Register elements etc:
+						// Look up TRANSLATION references FROM this element to another content element:
+						$isATranslationChild = false;
+						$refrows_From = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+							'ref_uid',
+							'sys_refindex',
+							'tablename='.$GLOBALS['TYPO3_DB']->fullQuoteStr('tt_content','sys_refindex').
+								' AND recuid='.intval($row['uid']).
+								' AND field='.$GLOBALS['TYPO3_DB']->fullQuoteStr('l18n_parent','sys_refindex')
+#								' AND deleted=0'
+						);
+
+						// Check if that other record is deleted or not:
+						if ($refrows_From[0] && $refrows_From[0]['ref_uid'])	{
+							$isATranslationChild = t3lib_BEfunc::getRecord('tt_content',$refrows_From[0]['ref_uid'],'uid') ? TRUE : FALSE;
+						}
+
+						// Register elements etc:
 						$this->resultArray['all_unused'][$row['uid']] = array($row['header'],count($refrows));
 						if ($echoLevel>2) echo chr(10).'			[tx_templavoila_unusedce:] tt_content:'.$row['uid'].' was not used on page...';
 						if (!count($refrows))	{
-							$this->resultArray['deleteMe'][$row['uid']] = $row['uid'];
-							if ($echoLevel>2) echo ' and can be DELETED';
+							if ($isATranslationChild) {
+								if ($echoLevel>2) echo ' but is a translation of a non-deleted records and so do not delete...';
+							} else {
+								$this->resultArray['deleteMe'][$row['uid']] = $row['uid'];
+								if ($echoLevel>2) echo ' and can be DELETED';
+							}
 						} else {
 							if ($echoLevel>2) echo ' but is referenced to ('.count($refrows).') so do not delete...';
 						}
