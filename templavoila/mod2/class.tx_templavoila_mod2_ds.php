@@ -98,7 +98,13 @@ class tx_templavoila_mod2_ds {
 
 			// Preview icon:
 			if ($dsRow['previewicon']) {
-				$icon = '<img src="' . $this->doc->backPath . '../uploads/tx_templavoila/' . $dsRow['previewicon'] . '" alt="" />';
+				if (isset($this->modTSconfig['properties']['dsPreviewIconThumb']) && $this->modTSconfig['properties']['dsPreviewIconThumb'] != '0') {
+					$icon = t3lib_BEfunc::getThumbNail($this->doc->backPath . 'thumbs.php', PATH_site . 'uploads/tx_templavoila/' . $dsRow['previewicon'],
+						'hspace="5" vspace="5" border="1"',
+						strpos($this->modTSconfig['properties']['dsPreviewIconThumb'], 'x') ? $this->modTSconfig['properties']['dsPreviewIconThumb'] : '');
+				} else {
+					$icon = '<img src="' . $this->doc->backPath . '../uploads/tx_templavoila/' . $dsRow['previewicon'] . '" alt="" />';
+				}
 			} else {
 				$icon = '[' . $GLOBALS['LANG']->getLL('noicon') . ']';
 			}
@@ -267,7 +273,7 @@ class tx_templavoila_mod2_ds {
 			// Pages
 			case TVDS_SCOPE_PAGE:
 				// Header:
-				$output[]='
+				$output[] = '
 							<tr class="bgColor5 tableheader">
 								<td>Title:</td>
 								<td>Path:</td>
@@ -278,8 +284,8 @@ class tx_templavoila_mod2_ds {
 					'uid,title,pid',
 					'pages',
 					'(
-						(tx_templavoila_to NOT IN ('.implode(',',$toIdArray).') AND tx_templavoila_ds='.$GLOBALS['TYPO3_DB']->fullQuoteStr($dsID,'pages').') OR
-						(tx_templavoila_next_to NOT IN ('.implode(',',$toIdArray).') AND tx_templavoila_next_ds='.$GLOBALS['TYPO3_DB']->fullQuoteStr($dsID,'pages').')
+						(tx_templavoila_to NOT IN (' . implode(',', $toIdArray) . ') AND tx_templavoila_ds=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($dsID, 'pages') . ') OR
+						(tx_templavoila_next_to NOT IN (' . implode(',', $toIdArray) . ') AND tx_templavoila_next_ds=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($dsID, 'pages') . ')
 					)'.
 						t3lib_BEfunc::deleteClause('pages')
 				);
@@ -290,12 +296,12 @@ class tx_templavoila_mod2_ds {
 						$output[] = '
 							<tr class="bgColor4-20">
 								<td nowrap="nowrap">'.
-									'<a href="#" onclick="'.htmlspecialchars(t3lib_BEfunc::editOnClick('&edit[pages]['.$pRow['uid'].']=edit',$this->doc->backPath)).'">'.
-									htmlspecialchars($pRow['title']).
+									'<a href="#" onclick="' . htmlspecialchars(t3lib_BEfunc::editOnClick('&edit[pages]['. $pRow['uid'] . ']=edit', $this->doc->backPath)) . '">' .
+									htmlspecialchars($pRow['title']) .
 									'</a></td>
 								<td nowrap="nowrap">'.
-									'<a href="#" onclick="'.htmlspecialchars(t3lib_BEfunc::viewOnClick($pRow['uid'],$this->doc->backPath).'return false;').'">'.
-									htmlspecialchars($path).
+									'<a href="#" onclick="' . htmlspecialchars(t3lib_BEfunc::viewOnClick($pRow['uid'], $this->doc->backPath).'return false;') . '">' .
+									htmlspecialchars($path) .
 									'</a></td>
 							</tr>';
 					} else {
@@ -314,9 +320,9 @@ class tx_templavoila_mod2_ds {
 				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 					'uid,header,pid',
 					'tt_content',
-					'CType='.$GLOBALS['TYPO3_DB']->fullQuoteStr('templavoila_pi1','tt_content').
-						' AND tx_templavoila_to NOT IN ('.implode(',',$toIdArray).')'.
-						' AND tx_templavoila_ds='.$GLOBALS['TYPO3_DB']->fullQuoteStr($dsID,'tt_content').
+					'CType='.$GLOBALS['TYPO3_DB']->fullQuoteStr('templavoila_pi1', 'tt_content').
+						' AND tx_templavoila_to NOT IN (' . implode(',', $toIdArray) . ')'.
+						' AND tx_templavoila_ds='.$GLOBALS['TYPO3_DB']->fullQuoteStr($dsID, 'tt_content').
 						t3lib_BEfunc::deleteClause('tt_content'),
 					'',
 					'pid'
@@ -332,20 +338,20 @@ class tx_templavoila_mod2_ds {
 				// Elements:
 				while (false !== ($pRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
 					$path = $this->pObj->findRecordsWhereUsed_pid($pRow['pid']);
-					if ($path)	{
-						$output[]='
+					if ($path) {
+						$output[] = '
 							<tr class="bgColor4-20">
-								<td nowrap="nowrap">'.
-									'<a href="#" onclick="'.htmlspecialchars(t3lib_BEfunc::editOnClick('&edit[tt_content]['.$pRow['uid'].']=edit',$this->doc->backPath)).'" title="Edit">'.
-									htmlspecialchars($pRow['header']).
+								<td nowrap="nowrap">' .
+									'<a href="#" onclick="' . htmlspecialchars(t3lib_BEfunc::editOnClick('&edit[tt_content][' . $pRow['uid'] . ']=edit', $this->doc->backPath)) . '" title="Edit">' .
+									htmlspecialchars($pRow['header']) .
 									'</a></td>
-								<td nowrap="nowrap">'.
-									'<a href="#" onclick="'.htmlspecialchars(t3lib_BEfunc::viewOnClick($pRow['pid'],$this->doc->backPath).'return false;').'" title="View page">'.
-									htmlspecialchars($path).
+								<td nowrap="nowrap">' .
+									'<a href="#" onclick="' . htmlspecialchars(t3lib_BEfunc::viewOnClick($pRow['pid'], $this->doc->backPath) . 'return false;') . '" title="View page">' .
+									htmlspecialchars($path) .
 									'</a></td>
 							</tr>';
 					} else {
-						$output[]='
+						$output[] = '
 							<tr class="bgColor4-20">
 								<td><em>No access</em></td>
 								<td>-</td>

@@ -160,11 +160,23 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 			// Adding classic jumpToUrl function, needed for the function menu.
 			// Also, the id in the parent frameset is configured.
 			$this->doc->JScode = $this->doc->wrapScriptTags('
-				function jumpToUrl(URL)	{ //
+				function jumpToUrl(URL)	{
 					document.location = URL;
 					return false;
 				}
-				if (top.fsMod) top.fsMod.recentIds["web"] = ' . intval($this->id) . ';
+
+				function setHighlight(id) {
+					if (top.fsMod) {
+						top.fsMod.recentIds["web"] = id;
+						top.fsMod.navFrameHighlightedID["web"] = "pages" + id + "_" + top.fsMod.currentBank;	// For highlighting
+
+						if (top.content && top.content.nav_frame && top.content.nav_frame.refresh_nav) {
+							top.content.nav_frame.refresh_nav();
+						}
+					}
+				}
+
+			//	if (top.fsMod) top.fsMod.recentIds["web"] = ' . intval($this->id) . ';
 			');
 
 			// Setting up support for context menus (when clicking the items icon)
@@ -532,8 +544,8 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 									<td><a href="#to-' . $toRow['uid'] . '">' . htmlspecialchars($toRow['title']).'</a></td>
 									<td>&nbsp;</td>
 									<td>&nbsp;</td>
-									<td align="center">'.$rTODres['mappingStatus'].'</td>
-									<td align="center">'.$rTODres['usage'].'</td>
+									<td align="center">' . $rTODres['mappingStatus'] . '</td>
+									<td align="center">' . $rTODres['usage'] . '</td>
 								</tr>';
 							$toCount++;
 
@@ -572,12 +584,12 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 
 				// Render data structure display
 				$rDSDres = $this->dsObj->renderDSDisplay($dsRow, $toIdArray, $scope);
-				$content.= '<a name="ds-'.md5($dsID).'"></a>'.$rDSDres['HTML'];
+				$content.= '<a name="ds-' . md5($dsID) . '"></a>' . $rDSDres['HTML'];
 				$index.='
 					<tr class="bgColor4-20">
-						<td colspan="2"><a href="#ds-'.md5($dsID).'">'.htmlspecialchars($dsRow['title']?$dsRow['title']:$dsRow['path']).'</a></td>
-						<td align="center">'.$rDSDres['languageMode'].'</td>
-						<td align="center">'.$rDSDres['container'].'</td>
+						<td colspan="2"><a href="#ds-' . md5($dsID) . '">' . htmlspecialchars($dsRow['title'] ? $dsRow['title'] : $dsRow['path']) . '</a></td>
+						<td align="center">' . $rDSDres['languageMode'] . '</td>
+						<td align="center">' . $rDSDres['container'] . '</td>
 						<td>&nbsp;</td>
 						<td>&nbsp;</td>
 					</tr>';
@@ -588,7 +600,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 
 				// Wrap TO elements in a div-tag and add to content:
 				if ($TOcontent)	{
-					$content.='<div style="margin-left: 102px;">'.$TOcontent.'</div>';
+					$content.='<div style="margin-left: 102px;">' . $TOcontent . '</div>';
 				}
 
 				$content.='<br />';
@@ -600,7 +612,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 				<h4>' . $GLOBALS['LANG']->getLL('center_list_overview') . ':</h4>
 				<table border="0" cellpadding="0" cellspacing="1">
 					<tr class="bgColor5 tableheader">
-						<td colspan="2">'.$GLOBALS['LANG']->getLL('center_list_title') . ':</td>
+						<td colspan="2">' . $GLOBALS['LANG']->getLL('center_list_title') . ':</td>
 						<td>' . $GLOBALS['LANG']->getLL('center_list_loc') . ':</td>
 						<td>' . $GLOBALS['LANG']->getLL('center_list_costatus') . ':</td>
 						<td>' . $GLOBALS['LANG']->getLL('center_list_mapstatus') . ':</td>
@@ -904,7 +916,19 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 			');
 			$this->doc->postCode = $this->doc->wrapScriptTags('
 				script_ended = 1;
-				if (top.fsMod) top.fsMod.recentIds["web"] = '.intval($this->id).';
+
+				function setHighlight(id) {
+					if (top.fsMod) {
+						top.fsMod.recentIds["web"] = id;
+						top.fsMod.navFrameHighlightedID["web"] = "pages" + id + "_" + top.fsMod.currentBank;	// For highlighting
+
+						if (top.content && top.content.nav_frame && top.content.nav_frame.refresh_nav) {
+							top.content.nav_frame.refresh_nav();
+						}
+					}
+				}
+
+			//	if (top.fsMod) top.fsMod.recentIds["web"] = '.intval($this->id).';
 			');
 
 				// Setting up the context sensitive menu:

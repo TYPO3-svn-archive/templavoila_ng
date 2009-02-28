@@ -1,5 +1,14 @@
 * all the missing stuff has to be added here ...
 
+2009-02-27  Steffen Kamper  <info@sk-typo3.de>
+
+	* Fixed bug #10553: Mapping Module loose Typoscript
+	* Fixed bug #10557: No resizing for previewIcons (DS and TO)
+
+2009-02-26  Steffen Kamper  <info@sk-typo3.de>
+
+	* Fixed bug #10548: Highlight storage folder in page tree when select a storage folder in templavoila module
+
 2009-02-16  Niels Fröhling  <info@frohling.biz>
 
 	* Migration of new TV-patches since 2008-12-26

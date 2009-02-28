@@ -108,7 +108,7 @@ class tx_templavoila_mod2_overview {
 				if ($path)	{
 					$tRows[] = '
 						<tr class="bgColor4">
-							<td><a href="' . $this->pObj->baseScript . 'id=' . $pid . '">' . htmlspecialchars($path) . '</a></td>
+							<td><a href="' . $this->pObj->baseScript . 'id=' . $pid . '" onclick="setHighlight(' . $pid . ');">' . htmlspecialchars($path) . '</a></td>
 							<td>'.htmlspecialchars($stat['DS']).'</td>
 							<td>'.htmlspecialchars($stat['TO']).'</td>
 						</tr>';

@@ -94,7 +94,13 @@ class tx_templavoila_mod2_to {
 
 		// Preview icon:
 		if ($toRow['previewicon']) {
-			$icon = '<img src="' . $this->doc->backPath . '../uploads/tx_templavoila/' . $toRow['previewicon'] . '" alt="" />';
+			if (isset($this->modTSconfig['properties']['toPreviewIconThumb']) && $this->modTSconfig['properties']['toPreviewIconThumb'] != '0') {
+				$icon = t3lib_BEfunc::getThumbNail($this->doc->backPath . 'thumbs.php', PATH_site . 'uploads/tx_templavoila/' . $toRow['previewicon'],
+					'hspace="5" vspace="5" border="1"',
+					strpos($this->modTSconfig['properties']['toPreviewIconThumb'], 'x') ? $this->modTSconfig['properties']['toPreviewIconThumb'] : '');
+			} else {
+				$icon = '<img src="' . $this->doc->backPath . '../uploads/tx_templavoila/' . $toRow['previewicon'] . '" alt="" />';
+			}
 		} else {
 			$icon = '[' . $GLOBALS['LANG']->getLL('noicon') . ']';
 		}

@@ -3353,7 +3353,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					switch($elArray[$key]['tx_templavoila']['eType'])	{
 						case 'text':
 							/* preserve previous config, if of the right kind */
-							if (($reset = $reset || ($elArray[$key]['TCEforms']['config']['type'] != 'text'))) {
+							if (($reset || ($elArray[$key]['TCEforms']['config']['type'] != 'text'))) {
 								$elArray[$key]['TCEforms']['label']=$elArray[$key]['tx_templavoila']['title'];
 								$elArray[$key]['TCEforms']['config'] = array(
 									'type' => 'text',
@@ -3368,7 +3368,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 							break;
 						case 'rte':
 							/* preserve previous config, if of the right kind */
-							if (($reset = $reset || ($elArray[$key]['TCEforms']['config']['type'] != 'text'))) {
+							if (($reset || ($elArray[$key]['TCEforms']['config']['type'] != 'text'))) {
 								$elArray[$key]['TCEforms']['label']=$elArray[$key]['tx_templavoila']['title'];
 								$elArray[$key]['TCEforms']['config'] = array(
 									'type' => 'text',
@@ -3399,7 +3399,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 						case 'image':
 						case 'imagefixed':
 							/* preserve previous config, if of the right kind */
-							if (($reset = $reset || ($elArray[$key]['TCEforms']['config']['type'] != 'group'))) {
+							if (($reset || ($elArray[$key]['TCEforms']['config']['type'] != 'group'))) {
 								$elArray[$key]['TCEforms']['label']=$elArray[$key]['tx_templavoila']['title'];
 								$elArray[$key]['TCEforms']['config'] = array(
 									'type' => 'group',
@@ -3458,7 +3458,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 							break;
 						case 'link':
 							/* preserve previous config, if of the right kind */
-							if (($reset = $reset || ($elArray[$key]['TCEforms']['config']['type'] != 'input'))) {
+							if (($reset || ($elArray[$key]['TCEforms']['config']['type'] != 'input'))) {
 								$elArray[$key]['TCEforms']['label']=$elArray[$key]['tx_templavoila']['title'];
 								$elArray[$key]['TCEforms']['config'] = array(
 									'type' => 'input',
@@ -3501,7 +3501,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 							break;
 						case 'ce':
 							/* preserve previous config, if of the right kind */
-							if (($reset = $reset || ($elArray[$key]['TCEforms']['config']['type'] != 'group'))) {
+							if (($reset || ($elArray[$key]['TCEforms']['config']['type'] != 'group'))) {
 								$elArray[$key]['TCEforms']['label']=$elArray[$key]['tx_templavoila']['title'];
 								$elArray[$key]['TCEforms']['config'] = array(
 									'type' => 'group',
@@ -3530,7 +3530,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 							break;
 						case 'int':
 							/* preserve previous config, if of the right kind */
-							if (($reset = $reset || ($elArray[$key]['TCEforms']['config']['type'] != 'input'))) {
+							if (($reset || ($elArray[$key]['TCEforms']['config']['type'] != 'input'))) {
 								$elArray[$key]['TCEforms']['label']=$elArray[$key]['tx_templavoila']['title'];
 								$elArray[$key]['TCEforms']['config'] = array(
 									'type' => 'input',
@@ -3548,7 +3548,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 							break;
 						case 'select':
 							/* preserve previous config, if of the right kind */
-							if (($reset = $reset || ($elArray[$key]['TCEforms']['config']['type'] != 'select'))) {
+							if (($reset || ($elArray[$key]['TCEforms']['config']['type'] != 'select'))) {
 								$elArray[$key]['TCEforms']['label']=$elArray[$key]['tx_templavoila']['title'];
 								$elArray[$key]['TCEforms']['config'] = array(
 									'type' => 'select',
@@ -3566,7 +3566,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 						case 'input_h':
 						case 'input_g':
 							/* preserve previous config, if of the right kind */
-							if (($reset = $reset || ($elArray[$key]['TCEforms']['config']['type'] != 'input'))) {
+							if (($reset || ($elArray[$key]['TCEforms']['config']['type'] != 'input'))) {
 								$elArray[$key]['TCEforms']['label']=$elArray[$key]['tx_templavoila']['title'];
 								$elArray[$key]['TCEforms']['config'] = array(
 									'type' => 'input',
@@ -3623,7 +3623,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 							unset($elArray[$key]['TCEforms']);
 
 							/* preserve previous config, if of the right kind */
-						//	if (($reset = $reset || ($elArray[$key]['tx_templavoila']['TypoScriptObjPath'] == ''))) {
+						//	if (($reset || ($elArray[$key]['tx_templavoila']['TypoScriptObjPath'] == ''))) {
 								$elArray[$key]['tx_templavoila']['TypoScriptObjPath'] =
 									($elArray[$key]['tx_templavoila']['eType_EXTRA']['objPath'] ?
 										$elArray[$key]['tx_templavoila']['eType_EXTRA']['objPath'] :
