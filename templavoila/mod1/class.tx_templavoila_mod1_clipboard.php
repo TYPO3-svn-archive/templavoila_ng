@@ -263,9 +263,9 @@ class tx_templavoila_mod1_clipboard {
 			t3lib_BEfunc::getCommonSelectFields('tt_content','',array('uid', 'header', 'bodytext', 'sys_language_uid')),
 			'tt_content',
 			'pid='.intval($pid).' '.
-				'AND uid NOT IN ('.implode(',',$usedUids).') '.
-				'AND t3ver_state!=1'.
-				t3lib_BEfunc::deleteClause('tt_content').
+				'AND uid NOT IN (' . implode(',', $usedUids) . ') '.
+				'AND t3ver_state!=1' .
+				t3lib_BEfunc::deleteClause('tt_content') .
 				t3lib_BEfunc::versioningPlaceholderClause('tt_content'),
 			'',
 			'uid'
@@ -273,42 +273,41 @@ class tx_templavoila_mod1_clipboard {
 
 		$this->deleteUids = array();	// Used to collect all those tt_content uids with no references which can be deleted
 		while(false !== ($row = $TYPO3_DB->sql_fetch_assoc($res))) {
-			$elementPointerString = 'tt_content:'.$row['uid'];
+			$elementPointerString = 'tt_content:' . $row['uid'];
 
  			$elementTitlebarColor = $this->doc->bgColor5;
-			$elementTitlebarStyle = 'background-color: '.$elementTitlebarColor;
+			$elementTitlebarStyle = 'background-color: ' . $elementTitlebarColor;
 
-				// Prepare the language icon:
+			// Prepare the language icon:
 			$languageLabel = htmlspecialchars ($this->pObj->allAvailableLanguages[$row['sys_language_uid']]['title']);
-			$languageIcon = $this->pObj->allAvailableLanguages[$row['sys_language_uid']]['flagIcon'] ? '<img src="'.$this->pObj->allAvailableLanguages[$row['sys_language_uid']]['flagIcon'].'" title="'.$languageLabel.'" alt="'.$languageLabel.'" />' : ($languageLabel && $row['sys_language_uid'] ? '['.$languageLabel.']' : '');
+			$languageIcon = $this->pObj->allAvailableLanguages[$row['sys_language_uid']]['flagIcon'] ? '<img src="' . $this->pObj->allAvailableLanguages[$row['sys_language_uid']]['flagIcon'].'" title="'.$languageLabel.'" alt="'.$languageLabel.'" />' : ($languageLabel && $row['sys_language_uid'] ? '['.$languageLabel.']' : '');
 
-				// Prepare buttons:
-			$recordIcon = '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_iconWorks::getIcon('tt_content', $row),'width="18" height="16"').' border="0" title="[tt_content:'.$row['uid'].'" alt="" />';
-			$recordButton = $this->pObj->doc->wrapClickMenuOnIcon($recordIcon, 'tt_content', $row['uid'], 1, '&callingScriptId='.rawurlencode($this->pObj->doc->scriptID), 'new,copy,cut,pasteinto,pasteafter,delete');
+			// Prepare buttons:
+			$recordIcon = '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_iconWorks::getIcon('tt_content', $row), 'width="18" height="16"') . ' border="0" title="[tt_content:' . $row['uid'] . ']" alt="" />';
+			$recordButton = $this->pObj->doc->wrapClickMenuOnIcon($recordIcon, 'tt_content', $row['uid'], 1, '&callingScriptId=' . rawurlencode($this->pObj->doc->scriptID), 'new,copy,cut,pasteinto,pasteafter,delete');
 
 			$titleBarLeftButtons = $recordButton;
 
 			if (!$this->pObj->translatorMode && $canEditContent) {
-				$linkEdit = $this->pObj->icon_edit(array('table'=>'tt_content','uid'=>$row['uid'],'isHidden'=>$row['hidden']));
-				$linkHide = $this->pObj->icon_hide(array('table'=>'tt_content','uid'=>$row['uid'],'isHidden'=>$row['hidden']));
+				$linkEdit = $this->pObj->icon_edit(array('table' => 'tt_content', 'uid' => $row['uid'], 'isHidden' => $row['hidden']));
+				$linkHide = $this->pObj->icon_hide(array('table' => 'tt_content', 'uid' => $row['uid'], 'isHidden' => $row['hidden']));
 
 				$copyButton = $this->element_getSelectButtons($elementPointerString, 'copy');
 				$refButton  = $this->element_getSelectButtons($elementPointerString, 'ref');
 				$cutButton  = $this->element_getSelectButtons($elementPointerString, 'cut');
 
 				$titleBarRightButtons = $linkEdit . $linkHide . $copyButton . $refButton . $cutButton . $this->renderReferenceCount($row['uid']);
-			}
-			else {
+			} else {
 				$titleBarRightButtons = '';
 			}
 
-				// Create flexform pointer pointing to "before the first sub element":
+			// Create flexform pointer pointing to "before the first sub element":
 			$subElementPointer = array (
 				'table' => 'tt_content',
 				'uid'   => $row['uid']
 			);
 
-				// Finally assemble the table:
+			// Finally assemble the table:
 			$cellFragment = '
 				<table cellpadding="0" cellspacing="0" width="100%" class="tv-coe">
 					<tr style="'.$elementTitlebarStyle.';" class="sortableHandle">
@@ -316,7 +315,7 @@ class tx_templavoila_mod1_clipboard {
 							<span class="nobr">'.
 							$languageIcon.
 							$titleBarLeftButtons.
-							htmlspecialchars(' '.t3lib_div::fixed_lgd_cs(trim(strip_tags($row['header'].($row['header'] && $row['bodytext'] ? ' - ' : '').$row['bodytext'])),100)).
+							htmlspecialchars(' '. t3lib_div::fixed_lgd_cs(trim(strip_tags($row['header'] . ($row['header'] && $row['bodytext'] ? ' - ' : '') . $row['bodytext'])), 100)) .
 							'</span>
 						</td>
 						<td nowrap="nowrap" class="sortableButtons">'.
@@ -326,32 +325,30 @@ class tx_templavoila_mod1_clipboard {
 				</table>
 			';
 
-				// "Browse", "New" and "Paste" icon:
+			// "Browse", "New" and "Paste" icon:
 			$cellFragment .= $this->pObj->icon_browse($subElementPointer);
-
 			if (!$this->pObj->translatorMode && $canCreateNew)	{
 				$cellFragment .= $this->pObj->icon_new($subElementPointer);
 			}
 
 			$cellFragment .= '<span class="sortablePaste">' . $this->element_getPasteButtons($subElementPointer) . '</span>';
-
 			if ($this->pObj->apiObj) {
 				$cellId = $this->pObj->apiObj->flexform_getStringFromPointer($subElementPointer);
-				$cellFragment = '<div class="sortableItem" id="' . $cellId . '">' . $cellFragment . '</div>';
+				$cellFragment = '<div class="sortableItem" id="' . $cellId . '" rel="' . $cellId . '">' . $cellFragment . '</div>';
 			}
 
 			$elements[] = $cellFragment;
 		}
 
 		if (count($elements)) {
-
-				// Control for deleting all deleteable records:
+			// Control for deleting all deleteable records:
 			$deleteAll = '';
 			if (count($this->deleteUids) && 0===$BE_USER->workspace) {
 				$params = '';
-				foreach($this->deleteUids as $deleteUid)	{
-					$params.= '&cmd[tt_content]['.$deleteUid.'][delete]=1';
+				foreach($this->deleteUids as $deleteUid) {
+					$params .= '&cmd[tt_content]['.$deleteUid.'][delete]=1';
 				}
+
 				$label = $LANG->getLL('rendernonusedelements_deleteall');
 				$deleteAll = '<a href="#" onclick="'.htmlspecialchars('jumpToUrl(\''.$this->doc->issueCommand($params,'').'\');').'">'.
 						'<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/garbage.gif','width="11" height="12"').' title="'.htmlspecialchars($label).'" alt="" />'.

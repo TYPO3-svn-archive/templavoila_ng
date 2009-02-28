@@ -1078,7 +1078,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 		$canCreateNew   = $GLOBALS['BE_USER']->isPSet($this->calcPerms, 'pages', 'new');
 		$canEditContent = $GLOBALS['BE_USER']->isPSet($this->calcPerms, 'pages', 'editcontent');
 
-			// Define l/v keys for current language:
+		// Define l/v keys for current language:
 		$langChildren = intval($elementContentTreeArr['ds_meta']['langChildren']);
 		$langDisable  = intval($elementContentTreeArr['ds_meta']['langDisable']);
 
@@ -1086,16 +1086,16 @@ table.typo3-dyntabmenu td.disabled:hover {
 		$vKey = $langDisable ? 'vDEF' : ($langChildren ? 'v'.$languageKey : 'vDEF');
 
 		if (!is_array($elementContentTreeArr['sub'][$sheet]) ||
-			!is_array($elementContentTreeArr['sub'][$sheet][$lKey]))
+		    !is_array($elementContentTreeArr['sub'][$sheet][$lKey]))
 			return '';
 
-						// ----------------------------------------------------------------------------------
-			// Traverse container fields:
+		// ----------------------------------------------------------------------------------
+		// Traverse container fields:
 		if (($fieldValuesContent = $elementContentTreeArr['sub'][$sheet][$lKey][$fieldID])) {
 			$fieldContent = $fieldValuesContent[$vKey];
 			$cellContent = '';
 
-				// Create flexform pointer pointing to "before the first sub element":
+			// Create flexform pointer pointing to "before the first sub element":
 			$subElementPointer = array (
 				'table' => $elementContentTreeArr['el']['table'],
 				'uid'   => $elementContentTreeArr['el']['uid'],
@@ -1106,63 +1106,58 @@ table.typo3-dyntabmenu td.disabled:hover {
 				'position' => 0
 			);
 
-				// "Browse", "New" and "Paste" icon:
+			// "Browse", "New" and "Paste" icon:
 			$cellContent .= $this->icon_browse($subElementPointer);
-
 			if (!$this->translatorMode && $canCreateNew) {
 				$cellContent .= $this->icon_new($subElementPointer);
 			}
 
 			$cellContent .= '<span class="sortablePaste">' . $this->clipboardObj->element_getPasteButtons($subElementPointer) . '</span>';
 
-							// -----------------------------------------------------------------------------
-				// Render the list of elements (and possibly call itself recursively if needed):
-			if (is_array($fieldContent['el_list']))	 {
-				foreach($fieldContent['el_list'] as $position => $subElementKey)	{
+			// -----------------------------------------------------------------------------
+			// Render the list of elements (and possibly call itself recursively if needed):
+			if (is_array($fieldContent['el_list'])) {
+				foreach($fieldContent['el_list'] as $position => $subElementKey) {
 					$subElementArr = $fieldContent['el'][$subElementKey];
 
 					if ((!$subElementArr['el']['isHidden'] || $this->MOD_SETTINGS['tt_content_showHidden']) && $this->displayElement($subElementArr)) {
-
-							// When "onlyLocalized" display mode is set and an alternative language gets displayed
-						if (($this->MOD_SETTINGS['langDisplayMode'] == 'onlyLocalized') && $this->currentLanguageUid>0)	{
-
-								// Default language element. Subsitute displayed element with localized element
-							if (($subElementArr['el']['sys_language_uid']==0) && is_array($subElementArr['localizationInfo'][$this->currentLanguageUid]) && ($localizedUid = $subElementArr['localizationInfo'][$this->currentLanguageUid]['localization_uid']))	{
+						// When "onlyLocalized" display mode is set and an alternative language gets displayed
+						if (($this->MOD_SETTINGS['langDisplayMode'] == 'onlyLocalized') && ($this->currentLanguageUid > 0)) {
+							// Default language element. Subsitute displayed element with localized element
+							if (($subElementArr['el']['sys_language_uid'] == 0) && is_array($subElementArr['localizationInfo'][$this->currentLanguageUid]) && ($localizedUid = $subElementArr['localizationInfo'][$this->currentLanguageUid]['localization_uid'])) {
 								$localizedRecord = t3lib_BEfunc::getRecordWSOL('tt_content', $localizedUid, '*');
 								$tree = $this->apiObj->getContentTree('tt_content', $localizedRecord);
 								$subElementArr = $tree['tree'];
 							}
 						}
+
 						$this->containedElements[$this->containedElementsPointer]++;
 
-							// Modify the flexform pointer so it points to the position of the curren sub element:
+						// Modify the flexform pointer so it points to the position of the curren sub element:
 						$subElementPointer['position'] = $position;
 
 						$cellFragment = $this->render_framework_allSheets($singleView, $subElementArr, $languageKey, $subElementPointer, $elementContentTreeArr['ds_meta']);
 
-							// "Browse", "New" and "Paste" icon:
+						// "Browse", "New" and "Paste" icon:
 						$cellFragment .= $this->icon_browse($subElementPointer);
-
-						if (!$this->translatorMode && $canCreateNew)	{
+						if (!$this->translatorMode && $canCreateNew) {
 							$cellFragment .= $this->icon_new($subElementPointer);
 						}
 
 						$cellFragment .= '<span class="sortablePaste">' . $this->clipboardObj->element_getPasteButtons($subElementPointer) . '</span>';
-
 						if ($canEditContent) {
 							$cellId = $this->apiObj->flexform_getStringFromPointer($subElementPointer);
-							$cellFragment = '<div class="sortableItem" id="' . $cellId . '">' . $cellFragment . '</div>';
+							$cellFragment = '<div class="sortableItem" id="' . $cellId . '" rel="tt_content:' . $subElementArr['el']['uid'] . '">' . $cellFragment . '</div>';
 						}
 
 						$cellContent .= $cellFragment;
 					}
 					else {
-							// Modify the flexform pointer so it points to the position of the curren sub element:
+						// Modify the flexform pointer so it points to the position of the curren sub element:
 						$subElementPointer['position'] = $position;
-
 						if ($canEditContent) {
 							$cellId = $this->apiObj->flexform_getStringFromPointer($subElementPointer);
-							$cellFragment = '<div class="sortableItem" id="' . $cellId . '"></div>';
+							$cellFragment = '<div class="sortableItem" id="' . $cellId . '" rel="tt_content:' . $subElementArr['el']['uid'] . '"></div>';
 						}
 
 						$cellContent .= $cellFragment;

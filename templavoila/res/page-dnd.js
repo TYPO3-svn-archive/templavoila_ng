@@ -80,7 +80,7 @@ function sortable_deleteRecord(id) {
 		  afterFinish: sortable_deleteRecordCallBack });
 }
 
-function sortable_updateItemButtons(el, position, pID) {
+function sortable_updateItemButtons(el, newPos) {
 	var p = new Array();
 	var p1 = new Array();
 	var href = "", i = 0;
@@ -91,8 +91,9 @@ function sortable_updateItemButtons(el, position, pID) {
 		return;
 
 	var buttons = childs[0].childElements()[0].childElements()[0].childElements()[1].childNodes;
-	var eID = -1;
-	var newPos = escape(pID + position);
+
+	el.id = newPos;
+	newPos = escape(newPos);
 
 	for (i = 0; i < buttons.length ;i++) {
 		if (buttons[i].nodeType != 1) continue;
@@ -136,22 +137,53 @@ function sortable_updatePasteButtons(oldPos, newPos) {
 	}
 }
 
-function sortable_update(el) {
+function sortable_purify(el) {
 	var node = el.firstChild;
-	var i = 1;
+
 	while (node != null) {
 		if (node.className == "sortableItem") {
-			if (sortable_currentItem && node.id == sortable_currentItem.id ) {
-				var url = sortable_baseLink + "&ajaxPasteRecord=cut&source=" + sortable_currentItem.id + "&destination=" + el.id + (i - 1);
-				new Ajax.Request(url);
-				sortable_updatePasteButtons(node.id, el.id + i);
+			var actPos = node.id;
+			var newPos = node.getAttribute('rel');
+
+			if (sortable_currentItem && (sortable_currentItem.id == actPos)) {
+				new Ajax.Request(sortable_baseLink + "&ajaxPasteRecord=cut&source=" + actPos + "&destination=" + newPos);
+
+				sortable_updatePasteButtons(actPos, newPos);
 				sortable_currentItem = false;
 			}
-			sortable_updateItemButtons(node, i, el.id)
-			node.id = el.id + i;
+
+			sortable_updateItemButtons(node, newPos);
+		}
+
+		node = node.nextSibling;
+	}
+}
+
+function sortable_update(el) {
+	if (el.id == 'tt_content:')
+		return sortable_purify(el);
+
+	var node = el.firstChild;
+	var i = 1;
+
+	while (node != null) {
+		if (node.className == "sortableItem") {
+			var actPos = node.id;
+			var prvPos = el.id + (i - 1);
+			var newPos = el.id +  i;
+
+			if (sortable_currentItem && (sortable_currentItem.id == actPos)) {
+				new Ajax.Request(sortable_baseLink + "&ajaxPasteRecord=cut&source=" + actPos + "&destination=" + prvPos);
+
+				sortable_updatePasteButtons(actPos, newPos);
+				sortable_currentItem = false;
+			}
+
+			sortable_updateItemButtons(node, newPos);
 			i++;
 		}
-		node	= node.nextSibling;
+
+		node = node.nextSibling;
 	}
 }
 
