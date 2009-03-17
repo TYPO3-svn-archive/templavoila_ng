@@ -913,47 +913,47 @@ table.typo3-dyntabmenu td.disabled:hover {
 		global $LANG;
 		global $done;
 
-			// Define l/v keys for current language:
+		// Define l/v keys for current language:
 		$langChildren = intval($elementContentTreeArr['ds_meta']['langChildren']);
 		$langDisable  = intval($elementContentTreeArr['ds_meta']['langDisable']);
 
 		$lKey = $langDisable ? 'lDEF' : ($langChildren ? 'lDEF' : 'l'.$languageKey);
 		$vKey = $langDisable ? 'vDEF' : ($langChildren ? 'v'.$languageKey : 'vDEF');
 
-			// gets the layout
+		// gets the layout
 		$beTemplate = $elementContentTreeArr['ds_meta']['beLayout'];
-			// no layout, no special rendering
+		// no layout, no special rendering
 		$flagRenderBeLayout = $beTemplate ? TRUE : FALSE;
 
-			// some constants
+		// some constants
 		$haspreview = is_array($previews = $elementContentTreeArr['previewData']['sheets'][$sheet]);
 		$hassubs = is_array($elementContentTreeArr['sub'][$sheet]) && is_array($subs = $elementContentTreeArr['sub'][$sheet][$lKey]);
 
-			// how to render the sheet
+		// how to render the sheet
 		$output = '';
 		$cells = array();
 		$headerCells = array();
 		$done = ($group == '' ? array() : $done);
 
-						// ----------------------------------------------------------------------------------
-			// Traverse previewData fields:
+		// ----------------------------------------------------------------------------------
+		// Traverse previewData fields:
 		if ($haspreview)
 		foreach($previews as $fieldID => $fieldData) {
-				// check for early bail out
+			// check for early bail out
 			if (strlen($fieldID) <= strlen($group))
 				continue;
 			if (!$fieldData['isMapped'])
 				continue;
 
-				// remove the group from the field
+			// remove the group from the field
 			$fieldFrag = str_replace($group, '', $fieldID);
-				// check for prefix-replace
+			// check for prefix-replace
 			if ($fieldID != ($group . $fieldFrag))
 				continue;
 
-							// --------------------------------------------------------------------------
-				// the first field of a possible group that hits us will trigger the grouping
 			if (strchr($fieldFrag, SEPARATOR_XPATH) !== FALSE) {
+				// --------------------------------------------------------------------------
+				// the first field of a possible group that hits us will trigger the grouping
 				$fieldFrags = explode(SEPARATOR_XPATH, $fieldFrag);
 
 				$co = array_shift($fieldFrags);
@@ -973,18 +973,16 @@ table.typo3-dyntabmenu td.disabled:hover {
 							$outbuf .
 						'</div>';
 				}
-			}
-							// -------------------------------------------------------------------------
+			} else if (strchr($fieldFrag, SEPARATOR_XPATH) === FALSE) {
+				// -------------------------------------------------------------------------
 				// for now process only those field that are direct child of the given group
-			else if (strchr($fieldFrag, SEPARATOR_XPATH) === FALSE) {
-
-								// -----------------------------------------------------------------
-					// sub-element
 				if ($hassubs && is_array($subs[$fieldID][$vKey])) {
+					// -----------------------------------------------------------------
+					// sub-element
 					$fieldContent = $subs[$fieldID][$vKey];
 					$cellContent = $this->render_framework_subElement($singleView, $elementContentTreeArr, $languageKey, $sheet, $fieldID);
 
-						// Create flexform pointer pointing to "before the first sub element":
+					// Create flexform pointer pointing to "before the first sub element":
 					$groupElementPointer = array (
 						'table' => $elementContentTreeArr['el']['table'],
 						'uid'   => $elementContentTreeArr['el']['uid'],
@@ -997,20 +995,18 @@ table.typo3-dyntabmenu td.disabled:hover {
 					$cellId = $this->apiObj->flexform_getStringFromPointer($groupElementPointer);
 					$this->sortableContainers[] = $cellId;
 
-						// Add cell content to registers:
 					if ($flagRenderBeLayout == TRUE) {
+						// Add cell content to registers:
 						$beTemplateCell = '<table width="100%" class="beTemplateCell"><tr><td valign="top" style="background-color: '.$this->doc->bgColor4.'; padding-top:0; padding-bottom:0;">'.$LANG->sL($fieldContent['meta']['title'],1).'</td></tr><tr><td valign="top" style="padding: 5px;" id="'.$cellId.'">'.$cellContent.'</td></tr></table>';
 						$beTemplate = str_replace('###'.$fieldID.'###', $beTemplateCell, $beTemplate);
-					}
+					} else {
 						// Add cell content to registers:
-					else {
 						$headerCells[]='<td valign="top" width="###WIDTH###" style="background-color: '.$this->doc->bgColor4.'; padding-top:0; padding-bottom:0;">'.$LANG->sL($fieldContent['meta']['title'],1).'</td>';
 						$cells[]='<td valign="top" width="###WIDTH###" style="border: 1px dashed #000; padding: 5px 5px 5px 5px;" id="'.$cellId.'">'.$cellContent.'</td>';
 					}
-				}
-								// -----------------------------------------------------------------
+				} else {
+					// -----------------------------------------------------------------
 					// just preview
-				else {
 					$output .= $this->render_framework_singleSheet_flush($cells, $headerCells);
 					$outbuf  = $this->render_framework_previewData($elementContentTreeArr, $languageKey, $sheet, $fieldID);
 
@@ -1022,24 +1018,23 @@ table.typo3-dyntabmenu td.disabled:hover {
 			}
 		}
 
-			// removes not used markers
 		if ($flagRenderBeLayout == TRUE) {
+			// removes not used markers
 			$output = preg_replace("/###field_.*?###/", '', $beTemplate);
-		}
+		} else {
 			// finalizes tables
-		else {
 			$output .= $this->render_framework_singleSheet_flush($cells, $headerCells);
 		}
 
 		return $output;
 	}
 
-				// ----------------------------------------------------------------------------------
-		// flush the render-queue
+	// ----------------------------------------------------------------------------------
+	// flush the render-queue
 	function render_framework_singleSheet_flush(&$cells, &$headerCells) {
 		$output = '';
 
-			// Compile the content area for the current element (basically what was put together above):
+		// Compile the content area for the current element (basically what was put together above):
 		if (count($headerCells) || count($cells)) {
 			$output = str_replace('###WIDTH###', round(100 / count($cells)) . '%', '
 				<table border="0" cellpadding="2" cellspacing="2" width="100%" class="tv-container">
