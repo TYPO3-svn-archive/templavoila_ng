@@ -19,12 +19,12 @@
 	#typo3-docheader-row2 .toolbar-item {
 		display: block;
 		height: 24px;
-		margin-top: 1px;
-		padding-top: 2px;
+	/*	margin-top: 1px;
+		padding-top: 2px;	*/
 	}
 
 	#typo3-docheader-row2 .toolbar-item-menu {
-	/*	top: 27px;	*/
+	/*	top: 27px;		*/
 		top: 24px;
 	}
 

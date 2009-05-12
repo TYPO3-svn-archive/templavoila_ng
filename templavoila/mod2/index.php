@@ -234,30 +234,49 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 	 * @param	[type]		$singleView: ...
 	 * @return	void
 	 */
-	function renderModuleContent($singleView=false)	{
+	function renderModuleContent($singleView = false) {
 
 		// Show overview.
-		{
+		if (intval($this->id)) {
+			// -------------------------------------------------------------------------
 			// Select all Data Structures in the PID and put into an array:
 			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 				'count(*)',
 				'tx_templavoila_datastructure',
-				'pid='.intval($this->id).t3lib_BEfunc::deleteClause('tx_templavoila_datastructure')
+				'pid = ' . intval($this->id) . t3lib_BEfunc::deleteClause('tx_templavoila_datastructure')
 			);
+
 			list($countDS) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
+
 			$GLOBALS['TYPO3_DB']->sql_free_result($res);
 
+			// -------------------------------------------------------------------------
 			// Select all Template Records in PID:
 			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 				'count(*)',
 				'tx_templavoila_tmplobj',
-				'pid='.intval($this->id).t3lib_BEfunc::deleteClause('tx_templavoila_tmplobj')
+				'pid = ' . intval($this->id) . t3lib_BEfunc::deleteClause('tx_templavoila_tmplobj')
 			);
+
 			list($countTO) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
+
 			$GLOBALS['TYPO3_DB']->sql_free_result($res);
 
+			// -------------------------------------------------------------------------
+			// Select all Sys-Folders:
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+				'count(*)',
+				'pages',
+				'doktype = 254' . ($this->perms_clause ? ' AND '. $this->perms_clause : '') . t3lib_BEfunc::deleteClause('pages')
+			);
+
+			list($countSF) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
+
+			$GLOBALS['TYPO3_DB']->sql_free_result($res);
+
+			// -------------------------------------------------------------------------
 			// If there are TO/DS, render the module as usual, otherwise do something else...:
-			if ($countTO || $countDS) {
+			if ($countTO || $countDS || $countSF) {
 				$this->renderModuleContent_mainView($singleView);
 
 				return true;
@@ -308,22 +327,25 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 		$this->xmlObj->init($this);
 
 		// Select all Data Structures in the PID and put into an array:
+		$dsRecords = array();
+
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 			'*',
 			'tx_templavoila_datastructure',
-			'pid='.intval($this->id).t3lib_BEfunc::deleteClause('tx_templavoila_datastructure'),
+			'pid = ' . intval($this->id) . t3lib_BEfunc::deleteClause('tx_templavoila_datastructure'),
 			'',
 			'title'
 		);
-		$dsRecords = array();
-		while($res && false !== ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)))	{
-			t3lib_BEfunc::workspaceOL('tx_templavoila_datastructure',$row);
+
+		while($res && false !== ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+			t3lib_BEfunc::workspaceOL('tx_templavoila_datastructure', $row);
 			$dsRecords[$row['scope']][] = $row;
 		}
+
 		$GLOBALS['TYPO3_DB']->sql_free_result($res);
 
 		// Select all static Data Structures and add to array:
-		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures']))	{
+		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'])) {
 			foreach($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'] as $staticDS)	{
 				$staticDS['_STATIC'] = 1;
 				$dsRecords[$staticDS['scope']][] = $staticDS;
@@ -331,30 +353,38 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 		}
 
 		// Select all Template Records in PID:
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-					'cruser_id,crdate,tstamp,uid,title, parent, fileref, sys_language_uid, datastructure, rendertype,localprocessing, previewicon,description,fileref_mtime,fileref_md5',
-					'tx_templavoila_tmplobj',
-					'pid='.intval($this->id).t3lib_BEfunc::deleteClause('tx_templavoila_tmplobj'),
-					'',
-					'title'
-				);
 		$toRecords = array();
-		while($res && false !== ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)))	{
+
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+			'cruser_id, crdate, tstamp, uid, title, parent, fileref, sys_language_uid, datastructure, rendertype, localprocessing, previewicon, description, fileref_mtime, fileref_md5',
+			'tx_templavoila_tmplobj',
+			'pid = ' . intval($this->id).t3lib_BEfunc::deleteClause('tx_templavoila_tmplobj'),
+			'',
+			'title'
+		);
+
+		while($res && false !== ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
 			t3lib_BEfunc::workspaceOL('tx_templavoila_tmplobj',$row);
 			$toRecords[$row['parent']][] = $row;
 		}
+
 		$GLOBALS['TYPO3_DB']->sql_free_result($res);
 
 		// -----------------------------------------------------
 		// Traverse scopes of data structures display template records belonging to them:
 		// Each scope is places in its own tab in the tab menu:
-		$dsScopes = array_unique(array_merge(array(1, 2, 0), array_keys($dsRecords)));
 		$parts = array();
+
+		$dsScopes = array_unique(array_merge(
+			array(TVDS_SCOPE_PAGE, TVDS_SCOPE_FCE, TVDS_SCOPE_OTHER),
+			array_keys($dsRecords)
+		));
+
 		foreach ($dsScopes as $scopePointer) {
+			$scopeIcon = '';
 
 			// Create listing for a DS:
 			list($content, $dsCount, $toCount) = $this->renderDSlisting($dsRecords[$scopePointer], $toRecords, $scopePointer);
-			$scopeIcon = '';
 
 			// Label for the tab:
 			switch (intval($scopePointer)) {
@@ -373,15 +403,15 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 					$label = $GLOBALS['LANG']->getLL('center_tab_other');
 					break;
 				default:
-					$func = 'unknown';
+					$func = 'unknown' . $scopePointer;
 					$label = $GLOBALS['LANG']->getLL('center_tab_unknown') . ' "' . $scopePointer . '"';
 					break;
 			}
 
-				// Error/Warning log:
+			// Error/Warning log:
 			$errStat = $this->getErrorLog($scopePointer);
 
-				// Add parts for Tab menu:
+			// Add parts for Tab menu:
 			$parts[$func][] = array(
 				'label' => $label,
 				'icon' => $scopeIcon,
@@ -410,10 +440,10 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 			}
 		}
 
-			// Add parts for Tab menu:
+		// Add parts for Tab menu:
 		if ($lostTOs) {
 			$parts['lost'][] = array(
-				'label' => $GLOBALS['LANG']->getLL('center_tab_lost') . ' ['.$lostTOCount.']',
+				'label' => $GLOBALS['LANG']->getLL('center_tab_lost') . ' [' . $lostTOCount . ']',
 				'content' => $lostTOs
 			);
 
@@ -455,6 +485,10 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 
 		// -----------------------------------------------------
 		if ($singleView) {
+			foreach ($parts as $func => $list)
+				if (!isset($this->MOD_MENU['page'][$func]))
+					$this->MOD_MENU['page'][$func] = $list[0]['label'];
+
 			foreach ($this->MOD_MENU['page'] as $label) {
 				if (!$parts[$label])
 					unset($this->MOD_MENU['page'][$label]);
@@ -462,17 +496,20 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 				//	$this->MOD_MENU['page'][$label] . '</span>';
 			}
 
-			foreach ($parts as $label => $list)
+			foreach ($parts as $func => $list)
 			foreach ($list as $cnf) {
 				if (!$cnf['content'])
-					unset($this->MOD_MENU['page'][$label]);
+					unset($this->MOD_MENU['page'][$func]);
 				//	$this->MOD_MENU['page'][$label] = '<span style="text-decoration: line-through;">' .
 				//	$this->MOD_MENU['page'][$label] . '</span>';
 			}
 
-			// show only selected parts
-			$list = $parts[$this->MOD_SETTINGS['page']];
-			if (!count($list)) $list[] = array();
+			// show only selected parts (fall back to tmplfiles, because it's always visible)
+			if (isset($this->MOD_MENU['page'][$this->MOD_SETTINGS['page']]))
+				$list = $parts[$this->MOD_SETTINGS['page']];
+			else
+				$list = $parts['tmplfiles'];
+
 			foreach ($list as $cnf) {
 				$this->content .= $this->doc->section(
 					$cnf['label'] ? $cnf['label'] : $this->MOD_MENU['page'][$this->MOD_SETTINGS['page']],
@@ -497,7 +534,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 			// Add output:
 			$this->content .=
 				$settings .
-				$this->doc->getDynTabMenu($tabs,'TEMPLAVOILA:templateModule:'.$this->id, 0,0,300);
+				$this->doc->getDynTabMenu($tabs, 'TEMPLAVOILA:templateModule:' . $this->id, 0, 0, 300);
 		}
 	}
 
@@ -635,11 +672,11 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 	 * @return	string		Page path of PID if accessible. otherwise zero.
 	 */
 	function findRecordsWhereUsed_pid($pid)	{
-		if (!isset($this->pidCache[$pid]))	{
+		if (!isset($this->pidCache[$pid])) {
 			$this->pidCache[$pid] = array();
 
-			$pageinfo = t3lib_BEfunc::readPageAccess($pid,$this->perms_clause);
-			$this->pidCache[$pid]['path'] = $pageinfo['_thePath'];
+			$pageinfo = t3lib_BEfunc::readPageAccess($pid, $this->perms_clause);
+			$this->pidCache[$pid]['path'] = $pageinfo['_thePathFull'];
 		}
 
 		return $this->pidCache[$pid]['path'];
@@ -654,7 +691,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 	 * @return	void
 	 * @see getErrorLog()
 	 */
-	function setErrorLog($scope,$type,$HTML)	{
+	function setErrorLog($scope,$type,$HTML) {
 		$this->errorsWarnings['_ALL'][$type][] = $this->errorsWarnings[$scope][$type][] = $HTML;
 	}
 
@@ -746,7 +783,7 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 				'pagetmpl'  => $GLOBALS['LANG']->getLL('center_tab_pagetmpl', 1),
 				'fcetmpl'   => $GLOBALS['LANG']->getLL('center_tab_fcetmpl', 1),
 				'other'     => $GLOBALS['LANG']->getLL('center_tab_other', 1),
-				'unknown'   => $GLOBALS['LANG']->getLL('center_tab_unknown', 1),
+		//		'unknown'   => $GLOBALS['LANG']->getLL('center_tab_unknown', 1),
 				'lost'      => $GLOBALS['LANG']->getLL('center_tab_lost', 1),
 				'tmplfiles' => $GLOBALS['LANG']->getLL('center_tab_tmplfiles', 1),
 				'errors'    => $GLOBALS['LANG']->getLL('center_tab_errors', 1)

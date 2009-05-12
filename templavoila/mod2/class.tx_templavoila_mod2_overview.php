@@ -69,58 +69,111 @@ class tx_templavoila_mod2_overview {
 	function renderModuleContent_searchForTODS() {
 		$this->content = '';
 
+		// -------------------------------------------------------------------------
 		// Select all Data Structures in the PID and put into an array:
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-			'pid,count(*)',
+			'pid, count(*)',
 			'tx_templavoila_datastructure',
-			'pid>=0'.t3lib_BEfunc::deleteClause('tx_templavoila_datastructure'),
+			'pid >= 0' . t3lib_BEfunc::deleteClause('tx_templavoila_datastructure'),
 			'pid'
 		);
-		while($res && false !== ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)))	{
+
+		while ($res && false !== ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
 			$list[$row['pid']]['DS'] = $row['count(*)'];
 		}
+
 		$GLOBALS['TYPO3_DB']->sql_free_result($res);
 
+		// -------------------------------------------------------------------------
 		// Select all Template Records in PID:
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-			'pid,count(*)',
+			'pid, count(*)',
 			'tx_templavoila_tmplobj',
-			'pid>=0'.t3lib_BEfunc::deleteClause('tx_templavoila_tmplobj'),
+			'pid >= 0' . t3lib_BEfunc::deleteClause('tx_templavoila_tmplobj'),
 			'pid'
 		);
-		while($res && false !== ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)))	{
+
+		while ($res && false !== ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
 			$list[$row['pid']]['TO'] = $row['count(*)'];
 		}
+
 		$GLOBALS['TYPO3_DB']->sql_free_result($res);
 
-		// Traverse the pages found and list in a table:
-		$tRows = array();
-		$tRows[] = '
-			<tr class="bgColor5 tableheader">
-				<td>' . $GLOBALS['LANG']->getLL('list_storage') . '</td>
-				<td>' . $GLOBALS['LANG']->getLL('list_dss') . ':</td>
-				<td>' . $GLOBALS['LANG']->getLL('list_tos') . ':</td>
-			</tr>';
+		// -------------------------------------------------------------------------
+		// Select all Sys-Folders:
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+			'uid',
+			'pages',
+			'doktype = 254' . t3lib_BEfunc::deleteClause('pages') . ($this->pObj->perms_clause ? ' AND '. $this->pObj->perms_clause : ''),
+			'uid'
+		);
 
+		while ($res && false !== ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+			if (!$list[$row['uid']]['TO']) {
+				$list[$row['uid']]['TO'] = '&mdash;';
+			}
+			if (!$list[$row['uid']]['DS']) {
+				$list[$row['uid']]['DS'] = '&mdash;';
+			}
+		}
+
+		$GLOBALS['TYPO3_DB']->sql_free_result($res);
+
+		// -------------------------------------------------------------------------
+		// Traverse the pages found and list in a table:
 		if (is_array($list)) {
-			foreach($list as $pid => $stat)	{
-				$path = $this->pObj->findRecordsWhereUsed_pid($pid);
-				if ($path)	{
+			$tRows = array();
+
+			/* get all paths */
+			foreach($list as $pid => &$stat) {
+				if (($path = $this->pObj->findRecordsWhereUsed_pid($pid))) {
+					$stat['path'] = $path;
+				}
+			}
+
+			function cmp($a, $b) {
+				return strcmp($a['path'], $b['path']);
+			}
+
+			uasort($list, cmp);
+
+			$i = 0;
+			foreach($list as $pid => $stat) {
+				if (($path = $stat['path'])) {
 					$tRows[] = '
-						<tr class="bgColor4">
+						<tr class="' . ($i++ % 2 == 0 ? 'bgColor4' : 'bgColor6') . '">
 							<td><a href="' . $this->pObj->baseScript . 'id=' . $pid . '" onclick="setHighlight(' . $pid . ');">' . htmlspecialchars($path) . '</a></td>
-							<td>'.htmlspecialchars($stat['DS']).'</td>
-							<td>'.htmlspecialchars($stat['TO']).'</td>
+							<td align="center">' . $stat['DS'] . '</td>
+							<td align="center">' . $stat['TO'] . '</td>
 						</tr>';
 				}
 			}
 
 			// Create overview
-			$outputString  = '<p>' . $GLOBALS['LANG']->getLL('list_intro') . ':</p>';
-			$outputString .= '<table border="0" cellpadding="1" cellspacing="1" class="lrPadding">' . implode('', $tRows) . '</table>';
+			if (count($tRows) > 0) {
+				$outputString  = '
+					<h3>' . $GLOBALS['LANG']->getLL('list_intro') . ':</h3>
+					<table border="0" cellpadding="1" cellspacing="1" class="typo3-dblist typo3-tvlist">
+					<colgroup>
+						<col width="*"   align="left" />
+						<col width="110" align="center" />
+						<col width="110" align="center" />
+					</colgroup>
+					<thead>
+					<tr class="c-headLineTable">
+						<th>' . $GLOBALS['LANG']->getLL('list_storage') . '</th>
+						<th>' . $GLOBALS['LANG']->getLL('list_dss') . ':</th>
+						<th>' . $GLOBALS['LANG']->getLL('list_tos') . ':</th>
+					</tr>
+					</thead>
+					<tbody>
+						' . implode('', $tRows) . '
+					</tbody>
+					</table>';
 
-			// Add output:
-			$this->content .= $outputString;
+				// Add output:
+				$this->content .= $outputString;
+			}
 		}
 
 		return $this->content;

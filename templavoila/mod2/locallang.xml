@@ -33,7 +33,7 @@
 			<label index="list_storage">Storage Folder</label>
 			<label index="list_dss">Data Structures</label>
 			<label index="list_tos">Template Objects</label>
-			<label index="list_intro">The following pages in the root line contain data structures and template objects</label>
+			<label index="list_intro">The following pages in the root line (may) contain data structures and template objects</label>
 
 			<label index="center_details">Show Details</label>
 			<label index="center_tab_pagetmpl">Page templates</label>
@@ -82,6 +82,11 @@
 			<label index="center_mapping_good">Mapping up-to-date.</label>
 			<label index="center_mapping_unmapped">Not mapped yet!</label>
 			<label index="center_mapping_note">It might also mean that the TO was mapped with an older version of TemplaVoila - then just go and save the mapping again at this will be updated.</label>
+			<label index="center_templates_used">Used Templates</label>
+			<label index="center_templates_unused">Template Archive</label>
+			<label index="center_templates_file">File</label>
+			<label index="center_templates_count">Usage count</label>
+			<label index="center_templates_new">New DS/TO</label>
 		</languageKey>
 		<languageKey index="de" type="array">
 			<label index="title">TemplaVoilà Kontrollcenter</label>
@@ -107,7 +112,7 @@
 			<label index="list_storage">Speicher-Punkt</label>
 			<label index="list_dss">Datenstrukturen</label>
 			<label index="list_tos">Vorlagenobjekte</label>
-			<label index="list_intro">Die folgenden Seiten im Seitenbaum enthalten TV-Datenstrukturen und TV-Vorlagen</label>
+			<label index="list_intro">Die folgenden Seiten im Seitenbaum (können) enthalten TV-Datenstrukturen und TV-Vorlagen</label>
 
 			<label index="center_details">Detailansicht</label>
 			<label index="center_tab_pagetmpl">Seitenvorlagen</label>
