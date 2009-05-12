@@ -45,12 +45,11 @@ class tx_templavoila_fcetab extends tx_templavoila_baseTab {
 		$rows = $this->getFCErecords();
 		foreach ($rows as $row) {
 			if ($row['previewicon']) {
-				$image = $GLOBALS['BACK_PATH'] . '../uploads/tx_templavoila/' .
-					$row['previewicon'];
+				$image = $GLOBALS['BACK_PATH'] . '../uploads/tx_templavoila/' . $row['previewicon'];
+			} else {
+				$image = '../' . t3lib_extMgm::siteRelPath('templavoila') . 'icon_fce_ce.gif';
 			}
-			else {
-				$image = '../' . t3lib_extMgm::siteRelPath('templavoila') . 'icon_fce_ce.png';
-			}
+
 			$this->createAndAddElement($elements,
 				$image,
 				$row['title'],
@@ -70,7 +69,7 @@ class tx_templavoila_fcetab extends tx_templavoila_baseTab {
 		$dataStructureRecords = array();
 		$storageFolderPID = $this->pObj->getApiObj()->getStorageFolderPid($positionPid);
 
-			// Fetch data structures stored in the database:
+		// Fetch data structures stored in the database:
 		$addWhere = $this->buildRecordWhere('tx_templavoila_datastructure');
 		$dataStructureRecords = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
 			'*',
@@ -81,7 +80,7 @@ class tx_templavoila_fcetab extends tx_templavoila_baseTab {
 				'', '', '', 'uid'
 		);
 /*
-			// Fetch static data structures which are stored in XML files:
+		// Fetch static data structures which are stored in XML files:
 		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures']))	{
 			foreach($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'] as $staticDataStructureArr)	{
 				$staticDataStructureArr['_STATIC'] = TRUE;
@@ -89,21 +88,23 @@ class tx_templavoila_fcetab extends tx_templavoila_baseTab {
 			}
 		}
 */
-			// Fetch all template object records which uare based one of the previously fetched data structures:
+		// Fetch all template object records which uare based one of the previously fetched data structures:
 		$templateObjectRecords = array();
 		$addWhere = $this->buildRecordWhere('tx_templavoila_tmplobj');
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 			'*',
 			'tx_templavoila_tmplobj',
-			'pid='.intval($storageFolderPID).' AND parent=0' . $addWhere .
+			'pid=' . intval($storageFolderPID).' AND parent=0' . $addWhere .
 				t3lib_BEfunc::deleteClause('tx_templavoila_tmplobj').
 				t3lib_BEfunc::versioningPlaceholderClause('tx_templavoila_tmpl'), '', 'sorting'
 		);
+
 		while (false !== ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
 			if (is_array($dataStructureRecords[$row['datastructure']])) {
 				$templateObjectRecords[] = $row;
 			}
 		}
+
 		$GLOBALS['TYPO3_DB']->sql_free_result($res);
 
 		return $templateObjectRecords;
@@ -118,6 +119,7 @@ class tx_templavoila_fcetab extends tx_templavoila_baseTab {
 	 */
 	function buildRecordWhere($table) {
 		$result = array();
+
 		if (!$GLOBALS['BE_USER']->isAdmin()) {
 			$prefLen = strlen($table) + 1;
 			foreach($GLOBALS['BE_USER']->userGroups as $group) {
@@ -129,6 +131,7 @@ class tx_templavoila_fcetab extends tx_templavoila_baseTab {
 				}
 			}
 		}
+
 		return (count($result) > 0 ? ' AND uid NOT IN (' . implode(',', $result) . ') ' : '');
 	}
 }

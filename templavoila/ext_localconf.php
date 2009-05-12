@@ -20,7 +20,7 @@ t3lib_extMgm::addPageTSConfig('
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['newPageWiz']['templavoila'] = 'mod.php?M=tx_templavoila_wizards&wiz=page';
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['newContentWiz']['templavoila'] = 'mod.php?M=tx_templavoila_wizards&wiz=content';
 
- // Use templavoila instead of the default page module
+// Use templavoila instead of the default page module
 t3lib_extMgm::addUserTSConfig('
 	options.overridePageModule = web_txtemplavoilaM1
 

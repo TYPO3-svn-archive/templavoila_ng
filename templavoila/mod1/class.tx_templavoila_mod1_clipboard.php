@@ -154,17 +154,17 @@ class tx_templavoila_mod1_clipboard {
 
 		}
 
-		$copyIcon = '<img'.t3lib_iconWorks::skinImg($this->pObj->doc->backPath,'gfx/clip_copy'.($clipActive_copy ? '_h':'').'.gif','').' title="'.$LANG->getLL ('copyrecord').'" border="0" alt="" />';
-		$cutIcon  = '<img'.t3lib_iconWorks::skinImg($this->pObj->doc->backPath,'gfx/clip_cut'.($clipActive_cut ? '_h':'').'.gif','').' title="'.$LANG->getLL ('cutrecord').'" border="0" alt="" />';
-		$refIcon  = '<img'.t3lib_iconWorks::skinImg($this->pObj->doc->backPath,t3lib_extMgm::extRelPath('templavoila').'mod1/clip_ref'.($clipActive_ref ? '_h':'').'.gif','').' title="'.$LANG->getLL ('createreference').'" border="0" alt="" />';
+		$copyIcon = '<img' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/clip_copy' . ($clipActive_copy ? '_h' : '') . '.gif', '') . ' title="' . $LANG->getLL('copyrecord') . '" border="0" alt="" />';
+		$cutIcon  = '<img' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/clip_cut' . ($clipActive_cut ? '_h' : '') . '.gif', '') . ' title="' . $LANG->getLL('cutrecord') . '" border="0" alt="" />';
+		$refIcon  = '<img' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'mod1/clip_ref' . ($clipActive_ref ? '_h' : '') . '.gif', '') . ' title="' . $LANG->getLL('createreference') . '" border="0" alt="" />';
 
 		$removeElement = '&amp;CB[removeAll]=normal';
-		$setElement    = '&amp;CB[el]['.rawurlencode('tt_content|'.$elementRecord['uid']).']='.rawurlencode($this->pObj->apiObj->flexform_getStringFromPointer($elementPointer));
-		$setElementRef = '&amp;CB[el]['.rawurlencode('tt_content|'.$elementRecord['uid']).']=1';
+		$setElement    = '&amp;CB[el][' . rawurlencode('tt_content|' . $elementRecord['uid']) . ']=' . rawurlencode($this->pObj->apiObj->flexform_getStringFromPointer($elementPointer));
+		$setElementRef = '&amp;CB[el][' . rawurlencode('tt_content|' . $elementRecord['uid']) . ']=1';
 
-		$linkCopy = '<a href="'.$this->pObj->baseScript.$this->pObj->link_getParameters().'&amp;CB[setCopyMode]=1&amp;CB[setFlexMode]=copy'.($clipActive_copy ? $removeElement : $setElement).'">'.$copyIcon.'</a>';
-		$linkCut  = '<a href="'.$this->pObj->baseScript.$this->pObj->link_getParameters().'&amp;CB[setCopyMode]=0&amp;CB[setFlexMode]=cut'.($clipActive_cut ? $removeElement : $setElement).'">'.$cutIcon.'</a>';
-		$linkRef  = '<a href="'.$this->pObj->baseScript.$this->pObj->link_getParameters().'&amp;CB[setCopyMode]=1&amp;CB[setFlexMode]=ref'.($clipActive_ref ? $removeElement : $setElementRef).'">'.$refIcon.'</a>';
+		$linkCopy = '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;CB[setCopyMode]=1&amp;CB[setFlexMode]=copy' . ($clipActive_copy ? $removeElement : $setElement   ) . '">' . $copyIcon . '</a>';
+		$linkCut  = '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;CB[setCopyMode]=0&amp;CB[setFlexMode]=cut'  . ($clipActive_cut  ? $removeElement : $setElement   ) . '">' . $cutIcon  . '</a>';
+		$linkRef  = '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;CB[setCopyMode]=1&amp;CB[setFlexMode]=ref'  . ($clipActive_ref  ? $removeElement : $setElementRef) . '">' . $refIcon  . '</a>';
 
 		$output =
 			(t3lib_div::inList($listOfButtons, 'copy') ? $linkCopy : '').

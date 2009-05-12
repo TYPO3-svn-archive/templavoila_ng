@@ -68,100 +68,118 @@ class tx_templavoila_cm1 {
 	function main(&$backRef, $menuItems, $table, $uid) {
 		global $BE_USER, $LANG, $TYPO3_DB;
 
+		$cm1Icon  = '<img' . t3lib_iconWorks::skinImg($backRef->backPath, t3lib_extMgm::extRelPath('templavoila') . 'cm1/cm_icon.gif', ' width="15" height="12"') . ' border="0" align="top" alt="" />';
+		$cm2Icon  = '<img' . t3lib_iconWorks::skinImg($backRef->backPath, t3lib_extMgm::extRelPath('templavoila') . 'cm2/cm_icon.gif', ' width="15" height="12"') . ' border="0" align="top" alt="" />';
+
 		$localItems = array();
 		if (!$backRef->cmLevel)	{
-			$LL = $LANG->includeLLFile(t3lib_extMgm::extPath('templavoila').'locallang.xml', 0);
+			$LL = $LANG->includeLLFile(t3lib_extMgm::extPath('templavoila') . 'locallang.xml', 0);
+			$CL = $LANG->includeLLFile(t3lib_extMgm::extPath('templavoila') . 'mod2/locallang.xml', 0);
 
-				// Adding link for Mapping tool:
-				if (@is_file($table))	{
+			// Adding link for Mapping tool:
+			if (@is_file($table)) {
 				if ($BE_USER->isAdmin()) {
-					if (function_exists('finfo_open')) {
-						$fi = finfo_open(FILEINFO_MIME);
-						$enabled = (@finfo_file($fi, $table) == 'text/html');
-						finfo_close($fi);
-					}
-					else {
+				//	if (function_exists('finfo_open')) {
+				//		$fi = finfo_open(FILEINFO_MIME);
+				//		$enabled = (@finfo_file($fi, $table) == 'text/html');
+				//		finfo_close($fi);
+				//	}
+				//	else {
 						$pi = @pathinfo($table);
 						$enabled = preg_match('/(html?|tmpl)/', $pi['extension']);
-				}
+				//	}
+
 					if ($enabled) {
-						$url = t3lib_extMgm::extRelPath('templavoila').'cm1/index.php?file='.rawurlencode($table);
+					//	$url = t3lib_extMgm::extRelPath('templavoila') . 'cm1/index.php?' .
+						$url = 'mod.php?M=xMOD_txtemplavoilaCM1&' .
+							'file=' . rawurlencode($table);
+
 						$localItems[] = $backRef->linkItem(
-							$LANG->getLLL('cm1_title',$LL,1),
-							$backRef->excludeIcon('<img src="'.$backRef->backPath.t3lib_extMgm::extRelPath('templavoila').'cm1/cm_icon.gif" width="15" height="12" border="0" align="top" alt="" />'),
+							$LANG->getLLL('center_templates_new', $CL, 1),
+							$backRef->excludeIcon($cm1Icon),
 							$backRef->urlRefForCM($url),
 							1	// Disables the item in the top-bar. Set this to zero if you wish the item to appear in the top bar!
 						);
 					}
 				}
 			}
-			elseif (t3lib_div::inList('tx_templavoila_tmplobj,tx_templavoila_datastructure,tx_templavoila_content',$table)) {
-				$url = t3lib_extMgm::extRelPath('templavoila').'cm1/index.php?table='.rawurlencode($table).'&uid='.$uid.'&_reload_from=1';
+			elseif (t3lib_div::inList('tx_templavoila_tmplobj,tx_templavoila_datastructure,tx_templavoila_content', $table)) {
+			//	$url = t3lib_extMgm::extRelPath('templavoila') . 'cm1/index.php?' .
+				$url = 'mod.php?M=xMOD_txtemplavoilaCM1&' .
+					'table=' . rawurlencode($table) . '&' .
+					'uid=' . $uid . '&' .
+					'_reload_from=1';
+
 				$localItems[] = $backRef->linkItem(
-					$LANG->getLLL('cm1_title',$LL,1),
-					$backRef->excludeIcon('<img src="'.$backRef->backPath.t3lib_extMgm::extRelPath('templavoila').'cm1/cm_icon.gif" width="15" height="12" border="0" align="top" alt="" />'),
+					$LANG->getLLL('center_view_ds', $CL, 1),
+					$backRef->excludeIcon($cm1Icon),
 					$backRef->urlRefForCM($url),
 					1	// Disables the item in the top-bar. Set this to zero if you wish the item to appear in the top bar!
 				);
 			}
 
-			$isTVelement = ('tt_content' == $table && $backRef->rec['CType']=='templavoila_pi1' || 'pages' == $table) && $backRef->rec['tx_templavoila_flex'];
+			$isTVelement = ('tt_content' == $table && $backRef->rec['CType'] == 'templavoila_pi1' || 'pages' == $table) && $backRef->rec['tx_templavoila_flex'];
 
-				// Adding link for "View: Sub elements":
+			// Adding link for "View: Sub elements":
 			if ($table == 'tt_content' && $isTVelement) {
 				$localItems = array();
 
-				$url = t3lib_extMgm::extRelPath('templavoila').'mod1/index.php?id='.intval($backRef->rec['pid']).
-							'&altRoot[table]='.rawurlencode($table).
-							'&altRoot[uid]='.$uid.
-							'&altRoot[field_flex]=tx_templavoila_flex';
+			//	$url = t3lib_extMgm::extRelPath('templavoila') . 'mod1/index.php?'
+				$url = 'mod.php?M=xMOD_txtemplavoilaCM1&' .
+					'id=' . intval($backRef->rec['pid']) . '&' .
+					'altRoot[table]=' . rawurlencode($table) . '&' .
+					'altRoot[uid]=' . $uid . '&' .
+					'altRoot[field_flex]=tx_templavoila_flex';
 
 				$localItems[] = $backRef->linkItem(
 					$LANG->getLLL('cm1_viewsubelements',$LL,1),
-					$backRef->excludeIcon('<img src="'.$backRef->backPath.t3lib_extMgm::extRelPath('templavoila').'cm1/cm_icon.gif" width="15" height="12" border="0" align="top" alt="" />'),
+					$backRef->excludeIcon($cm1Icon),
 					$backRef->urlRefForCM($url),
 					1	// Disables the item in the top-bar. Set this to zero if you wish the item to appear in the top bar!
 				);
 
 			}
 
-				// Adding link for "View: Flexform XML" (admin only):
+			// Adding link for "View: Flexform XML" (admin only):
 			if ($BE_USER->isAdmin() && $isTVelement) {
-				$url = t3lib_extMgm::extRelPath('templavoila').'cm2/index.php?'.
-							'&viewRec[table]='.rawurlencode($table).
-							'&viewRec[uid]='.$uid.
-							'&viewRec[field_flex]=tx_templavoila_flex';
+			//	$url = t3lib_extMgm::extRelPath('templavoila') . 'cm2/index.php?' .
+				$url = 'mod.php?M=xMOD_txtemplavoilaCM2&' .
+					'viewRec[table]=' . rawurlencode($table) . '&' .
+					'viewRec[uid]=' . $uid . '&' .
+					'viewRec[field_flex]=tx_templavoila_flex';
 
 				$localItems[] = $backRef->linkItem(
 					$LANG->getLLL('cm1_viewflexformxml',$LL,1),
-					$backRef->excludeIcon('<img src="'.$backRef->backPath.t3lib_extMgm::extRelPath('templavoila').'cm2/cm_icon.gif" width="15" height="12" border="0" align="top" alt="" />'),
+					$backRef->excludeIcon($cm2Icon),
 					$backRef->urlRefForCM($url),
 					1	// Disables the item in the top-bar. Set this to zero if you wish the item to appear in the top bar!
 				);
 			}
 
-				// Adding link for "View: DS/TO" (admin only):
+			// Adding link for "View: DS/TO" (admin only):
 			if ($BE_USER->isAdmin() && $isTVelement) {
 
-				if (t3lib_div::testInt($backRef->rec['tx_templavoila_ds']))	{
-					$url = t3lib_extMgm::extRelPath('templavoila').'cm1/index.php?'.
-								'table=tx_templavoila_datastructure&uid='.$backRef->rec['tx_templavoila_ds'];
+				if (t3lib_div::testInt($backRef->rec['tx_templavoila_ds'])) {
+				//	$url = t3lib_extMgm::extRelPath('templavoila') . 'cm1/index.php?' .
+					$url = 'mod.php?M=xMOD_txtemplavoilaCM1&' .
+						'table=tx_templavoila_datastructure&' .
+						'uid=' . $backRef->rec['tx_templavoila_ds'];
 
 					$localItems[] = $backRef->linkItem(
-						$LANG->getLLL('cm_viewdsto',$LL,1).' ['.$backRef->rec['tx_templavoila_ds'].'/'.$backRef->rec['tx_templavoila_to'].']',
-						$backRef->excludeIcon('<img src="'.$backRef->backPath.t3lib_extMgm::extRelPath('templavoila').'cm2/cm_icon.gif" width="15" height="12" border="0" align="top" alt="" />'),
+						$LANG->getLLL('cm_viewdsto', $LL, 1) . ' [' . $backRef->rec['tx_templavoila_ds'] . '/' . $backRef->rec['tx_templavoila_to'] . ']',
+						$backRef->excludeIcon($cm2Icon),
 						$backRef->urlRefForCM($url),
 						1	// Disables the item in the top-bar. Set this to zero if you wish the item to appear in the top bar!
 					);
 				}
 			}
 
-#			if ($table=='tt_content') {
-#					// Adding link for "Pages using this element":
+#			if ($table == 'tt_content') {
+#				// Adding link for "Pages using this element":
 #				$localItems[] = $backRef->linkItem(
-#					$LANG->getLLL('cm1_pagesusingthiselement',$LL),
-#					$backRef->excludeIcon('<img src="'.t3lib_extMgm::extRelPath('templavoila').'cm1/cm_icon_activate.gif" width="15" height="12" border=0 align=top>'),
-#					"top.loadTopMenu('".t3lib_div::linkThisScript()."&cmLevel=1&subname=tx_templavoila_cm1_pagesusingthiselement');return false;",
+#					$LANG->getLLL('cm1_pagesusingthiselement', $LL),
+#					$backRef->excludeIcon($cm1Icon),
+#					"top.loadTopMenu('" . t3lib_div::linkThisScript() . "&cmLevel=1&subname=tx_templavoila_cm1_pagesusingthiselement');return false;",
 #					0,
 #					1
 #				);
@@ -169,25 +187,30 @@ class tx_templavoila_cm1 {
 		} else {
 			if (t3lib_div::_GP('subname') == 'tx_templavoila_cm1_pagesusingthiselement') {
 				$menuItems = array ();
-				$url = t3lib_extMgm::extRelPath('templavoila').'mod1/index.php?id=';
 
-					// Generate a list of pages where this element is also being used:
-				$res = $TYPO3_DB->exec_SELECTquery ('*', 'tx_templavoila_elementreferences', 'uid='.$backRef->rec['uid']);
+			//	$url = t3lib_extMgm::extRelPath('templavoila') . 'mod1/index.php?' .
+				$url = 'mod.php?M=xMOD_txtemplavoilaCM1&';
+					'id=';
+
+				// Generate a list of pages where this element is also being used:
+				$res = $TYPO3_DB->exec_SELECTquery ('*', 'tx_templavoila_elementreferences', 'uid=' . $backRef->rec['uid']);
 				if ($res) {
 					while (false != ($referenceRecord = $TYPO3_DB->sql_fetch_assoc ($res))) {
 						$pageRecord = t3lib_beFunc::getRecord('pages', $referenceRecord['pid']);
 						$icon = t3lib_iconWorks::getIconImage('pages', $pageRecord, $backRef->backPath);
-	// To do: Display language flag icon and jump to correct language
+
+						// To do: Display language flag icon and jump to correct language
 #						if ($referenceRecord['lkey'] != 'lDEF') {
-#							$icon .= ' lKey:'.$referenceRecord['lkey'];
+#							$icon .= ' lKey:' . $referenceRecord['lkey'];
 #						} elseif ($referenceRecord['vkey'] != 'vDEF') {
-#							$icon .= ' vKey:'.$referenceRecord['vkey'];
+#							$icon .= ' vKey:' . $referenceRecord['vkey'];
 #						}
+
 						if (is_array ($pageRecord)) {
 							$menuItems[] = $backRef->linkItem(
 								$icon,
 								t3lib_beFunc::getRecordTitle('pages', $pageRecord, 1),
-								$backRef->urlRefForCM($url.$pageRecord['uid']),
+								$backRef->urlRefForCM($url . $pageRecord['uid']),
 								1	// Disables the item in the top-bar. Set this to zero if you wish the item to appear in the top bar!
 							);
 						}
@@ -196,16 +219,16 @@ class tx_templavoila_cm1 {
 			}
 		}
 
-			// Simply merges the two arrays together and returns ...
+		// Simply merges the two arrays together and returns ...
 		if (count($localItems))	{
-			$menuItems = array_merge($menuItems,$localItems);
+			$menuItems = array_merge($menuItems, $localItems);
 		}
 
 		return $menuItems;
 	}
 }
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/templavoila/class.tx_templavoila_cm1.php'])	{
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/templavoila/class.tx_templavoila_cm1.php']) {
 	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/templavoila/class.tx_templavoila_cm1.php']);
 }
 ?>

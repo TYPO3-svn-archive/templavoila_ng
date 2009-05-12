@@ -332,12 +332,6 @@ class tx_templavoila_mod2_to {
 
 			// USED FILES:
 			$tRows = array();
-			$tRows[] = '
-				<tr class="c-headLineTable" style="font-weight: bold; color: #FFFFFF;">
-					<td>File</td>
-					<td align="center">Usage count</td>
-					<td>New DS/TO</td>
-				</tr>';
 
 			$i = 0;
 			foreach ($this->tFileList as $tFile => $count) {
@@ -348,18 +342,32 @@ class tx_templavoila_mod2_to {
 							'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/zoom.gif', 'width="11" height="12"') . ' alt="" class="absmiddle" /> ' . htmlspecialchars(substr($tFile,strlen(PATH_site))) .
 							'</a></td>
 						<td align="center">' . $count . '</td>
-						<td>' .
+						<td align="center">' .
 							'<a href="'.htmlspecialchars($this->pObj->cm1Script . 'id=' . $this->pObj->id . '&file=' . rawurlencode($tFile)) . '&mapElPath=%5BROOT%5D">'.
 							'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/new_el.gif', 'width="11" height="12"') . ' alt="" class="absmiddle" /> ' . htmlspecialchars('Create...') .
 							'</a></td>
 					</tr>';
 			}
 
-			if (count($tRows) > 1) {
+			if (count($tRows) > 0) {
 				$output .= '
-				<h3>Used files:</h3>
-				<table border="0" cellpadding="1" cellspacing="1" class="typo3-dblist">
+				<h3>' . $GLOBALS['LANG']->getLL('center_templates_used') . ':</h3>
+				<table border="0" cellpadding="1" cellspacing="1" class="typo3-dblist typo3-tvlist">
+				<colgroup>
+					<col width="*"  align="left" />
+					<col width="80" align="center" />
+					<col width="80" align="center" />
+				</colgroup>
+				<thead>
+				<tr class="c-headLineTable" style="font-weight: bold; color: #FFFFFF;">
+					<th>' . $GLOBALS['LANG']->getLL('center_templates_file') . '</th>
+					<th>' . $GLOBALS['LANG']->getLL('center_templates_count') . '</th>
+					<th>' . $GLOBALS['LANG']->getLL('center_templates_new') . '</th>
+				</tr>
+				</thead>
+				<tbody>
 					' . implode('', $tRows) . '
+				</tbody>
 				</table>
 				';
 			}
@@ -368,6 +376,7 @@ class tx_templavoila_mod2_to {
 			if ($this->modTSconfig['properties']['templatePath']) {
 				$paths = t3lib_div::trimExplode(',', $this->modTSconfig['properties']['templatePath'], true);
 				$prefix = t3lib_div::getFileAbsFileName($GLOBALS['TYPO3_CONF_VARS']['BE']['fileadminDir']);
+
 				if (count($paths) > 0 && is_array($GLOBALS['FILEMOUNTS'])) {
 					foreach($GLOBALS['FILEMOUNTS'] as $mountCfg)	{
 						// look in paths if it's part of mounted path
@@ -383,12 +392,6 @@ class tx_templavoila_mod2_to {
 						if ($isPart) {
 							// USED FILES:
 							$tRows = array();
-							$tRows[] = '
-								<tr class="c-headLineTable" style="font-weight: bold; color: #FFFFFF;">
-									<td>File</td>
-									<td align="center">Usage count</td>
-									<td>New DS/TO</td>
-								</tr>';
 
                             				$i = 0;
 							foreach($files as $tFile) {
@@ -396,21 +399,35 @@ class tx_templavoila_mod2_to {
 									<tr class="' . ($i++ % 2 == 0 ? 'bgColor4' : 'bgColor6') . '">
 										<td>'.
 											'<a href="' . htmlspecialchars($this->doc->backPath . '../' . substr($tFile, strlen(PATH_site))) . '" target="_blank">' .
-											'<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/zoom.gif','width="11" height="12"').' alt="" class="absmiddle" /> ' . htmlspecialchars(substr($tFile, strlen(PATH_site))) .
+											'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/zoom.gif','width="11" height="12"') . ' alt="" class="absmiddle" /> ' . htmlspecialchars(substr($tFile, strlen(PATH_site))) .
 											'</a></td>
 										<td align="center">' . ($this->tFileList[$tFile] ? $this->tFileList[$tFile] : '-') . '</td>
-										<td>'.
+										<td align="center">'.
 											'<a href="' . htmlspecialchars($this->pObj->cm1Script . 'id=' . $this->pObj->id . '&file=' . rawurlencode($tFile)) . '&mapElPath=%5BROOT%5D">' .
-											'<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/new_el.gif','width="11" height="12"').' alt="" class="absmiddle" /> ' . htmlspecialchars('Create...') .
+											'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/new_el.gif','width="11" height="12"') . ' alt="" class="absmiddle" /> ' . htmlspecialchars('Create...') .
 											'</a></td>
 									</tr>';
 							}
 
-							if (count($tRows) > 1)	{
+							if (count($tRows) > 0) {
 								$output .= '
-								<h3>Template Archive:</h3>
-								<table border="0" cellpadding="1" cellspacing="1" class="typo3-dblist">
+								<h3>' . $GLOBALS['LANG']->getLL('center_templates_unused') . ':</h3>
+								<table border="0" cellpadding="1" cellspacing="1" class="typo3-dblist typo3-tvlist">
+								<colgroup>
+									<col width="*"  align="left" />
+									<col width="80" align="center" />
+									<col width="80" align="center" />
+								</colgroup>
+								<thead>
+								<tr class="c-headLineTable" style="font-weight: bold; color: #FFFFFF;">
+									<th>' . $GLOBALS['LANG']->getLL('center_templates_file') . '</th>
+									<th>' . $GLOBALS['LANG']->getLL('center_templates_count') . '</th>
+									<th>' . $GLOBALS['LANG']->getLL('center_templates_new') . '</th>
+								</tr>
+								</thead>
+								<tbody>
 									' . implode('', $tRows) . '
+								</tbody>
 								</table>
 								';
 							}
