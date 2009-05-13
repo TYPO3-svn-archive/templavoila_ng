@@ -55,7 +55,9 @@ require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_define
  * @subpackage tx_templavoila
  */
 class tx_templavoila_handleStaticDataStructures {
+
 	var $prefix = 'Static: ';
+	var $iconPath = '../uploads/tx_templavoila/';
 
 	/**
 	 * Adds static data structures to selector box items arrays.
@@ -194,8 +196,8 @@ class tx_templavoila_handleStaticDataStructures {
 
 			// Sort by DS name than by TO name
 			uksort($this->toRows, array($this, 'sortTemplateObjects'));
+
 			$currentDS = 0;
-			$iconPath = t3lib_div::getIndpEnv('TYPO3_SITE_URL') . 'uploads/tx_templavoila/';
 			$params['items'] = array(
 				array(
 					'', ''
@@ -216,7 +218,7 @@ class tx_templavoila_handleStaticDataStructures {
 				// Add TO
 				$icon = '';
 				if ($row['previewicon']) {
-					$icon = $iconPath . $row['previewicon'];
+					$icon = $this->iconPath . $row['previewicon'];
 				}
 
 				$params['items'][] = array(
@@ -264,14 +266,16 @@ class tx_templavoila_handleStaticDataStructures {
 	 */
 	function sortTemplateObjects($key1, $key2) {
 		$result = 0;
+
 		$row1 = $this->toRows[$key1];
 		$row2 = $this->toRows[$key2];
+
 		if ($row1['datastructure'] == $row2['datastructure']) {
 			$result = strcmp($row1['title'], $row2['title']);
-		}
-		else {
+		} else {
 			$result = strcmp($this->dsList[$row1['datastructure']], $this->dsList[$row2['datastructure']]);
 		}
+
 		return $result;
 	}
 
@@ -289,6 +293,7 @@ class tx_templavoila_handleStaticDataStructures {
 		if ($BE_USER->isAdmin()) {
 			return;
 		}
+
 		foreach ($BE_USER->userGroups as $group) {
 			// Get list of DS & TO
 			$items = t3lib_div::trimExplode(',', $group['tx_templavoila_access'], true);

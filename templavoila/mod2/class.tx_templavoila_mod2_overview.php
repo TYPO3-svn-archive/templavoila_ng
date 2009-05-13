@@ -64,7 +64,7 @@ class tx_templavoila_mod2_overview {
 	/**
 	 * Renders module content, overview of pages with DS/TO on.
 	 *
-	 * @return	void
+	 * @return	content
 	 */
 	function renderModuleContent_searchForTODS() {
 		$this->content = '';

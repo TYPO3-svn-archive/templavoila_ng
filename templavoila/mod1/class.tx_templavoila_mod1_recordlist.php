@@ -47,7 +47,7 @@ require_once(PATH_typo3 . 'class.db_list.inc');
 require_once(PATH_typo3 . 'class.db_list_extra.inc');
 
 // Need List lables for delete confirmation
-$LANG->includeLLFile('EXT:lang/locallang_mod_web_list.xml');
+$GLOBALS['LANG']->includeLLFile('EXT:lang/locallang_mod_web_list.xml');
 
 /**
  * Extension of standard List module

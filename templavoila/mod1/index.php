@@ -133,13 +133,6 @@ require_once(PATH_t3lib . 'class.t3lib_clipboard.php');
 require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_defines.php');
 require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_api.php');
 
-// Include class for rendering the side bar:
-require_once(t3lib_extMgm::extPath('templavoila') . 'mod1/class.tx_templavoila_mod1_sidebar.php');
-require_once(t3lib_extMgm::extPath('templavoila') . 'mod1/class.tx_templavoila_mod1_clipboard.php');
-require_once(t3lib_extMgm::extPath('templavoila') . 'mod1/class.tx_templavoila_mod1_localization.php');
-require_once(t3lib_extMgm::extPath('templavoila') . 'mod1/class.tx_templavoila_mod1_records.php');
-require_once(t3lib_extMgm::extPath('templavoila') . 'mod1/class.tx_templavoila_mod1_specialdoktypes.php');
-
 /**
  * Module 'Page' for the 'templavoila' extension.
  *
@@ -229,7 +222,7 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 		}
 
 		// Initialize side bar:
-		$this->sideBarObj =& t3lib_div::getUserObj ('&tx_templavoila_mod1_sidebar', '');
+		$this->sideBarObj =& t3lib_div::getUserObj('EXT:templavoila/mod1/class.tx_templavoila_mod1_sidebar.php:&tx_templavoila_mod1_sidebar', '');
 		$this->sideBarObj->init($this);
 		$this->sideBarObj->position = isset($this->modTSconfig['properties']['sideBarPosition']) ? $this->modTSconfig['properties']['sideBarPosition'] : 'toptabs';
 
@@ -238,11 +231,11 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 		$this->apiObj = new $apiClassName ($this->altRoot ? $this->altRoot : 'pages');
 
 		// Initialize the clipboard
-		$this->clipboardObj =& t3lib_div::getUserObj ('&tx_templavoila_mod1_clipboard', '');
+		$this->clipboardObj =& t3lib_div::getUserObj('EXT:templavoila/mod1/class.tx_templavoila_mod1_clipboard.php:&tx_templavoila_mod1_clipboard', '');
 		$this->clipboardObj->init($this);
 
 		// Initialize the record module
-		$this->recordsObj =& t3lib_div::getUserObj ('&tx_templavoila_mod1_records', '');
+		$this->recordsObj =& t3lib_div::getUserObj('EXT:templavoila/mod1/class.tx_templavoila_mod1_records.php:&tx_templavoila_mod1_records', '');
 		$this->recordsObj->init($this);
 	}
 
@@ -573,14 +566,14 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 		$this->handleIncomingCommands();
 
-			// Start creating HTML output
+		// Start creating HTML output
 		$render_editPageScreen = true;
 
-			// Show message if the page is of a special doktype:
+		// Show message if the page is of a special doktype:
 		if ($this->rootElementTable == 'pages') {
 
-				// Initialize the special doktype class:
-			$specialDoktypesObj =& t3lib_div::getUserObj ('&tx_templavoila_mod1_specialdoktypes','');
+			// Initialize the special doktype class:
+			$specialDoktypesObj =& t3lib_div::getUserObj('EXT:templavoila/mod1/class.tx_templavoila_mod1_specialdoktypes.php:&tx_templavoila_mod1_specialdoktypes','');
 			$specialDoktypesObj->init($this);
 
 			$methodName = 'renderDoktype_'.$this->rootElementRecord['doktype'];
@@ -590,20 +583,21 @@ table.typo3-dyntabmenu td.disabled:hover {
 					$content .= $result;
 
 					if ($GLOBALS['BE_USER']->isPSet($this->calcPerms, 'pages', 'edit')) {
-							// Edit icon only if page can be modified by user
+						// Edit icon only if page can be modified by user
 						$content .= '<br /><br /><strong>'.$this->icon_edit(array('table'=>'pages','uid'=>$this->id)).'</strong>';
 					}
 
-					$render_editPageScreen = false; // Do not output editing code for special doctypes!
+					// Do not output editing code for special doctypes!
+					$render_editPageScreen = false;
 				}
 			}
 		}
 
 		if ($render_editPageScreen) {
-				// Render "edit current page" (important to do before calling ->sideBarObj->render() - otherwise the translation tab is not rendered!
+			// Render "edit current page" (important to do before calling ->sideBarObj->render() - otherwise the translation tab is not rendered!
 			$content .= $this->render_editPageScreen($singleView);
 
-				// Create sortables
+			// Create sortables
 			if (is_array($this->sortableContainers)) {
 				$content .= '
 				<script type="text/javascript" language="javascript">
@@ -645,37 +639,37 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 		$output = '';
 
-			// Fetch the content structure of page:
+		// Fetch the content structure of page:
 		$contentTreeData = $this->apiObj->getContentTree($this->rootElementTable, $this->rootElementRecord);
 		// TODO Dima: seems like it does not return <TCEForms> for elements inside sectiions. Thus titles are not visible for these elements!
 
-			// Set internal variable which registers all used content elements:
+		// Set internal variable which registers all used content elements:
 		$this->global_tt_content_elementRegister = $contentTreeData['contentElementUsage'];
 
-			// Setting localization mode for root element:
+		// Setting localization mode for root element:
 		$this->rootElementLangMode = $contentTreeData['tree']['ds_meta']['langDisable'] ? 'disable' : ($contentTreeData['tree']['ds_meta']['langChildren'] ? 'inheritance' : 'separate');
 		$this->rootElementLangParadigm = ($this->modTSconfig['properties']['translationParadigm'] == 'free') ? 'free' : 'bound';
 
-			// Create a back button if neccessary:
+		// Create a back button if neccessary:
 		if (is_array($this->altRoot)) {
 			$output .= '<div style="text-align:right; width:100%; margin-bottom:5px;"><a href="' . $this->baseScript . 'id=' . $this->id . '"><img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/goback.gif','').' title="'.htmlspecialchars($LANG->getLL ('goback')).'" alt="" /></a></div>';
 		}
 
-			// Add the localization module if localization is enabled:
+		// Add the localization module if localization is enabled:
 		if ($this->alternativeLanguagesDefined()) {
-			$this->localizationObj =& t3lib_div::getUserObj ('&tx_templavoila_mod1_localization','');
+			$this->localizationObj =& t3lib_div::getUserObj('EXT:templavoila/mod1/class.tx_templavoila_mod1_localization.php:&tx_templavoila_mod1_localization','');
 			$this->localizationObj->init($this);
 		}
 
-			// Hook for content at the very top (fx. a toolbar):
+		// Hook for content at the very top (fx. a toolbar):
 		if (is_array ($TYPO3_CONF_VARS['EXTCONF']['templavoila']['mod1']['renderTopToolbar'])) {
 			foreach ($TYPO3_CONF_VARS['EXTCONF']['templavoila']['mod1']['renderTopToolbar'] as $_funcRef) {
-				$_params = array ();
+				$_params = array();
 				$output .= t3lib_div::callUserFunction($_funcRef, $_params, $this);
 			}
 		}
 
-			// Display the content as outline or the nested page structure:
+		// Display the content as outline or the nested page structure:
 		if ($BE_USER->isAdmin() && ($this->MOD_SETTINGS['showOutline'] || ($this->MOD_SETTINGS['page'] == 'outline'))) {
 			$output .= $this->render_outline($singleView, $contentTreeData['tree']);
 		} else {
@@ -685,16 +679,22 @@ table.typo3-dyntabmenu td.disabled:hover {
 			$output .= $this->render_framework_allSheets($singleView, $contentTreeData['tree'], $this->currentLanguageKey);
 		}
 
-			// See http://bugs.typo3.org/view.php?id=4821
+		// See http://bugs.typo3.org/view.php?id=4821
 		$renderHooks = $this->hooks_prepareObjectsArray('render_editPageScreen');
-		foreach ($renderHooks as $hookObj)	{
+		foreach ($renderHooks as $hookObj) {
 			if (method_exists ($hookObj, 'render_editPageScreen_addContent')) {
 				$output .= $hookObj->render_editPageScreen_addContent($this);
 			}
 		}
 
 		if (!$singleView) {
-			$output .= t3lib_BEfunc::cshItem('_MOD_web_txtemplavoilaM1', '', $this->doc->backPath, '<hr/>|'.$LANG->getLL('csh_whatisthetemplavoilapagemodule', 1));
+			$output .= t3lib_BEfunc::cshItem('_MOD_web_txtemplavoilaM1', '', $this->doc->backPath, '<hr/>|' . $LANG->getLL('csh_whatisthetemplavoilapagemodule', 1));
+		}
+
+		// show sys_notes
+		include_once(PATH_typo3 . 'class.db_list.inc');
+		if (($sys_notes = recordList::showSysNotesForPage())) {
+			$output .= $this->doc->section($LANG->sL('LLL:EXT:cms/layout/locallang.xml:internalNotes'), str_replace('sysext/sys_note/ext_icon.gif', $GLOBALS['BACK_PATH'] . 'sysext/sys_note/ext_icon.gif', $sys_notes), 0, 1);
 		}
 
 		return $output;
@@ -2474,9 +2474,10 @@ table.typo3-dyntabmenu td.disabled:hover {
 		$hookObjectsArr = array();
 		if (is_array ($TYPO3_CONF_VARS['EXTCONF']['templavoila']['mod1'][$hookName])) {
 			foreach ($TYPO3_CONF_VARS['EXTCONF']['templavoila']['mod1'][$hookName] as $classRef) {
-				$hookObjectsArr[] = &t3lib_div::getUserObj ($classRef);
+				$hookObjectsArr[] = &t3lib_div::getUserObj($classRef);
 			}
 		}
+
 		return $hookObjectsArr;
 	}
 

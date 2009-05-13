@@ -310,16 +310,16 @@ class tx_templavoila_mod1_clipboard {
 			// Finally assemble the table:
 			$cellFragment = '
 				<table cellpadding="0" cellspacing="0" width="100%" class="tv-coe">
-					<tr style="'.$elementTitlebarStyle.';" class="sortableHandle">
+					<tr style="' . $elementTitlebarStyle . ';" class="sortableHandle">
 						<td>
-							<span class="nobr">'.
-							$languageIcon.
-							$titleBarLeftButtons.
-							htmlspecialchars(' '. t3lib_div::fixed_lgd_cs(trim(strip_tags($row['header'] . ($row['header'] && $row['bodytext'] ? ' - ' : '') . $row['bodytext'])), 100)) .
+							<span class="nobr">' .
+							$languageIcon .
+							$titleBarLeftButtons .
+							htmlspecialchars(' ' . t3lib_div::fixed_lgd_cs(trim(strip_tags($row['header'] . ($row['header'] && $row['bodytext'] ? ' - ' : '') . $row['bodytext'])), 100)) .
 							'</span>
 						</td>
-						<td nowrap="nowrap" class="sortableButtons">'.
-							$titleBarRightButtons.
+						<td nowrap="nowrap" class="sortableButtons">' .
+							$titleBarRightButtons .
 						'</td>
 					</tr>
 				</table>
@@ -343,21 +343,21 @@ class tx_templavoila_mod1_clipboard {
 		if (count($elements)) {
 			// Control for deleting all deleteable records:
 			$deleteAll = '';
-			if (count($this->deleteUids) && 0===$BE_USER->workspace) {
+			if (count($this->deleteUids) && 0 === $BE_USER->workspace) {
 				$params = '';
 				foreach($this->deleteUids as $deleteUid) {
-					$params .= '&cmd[tt_content]['.$deleteUid.'][delete]=1';
+					$params .= '&cmd[tt_content][' . $deleteUid . '][delete]=1';
 				}
 
 				$label = $LANG->getLL('rendernonusedelements_deleteall');
-				$deleteAll = '<a href="#" onclick="'.htmlspecialchars('jumpToUrl(\''.$this->doc->issueCommand($params,'').'\');').'">'.
-						'<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/garbage.gif','width="11" height="12"').' title="'.htmlspecialchars($label).'" alt="" />'.
-						htmlspecialchars($label).
+				$deleteAll = '<a href="#" onclick="' . htmlspecialchars('jumpToUrl(\''.$this->doc->issueCommand($params, '') . '\');') . '">'.
+						'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/garbage.gif', 'width="11" height="12"') . ' title="'.htmlspecialchars($label) . '" alt="" />' .
+						htmlspecialchars($label) .
 						'</a>';
 
 				$deleteAll = '
 				<tr class="bgColor4">
-					<td>'.$deleteAll.'</td>
+					<td>' . $deleteAll . '</td>
 				</tr>
 				';
 			}
@@ -373,18 +373,18 @@ class tx_templavoila_mod1_clipboard {
 			$this->pObj->sortableContainers[] = $cellId;
 		}
 
-			// Create table and header cell:
+		// Create table and header cell:
 		$output = '
 			<table border="0" cellpadding="0" cellspacing="1" width="100%" class="tv-container tv-clipboard lrPadding" id="clipboard">
 				<tr class="bgColor4-20">
-					<td>'.$LANG->getLL('inititemno_elementsNotBeingUsed','1').':</td>
+					<td>' . $LANG->getLL('inititemno_elementsNotBeingUsed', '1') . ':</td>
 				</tr>
 				<tr class="bgColor4">
-					<td style="padding: 5px; border: 1px dashed #000000;" id="'.$cellId.'">'.
-						implode('', $elements).
+					<td style="padding: 5px; border: 1px dashed #000000;" id="' . $cellId . '">'.
+						implode('', $elements) .
 					'</td>
 				</tr>
-				'.$deleteAll.'
+				' . $deleteAll . '
 			</table>
 			<br />
 		';

@@ -15,9 +15,24 @@
 			<label index="templateFile">Template File</label>
 			<label index="templateObject">Template Object</label>
 			<label index="templateIcon">Template Icon</label>
+			<label index="templateType">Template Type</label>
+			<label index="templateUID">UID</label>
+			<label index="templateTitle">Title</label>
+			<label index="templateFileRef">File reference</label>
+			<label index="templateMappingSize">Mapping-Data Length</label>
+
+			<label index="typeSC">Section</label>
+			<label index="typeCO">Container</label>
+			<label index="typeEL">Attribute</label>
+			<label index="typeAT">Element</label>
+			<label index="typeNO">Not Mapped</label>
 
 			<label index="titleXmlConfiguration">XML configuration</label>
 			<label index="titleLoadDSXml">Load DS XML</label>
+			<label index="titleSaveDSTO">CREATE Data Structure / Template Object</label>
+			<label index="titleOverwriteDSTO">UPDATE existing Data Structure / Template Object</label>
+			<label index="titlePreview">Preview of Data Structure sample data merged into the mapped tags</label>
+			<label index="titleMapping">Mapping Window</label>
 
 			<label index="tabDSStructure">Structure</label>
 			<label index="tabDSDetails">Information</label>
@@ -29,28 +44,182 @@
 
 			<label index="structureFile">Data Structure File</label>
 			<label index="structureInfoOrigin">Data Structure Origin</label>
+			<label index="structureInfoXML">Data Structure XML</label>
 			<label index="structureInfoParts">Data Structure Details</label>
+			<label index="structureRecord">Data Structure Record</label>
+			<label index="structureRecordContent">Data Structure in Record</label>
+			<label index="structureRecordUsed">Objects using this Data Structure</label>
+			<label index="structureType">Data Structure Type</label>
+			<label index="structureTypePage">Page Template</label>
+			<label index="structureTypeFCE">Flexible Content Element</label>
+			<label index="structureTypeCustom">Custom</label>
+			<label index="structureElement">Data Element</label>
+			<label index="structureField">Field</label>
+			<label index="structureInstruction">Mapping instructions</label>
+			<label index="structureSamples">Sample Data</label>
+			<label index="structureRule">Rules</label>
+			<label index="structurePath">HTML-path</label>
+			<label index="structureAction">Actions</label>
+			<label index="structureEdit">Edit</label>
+
+			<label index="originXML">Pure XML import</label>
+			<label index="originScratch">From scratch construction</label>
+
 			<label index="mappingTitle">Template Mapping</label>
 			<label index="mappingInfoParts">Template Object Details</label>
 			<label index="mappingHeadParts">Adding parts from HTML header</label>
 			<label index="mappingBodyParts">Data Structure to be mapped to HTML template</label>
 			<label index="mappingPreview">Data Structure to be mapped to HTML template</label>
 
+			<label index="none">None found</label>
 			<label index="noicon">No icon</label>
 			<label index="rootDescription">Select the HTML element on the page which you want to be the overall container element for the template.</label>
 			<label index="selectTOrecrdToLoadDSFrom">Select a Template Object record to load a Data Structure/Mapping information from</label>
+			<label index="titleDSTO">Title of DS/TO</label>
+			<label index="selectPID">Store in folder</label>
+			<label index="selectTO">Select TO</label>
+			<label index="modifyDSTO">Modify DS/TO</label>
+			<label index="createDSTO">CREATE DS and TO</label>
+			<label index="updateDSTO">UPDATE TO (and DS)</label>
 			<label index="noDSDefined">No Data Structure was defined in the record... (Must be T3DataStructure XML content)</label>
 			<label index="pasteDSXml">Alternatively, paste the Data Structure XML into this form</label>
 			<label index="loadDSXml">Load Data Structure</label>
+			<label index="cancel">Cancel</label>
+
+			<label index="actionShow"   >Show XML</label>		<label index="actiontitleShow"   >Preview the currently build Data Structure as XML</label>
+			<label index="actionSet"    >Set</label>		<label index="actiontitleSet"    >Will update session data with current settings</label>
+			<label index="actionClearDS">Clear all</label>		<label index="actiontitleClearDS">Clear all Data Structure and Mapping information</label>
+			<label index="actionClearTO">Clear all</label>		<label index="actiontitleClearTO">Clears all mapping information currently set</label>
+			<label index="actionPreview">Preview</label>		<label index="actiontitlePreview">Preview the mapping to the template</label>
+			<label index="actionSaveas" >Save as</label>		<label index="actiontitleSaveas" >Go to save menu</label>
+			<label index="actionSave"   >Save</label>		<label index="actiontitleSave"   >Saving all mapping data into the Template Object</label>
+			<label index="actionSaveret">Save and return</label>	<label index="actiontitleSaveret">Saving all mapping data into the Template Object and return</label>
+			<label index="actionRevert" >Revert</label>		<label index="actiontitleRevert" >Reverting structure data to last imported data</label>
+			<label index="actionLoad"   >Load</label>		<label index="actiontitleLoad"   >Go to load menu</label>
+			<label index="actionRefresh">Refresh</label>		<label index="actiontitleRefresh">Redraw screen</label>
+			<label index="actionApply"  >Apply changes</label>	<label index="actiontitleApply"  >Will update session data with current settings.</label>
+
 			<label index="msgDSTOSaved">Data Structure (UID %s) and Template Record (UID %s) was saved in PID %s</label>
 			<label index="msgDSTOUpdated">Data Structure (UID %s) and Template Record (UID %s) was updated</label>
 			<label index="msgMappingSaved">Mapping information was saved to the current Template Object!</label>
+
 			<label index="error">Error</label>
 			<label index="errorNoStorageFolder">No accessible Storage Folder found - please create one immediately!</label>
 			<label index="errorTONotSaved">No Template Object was created although the Data Structure was (UID %s)!</label>
 			<label index="errorTONotCreated">No Data Structure was created!</label>
 			<label index="errorNoUidFound">No UID was found pointing to a Template Object record.</label>
 			<label index="errorFileNotFound">File to create Datastructe from hasn't been found.</label>
+			<label index="errorNoContentInFile">No content found in file reference</label>
+			<label index="errorNoFile">No file to display</label>
+
+			<label index="mess.onChangeAlert">This change will affect which fields are available in the form.\nWould you like to save now in order to refresh the display?</label>
+			<label index="mess.onOverwriteAlert">Are you sure you want to override the current contents of these records?\nThis feature is meant to support the process of creating new Data Structures which have not been manually edited yet.</label>
+			<label index="mess.onModifyAlert">Warning: You should only modify Data Structures and Template Objects which have not been manually edited.\nYou risk that manual changes will be removed without further notice!</label>
+			<label index="mess.onDeleteAlert">Are you sure to delete this Data Structure entry?</label>
+		</languageKey>
+		<languageKey index="de" type="array">
+			<label index="title">TemplaVoilà</label>
+
+			<label index="templateFile">Vorlage-Datei</label>
+			<label index="templateObject">Vorlage-Objekt</label>
+			<label index="templateIcon">Vorlage-Miniatur</label>
+			<label index="templateType">Vorlage-Typ</label>
+			<label index="templateUID">UID</label>
+			<label index="templateTitle">Titel</label>
+			<label index="templateFileRef">Datei-Referenz</label>
+			<label index="templateMappingSize">Assoz.-Länge</label>
+
+			<label index="typeSC">Sektion</label>
+			<label index="typeCO">Kontainer</label>
+			<label index="typeEL">Attribut</label>
+			<label index="typeAT">Element</label>
+			<label index="typeNO">Nicht assoziert</label>
+
+			<label index="titleXmlConfiguration">XML-Konfiguration</label>
+			<label index="titleLoadDSXml">Lade DS XML</label>
+			<label index="titleSaveDSTO">Erzeuge neue/s Datenstruktur / Vorlage-Objekt</label>
+			<label index="titleOverwriteDSTO">Erneuere vorhandene/s Datenstruktur / Vorlage-Objekt</label>
+			<label index="titlePreview">Vorschau der Datenstruktur mit eingefügten Beispel-Inhalten</label>
+			<label index="titleMapping">Assoziations-Fenster</label>
+
+			<label index="tabDSStructure">Struktur</label>
+			<label index="tabDSDetails">Information</label>
+			<label index="tabTODetails">Information</label>
+			<label index="tabHeadParts">Kopf-Elemente</label>
+			<label index="tabBodyParts">Assoziation</label>
+			<label index="tabPreview">Vorschau</label>
+			<label index="tabXML">XML</label>
+
+			<label index="structureFile">Datenstruktur-Datei</label>
+			<label index="structureInfoOrigin">Datenstruktur-Quelle</label>
+			<label index="structureInfoXML">Datenstruktur-XML</label>
+			<label index="structureInfoParts">Datenstruktur-Details</label>
+			<label index="structureRecord">Datenstruktur-Eintrag</label>
+			<label index="structureRecordContent">Datenstruktur im Eintrag</label>
+			<label index="structureRecordUsed">Template-Objekte die diese Datenstruktur benutzen</label>
+			<label index="structureType">Datenstruktur-Typ</label>
+			<label index="structureTypePage">Seitenvorlage</label>
+			<label index="structureTypeFCE">Flexibles Inhaltselement</label>
+			<label index="structureTypeCustom">Eigenes</label>
+			<label index="structureElement">Datenelement</label>
+			<label index="structureField">Feld</label>
+			<label index="structureInstruction">Assoziations-Anweisungen</label>
+			<label index="structureSamples">Beispiel-Inhalt</label>
+			<label index="structureRule">Regeln</label>
+			<label index="structurePath">HTML-Pfad</label>
+			<label index="structureAction">Befehle</label>
+			<label index="structureEdit">Bearbeiten</label>
+
+			<label index="originXML">Reiner XML import</label>
+			<label index="originScratch">Manuelle Konstruktion</label>
+
+			<label index="mappingTitle">Vorlage Assoziierung</label>
+			<label index="mappingInfoParts">Vorlage-Objekt Details</label>
+			<label index="mappingHeadParts">Adding parts from HTML header</label>
+			<label index="mappingBodyParts">Datenstruktur die mit der HTML-Vorlage assoziiert werden soll</label>
+			<label index="mappingPreview">Datenstruktur die mit der HTML-Vorlage assoziiert wurde</label>
+
+			<label index="none">Keine Einträge vorhanden</label>
+			<label index="noicon">Keine Miniatur</label>
+			<label index="rootDescription">Select the HTML element on the page which you want to be the overall container element for the template.</label>
+			<label index="selectTOrecrdToLoadDSFrom">Select a Template Object record to load a Data Structure/Mapping information from</label>
+			<label index="titleDSTO">Titel des DS/TO</label>
+			<label index="selectPID">Speicher-Ort</label>
+			<label index="selectTO">TO-Auswahl</label>
+			<label index="modifyDSTO">Modify DS/TO</label>
+			<label index="createDSTO">Erzeuge neue DS und TO</label>
+			<label index="updateDSTO">Erneuere TO (und DS)</label>
+			<label index="noDSDefined">No Data Structure was defined in the record... (Must be T3DataStructure XML content)</label>
+			<label index="pasteDSXml">Alternatively, paste the Data Structure XML into this form</label>
+			<label index="loadDSXml">Lade Datenstruktur</label>
+			<label index="cancel">Abbruch</label>
+
+			<label index="actionShow"   >Zeige XML</label>		       <label index="actiontitleShow"   >Preview the currently build Data Structure as XML</label>
+			<label index="actionSet"    >Übernehmen</label>		       <label index="actiontitleSet"    >Übernimmt die aktuell konfigurierten Einstellungen</label>
+			<label index="actionClearDS">Alle Elemente löschen</label>     <label index="actiontitleClearDS">Clear all Data Structure and Mapping information</label>
+			<label index="actionClearTO">Alle Assoziationen löschen</label><label index="actiontitleClearTO">Clear all Data Structure and Mapping information</label>
+			<label index="actionPreview">Vorschau</label>		       <label index="actiontitlePreview">Preview the mapping to the template</label>
+			<label index="actionSaveas" >Speichere als</label>	       <label index="actiontitleSaveas" >Go to save menu</label>
+			<label index="actionSave"   >Save</label>		       <label index="actiontitleSave"   >Saving all mapping data into the Template Object</label>
+			<label index="actionSaveret">Save and return</label>	       <label index="actiontitleSaveret">Saving all mapping data into the Template Object and return</label>
+			<label index="actionRevert" >Wiederherstellen</label>	       <label index="actiontitleRevert" >Reverting structure data to last imported data</label>
+			<label index="actionLoad"   >Laden</label>		       <label index="actiontitleLoad"   >Go to load menu</label>
+			<label index="actionRefresh">Neuladen</label>		       <label index="actiontitleRefresh">Redraw screen</label>
+			<label index="actionApply"  >Änderungen übernehmen</label>     <label index="actiontitleApply"  >Will update session data with current settings.</label>
+
+			<label index="msgDSTOSaved">Data Structure (UID %s) and Template Record (UID %s) was saved in PID %s</label>
+			<label index="msgDSTOUpdated">Data Structure (UID %s) and Template Record (UID %s) was updated</label>
+			<label index="msgMappingSaved">Mapping information was saved to the current Template Object!</label>
+
+			<label index="error">Error</label>
+			<label index="errorNoStorageFolder">No accessible Storage Folder found - please create one immediately!</label>
+			<label index="errorTONotSaved">No Template Object was created although the Data Structure was (UID %s)!</label>
+			<label index="errorTONotCreated">No Data Structure was created!</label>
+			<label index="errorNoUidFound">No UID was found pointing to a Template Object record.</label>
+			<label index="errorFileNotFound">File to create Datastructe from hasn't been found.</label>
+			<label index="errorNoContentInFile">No content found in file reference</label>
+			<label index="errorNoFile">No file to display</label>
+
 			<label index="mess.onChangeAlert">This change will affect which fields are available in the form.\nWould you like to save now in order to refresh the display?</label>
 			<label index="mess.onOverwriteAlert">Are you sure you want to override the current contents of these records?\nThis feature is meant to support the process of creating new Data Structures which have not been manually edited yet.</label>
 			<label index="mess.onModifyAlert">Warning: You should only modify Data Structures and Template Objects which have not been manually edited.\nYou risk that manual changes will be removed without further notice!</label>

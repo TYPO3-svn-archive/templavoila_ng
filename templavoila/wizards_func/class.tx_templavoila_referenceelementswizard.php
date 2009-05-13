@@ -82,38 +82,38 @@ class tx_templavoila_referenceElementsWizard extends t3lib_extobjbase {
 		$output = '';
 		$this->templavoilaAPIObj = t3lib_div::makeInstance ('tx_templavoila_api');
 
-			// Showing the tree:
-			// Initialize starting point of page tree:
+		// Showing the tree:
+		// Initialize starting point of page tree:
 		$treeStartingPoint = intval($this->pObj->id);
 		$treeStartingRecord = t3lib_BEfunc::getRecord('pages', $treeStartingPoint);
 		$depth = $this->pObj->MOD_SETTINGS['depth'];
 
-			// Initialize tree object:
+		// Initialize tree object:
 		$tree = t3lib_div::makeInstance('t3lib_pageTree');
 		$tree->init('AND '.$GLOBALS['BE_USER']->getPagePermsClause(1));
 
-			// Creating top icon; the current page
+		// Creating top icon; the current page
 		$HTML = t3lib_iconWorks::getIconImage('pages', $treeStartingRecord, $GLOBALS['BACK_PATH'],'align="top"');
 		$tree->tree[] = array(
 			'row' => $treeStartingRecord,
 			'HTML' => $HTML
 		);
 
-			// Create the tree from starting point:
-		if ($depth>0)	{
+		// Create the tree from starting point:
+		if ($depth > 0) {
 			$tree->getTree($treeStartingPoint, $depth, '');
 		}
 
-			// Set CSS styles specific for this document:
+		// Set CSS styles specific for this document:
 		$this->pObj->content = str_replace('/*###POSTCSSMARKER###*/','
 			TABLE.c-list TR TD { white-space: nowrap; vertical-align: top; }
 		',$this->pObj->content);
 
-			// Process commands:
+		// Process commands:
 		if (t3lib_div::_GP('createReferencesForPage')) $this->createReferencesForPage(t3lib_div::_GP('createReferencesForPage'));
 		if (t3lib_div::_GP('createReferencesForTree')) $this->createReferencesForTree($tree);
 
-			// Traverse tree:
+		// Traverse tree:
 		$output = '';
 		$counter = 0;
 		foreach($tree->tree as $row)	{
@@ -142,13 +142,13 @@ class tx_templavoila_referenceElementsWizard extends t3lib_extobjbase {
 			$counter++;
 		}
 
-			// Create header:
+		// Create header:
 		$tCells = array();
 		$tCells[]='<td>Page:</td>';
 		$tCells[]='<td>No. of unreferenced elements:</td>';
 		$tCells[]='<td>&nbsp;</td>';
 
-			// Depth selector:
+		// Depth selector:
 		$depthSelectorBox = t3lib_BEfunc::getFuncMenu($this->pObj->id,'SET[depth]',$this->pObj->MOD_SETTINGS['depth'],$this->pObj->MOD_MENU['depth'],'index.php');
 
 		$finalOutput = '

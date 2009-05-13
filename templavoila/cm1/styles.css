@@ -1,213 +1,215 @@
-	@import url("../res/clearmappingmenu.css");
-	@import url("../res/togglesticky.css");
-	@import url("../res/xmlarea.css");
+@import url("../res/clearmappingmenu.css");
+@import url("../res/togglesticky.css");
+@import url("../res/xmlarea.css");
 
-	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-	dl.DS-infos dt,
-	dl.TO-infos dt {
-		font-weight: bold;
-		margin-bottom: 0.25em;
-	}
+@import url("../res/optionsmenu.css");
 
-	dl.DS-infos dd,
-	dl.TO-infos dd {
-		margin-bottom: 0.5em;
-	}
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+dl.DS-infos dt,
+dl.TO-infos dt {
+	font-weight: bold;
+	margin-bottom: 0.25em;
+}
 
-	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-	div.docheader-row3-content img {
-		margin: 0 !important;
-	}
+dl.DS-infos dd,
+dl.TO-infos dd {
+	margin-bottom: 0.5em;
+}
 
-	div.docheader-row3-content > dl {
-		margin: 0;
-	}
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+div.docheader-row3-content img {
+	margin: 0 !important;
+}
 
-	div.docheader-row3-content > dl > dt {
-	/*	float: left;
-		clear: left;	*/
-		display: inline-block;
-		width: 25%;
-		margin: 0;
-	}
+div.docheader-row3-content > dl {
+	margin: 0;
+}
 
-	div.docheader-row3-content > dl > dd {
-	/*	float: left;	*/
-		display: inline-block;
-		width: 50%;
-		margin: 0;
-	}
+div.docheader-row3-content > dl > dt {
+/*	float: left;
+	clear: left;	*/
+	display: inline-block;
+	width: 25%;
+	margin: 0;
+}
 
-	div.docheader-row3-content > dl > dt.r {
-		float: right;
-	/*	display: block;	*/
-		width: 24%;
-		margin: 0;
-		text-align: right;
+div.docheader-row3-content > dl > dd {
+/*	float: left;	*/
+	display: inline-block;
+	width: 50%;
+	margin: 0;
+}
 
-		display: none;
-	}
+div.docheader-row3-content > dl > dt.r {
+	float: right;
+/*	display: block;	*/
+	width: 24%;
+	margin: 0;
+	text-align: right;
 
-	div.docheader-row3-content > dl > dd.r {
-		float: right;
-		clear: right;
-	/*	display: block;	*/
-		width: 24%;
-		margin: 0;
-		text-align: right;
-	}
+	display: none;
+}
 
-	div.docheader-row3-content > div.clear {
-		clear: both;
+div.docheader-row3-content > dl > dd.r {
+	float: right;
+	clear: right;
+/*	display: block;	*/
+	width: 24%;
+	margin: 0;
+	text-align: right;
+}
 
-		border-top: 1px dotted #595D66;
-		margin-bottom: -5px;
-		margin-top: 5px;
-		padding-top: 5px;
-		text-align: center;
-	}
+div.docheader-row3-content > div.clear {
+	clear: both;
 
-	div.docheader-row3-content > div.nosize {
-		visibility: hidden;
-		border: 0;
-		margin: 0;
-		padding: 0;
-		height: 0;
-	}
+	border-top: 1px dotted #595D66;
+	margin-bottom: -5px;
+	margin-top: 5px;
+	padding-top: 5px;
+	text-align: center;
+}
 
-	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-	div#typo3-docheader-row3.expulsed > div.docheader-row3-content > h3:first-child {
-		-moz-border-radius: 0 0 16px 16px;
-		-webkit-border-radius: 0 0 16px 16px;
-		-border-radius: 0 0 16px 16px;
-		background: #595D66 none repeat scroll 0 0;
-		bottom: -16px;
-		clip: rect(16px, auto, 32px, 0px);
-		color: #F3F3F3;
-		font-size: 8px;
-		height: 32px;
-		line-height: 48px;
-		margin: 0;
-		padding: 0 16px;
-		position: absolute;
-	}
+div.docheader-row3-content > div.nosize {
+	visibility: hidden;
+	border: 0;
+	margin: 0;
+	padding: 0;
+	height: 0;
+}
 
-	div#typo3-docheader-row3.expulsed > div.docheader-row3-content > h3:first-child > a.typo3-csh-link {
-		bottom: -18px;
-		position: relative;
-		right: 0px;
-	}
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+div#typo3-docheader-row3.expulsed > div.docheader-row3-content > h3:first-child {
+	-moz-border-radius: 0 0 16px 16px;
+	-webkit-border-radius: 0 0 16px 16px;
+	-border-radius: 0 0 16px 16px;
+	background: #595D66 none repeat scroll 0 0;
+	bottom: -16px;
+	clip: rect(16px, auto, 32px, 0px);
+	color: #F3F3F3;
+	font-size: 8px;
+	height: 32px;
+	line-height: 48px;
+	margin: 0;
+	padding: 0 16px;
+	position: absolute;
+}
 
-	div#typo3-docheader-row3.expulsed > div.docheader-row3-content > h3:first-child > a.typo3-csh-link > img {
-		width: 12px;
-		height: 12px;
-	}
+div#typo3-docheader-row3.expulsed > div.docheader-row3-content > h3:first-child > a.typo3-csh-link {
+	bottom: -18px;
+	position: relative;
+	right: 0px;
+}
 
-	div#typo3-docheader-row3.impulsed > div.docheader-row3-content > h3:first-child {
-		display: none;
-	}
+div#typo3-docheader-row3.expulsed > div.docheader-row3-content > h3:first-child > a.typo3-csh-link > img {
+	width: 12px;
+	height: 12px;
+}
 
-	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-	dl.DS-config,
-	dl.DS-config dl,
-	ul.DS-tree,
-	ul.DS-tree ul {
-		margin: 0;
-		padding: 0px;
-	}
+div#typo3-docheader-row3.impulsed > div.docheader-row3-content > h3:first-child {
+	display: none;
+}
 
-	ul.DS-tree ul {
-		padding-left: 18px;
-	}
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+dl.DS-config,
+dl.DS-config dl,
+ul.DS-tree,
+ul.DS-tree ul {
+	margin: 0;
+	padding: 0px;
+}
 
-	ul.DS-tree li {
-		border: 0;
-		padding: 0;
-		list-style-position: inside;
-		list-style-image: url(/typo3/gfx/ol/join.gif);
-		background: 0 0 url(/typo3/gfx/ol/line.gif) repeat-y transparent;
-	}
+ul.DS-tree ul {
+	padding-left: 18px;
+}
 
-	ul.DS-tree li.last-child/*,
-	ul.DS-tree li:last-child*/ {
-		list-style-image: url(/typo3/gfx/ol/blank.gif);
-		background: 0 0 url(/typo3/gfx/ol/joinbottom.gif) no-repeat transparent;
-	}
+ul.DS-tree li {
+	border: 0;
+	padding: 0;
+	list-style-position: inside;
+	list-style-image: url(/typo3/gfx/ol/join.gif);
+	background: 0 0 url(/typo3/gfx/ol/line.gif) repeat-y transparent;
+}
 
-	ul.DS-tree a {
-		position: relative;
-		left: -2px;
-		top: -4px;
-		color: #c7220c;
-	}
+ul.DS-tree li.last-child/*,
+ul.DS-tree li:last-child*/ {
+	list-style-image: url(/typo3/gfx/ol/blank.gif);
+	background: 0 0 url(/typo3/gfx/ol/joinbottom.gif) no-repeat transparent;
+}
 
-	ul.DS-tree a.active {
-		font-weight: bold;
-		text-decoration: none;
-	}
+ul.DS-tree a {
+	position: relative;
+	left: -2px;
+	top: -4px;
+	color: #c7220c;
+}
 
-	dl.DS-config {
-		margin-bottom: 1em;
-	}
+ul.DS-tree a.active {
+	font-weight: bold;
+	text-decoration: none;
+}
 
-	dl.DS-config dt {
-		font-weight: bold;
-		margin-bottom: 0.25em;
-		clear: both;
-	}
+dl.DS-config {
+	margin-bottom: 1em;
+}
 
-	dl.DS-config dd {
-		margin-bottom: 0.5em;
-	}
+dl.DS-config dt {
+	font-weight: bold;
+	margin-bottom: 0.25em;
+	clear: both;
+}
 
-	dl.DS-config textarea.xml,
-	dl.DS-config textarea.code,
-	dl.DS-config textarea.ts {
-		font-family: monospace;
-	}
+dl.DS-config dd {
+	margin-bottom: 0.5em;
+}
 
-	dl.DS-config .t3e_linenum dt {
-		margin: 0;
-	}
+dl.DS-config textarea.xml,
+dl.DS-config textarea.code,
+dl.DS-config textarea.ts {
+	font-family: monospace;
+}
 
-	/* stylesheet.css (line 962) */
-	optgroup,
-	optgroup option {
-		background-color: white;
-		border-bottom: medium none;
-		color: black;
-		font-style: normal;
-		margin: 0px;
-		padding: 0px;
-		text-indent: 0px;
-		text-transform: none;
-	}
+dl.DS-config .t3e_linenum dt {
+	margin: 0;
+}
 
-	/* stylesheet.css (line 952) */
-	optgroup.c-divider {
-		background-color: #EEEEEE;
-		border-top: 1px solid #666666;
-		color: #666666;
-		font-style: italic;
-		margin-top: 10px;
-		padding: 0px;
-		text-transform: uppercase;
-	}
+/* stylesheet.css (line 962) */
+optgroup,
+optgroup option {
+	background-color: white;
+	border-bottom: medium none;
+	color: black;
+	font-style: normal;
+	margin: 0px;
+	padding: 0px;
+	text-indent: 0px;
+	text-transform: none;
+}
 
-	tr.tv-edit-row {
-		background-color: #f3f3f3;
-		padding: 15px 0;
+/* stylesheet.css (line 952) */
+optgroup.c-divider {
+	background-color: #EEEEEE;
+	border-top: 1px solid #666666;
+	color: #666666;
+	font-style: italic;
+	margin-top: 10px;
+	padding: 0px;
+	text-transform: uppercase;
+}
 
-	}
+tr.tv-edit-row {
+	background-color: #f3f3f3;
+	padding: 15px 0;
 
-	tr.tv-edit-row input#_updateDS {
-		background: none !important;
-		border: 0 !important;
-	}
+}
 
-	tr.tv-edit-row div.tv-ts-tree {
-		/* like input[type=text] */
-		border: 1px solid black;
-		padding: 1px;
-		background: white;
-	}
+tr.tv-edit-row input#_updateDS {
+	background: none !important;
+	border: 0 !important;
+}
+
+tr.tv-edit-row div.tv-ts-tree {
+	/* like input[type=text] */
+	border: 1px solid black;
+	padding: 1px;
+	background: white;
+}

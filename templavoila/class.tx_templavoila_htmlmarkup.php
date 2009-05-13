@@ -246,15 +246,15 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 	 * @return	string		Modified HTML
 	 * @see markupHTMLcontent()
 	 */
-	function passthroughHTMLcontent($content,$relPathFix,$mode='',$altStyle='')	{
-			// Fix links/paths
-		if ($mode!='source')	{
-			$content = $this->htmlParse->prefixResourcePath($relPathFix,$content);
+	function passthroughHTMLcontent($content, $relPathFix, $mode = '', $altStyle = '') {
+		// Fix links/paths
+		if ($mode != 'source') {
+			$content = $this->htmlParse->prefixResourcePath($relPathFix, $content);
 		}
 
-			// Wrap in <pre>-tags if source
-		if ($mode=='source')	{
-			$content = '<pre style="'.htmlspecialchars($altStyle?$altStyle:'font-size:11px; color:#999999; font-style:italic;').'">'.str_replace(chr(9),'    ',htmlspecialchars($content)).'</pre>';
+		// Wrap in <pre>-tags if source
+		if ($mode == 'source') {
+			$content = '<pre style="' . htmlspecialchars($altStyle ? $altStyle:'font-size:11px; color:#999999; font-style:italic;') . '">' . str_replace(chr(9), '    ', htmlspecialchars($content)) . '</pre>';
 		}
 
 		return $content;

@@ -75,13 +75,6 @@ $BE_USER->modAccess($MCONF, 1);
 // Include class which contains the constants and definitions of TV
 require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_defines.php');
 
-// Include class for rendering the different sections:
-require_once(t3lib_extMgm::extPath('templavoila') . 'mod2/class.tx_templavoila_mod2_overview.php');
-require_once(t3lib_extMgm::extPath('templavoila') . 'mod2/class.tx_templavoila_mod2_ds.php');
-require_once(t3lib_extMgm::extPath('templavoila') . 'mod2/class.tx_templavoila_mod2_to.php');
-require_once(t3lib_extMgm::extPath('templavoila') . 'mod2/class.tx_templavoila_mod2_xml.php');
-require_once(t3lib_extMgm::extPath('templavoila') . 'mod2/class.tx_templavoila_mod2_files.php');
-
 /**
  * Module 'TemplaVoila' for the 'templavoila' extension.
  *
@@ -237,7 +230,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 	function renderModuleContent($singleView = false) {
 
 		// Show overview.
-		if (intval($this->id)) {
+		if (intval($this->id) && ($this->pageinfo['doktype'] == 254)) {
 			// -------------------------------------------------------------------------
 			// Select all Data Structures in the PID and put into an array:
 			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
@@ -285,7 +278,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 
 		{
 			// Initialize the overview
-			$overviewObj =& t3lib_div::getUserObj('&tx_templavoila_mod2_overview', '');
+			$overviewObj =& t3lib_div::getUserObj('EXT:templavoila/mod2/class.tx_templavoila_mod2_overview.php:&tx_templavoila_mod2_overview', '');
 			$overviewObj->init($this);
 
 			// Render the overview
@@ -315,15 +308,15 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 	 */
 	function renderModuleContent_mainView($singleView) {
 		// Initialize the datastructure-submodule
-		$this->dsObj =& t3lib_div::getUserObj('&tx_templavoila_mod2_ds', '');
+		$this->dsObj =& t3lib_div::getUserObj('EXT:templavoila/mod2/class.tx_templavoila_mod2_ds.php:&tx_templavoila_mod2_ds', '');
 		$this->dsObj->init($this);
 
 		// Initialize the templateobject-submodule
-		$this->toObj =& t3lib_div::getUserObj('&tx_templavoila_mod2_to', '');
+		$this->toObj =& t3lib_div::getUserObj('EXT:templavoila/mod2/class.tx_templavoila_mod2_to.php:&tx_templavoila_mod2_to', '');
 		$this->toObj->init($this);
 
 		// Initialize the xml-submodule
-		$this->xmlObj =& t3lib_div::getUserObj('&tx_templavoila_mod2_xml', '');
+		$this->xmlObj =& t3lib_div::getUserObj('EXT:templavoila/mod2/class.tx_templavoila_mod2_xml.php:&tx_templavoila_mod2_xml', '');
 		$this->xmlObj->init($this);
 
 		// Select all Data Structures in the PID and put into an array:
@@ -450,8 +443,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 			if ($singleView)
 				$this->MOD_MENU['page']['lost'] = '<span style="color: brown;">' .
 				$this->MOD_MENU['page']['lost'] . ' (' . $lostTOCount . ')</span>';
-		}
-		else if ($singleView) {
+		} else if ($singleView) {
 			$parts['lost'][] = array(
 				'label' => $GLOBALS['LANG']->getLL('center_tab_lost')
 			);
@@ -476,8 +468,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 			if ($singleView)
 				$this->MOD_MENU['page']['errors'] = '<span style="color: red;">' .
 				$this->MOD_MENU['page']['errors'] . ' (' . $errStat['count'] . ')</span>';
-		}
-		else if ($singleView) {
+		} else if ($singleView) {
 			$parts['errors'][] = array(
 				'label' => $GLOBALS['LANG']->getLL('center_tab_errors')
 			);
@@ -517,8 +508,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 					FALSE,
 					TRUE);
 			}
-		}
-		else {
+		} else {
 			// put all existing into tabs (no index!)
 			$tabs = array();
 			foreach ($parts as &$list)
@@ -622,7 +612,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 				// Render data structure display
 				$rDSDres = $this->dsObj->renderDSDisplay($dsRow, $toIdArray, $scope);
 				$content.= '<a name="ds-' . md5($dsID) . '"></a>' . $rDSDres['HTML'];
-				$index.='
+				$index .= '
 					<tr class="bgColor4-20">
 						<td colspan="2"><a href="#ds-' . md5($dsID) . '">' . htmlspecialchars($dsRow['title'] ? $dsRow['title'] : $dsRow['path']) . '</a></td>
 						<td align="center">' . $rDSDres['languageMode'] . '</td>
@@ -647,15 +637,26 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 		if ($index) {
 			$content = '
 				<h4>' . $GLOBALS['LANG']->getLL('center_list_overview') . ':</h4>
-				<table border="0" cellpadding="0" cellspacing="1">
-					<tr class="bgColor5 tableheader">
-						<td colspan="2">' . $GLOBALS['LANG']->getLL('center_list_title') . ':</td>
-						<td>' . $GLOBALS['LANG']->getLL('center_list_loc') . ':</td>
-						<td>' . $GLOBALS['LANG']->getLL('center_list_costatus') . ':</td>
-						<td>' . $GLOBALS['LANG']->getLL('center_list_mapstatus') . ':</td>
-						<td>' . $GLOBALS['LANG']->getLL('center_list_usage') . ':</td>
+				<table border="0" cellspacing="1" cellpadding="1" class="typo3-dblist typo3-tvlist">
+				<colgroup>
+					<col width="*" span="2" />
+					<col width="90" />
+					<col width="90" />
+					<col width="90" />
+					<col width="90" />
+				</colgroup>
+				<thead>
+					<tr class="c-headLineTable">
+						<th colspan="2">' . $GLOBALS['LANG']->getLL('center_list_title') . ':</th>
+						<th>' . $GLOBALS['LANG']->getLL('center_list_loc') . ':</th>
+						<th>' . $GLOBALS['LANG']->getLL('center_list_costatus') . ':</th>
+						<th>' . $GLOBALS['LANG']->getLL('center_list_mapstatus') . ':</th>
+						<th>' . $GLOBALS['LANG']->getLL('center_list_usage') . ':</th>
 					</tr>
-				' . $index . '
+				</thead>
+				<tbody>
+					' . $index . '
+				</tbody>
 				</table>
 				<h4>' . $GLOBALS['LANG']->getLL('center_list_listing') . ':</h4>'.
 				$content;
@@ -804,7 +805,7 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 	 */
 	function link_getParameters()	{
 		$output =
-			'id='.$this->id;
+			'id=' . $this->id;
 
 		return $output;
 	}
@@ -839,18 +840,19 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 			foreach($menuItems as $value => $label) {
 				$options[] = str_replace('><span ', '',
 						 str_replace('</span>', '',
-						 '<option value="'.htmlspecialchars($value).'"'.(!strcmp($currentValue, $value)?' selected="selected"':'').'>'.
-								/*t3lib_div::deHSCentities(htmlspecialchars(*/$label/*))*/.
+						 '<option value="'.htmlspecialchars($value).'"'.(!strcmp($currentValue, $value) ? ' selected="selected"' : '') . '>' .
+								/*t3lib_div::deHSCentities(htmlspecialchars(*/$label/*))*/ .
 								'</option>'));
 			}
+
 			if (count($options)) {
-				$onChange = 'jumpToUrl(\'' . $script . '?' . $mainParams . $addparams . '&' . $elementName . '=\'+this.options[this.selectedIndex].value,this);';
+				$onChange = 'jumpToUrl(\'' . $script . '?' . $mainParams . $addparams . '&' . $elementName . '=\' + this.options[this.selectedIndex].value,this);';
 				return '
 
 					<!-- Function Menu of module -->
-					<select style="width: 160px;" name="'.$elementName.'" onchange="'.htmlspecialchars($onChange).'">
-						'.implode('
-						',$options).'
+					<select style="width: 160px;" name="' . $elementName . '" onchange="' . htmlspecialchars($onChange) . '">
+						' . implode('
+						', $options) . '
 					</select>
 							';
 			}
@@ -873,10 +875,10 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 		{
 			$link = $this->baseScript . $this->link_getParameters() . '&SET[set_details]=###';
 
-			$entries[] = '<li class="mradio'.(!$this->MOD_SETTINGS['set_details']?' selected':'').'" name="set_details"><a href="' . str_replace('###', '', $link).'"'. '>' . $GLOBALS['LANG']->getLL('center_settings_hidden', 1) . '</a></li>';
-			$entries[] = '<li class="mradio'.( $this->MOD_SETTINGS['set_details']?' selected':'').'" name="set_details"><a href="' . str_replace('###', '1', $link).'"'.'>' . $GLOBALS['LANG']->getLL('center_settings_all', 1) . '</a></li>';
+			$entries[] = '<li class="mradio' . (!$this->MOD_SETTINGS['set_details'] ? ' selected' : '') . '" name="set_details"><a href="' . str_replace('###', '' , $link) . '"' . '>' . $GLOBALS['LANG']->getLL('center_settings_hidden', 1) . '</a></li>';
+			$entries[] = '<li class="mradio' . ( $this->MOD_SETTINGS['set_details'] ? ' selected' : '') . '" name="set_details"><a href="' . str_replace('###', '1', $link) . '"' . '>' . $GLOBALS['LANG']->getLL('center_settings_all', 1) . '</a></li>';
 
-			$group = '<ul class="group">'.implode(chr(10), $entries).'</ul>';
+			$group = '<ul class="group">' . implode(chr(10), $entries) . '</ul>';
 			$options .= '<li class="group">' . $group . '</li>';
 		}
 
@@ -903,12 +905,12 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 
 		// Access check...
 		// The page will show only if there is a valid page and if this page may be viewed by the user
-		$this->pageinfo = t3lib_BEfunc::readPageAccess($this->id,$this->perms_clause);
+		$this->pageinfo = t3lib_BEfunc::readPageAccess($this->id, $this->perms_clause);
 		$access = is_array($this->pageinfo) ? 1 : 0;
 
-		if (($this->id && $access) || ($BE_USER->user['admin'] && !$this->id))	{
+		if (($this->id && $access) || ($BE_USER->user['admin'] && !$this->id)) {
 			$this->CALC_PERMS = $BE_USER->calcPerms($this->pageinfo);
-			if ($BE_USER->user['admin'] && !$this->id)	{
+			if ($BE_USER->user['admin'] && !$this->id) {
 				$this->pageinfo=array('title' => '[root-level]','uid'=>0,'pid'=>0);
 			}
 
@@ -927,7 +929,7 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 				)
 			);
 
-				// Add custom styles
+			// Add custom styles
 			$this->doc->inDocStylesArray[]='
 				/* stylesheet.css (line 189) */
 				body#ext-templavoila-mod2-index-php {
@@ -938,13 +940,13 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 				}
 			';
 
-				// Add optionsmenu
-			$this->doc->loadJavascriptLib(t3lib_extMgm::extRelPath($this->extKey)."res/optionsmenu.js");
+			// Add optionsmenu
+			$this->doc->loadJavascriptLib(t3lib_extMgm::extRelPath($this->extKey) . "res/optionsmenu.js");
 
-				// Add custom styles
-			$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath($this->extKey)."mod2/styles.css";
+			// Add custom styles
+			$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath($this->extKey) . "mod2/styles.css";
 
-				// JavaScript
+			// JavaScript
 			$this->doc->JScode = $this->doc->wrapScriptTags('
 				script_ended = 0;
 				function jumpToUrl(URL)	{	//
@@ -968,11 +970,11 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 			//	if (top.fsMod) top.fsMod.recentIds["web"] = '.intval($this->id).';
 			');
 
-				// Setting up the context sensitive menu:
+			// Setting up the context sensitive menu:
 		//	$this->doc->getContextMenuCode();
 		//	$this->doc->form = '<form action="index.php" method="post" name="webtvForm">';
 
-				// Setting up support for context menus (when clicking the items icon)
+			// Setting up support for context menus (when clicking the items icon)
 			$CMparts = $this->doc->getContextMenuCode();
 			$this->doc->bodyTagAdditions = $CMparts[1];
 		//	$this->doc->JScode .= $this->doc->getDynTabMenuJScode();
@@ -980,25 +982,25 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 			$this->doc->postCode .= $CMparts[2];
 			$this->doc->form = '<form action="'.htmlspecialchars($this->baseScript . 'id=' . $this->id) . '" method="post" autocomplete="off">';
 
-				// Prototype /Scriptaculous
+			// Prototype /Scriptaculous
 			$this->doc->JScode .= '<script src="' . $this->doc->backPath . 'contrib/prototype/prototype.js" type="text/javascript"></script>';
 			$this->doc->JScode .= '<script src="' . $this->doc->backPath . 'contrib/scriptaculous/scriptaculous.js?load=effects,dragdrop" type="text/javascript"></script>';
 
-			$vContent = $this->doc->getVersionSelector($this->id,1);
-			if ($vContent)	{
-				$this->content.=$this->doc->section('',$vContent);
+			$vContent = $this->doc->getVersionSelector($this->id, 1);
+			if ($vContent) {
+				$this->content .= $this->doc->section('', $vContent);
 			}
 
 			$this->extObjContent();
 
-				// Info Module CSH:
+			// Info Module CSH:
 			$this->content .= t3lib_BEfunc::cshItem('_MOD_web_tv', '', $GLOBALS['BACK_PATH'], '<br/>|', FALSE, 'margin-top: 30px;');
 		//	$this->content .= $this->doc->spacer(10);
 
-				// Rendering module content
+			// Rendering module content
 			$funcs = $this->renderModuleContent(true);
 
-				// Setting up the buttons and markers for docheader
+			// Setting up the buttons and markers for docheader
 			$docHeaderButtons = $this->getButtons();
 			$markers = array(
 				'CSH'       => $docHeaderButtons['csh'],
@@ -1056,7 +1058,7 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 		);
 
 			// If access to Web>List for user, then link to that module.
-		if ($BE_USER->check('modules','web_list') && $this->pageinfo['uid']) {
+		if ($BE_USER->check('modules', 'web_list') && $this->pageinfo['uid']) {
 			$href = $BACK_PATH . 'db_list.php?id=' . $this->pageinfo['uid'] . '&returnUrl=' . rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI'));
 			$buttons['record_list'] = '<a href="' . htmlspecialchars($href) . '">' .
 					'<img src="' . t3lib_iconWorks::skinImg($BACK_PATH, 'MOD:web_list/list.gif','width="16" height="16"', 1) . '" title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.showList', 1) . '" alt="" />' .
