@@ -38,9 +38,11 @@
  */
 class tx_templavoila_mod2_files {
 
+
 	// References to the control-center module object
 	var $pObj;	// A pointer to the parent object, that is the templavoila control-center module script. Set by calling the method init() of this class.
 	var $doc;	// A reference to the doc object of the parent object.
+
 
 	/**
 	 * Initializes the files object. The calling class must make sure that the right locallang files are already loaded.

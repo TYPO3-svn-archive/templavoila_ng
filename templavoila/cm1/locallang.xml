@@ -32,14 +32,19 @@
 			<label index="titleSaveDSTO">CREATE Data Structure / Template Object</label>
 			<label index="titleOverwriteDSTO">UPDATE existing Data Structure / Template Object</label>
 			<label index="titlePreview">Preview of Data Structure sample data merged into the mapped tags</label>
-			<label index="titleMapping">Mapping Window</label>
+			<label index="titleMapping">Mapping window</label>
 
+			<label index="tabFileDetails">Information</label>
+			<label index="tabFileStructure">Structure</label>
 			<label index="tabDSStructure">Structure</label>
 			<label index="tabDSDetails">Information</label>
 			<label index="tabTODetails">Information</label>
-			<label index="tabHeadParts">Header Parts</label>
-			<label index="tabBodyParts">Mapping</label>
+			<label index="tabHeadParts">Head-elements</label>
+			<label index="tabBodyParts">Body-elements</label>
+			<label index="tabMapHeadParts">Map head-elements</label>
+			<label index="tabMapBodyParts">Map body-elements</label>
 			<label index="tabPreview">Preview</label>
+			<label index="tabPreviewCurrent">Preview current mapping</label>
 			<label index="tabXML">XML</label>
 
 			<label index="structureFile">Data Structure File</label>
@@ -60,7 +65,7 @@
 			<label index="structureRule">Rules</label>
 			<label index="structurePath">HTML-path</label>
 			<label index="structureAction">Actions</label>
-			<label index="structureEdit">Edit</label>
+			<label index="structureEdit">Actions</label>
 
 			<label index="originXML">Pure XML import</label>
 			<label index="originScratch">From scratch construction</label>
@@ -70,6 +75,8 @@
 			<label index="mappingHeadParts">Adding parts from HTML header</label>
 			<label index="mappingBodyParts">Data Structure to be mapped to HTML template</label>
 			<label index="mappingPreview">Data Structure to be mapped to HTML template</label>
+			<label index="mappingFound">Content found (at %d chars)</label>
+			<label index="mappingEmpty">Content empty</label>
 
 			<label index="none">None found</label>
 			<label index="noicon">No icon</label>
@@ -98,6 +105,8 @@
 			<label index="actionLoad"   >Load</label>		<label index="actiontitleLoad"   >Go to load menu</label>
 			<label index="actionRefresh">Refresh</label>		<label index="actiontitleRefresh">Redraw screen</label>
 			<label index="actionApply"  >Apply changes</label>	<label index="actiontitleApply"  >Will update session data with current settings.</label>
+			<label index="actionRemap"  >Re-map</label>	        <label index="actiontitleRemap"  >Map this DS element to another HTML element in template file.</label>
+			<label index="actionChange" >Change Mode</label>	<label index="actiontitleChange" >Change mapping mode, eg. from INNER to OUTER etc.</label>
 
 			<label index="msgDSTOSaved">Data Structure (UID %s) and Template Record (UID %s) was saved in PID %s</label>
 			<label index="msgDSTOUpdated">Data Structure (UID %s) and Template Record (UID %s) was updated</label>
@@ -142,12 +151,17 @@
 			<label index="titlePreview">Vorschau der Datenstruktur mit eingefügten Beispel-Inhalten</label>
 			<label index="titleMapping">Assoziations-Fenster</label>
 
+			<label index="tabFileDetails">Information</label>
+			<label index="tabFileStructure">Struktur</label>
 			<label index="tabDSStructure">Struktur</label>
 			<label index="tabDSDetails">Information</label>
 			<label index="tabTODetails">Information</label>
 			<label index="tabHeadParts">Kopf-Elemente</label>
-			<label index="tabBodyParts">Assoziation</label>
+			<label index="tabBodyParts">Rumpf-Elemente</label>
+			<label index="tabMapHeadParts">Assoz. der Kopf-Elemente</label>
+			<label index="tabMapBodyParts">Assoz. der Rumpf-Elemente</label>
 			<label index="tabPreview">Vorschau</label>
+			<label index="tabPreviewCurrent">Vorschau der aktuellen Assoz.</label>
 			<label index="tabXML">XML</label>
 
 			<label index="structureFile">Datenstruktur-Datei</label>
@@ -168,16 +182,18 @@
 			<label index="structureRule">Regeln</label>
 			<label index="structurePath">HTML-Pfad</label>
 			<label index="structureAction">Befehle</label>
-			<label index="structureEdit">Bearbeiten</label>
+			<label index="structureEdit">Aktionen</label>
 
 			<label index="originXML">Reiner XML import</label>
 			<label index="originScratch">Manuelle Konstruktion</label>
 
-			<label index="mappingTitle">Vorlage Assoziierung</label>
+			<label index="mappingTitle">Vorlage-Assoziierung</label>
 			<label index="mappingInfoParts">Vorlage-Objekt Details</label>
 			<label index="mappingHeadParts">Adding parts from HTML header</label>
 			<label index="mappingBodyParts">Datenstruktur die mit der HTML-Vorlage assoziiert werden soll</label>
 			<label index="mappingPreview">Datenstruktur die mit der HTML-Vorlage assoziiert wurde</label>
+			<label index="mappingFound">Inhalt gefunden (nach %d Zeichen)</label>
+			<label index="mappingEmpty">Inhalt ist leer</label>
 
 			<label index="none">Keine Einträge vorhanden</label>
 			<label index="noicon">Keine Miniatur</label>
@@ -186,32 +202,34 @@
 			<label index="titleDSTO">Titel des DS/TO</label>
 			<label index="selectPID">Speicher-Ort</label>
 			<label index="selectTO">TO-Auswahl</label>
-			<label index="modifyDSTO">Modify DS/TO</label>
+			<label index="modifyDSTO">Bearbeite DS/TO</label>
 			<label index="createDSTO">Erzeuge neue DS und TO</label>
 			<label index="updateDSTO">Erneuere TO (und DS)</label>
-			<label index="noDSDefined">No Data Structure was defined in the record... (Must be T3DataStructure XML content)</label>
-			<label index="pasteDSXml">Alternatively, paste the Data Structure XML into this form</label>
+			<label index="noDSDefined">Im Eintrag ist keine Datenstruktur vorhanden ... (Es muss T3DataStructure XML-Inhalt sein)</label>
+			<label index="pasteDSXml">Alternativ, füge die Datenstruktur in XML in das folgende Feld ein</label>
 			<label index="loadDSXml">Lade Datenstruktur</label>
 			<label index="cancel">Abbruch</label>
 
-			<label index="actionShow"   >Zeige XML</label>		       <label index="actiontitleShow"   >Preview the currently build Data Structure as XML</label>
+			<label index="actionShow"   >Zeige XML</label>		       <label index="actiontitleShow"   >XML-Vorschau der aktuellen Datenstruktur</label>
 			<label index="actionSet"    >Übernehmen</label>		       <label index="actiontitleSet"    >Übernimmt die aktuell konfigurierten Einstellungen</label>
 			<label index="actionClearDS">Alle Elemente löschen</label>     <label index="actiontitleClearDS">Clear all Data Structure and Mapping information</label>
 			<label index="actionClearTO">Alle Assoziationen löschen</label><label index="actiontitleClearTO">Clear all Data Structure and Mapping information</label>
-			<label index="actionPreview">Vorschau</label>		       <label index="actiontitlePreview">Preview the mapping to the template</label>
+			<label index="actionPreview">Vorschau</label>		       <label index="actiontitlePreview">Vorschau der aktuellen Vorlage</label>
 			<label index="actionSaveas" >Speichere als</label>	       <label index="actiontitleSaveas" >Go to save menu</label>
-			<label index="actionSave"   >Save</label>		       <label index="actiontitleSave"   >Saving all mapping data into the Template Object</label>
-			<label index="actionSaveret">Save and return</label>	       <label index="actiontitleSaveret">Saving all mapping data into the Template Object and return</label>
+			<label index="actionSave"   >Speichern</label>		       <label index="actiontitleSave"   >Saving all mapping data into the Template Object</label>
+			<label index="actionSaveret">Speichern und zurückkehren</label><label index="actiontitleSaveret">Saving all mapping data into the Template Object and return</label>
 			<label index="actionRevert" >Wiederherstellen</label>	       <label index="actiontitleRevert" >Reverting structure data to last imported data</label>
 			<label index="actionLoad"   >Laden</label>		       <label index="actiontitleLoad"   >Go to load menu</label>
 			<label index="actionRefresh">Neuladen</label>		       <label index="actiontitleRefresh">Redraw screen</label>
 			<label index="actionApply"  >Änderungen übernehmen</label>     <label index="actiontitleApply"  >Will update session data with current settings.</label>
+			<label index="actionRemap"  >Re-Assoz.</label>	               <label index="actiontitleRemap"  >Map this DS element to another HTML element in template file.</label>
+			<label index="actionChange" >Modus änd.</label>		       <label index="actiontitleChange" >Change mapping mode, eg. from INNER to OUTER etc.</label>
 
 			<label index="msgDSTOSaved">Data Structure (UID %s) and Template Record (UID %s) was saved in PID %s</label>
 			<label index="msgDSTOUpdated">Data Structure (UID %s) and Template Record (UID %s) was updated</label>
 			<label index="msgMappingSaved">Mapping information was saved to the current Template Object!</label>
 
-			<label index="error">Error</label>
+			<label index="error">Fehler</label>
 			<label index="errorNoStorageFolder">No accessible Storage Folder found - please create one immediately!</label>
 			<label index="errorTONotSaved">No Template Object was created although the Data Structure was (UID %s)!</label>
 			<label index="errorTONotCreated">No Data Structure was created!</label>

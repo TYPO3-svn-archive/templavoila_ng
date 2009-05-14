@@ -1,5 +1,14 @@
 @import url("../res/optionsmenu.css");
 
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+table.typo3-tvlist {
+	table-layout: fixed;
+}
+
+table.typo3-tvlist tr.separator td {
+	border-top: 1px solid black;
+}
+
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  * mod2: detail-view, analysis of the settings made to the DS-XML
  */

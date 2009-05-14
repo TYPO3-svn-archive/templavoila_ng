@@ -89,7 +89,7 @@ require_once(PATH_t3lib . 'class.t3lib_page.php');
 require_once(PATH_t3lib . 'class.t3lib_tsparser.php');
 require_once(PATH_t3lib . 'class.t3lib_tcemain.php');
 
-$LANG->includeLLFile('EXT:templavoila/cm1/locallang.xml');
+$GLOBALS['LANG']->includeLLFile('EXT:templavoila/cm1/locallang.xml');
 $BE_USER->modAccess($ACONF, 1);
 
 // Include class which contains the constants and definitions of TV
@@ -154,6 +154,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	);
 	var $extKey = 'templavoila';	// Extension key of this module
 	var $baseScript = 'index.php?';
+	var $mod1Script = '../mod1/index.php?';
 	var $mod2Script = '../mod2/index.php?';
 	var $dsTypes;			// chached DS-node icons
 	var $changedTO = false;		// detect changes in the TO for "revert"
@@ -209,6 +210,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 		if (preg_match('/mod.php$/', PATH_thisScript)) {
 			$this->baseScript = 'mod.php?M=xMOD_txtemplavoilaCM1&';
+			$this->mod1Script = 'mod.php?M=web_txtemplavoilaM1&';
 			$this->mod2Script = 'mod.php?M=web_txtemplavoilaM2&';
 		}
 
@@ -246,7 +248,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 */
 	function menuConfig()    {
 		$this->MOD_MENU = Array (
-			'displayMode' => array(
+			'displayMode' => array	(
 				'explode' => 'Mode: Exploded Visual',
 #				'_' => 'Mode: Overlay',
 				'source' => 'Mode: HTML Source ',
@@ -878,7 +880,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 * @return	void
 	 */
 	function renderFile_editProcessing($singleView, $cmd = '') {
-		global $LANG, $BE_USER, $TYPO3_DB;
+		global $BE_USER, $TYPO3_DB;
 
 		// Got an override?:
 		$msg = array();
@@ -1117,7 +1119,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 				// Get <body> tag:
 				$reg='';
-				eregi('<body[^>]*>', $fileContent, $reg);
+				eregi('<body[^>]*>',$fileContent,$reg);
 				$templatemapping['BodyTag_cached'] = $currentMappingInfo_head['addBodyTag'] ? $reg[0] : '';
 			}
 
@@ -1461,7 +1463,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 						</tr>
 					</table>
 
-					<input type="submit" name="_save_dsto" value="' . $GLOBALS['LANG']->getLL('updateDSTO') . '" onclick="return confirm(\'' . $LANG->getLL('mess.onOverwriteAlert') . '\');" />
+					<input type="submit" name="_save_dsto" value="' . $GLOBALS['LANG']->getLL('updateDSTO') . '" onclick="return confirm(\'' . $GLOBALS['LANG']->getLL('mess.onOverwriteAlert') . '\');" />
 					<input type="submit" name="_" value="' . $GLOBALS['LANG']->getLL('cancel') . '" />',
 					FALSE,
 					TRUE,
@@ -1661,7 +1663,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 * @return	array with content-blocks
 	 */
 	function renderDSO($singleView) {
-		global $LANG, $BE_USER, $TYPO3_DB;
+		global $BE_USER, $TYPO3_DB;
 
 		// Working on Header and Body of HTML source:
 		if (intval($this->displayUid) > 0) {
@@ -1698,29 +1700,34 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					$tRows = $this->drawDataStructureMap($dataStruct);
 
 					$this->doc->sectionBegin();
-					$content = '
+					$content='
 					<!--
 						Data Structure content:
 					-->
 					<div id="c-ds">'.
 						$this->doc->section(
 							$GLOBALS['LANG']->getLL('structureRecordContent') . ': ' . $this->cshItem('xMOD_tx_templavoila', 'mapping_ds', $this->doc->backPath, ''),
-							'<table border="0" cellspacing="1" cellpadding="1" class="typo3-dblist typo3-tvlist">
+							'<table border="0" cellpadding="1" cellspacing="1" class="typo3-dblist typo3-tvlist">
+							<colgroup>
+								<col width="*"  align="left" />
+								<col width="*"  align="left" />
+								<col width="80" align="center" />
+							</colgroup>
 							<thead>
 								<tr class="c-headLineTable">
-									<th nowrap="nowrap"><strong>' . $GLOBALS['LANG']->getLL('structureElement') . ':</strong>'.
+									<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structureElement') . ':'.
 										$this->cshItem('xMOD_tx_templavoila', 'mapping_head_dataElement', $this->doc->backPath, '', TRUE).
 										'</th>
-									<th nowrap="nowrap"><strong>' . $GLOBALS['LANG']->getLL('structureInstruction') . ':</strong>'.
+									<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structureInstruction') . ':'.
 										$this->cshItem('xMOD_tx_templavoila', 'mapping_head_mapping_instructions', $this->doc->backPath, '', TRUE).
 										'</th>
-									<th nowrap="nowrap"><strong>' . $GLOBALS['LANG']->getLL('structureRule') . ':</strong>'.
+									<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structureRule') . ':'.
 										$this->cshItem('xMOD_tx_templavoila', 'mapping_head_Rules', $this->doc->backPath, '', TRUE).
 										'</th>
 								</tr>
 							</thead>
 							<tbody>
-								' .implode('', $tRows) . '
+								' . implode('', $tRows) . '
 							</tbody>
 							</table>',
 							FALSE,
@@ -1749,14 +1756,14 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				// -----------------------------------------------------
 				// Listing Template Objects with links:
 				while (false !== ($TO_Row = $TYPO3_DB->sql_fetch_assoc($res)))	{
-					t3lib_BEfunc::workspaceOL('tx_templavoila_tmplobj',$TO_Row);
+					t3lib_BEfunc::workspaceOL('tx_templavoila_tmplobj', $TO_Row);
 
 					$fileref = t3lib_div::getFileAbsFileName($TO_Row['fileref']);
 
 					if ($fileref) {
 						// Link to updating DS/TO:
 						$onCl = $this->baseScript . 'id=' . $this->id . '&file=' . rawurlencode($fileref) . '&_load_ds_xml=1&_load_ds_xml_to=' . $TO_Row['uid'];
-						$onClMsg = 'if (confirm(\'' . $LANG->getLL('mess.onModifyAlert') . '\')) { document.location = \'' . $onCl . '\'; } return false;';
+						$onClMsg = 'if (confirm(\'' . $GLOBALS['LANG']->getLL('mess.onModifyAlert') . '\')) { document.location = \'' . $onCl . '\'; } return false;';
 					}
 
 					$tRows[] = '
@@ -1785,16 +1792,15 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 							<colgroup>
 								<col width="40" />
 								<col width="*" span="2" />
-								<col width="100" />
-								<col width="120" />
+								<col width="100" />' . ($BE_USER->check('tables_modify', 'tx_templavoila_datastructure') ? '
+								<col width="120" />' : '') . '
 							</colgroup>
 							<thead>
 								<tr class="c-headLineTable">
 									<th>' . $GLOBALS['LANG']->getLL('templateUID') . ':</th>
 									<th>' . $GLOBALS['LANG']->getLL('templateTitle') . ':</th>
 									<th>' . $GLOBALS['LANG']->getLL('templateFileRef') . ':</th>
-									<th>' . $GLOBALS['LANG']->getLL('templateMappingSize') . ':</th>
-									' . ($BE_USER->check('tables_modify', 'tx_templavoila_datastructure') ? '
+									<th>' . $GLOBALS['LANG']->getLL('templateMappingSize') . ':</th>' . ($BE_USER->check('tables_modify', 'tx_templavoila_datastructure') ? '
 									<th>' . $GLOBALS['LANG']->getLL('modifyDSTO') . ':' . $this->cshItem('xMOD_tx_templavoila', 'mapping_to_modifyDSTO', $this->doc->backPath, '') . '</th>' : '') . '
 								</tr>
 							</thead>
@@ -1881,7 +1887,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 * @return	array with content-blocks
 	 */
 	function renderTO($singleView)	{
-		global $LANG, $BE_USER;
+		global $BE_USER;
 
 		// Working on Header and Body of HTML source:
 		if (intval($this->displayUid) > 0) {
@@ -1931,10 +1937,10 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 								'&returnUrl=' . rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI')) .
 								'&_load_ds_xml=1' .
 								'&_load_ds_xml_to=' . $row['uid'];
-							$onClMsg = 'if (confirm(\'' . $LANG->getLL('mess.onModifyAlert') . '\')) { document.location=\'' . $onCl . '\'; } return false;';
+							$onClMsg = 'if (confirm(\'' . $GLOBALS['LANG']->getLL('mess.onModifyAlert') . '\')) { document.location=\'' . $onCl . '\'; } return false;';
 
 							$this->parts['modify'] =
-								'<input type="submit" name="_" value="Modify DS / TO" onclick="'.htmlspecialchars($onClMsg).'"/>';
+								'<input type="submit" name="_" value="' . $GLOBALS['LANG']->getLL('modifyDSTO') . '" onclick="'.htmlspecialchars($onClMsg).'"/>';
 
 							if ($BE_USER->check('tables_modify', 'tx_templavoila_datastructure') && !$singleView)
 								$fRows[]='
@@ -2388,7 +2394,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		$bodyTagRow = $showBodyTag ? '
 				<tr class="bgColor2">
 					<td><input type="checkbox" name="addBodyTag" value="1"'.($currentHeaderMappingInfo['addBodyTag'] ? ' checked="checked"' : '').' /></td>
-					<td><img src="../html_tags/body.gif" width="32" height="9" alt="" /></td>
+					<td><img src="' . $GLOBALS['BACK_PATH'] . t3lib_extMgm::extRelPath('templavoila') . 'html_tags/body.gif" width="32" height="9" alt="" /></td>
 					<td><pre>'.htmlspecialchars($html_body).'</pre></td>
 				</tr>' : '';
 
@@ -2483,7 +2489,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			}
 		}
 
-			// Add options for attributes:
+		// Add options for attributes:
 		if (is_array($attrDat))	{
 			foreach($attrDat as $attrK => $v) {
 				$optDat[$lastEl['path'] . '/ATTR:' . $attrK] = 'ATTRIBUTE "' . $attrK . '" (= ' . t3lib_div::fixed_lgd_cs($v, 15) . ')';
@@ -2497,32 +2503,38 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				Data Structure table:
 			-->
 			<table border="0" cellspacing="1" cellpadding="1" class="typo3-dblist typo3-tvlist">
+			<colgroup>
+				<col width="*"   align="left"   />' . ($this->editDataStruct ? '
+				<col width="85"  align="center" />' : '
+				<col width="*"   align="justify" />') . '
+				<col width="80"  align="center" />
+				<col width="110" align="center" />' . ($BE_USER->check('tables_modify', 'tx_templavoila_tmplobj') ? '
+				<col width="150" align="center" />' : '') . ($this->editDataStruct && !$this->_preview ? '
+				<col width="90"  align="center" />' : '') . '
+			</colgroup>
 			<thead>
 				<tr class="c-headLineTable">
 					<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structureElement') . ':' .
-						$this->cshItem('xMOD_tx_templavoila', 'mapping_head_dataElement', $this->doc->backPath, '', TRUE) .
-						'</th>
-					' . ($this->editDataStruct ? '
+						$this->cshItem('xMOD_tx_templavoila', 'mapping_head_dataElement', $this->doc->backPath, '', TRUE) . '
+						</th>' . ($this->editDataStruct ? '
 					<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structureField') . ':' .
-						$this->cshItem('xMOD_tx_templavoila', 'mapping_head_Field', $this->doc->backPath, '', TRUE) .
-						'</th>' : '') . '
+						$this->cshItem('xMOD_tx_templavoila', 'mapping_head_Field', $this->doc->backPath, '', TRUE) . '
+						</th>' : '
 					<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL(!$this->_preview ? 'structureInstruction' : 'structureSamples') . ':' .
-						$this->cshItem('xMOD_tx_templavoila', 'mapping_head_' . (!$this->_preview ? 'mapping_instructions' : 'sample_data'), $this->doc->backPath, '', TRUE) .
-						'</th>
+						$this->cshItem('xMOD_tx_templavoila', 'mapping_head_' . (!$this->_preview ? 'mapping_instructions' : 'sample_data'), $this->doc->backPath, '', TRUE) . '
+						</th>') . '
 					<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structureRule') . ':' .
-						$this->cshItem('xMOD_tx_templavoila', 'mapping_head_Rules', $this->doc->backPath, '', TRUE) .
-						'</th>
+						$this->cshItem('xMOD_tx_templavoila', 'mapping_head_Rules', $this->doc->backPath, '', TRUE) . '
+						</th>
 					<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structurePath') . ':' .
-						$this->cshItem('xMOD_tx_templavoila', 'mapping_head_HTMLpath', $this->doc->backPath, '', TRUE) .
-						'</th>
-					' . ($BE_USER->check('tables_modify', 'tx_templavoila_tmplobj') ? '
+						$this->cshItem('xMOD_tx_templavoila', 'mapping_head_HTMLpath', $this->doc->backPath, '', TRUE) . '
+						</th>' . ($BE_USER->check('tables_modify', 'tx_templavoila_tmplobj') ? '
 					<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structureAction') . ':' .
-						$this->cshItem('xMOD_tx_templavoila', 'mapping_head_Action', $this->doc->backPath, '', TRUE) .
-						'</th>' : '') . '
-					' . ($this->editDataStruct && !$this->_preview ? '
+						$this->cshItem('xMOD_tx_templavoila', 'mapping_head_Action', $this->doc->backPath, '', TRUE) . '
+						</th>' : '') . ($this->editDataStruct && !$this->_preview ? '
 					<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structureEdit') . ':' .
-						$this->cshItem('xMOD_tx_templavoila', 'mapping_head_Edit', $this->doc->backPath, '', TRUE) .
-						'</th>' : '') . '
+						$this->cshItem('xMOD_tx_templavoila', 'mapping_head_Edit', $this->doc->backPath, '', TRUE) . '
+						</th>' : '') . '
 				</tr>
 			</thead>
 			<tbody>
@@ -2619,7 +2631,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 * @param	boolean		If true, the "Map" link can be shown, otherwise not. Used internally in the recursions.
 	 * @return	array		Table rows as an array of <tr> tags, $tRows
 	 */
-	function drawDataStructureMap($dataStruct, $mappingMode = 0, $currentMappingInfo = array(), $pathLevels = array(), $optDat = array(), $contentSplittedByMapping = array(), $level = 0, $tRows = array(), $formPrefix = '', $path = '', $mapOK = 1) {
+	function drawDataStructureMap($dataStruct, $mappingMode = 0, $currentMappingInfo = array(), $pathLevels = array(), $optDat = array(), $contentSplittedByMapping = array(), $level = 0, $tRows = array(), $formPrefix = '', $path = '', $mapOK = 1)	{
 		global $BE_USER;
 
 		$bInfo = t3lib_div::clientInfo();
@@ -2657,8 +2669,8 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 						$translatedTitle = $value['tx_templavoila']['title'];
 						$translateIcon = '';
 					}
-					$this->elNames[$formPrefix . '[' . $key . ']']['tx_templavoila']['title'] = $icon . '<strong>' . htmlspecialchars(t3lib_div::fixed_lgd_cs($translatedTitle, 30)).'</strong>'.$translateIcon;
-					$rowCells['title'] = '<img src="clear.gif" width="' . ($level * 16) . '" height="1" alt="" />' . $this->elNames[$formPrefix.'['.$key.']']['tx_templavoila']['title'];
+					$this->elNames[$formPrefix . '[' . $key . ']']['tx_templavoila']['title'] = $icon . '<strong>' . htmlspecialchars(t3lib_div::fixed_lgd_cs($translatedTitle, 30)) . '</strong>' . $translateIcon;
+					$rowCells['title'] = '<img src="clear.gif" width="' . ($level * 16) . '" height="1" alt="" />' . $this->elNames[$formPrefix . '[' . $key . ']']['tx_templavoila']['title'];
 
 					// Description:
 					$this->elNames[$formPrefix . '[' . $key . ']']['tx_templavoila']['description'] = $rowCells['description'] = htmlspecialchars($value['tx_templavoila']['description']);
@@ -2678,6 +2690,9 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 						if ($currentMappingInfo[$key]['MAP_EL']) {
 							// If mapping of this information also succeeded...:
 							if (isset($contentSplittedByMapping['cArray'][$key])) {
+								// If content mapped ok, set flag:
+								$isMapOK = 1;
+
 								$cF = implode(chr(10), t3lib_div::trimExplode(chr(10), $contentSplittedByMapping['cArray'][$key], 1));
 								if (strlen($cF)>200)	{
 									$cF = t3lib_div::fixed_lgd_cs($cF, 90) . ' ' . t3lib_div::fixed_lgd_cs($cF, -90);
@@ -2685,22 +2700,20 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 								// Render HTML path:
 								list($pI) = $this->markupObj->splitPath($currentMappingInfo[$key]['MAP_EL']);
+
 								$rowCells['htmlPath'] =
-									'<img' . t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/icon_ok2.gif', 'width="18" height="16"') . ' border="0" alt="" title="' . htmlspecialchars($cF ? 'Content found (' . strlen($contentSplittedByMapping['cArray'][$key]) . ' chars)' . ($multilineTooltips ? ':' . chr(10) . chr(10) . $cF :'') : 'Content empty.') . '" class="absmiddle" />' .
-														'<img src="../html_tags/' . $pI['el'] . '.gif" height="9" border="0" alt="" hspace="3" class="absmiddle" title="---' . htmlspecialchars(t3lib_div::fixed_lgd_cs($currentMappingInfo[$key]['MAP_EL'], -80)) . '" />' .
-														($pI['modifier'] ? $pI['modifier'] . ($pI['modifier_value'] ? ':' . ($pI['modifier'] != 'RANGE' ? $pI['modifier_value'] : '...') : '') : '');
+									'<img' . t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/icon_ok2.gif', 'width="18" height="16"') . ' border="0" alt="" title="' . htmlspecialchars($cF ? sprintf($GLOBALS['LANG']->getLL('mappingFound'), strlen($contentSplittedByMapping['cArray'][$key])) . ($multilineTooltips ? ':' . chr(10) . chr(10) . $cF :'') : $GLOBALS['LANG']->getLL('mappingEmpty' )) . '" class="absmiddle" />' .
+									'<img src="' . $GLOBALS['BACK_PATH'] . t3lib_extMgm::extRelPath('templavoila') . 'html_tags/' . $pI['el'] . '.gif" height="9" border="0" alt="" hspace="3" class="absmiddle" title="---' . htmlspecialchars(t3lib_div::fixed_lgd_cs($currentMappingInfo[$key]['MAP_EL'], -80)) . '" />' .
+									($pI['modifier'] ? $pI['modifier'] . ($pI['modifier_value'] ? ':' . ($pI['modifier'] != 'RANGE' ? $pI['modifier_value'] : '...') : '') : '');
 								$rowCells['htmlPath'] =
 									'<a href="' . $this->linkThisScript(array('htmlPath' => $path . ($path ? '|' : '') . ereg_replace('\/[^ ]*$', '', $currentMappingInfo[$key]['MAP_EL']), 'showPathOnly' => 1)) . '">' . $rowCells['htmlPath'] . '</a>';
 
 								// CMD links, default content:
 								$rowCells['cmdLinks'] =
 									'<span class="nobr">' .
-									'<input type="submit" value="Re-Map" name="_" onclick="document.location=\''.$this->linkThisScript(array('mapElPath'=>$formPrefix.'['.$key.']','htmlPath'=>$path,'mappingToTags'=>$value['tx_templavoila']['tags'])).'\';return false;" title="Map this DS element to another HTML element in template file." />'.
-									'<input type="submit" value="Change Mode" name="_" onclick="document.location=\''.$this->linkThisScript(array('mapElPath'=>$formPrefix.'['.$key.']','htmlPath'=>$path.($path?'|':'').$pI['path'],'doMappingOfPath'=>1)).'\';return false;" title="Change mapping mode, eg. from INNER to OUTER etc." />' .
+									'<input type="submit" value="' . $GLOBALS['LANG']->getLL('actionRemap' ) . '" name="_" onclick="document.location=\'' . $this->linkThisScript(array('mapElPath' => $formPrefix . '[' . $key . ']', 'htmlPath' => $path, 'mappingToTags' => $value['tx_templavoila']['tags'])) .      '\';return false;" title="' . $GLOBALS['LANG']->getLL('actiontitleRemap' ) . '" />'.
+									'<input type="submit" value="' . $GLOBALS['LANG']->getLL('actionChange') . '" name="_" onclick="document.location=\'' . $this->linkThisScript(array('mapElPath' => $formPrefix . '[' . $key . ']', 'htmlPath' => $path. ($path ? '|' : '') . $pI['path'], 'doMappingOfPath' => 1)) . '\';return false;" title="' . $GLOBALS['LANG']->getLL('actiontitleChange') . '" />' .
 									'</span>';
-
-								// If content mapped ok, set flag:
-								$isMapOK=1;
 							} else {
 								// Issue warning if mapping was lost:
 								$rowCells['htmlPath'] =
@@ -2720,35 +2733,39 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 								$lastLevel = end($pathLevels);
 								$tagsMapping = $this->explodeMappingToTagsStr($value['tx_templavoila']['tags']);
 								$mapDat = is_array($tagsMapping[$lastLevel['el']]) ? $tagsMapping[$lastLevel['el']] : $tagsMapping['*'];
+
 								unset($mapDat['']);
-								if (is_array($mapDat) && !count($mapDat))	unset($mapDat);
+								if (is_array($mapDat) && !count($mapDat))
+									unset($mapDat);
 
 								// Create mapping options:
-								$didSetSel=0;
-								$opt=array();
+								$didSetSel = 0;
+								$opt = array();
 								foreach($optDat as $k => $v)	{
 									list($pI) = $this->markupObj->splitPath($k);
 
-									if (($value['type']=='attr' && $pI['modifier']=='ATTR') || ($value['type']!='attr' && $pI['modifier']!='ATTR'))	{
+									if (($value['type'] == 'attr' && $pI['modifier'] == 'ATTR') || ($value['type'] != 'attr' && $pI['modifier'] != 'ATTR')) {
 										if (
-												(!$this->markupObj->tags[$lastLevel['el']]['single'] || $pI['modifier']!='INNER') &&
-												(!is_array($mapDat) || ($pI['modifier']!='ATTR' && isset($mapDat[strtolower($pI['modifier']?$pI['modifier']:'outer')])) || ($pI['modifier']=='ATTR' && (isset($mapDat['attr']['*']) || isset($mapDat['attr'][$pI['modifier_value']]))))
+												(!$this->markupObj->tags[$lastLevel['el']]['single'] || $pI['modifier'] != 'INNER') &&
+												(!is_array($mapDat) || ($pI['modifier']!='ATTR' && isset($mapDat[strtolower($pI['modifier'] ? $pI['modifier'] : 'outer')])) || ($pI['modifier'] == 'ATTR' && (isset($mapDat['attr']['*']) || isset($mapDat['attr'][$pI['modifier_value']]))))
 
-											)	{
+											) {
 
-											if($k==$currentMappingInfo[$key]['MAP_EL'])	{
+											if($k == $currentMappingInfo[$key]['MAP_EL']) {
 												$sel = ' selected="selected"';
-												$didSetSel=1;
+												$didSetSel = 1;
 											} else {
 												$sel = '';
 											}
-											$opt[]='<option value="'.htmlspecialchars($k).'"'.$sel.'>'.htmlspecialchars($v).'</option>';
+
+											$opt[] = '<option value="' . htmlspecialchars($k) . '"' . $sel . '>' . htmlspecialchars($v) . '</option>';
 										}
 									}
 								}
 
-									// Finally, put together the selector box:
-								$rowCells['cmdLinks'] = '<img src="../html_tags/' . $lastLevel['el'] . '.gif" height="9" border="0" alt="" class="absmiddle" title="---'.htmlspecialchars(t3lib_div::fixed_lgd_cs($lastLevel['path'],-80)).'" /><br />
+								// Finally, put together the selector box:
+								$rowCells['cmdLinks'] = '
+									<img src="' . $GLOBALS['BACK_PATH'] . t3lib_extMgm::extRelPath('templavoila') . 'html_tags/' . $lastLevel['el'] . '.gif" height="9" border="0" alt="" class="absmiddle" title="---' . htmlspecialchars(t3lib_div::fixed_lgd_cs($lastLevel['path'], -80)) . '" /><br />
 									<select name="dataMappingForm' . $formPrefix . '[' . $key . '][MAP_EL]">
 										' . implode('
 										', $opt) . '
@@ -2760,32 +2777,36 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 								$rowCells['cmdLinks'].=
 									$this->cshItem('xMOD_tx_templavoila', 'mapping_modeset', $this->doc->backPath, '', FALSE, 'margin-bottom: 0px;');
 							} else {
-								$rowCells['cmdLinks'] = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/icon_note.gif','width="18" height="16"').' border="0" alt="" class="absmiddle" /><strong>Click a tag-icon in the window below to map this element.</strong>';
-								$rowCells['cmdLinks'].= '<br />
-										<input type="submit" value="Cancel" name="_" onclick="document.location=\'' . $this->linkThisScript(array()).'\';return false;" />';
+								$rowCells['cmdLinks'] = '
+									<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/icon_note.gif', 'width="18" height="16"') . ' border="0" alt="" class="absmiddle" /><strong>Click a tag-icon in the window below to map this element.</strong>
+									<br />
+									<input type="submit" value="Cancel" name="_" onclick="document.location=\'' . $this->linkThisScript(array('mapElPath' => null)) . '\';return false;" />';
 							}
 						} elseif (!$rowCells['cmdLinks'] && $mapOK && $value['type'] != 'no_map') {
 							$rowCells['cmdLinks'] = '
-										<input type="submit" value="Map" name="_" onclick="document.location=\'' . $this->linkThisScript(array('mapElPath'=>$formPrefix.'['.$key.']','htmlPath'=>$path,'mappingToTags'=>$value['tx_templavoila']['tags'])).'\';return false;" />';
+									<input type="submit" value="Map" name="_" onclick="document.location=\'' . $this->linkThisScript(array('mapElPath' => $formPrefix . '[' . $key . ']', 'htmlPath' => $path, 'mappingToTags' => $value['tx_templavoila']['tags'])) . '\';return false;" />';
 						}
 					}
 
 					// Display edit/delete icons:
 					if ($this->editDataStruct && !$this->_preview) {
-						$editAddCol  = '<a href="'.$this->linkThisScript(array('DS_element_MUP'=>$formPrefix.'['.$key.']')).'" ' . ($isMapOK ? 'style="visibility: hidden;"' : '') . '>'.
-							'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],'gfx/button_up.gif','width="11" height="12"').' hspace="2" border="0" alt="" title="Move entry up" />'.
-							'</a>';
-						$editAddCol .= '<a href="'.$this->linkThisScript(array('DS_element_MDOWN'=>$formPrefix.'['.$key.']')).'" ' . ($isMapOK ? 'style="visibility: hidden;"' : '') . '>'.
-							'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],'gfx/button_down.gif','width="11" height="12"').' hspace="2" border="0" alt="" title="Move entry down" />'.
-							'</a>';
-						$editAddCol .= '<a href="'.$this->linkThisScript(array('DS_element'=>$formPrefix.'['.$key.']')).'">'.
-							'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],'gfx/edit2.gif','width="11" height="12"').' hspace="2" border="0" alt="" title="Edit entry" />'.
-							'</a>';
-						$editAddCol .= '<a href="'.$this->linkThisScript(array('DS_element_DELETE'=>$formPrefix.'['.$key.']')).'">'.
-							'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],'gfx/garbage.gif','width="11" height="12"').' hspace="2" border="0" alt="" title="DELETE entry" onclick=" return confirm(\'' . $GLOBALS['LANG']->getLL('mess.onDeleteAlert') . '\');" />'.
+						$editAddCol = '<a href="' . $this->linkThisScript(array('DS_element_MUP' => $formPrefix . '[' . $key . ']')) . '" ' . ($isMapOK ? 'style="visibility: hidden;"' : '') . '>'.
+							'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/button_up.gif', 'width="11" height="12"').' hspace="2" border="0" alt="" title="Move entry up" />'.
 							'</a>';
 
-						$editAddCol = '<td nowrap="nowrap">' . $editAddCol . '</td>';
+						$editAddCol.= '<a href="'.$this->linkThisScript(array('DS_element_MDOWN'=>$formPrefix.'[' . $key . ']')) . '" ' . ($isMapOK ? 'style="visibility: hidden;"' : '') . '>'.
+							'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/button_down.gif', 'width="11" height="12"') . ' hspace="2" border="0" alt="" title="Move entry down" />'.
+							'</a>';
+
+						$editAddCol.= '<a href="'.$this->linkThisScript(array('DS_element'=>$formPrefix.'['.$key.']')).'">'.
+							'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/edit2.gif', 'width="11" height="12"') . ' hspace="2" border="0" alt="" title="Edit entry" />'.
+							'</a>';
+
+						$editAddCol.= '<a href="'.$this->linkThisScript(array('DS_element_DELETE'=>$formPrefix.'['.$key.']')).'">'.
+							'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/garbage.gif', 'width="11" height="12"') . ' hspace="2" border="0" alt="" title="DELETE entry" onclick=" return confirm(\'' . $GLOBALS['LANG']->getLL('mess.onDeleteAlert') . '\');" />'.
+							'</a>';
+
+						$editAddCol = '<td nowrap="nowrap">'.$editAddCol.'</td>';
 					} else {
 						$editAddCol = '';
 					}
@@ -2805,19 +2826,18 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					// Put row together
 					else if (!$this->mapElPath || ($this->mapElPath == ($formPrefix . '[' . $key . ']'))) {
 						$tRows[] = '
-
 							<tr class="' . ($rowIndex % 2 ? 'bgColor4' : 'bgColor6') . '">
-							<td nowrap="nowrap" valign="center">' . $rowCells['title'] . '</td>
-							' . ($this->editDataStruct ? '
-							<td nowrap="nowrap">' . $key . '</td>' : '') . '
-							<td>' . $rowCells['description'] . '</td>
-							<td>' . $rowCells['tagRules'] . '</td>
-							' . ($mappingMode ? '
-							<td nowrap="nowrap">' . $rowCells['htmlPath'] . '</td>' : '') . '
-							' . ($BE_USER->check('tables_modify', 'tx_templavoila_tmplobj') ? '
-							<td>' . $rowCells['cmdLinks'] . '</td>' : '') . '
-							' . $editAddCol . '
-						</tr>';
+								<td nowrap="nowrap" valign="center">' . $rowCells['title'] . '</td>
+								' . ($this->editDataStruct ? '
+								<td nowrap="nowrap">' . $key . '</td>' : '
+								<td>' . $rowCells['description'] . '</td>').'
+								<td align="center">' . $rowCells['tagRules'] . '</td>
+								' . ($mappingMode ? '
+								<td align="center" nowrap="nowrap">' . $rowCells['htmlPath'] . '</td>' : '').'
+								' . ($BE_USER->check('tables_modify', 'tx_templavoila_tmplobj') ? '
+								<td align="center">' . $rowCells['cmdLinks'] . '</td>' : '').'
+								' . $editAddCol . '
+							</tr>';
 					}
 
 					// Recursive call:
@@ -2860,7 +2880,6 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 * @return	array		Two values, first is addEditRows (string HTML content), second is boolean whether to place row before or after.
 	 */
 	function drawDataStructureMap_editItem($formPrefix,$key,$value,$level)	{
-		global $LANG;
 
 		// Init:
 		$addEditRows='';
@@ -2869,18 +2888,18 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		// If editing command is set:
 		// Triggering the preview turn it off
 		if ($this->editDataStruct && !$this->_preview)	{
-			if ($this->DS_element == $formPrefix.'['.$key.']')	{	// If the editing-command points to this element:
+			if ($this->DS_element == $formPrefix . '[' . $key . ']') {	// If the editing-command points to this element:
 
-					// Initialize, detecting either "add" or "edit" (default) mode:
+				// Initialize, detecting either "add" or "edit" (default) mode:
 				$autokey='';
-				if ($this->DS_cmd=='add')	{
-					if (trim($this->fieldName)!='[Enter new fieldname]' && trim($this->fieldName)!='field_')	{
-						$autokey = strtolower(ereg_replace('[^[:alnum:]_]','',trim($this->fieldName)));
+				if ($this->DS_cmd == 'add') {
+					if (trim($this->fieldName) != '[Enter new fieldname]' && trim($this->fieldName) != 'field_') {
+						$autokey = strtolower(ereg_replace('[^[:alnum:]_]', '', trim($this->fieldName)));
 						if (isset($value['el'][$autokey]))	{
-							$autokey.='_'.substr(md5(microtime()),0,2);
+							$autokey .= '_' . substr(md5(microtime()), 0, 2);
 						}
 					} else {
-						$autokey='field_'.substr(md5(microtime()),0,6);
+						$autokey = 'field_' . substr(md5(microtime()), 0, 6);
 					}
 
 						// new entries are more offset
@@ -2932,7 +2951,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					'.$this->lipsumLink($formFieldName.'[tx_templavoila][sample_data]').'</dd>
 
 					<dt><label>Element Preset:</label></dt>
-					<dd><select onchange="if (confirm(\'' . $LANG->getLL('mess.onChangeAlert') . '\')) document.getElementById(\'_updateDS\').click();"
+					<dd><select onchange="if (confirm(\'' . $GLOBALS['LANG']->getLL('mess.onChangeAlert') . '\')) document.getElementById(\'_updateDS\').click();"
 						name="'.$formFieldName.'[tx_templavoila][eType]">
 						<optgroup class="c-divider" label="TCE-Fields">
 							<option value="input"'.           ($insertDataArray['tx_templavoila']['eType']=='input'            ? ' selected="selected"' : '').'>Plain input field</option>
@@ -3029,7 +3048,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					$form .= '
 					<dl id="dsel-extra" class="DS-config">
 						<dt>Extra options</dt>
-						<dd>'.$extra.'</dd>
+						<dd>' . $extra . '</dd>
 					</dl>';
 
 					/* The process-related XML-structure of an tx_templavoila-entry is:
@@ -3096,10 +3115,10 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				}
 
 				$formSubmit = '
-					<input type="hidden" name="DS_element" value="'.htmlspecialchars($this->DS_cmd=='add' ? $this->DS_element.'[el]['.$autokey.']' : $this->DS_element).'" />
+					<input type="hidden" name="DS_element" value="'.htmlspecialchars($this->DS_cmd == 'add' ? $this->DS_element . '[el][' . $autokey . ']' : $this->DS_element).'" />
 					<input type="submit" name="_updateDS" id="_updateDS" style="display: none;" />
 					<input type="image" name="_updateDS" title="'.($this->DS_cmd == 'add' ? 'Add' : 'Update').'"
-						style="cursor: pointer; vertical-align: middle;" src="' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/savedok'.($this->DS_cmd == 'add' ? 'new' : '').'.gif', '', 1) . '" />
+						style="cursor: pointer; vertical-align: middle;" src="' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/savedok' . ($this->DS_cmd == 'add' ? 'new' : '').'.gif', '', 1) . '" />
 <!--					<input type="submit" name="'.$formFieldName.'" value="Delete (!)" />  -->
 					<img                                 title="'.($this->DS_cmd=='add' ? 'Cancel' : 'Cancel/Close').'"
 						style="cursor: pointer; vertical-align: middle;" src="' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/close.gif', '', 1) . '"
@@ -3120,18 +3139,18 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				$info = $this->dsTypeInfo($insertDataArray);
 
 				$addEditRows = '<tr class="bgColor4 tv-edit-row">
-					<td valign="top" style="padding: 0.8em 2px 0.8em '.(($level) * 16 + 3).'px;" nowrap="nowrap">
-						<select style="margin: 4px 0 4px 0; padding: 1px 1px 1px 30px; background: 0 50% url(' . $info[3] . ') no-repeat; width: 150px !important;" title="Mapping Type" name="'.$formFieldName.'[type]" onchange="if (confirm(\''.$LANG->getLL('mess.onChangeAlert').'\')) document.getElementById(\'_updateDS\').click();">
+					<td valign="top" style="padding: 0.8em 2px 0.8em ' . (($level) * 16 + 3) . 'px;" nowrap="nowrap">
+						<select style="margin: 4px 0 4px 0; padding: 1px 1px 1px 30px; background: 0 50% url(' . $info[3] . ') no-repeat; width: 150px !important;" title="Mapping Type" name="'.$formFieldName.'[type]" onchange="if (confirm(\'' . $GLOBALS['LANG']->getLL('mess.onChangeAlert').'\')) document.getElementById(\'_updateDS\').click();">
 							<optgroup class="c-divider" label="Containers">
-								<option style="padding: 1px 1px 1px 30px; background: 0 50% url(' . $this->dsTypes['sc'][3] . ') no-repeat;" value="section"'. ($insertDataArray['type']=='section' ? ' selected="selected"' : '').'>Section of elements</option>
-								<option style="padding: 1px 1px 1px 30px; background: 0 50% url(' . $this->dsTypes['co'][3] . ') no-repeat;" value="array"'.   ($insertDataArray['type']=='array'   ? ' selected="selected"' : '').'>Container for elements</option>
+								<option style="padding: 1px 1px 1px 30px; background: 0 50% url(' . $this->dsTypes['sc'][3] . ') no-repeat;" value="section"'. ($insertDataArray['type']=='section' ? ' selected="selected"' : '') . '>Section of elements</option>
+								<option style="padding: 1px 1px 1px 30px; background: 0 50% url(' . $this->dsTypes['co'][3] . ') no-repeat;" value="array"'.   ($insertDataArray['type']=='array'   ? ' selected="selected"' : '') . '>Container for elements</option>
 							</optgroup>
 							<optgroup class="c-divider" label="Elements">
-								<option style="padding: 1px 1px 1px 30px; background: 0 50% url(' . $this->dsTypes['el'][3] . ') no-repeat;" value=""'.        ($insertDataArray['type']==''        ? ' selected="selected"' : '').'>Element</option>
-								<option style="padding: 1px 1px 1px 30px; background: 0 50% url(' . $this->dsTypes['at'][3] . ') no-repeat;" value="attr"'.    ($insertDataArray['type']=='attr'    ? ' selected="selected"' : '').'>Attribute</option>
+								<option style="padding: 1px 1px 1px 30px; background: 0 50% url(' . $this->dsTypes['el'][3] . ') no-repeat;" value=""'.        ($insertDataArray['type']==''        ? ' selected="selected"' : '') . '>Element</option>
+								<option style="padding: 1px 1px 1px 30px; background: 0 50% url(' . $this->dsTypes['at'][3] . ') no-repeat;" value="attr"'.    ($insertDataArray['type']=='attr'    ? ' selected="selected"' : '') . '>Attribute</option>
 							</optgroup>
 							<optgroup class="c-divider" label="Other">
-								<option style="padding: 1px 1px 1px 30px; background: 0 50% url(' . $this->dsTypes['no'][3] . ') no-repeat;" value="no_map"'.  ($insertDataArray['type']=='no_map'  ? ' selected="selected"' : '').'>Not mapped</option>
+								<option style="padding: 1px 1px 1px 30px; background: 0 50% url(' . $this->dsTypes['no'][3] . ') no-repeat;" value="no_map"'.  ($insertDataArray['type']=='no_map'  ? ' selected="selected"' : '') . '>Not mapped</option>
 							</optgroup>
 						</select>
 						<div style="margin: 0.25em;">' .
@@ -3150,7 +3169,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 						</ul>
 						' . $this->cshItem('xMOD_tx_templavoila', 'mapping_editform', $this->doc->backPath, '', FALSE, 'margin-bottom: 0px;') . '
 					</td>
-					<td valign="top" style="padding: 0.8em 2px 0.8em 2px;" colspan="3">
+					<td valign="top" style="padding: 0.8em 2px 0.8em 2px;" colspan="4">
 						' . $form . '
 						<script type="text/javascript">
 							var dsel_act = "' . (t3lib_div::_GP('dsel_act') ? t3lib_div::_GP('dsel_act') : 'general') . '";
@@ -3199,18 +3218,19 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 							xmlarea_init();
 						</script>
 					</td>
-					<td valign="top" align="right" style="padding: 0.5em 2px 0.5em 2px;" colspan="3">
-					' . $formSubmit . '
+					<td valign="top" align="right" style="padding: 0.5em 2px 0.5em 2px;" colspan="1">
+						' . $formSubmit . '
 					</td>
 				</tr>';
 			}
 			else if (!$this->DS_element && ($value['type']=='array' || $value['type']=='section') && !$this->mapElPath) {
-				$addEditRows='<tr class="bgColor4">
-					<td colspan="7">
-						<img src="clear.gif" width="'.(($level+1)*16).'" height="1" alt="" />
-						<input type="text" name="'.md5($formPrefix.'['.$key.']').'" value="[Enter new fieldname]" onfocus="if (this.value==\'[Enter new fieldname]\'){this.value=\'field_\';}" />
+				$addEditRows = '
+				<tr class="bgColor4">
+					<td colspan="6">
+						<img src="clear.gif" width="' . (($level + 1) * 16) . '" height="1" alt="" />
+						<input type="text" name="' . md5($formPrefix . '[' . $key . ']') . '" value="[Enter new fieldname]" onfocus="if (this.value==\'[Enter new fieldname]\'){this.value=\'field_\';}" />
 						<img style="cursor: pointer; vertical-align: -3px;" title="Add" src="' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/new_record.gif', '', 1) . '" hspace="2"
-							onclick="document.location=\''.$this->linkThisScript(array('DS_element'=>$formPrefix.'['.$key.']','DS_cmd'=>'add')).'&amp;fieldName=\'+document.pageform[\''.md5($formPrefix.'['.$key.']').'\'].value; return false;" />
+							onclick="document.location=\'' . $this->linkThisScript(array('DS_element' => $formPrefix . '[' . $key . ']', 'DS_cmd' => 'add')) . '&amp;fieldName=\'+document.pageform[\'' . md5($formPrefix . '[' . $key . ']') . '\'].value; return false;" />
 						' . $this->cshItem('xMOD_tx_templavoila', 'mapping_addfield', $this->doc->backPath, '', FALSE, 'margin-bottom: 0px;') . '
 					</td>
 				</tr>';
@@ -3795,13 +3815,13 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 * @return	string		HTML code for the IFRAME.
 	 * @see main_display()
 	 */
-	function makeIframeForVisual($file,$path,$limitTags,$showOnly,$preview=0)	{
-		$url = $this->baseScript . 'mode=display'.
-				'&file='.rawurlencode($file).
-				'&path='.rawurlencode($path).
-				'&preview='.($preview?1:0).
-				($showOnly?'&show=1':'&limitTags='.rawurlencode($limitTags));
-		return '<iframe width="98%" height="500" src="'.htmlspecialchars($url).'#_MARKED_UP_ELEMENT" style="border: 1xpx solid black;"></iframe>';
+	function makeIframeForVisual($file, $path, $limitTags, $showOnly, $preview = 0) {
+		$url = $this->baseScript . 'mode=display' .
+				'&file=' . rawurlencode($file) .
+				'&path=' . rawurlencode($path) .
+				'&preview=' . ($preview? 1 : 0) .
+				($showOnly ? '&show=1' : '&limitTags=' . rawurlencode($limitTags));
+		return '<iframe width="98%" height="500" src="' . htmlspecialchars($url) . '#_MARKED_UP_ELEMENT" style="border: 1xpx solid black;"></iframe>';
 	}
 
 	/**
@@ -4177,27 +4197,27 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 				// Browsing file directly, possibly creating a template/data object records.
 			$this->MOD_MENU['page'] =
 				array(
-				/*	'details'   => 'Information',	*/
-					'structure' => 'Structure',
-					'preview'   => 'Preview',
-					'xml'       => 'XML'
+				/*	'details'   => $GLOBALS['LANG']->getLL('tabFileDetails'),	*/
+					'structure' => $GLOBALS['LANG']->getLL('tabFileStructure'),
+					'preview'   => $GLOBALS['LANG']->getLL('tabPreview'),
+					'xml'       => $GLOBALS['LANG']->getLL('tabXML')
 				);
 		} elseif (t3lib_div::_GP('table') == 'tx_templavoila_datastructure') {
 				// Data source display
 			$this->MOD_MENU['page'] =
 				array(
-				/*	'details'   => 'Information',	*/
-					'overview'  => 'Information',
-					'xml'       => 'XML'
+				/*	'details'   => $GLOBALS['LANG']->getLL('tabDSDetails'),	*/
+					'overview'  => $GLOBALS['LANG']->getLL('tabDSDetails'),
+					'xml'       => $GLOBALS['LANG']->getLL('tabXML')
 				);
 		} elseif (t3lib_div::_GP('table') == 'tx_templavoila_tmplobj') {
 				// Data source display
 			$this->MOD_MENU['page'] =
 				array(
-				/*	'details'   => 'Information',	*/
-					'header'    => 'Map head-elements',
-					'mapping'   => 'Map body-elements',
-					'preview'   => 'Preview current mapping'
+				/*	'details'   => $GLOBALS['LANG']->getLL('tabTODetails'),	*/
+					'header'    => $GLOBALS['LANG']->getLL('tabMapHeadParts'),
+					'mapping'   => $GLOBALS['LANG']->getLL('tabMapBodyParts'),
+					'preview'   => $GLOBALS['LANG']->getLL('tabPreviewCurrent')
 				);
 
 			if (!$BE_USER->check('tables_modify', 'tx_templavoila_tmplobj')) {
@@ -4319,7 +4339,7 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 	 * @return	void
 	 */
 	function main()	{
-		global $BE_USER,$LANG,$BACK_PATH;
+		global $BE_USER, $BACK_PATH;
 
 		// Access check...
 		// The page will show only if there is a valid page and if this page may be viewed by the user
@@ -4447,7 +4467,7 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 			);
 
 			// Build the <body> for the module
-			$this->content  = $this->doc->startPage($LANG->getLL('title'));
+			$this->content  = $this->doc->startPage($GLOBALS['LANG']->getLL('title'));
 			$this->content .= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $markers);
 			$this->content .= $this->doc->endPage();
 			$this->content  = $this->doc->insertStylesAndJS($this->content);
@@ -4456,8 +4476,8 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 			$this->doc = t3lib_div::makeInstance('mediumDoc');
 			$this->doc->backPath = $BACK_PATH;
 
-			$this->content .= $this->doc->startPage($LANG->getLL('title'));
-			$this->content .= $this->doc->header($LANG->getLL('title'));
+			$this->content .= $this->doc->startPage($GLOBALS['LANG']->getLL('title'));
+			$this->content .= $this->doc->header($GLOBALS['LANG']->getLL('title'));
 			$this->content .= $this->doc->spacer(5);
 			$this->content .= $this->doc->spacer(10);
 			$this->content .= $this->doc->endPage();
@@ -4481,7 +4501,7 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 	 * @return	array	all available buttons as an assoc. array
 	 */
 	function getButtons()	{
-		global $TCA, $LANG, $BACK_PATH, $BE_USER;
+		global $TCA, $BACK_PATH, $BE_USER;
 
 		$this->R_URI = t3lib_div::_GP('returnUrl');
 
@@ -4527,7 +4547,7 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 				'</a>';
 		}
 		if ($this->id) {
-			$buttons['back'] = '<a href="' . htmlspecialchars($this->mod1Script.'id='.$this->id) . '">' .
+			$buttons['back'] = '<a href="' . htmlspecialchars($this->mod2Script . 'id=' . $this->id) . '">' .
 				'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/closedok.gif') . ' class="c-inputButton" title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.goBack', 1) . '" alt="" />' .
 				'</a>';
 		}
@@ -4654,17 +4674,17 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 	 * @return	string	Page path
 	 */
 	function getFilePath() {
-		global $LANG;
 
-			// Is this a real page
+		// Is this a real page
 		if ($this->markupFile)	{
 			$title = substr($this->markupFile, strlen(PATH_site));
 		} else {
 			$title = $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'];
 		}
 
-			// Setting the path of the page
-		$pagePath = $LANG->sL('LLL:EXT:lang/locallang_core.php:labels.path', 1) . ': <span class="typo3-docheader-pagePath">' . htmlspecialchars(t3lib_div::fixed_lgd_cs($title, -50)) . '</span>';
+		// Setting the path of the page
+		$pagePath = $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.path', 1) . ': <span class="typo3-docheader-pagePath">' . htmlspecialchars(t3lib_div::fixed_lgd_cs($title, -50)) . '</span>';
+
 		return $pagePath;
 	}
 
@@ -4682,7 +4702,7 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 			ereg("(.*)\.([^\.]*$)", $this->markupFile, $reg);
 			$alttext = $reg[2];
 			$icon = t3lib_BEfunc::getFileIcon($reg[2]);
-			$iconImg = '<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/fileicons/'.$icon,'width="18" height="16"').' title="'.htmlspecialchars($alttext).'" alt="" />';
+			$iconImg = '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/fileicons/' . $icon,'width="18" height="16"') . ' title="'.htmlspecialchars($alttext) . '" alt="" />';
 				// Make Icon:
 			$theIcon = $GLOBALS['SOBE']->doc->wrapClickMenuOnIcon($iconImg, $this->markupFile);
 			$theIcon = $theIcon . '<em>[modified: ' . Date($GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy'], @filemtime($this->markupFile)) . ']</em>';
@@ -4709,26 +4729,26 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 	 * @return	string	Page path
 	 */
 	function getDSPath($pageRecord) {
-		global $LANG;
 
-			// Is this a real page
+		// Is this a real page
 		if ($pageRecord['uid'])	{
 			$title = $pageRecord['_thePath'];
 		} else {
 			$title = $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'];
 		}
 
-			// Is this a real DS
-		if (intval($this->displayUid) > 0)	{
+		// Is this a real DS
+		if (intval($this->displayUid) > 0) {
 			$row = t3lib_BEfunc::getRecordWSOL('tx_templavoila_datastructure', $this->displayUid);
 
-			if (is_array($row))	{
-				$title .= t3lib_BEfunc::getRecordTitle('tx_templavoila_datastructure',$row,1);
+			if (is_array($row)) {
+				$title .= t3lib_BEfunc::getRecordTitle('tx_templavoila_datastructure', $row, 1);
 			}
 		}
 
-			// Setting the path of the page
-		$pagePath = $LANG->sL('LLL:EXT:lang/locallang_core.php:labels.path', 1) . ': <span class="typo3-docheader-pagePath">' . htmlspecialchars(t3lib_div::fixed_lgd_cs($title, -50)) . '</span>';
+		// Setting the path of the page
+		$pagePath = $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.path', 1) . ': <span class="typo3-docheader-pagePath">' . htmlspecialchars(t3lib_div::fixed_lgd_cs($title, -50)) . '</span>';
+
 		return $pagePath;
 	}
 
@@ -4765,26 +4785,26 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 	 * @return	string	Page path
 	 */
 	function getTOPath($pageRecord) {
-		global $LANG;
 
-			// Is this a real page
+		// Is this a real page
 		if ($pageRecord['uid'])	{
 			$title = $pageRecord['_thePath'];
 		} else {
 			$title = $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'];
 		}
 
-			// Is this a real TO
-		if (intval($this->displayUid) > 0)	{
+		// Is this a real TO
+		if (intval($this->displayUid) > 0) {
 			$row = t3lib_BEfunc::getRecordWSOL('tx_templavoila_tmplobj', $this->displayUid);
 
-			if (is_array($row))	{
+			if (is_array($row)) {
 				$title .= t3lib_BEfunc::getRecordTitle('tx_templavoila_tmplobj', $row);
 			}
 		}
 
-			// Setting the path of the page
-		$pagePath = $LANG->sL('LLL:EXT:lang/locallang_core.php:labels.path', 1) . ': <span class="typo3-docheader-pagePath">' . htmlspecialchars(t3lib_div::fixed_lgd_cs($title, -50)) . '</span>';
+		// Setting the path of the page
+		$pagePath = $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.path', 1) . ': <span class="typo3-docheader-pagePath">' . htmlspecialchars(t3lib_div::fixed_lgd_cs($title, -50)) . '</span>';
+
 		return $pagePath;
 	}
 

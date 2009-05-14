@@ -235,12 +235,13 @@ class tx_templavoila_newcewizard {
 	 * @return	void
 	 */
 	protected function includeFiles() {
-		global	$LANG, $T3_SERVICES, $T3_VAR, $TYPO3_CONF_VARS;
+		global $T3_SERVICES, $T3_VAR, $TYPO3_CONF_VARS;
 
 		// Setting class files to include:
-		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_db_new_content_el']['addElClasses']))	{
+		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_db_new_content_el']['addElClasses'])) {
 			$this->includeFiles = array_merge($this->includeFiles, $GLOBALS['TBE_MODULES_EXT']['xMOD_db_new_content_el']['addElClasses']);
 		}
+
 		foreach ($this->includeFiles as $file) {
 			include_once($file);
 		}

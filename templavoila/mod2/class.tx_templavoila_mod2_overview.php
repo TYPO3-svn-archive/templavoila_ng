@@ -61,12 +61,19 @@ class tx_templavoila_mod2_overview {
 	}
 
 
+	/******************************
+	 *
+	 * Overview rendering
+	 *
+	 *****************************/
+
+
 	/**
 	 * Renders module content, overview of pages with DS/TO on.
 	 *
 	 * @return	content
 	 */
-	function renderModuleContent_searchForTODS() {
+	function renderSysFolders() {
 		$this->content = '';
 
 		// -------------------------------------------------------------------------
@@ -125,8 +132,8 @@ class tx_templavoila_mod2_overview {
 			$tRows = array();
 
 			/* get all paths */
-			foreach($list as $pid => &$stat) {
-				if (($path = $this->pObj->findRecordsWhereUsed_pid($pid))) {
+			foreach ($list as $pid => &$stat) {
+				if (($path = $this->pObj->getPIDPath($pid))) {
 					$stat['path'] = $path;
 				}
 			}

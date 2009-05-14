@@ -43,14 +43,10 @@ require_once(PATH_t3lib . 'class.t3lib_scbase.php');
 
 // Merging locallang files/arrays:
 $GLOBALS['LANG']->includeLLFile('EXT:lang/locallang_misc.xml');
-$LOCAL_LANG_orig = $GLOBALS['LOCAL_LANG'];
-
+$GLOBALS['LANG']->includeLLFile('EXT:templavoila/wizards/locallang.xml');
 $GLOBALS['LANG']->includeLLFile('EXT:templavoila/wizards/locallang_content.xml');
 $GLOBALS['LANG']->includeLLFile('EXT:templavoila/wizards/locallang_page.xml');
 $GLOBALS['LANG']->includeLLFile('EXT:templavoila/wizards/locallang_site.xml');
-$LOCAL_LANG = t3lib_div::array_merge_recursive_overrule($LOCAL_LANG_orig, $GLOBALS['LOCAL_LANG']);
-
-$LANG->includeLLFile('EXT:templavoila/wizards/locallang.xml');
 
 // Exits if 'cms' extension is not loaded:
 t3lib_extMgm::isLoaded('cms', 1);
@@ -331,7 +327,7 @@ class tx_templavoila_wizard_integral extends tx_templavoila_wizard {
 	 * @return	void
 	 */
 	function main()	{
-		global $BE_USER, $LANG, $BACK_PATH;
+		global $BE_USER, $BACK_PATH;
 
 		if (!is_callable(array('t3lib_div', 'int_from_ver')) || t3lib_div::int_from_ver(TYPO3_version) < 4000000) {
 			$this->content = 'Fatal error:This version of TemplaVoila does not work with TYPO3 versions lower than 4.0.0! Please upgrade your TYPO3 core installation.';
@@ -460,7 +456,7 @@ class tx_templavoila_wizard_integral extends tx_templavoila_wizard {
 			);
 
 			// Build the <body> for the module
-			$this->content  = $this->doc->startPage($LANG->getLL('title'));
+			$this->content  = $this->doc->startPage($GLOBALS['LANG']->getLL('title'));
 			$this->content .= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $markers);
 			$this->content .= $this->doc->endPage();
 			$this->content  = $this->doc->insertStylesAndJS($this->content);
@@ -469,8 +465,8 @@ class tx_templavoila_wizard_integral extends tx_templavoila_wizard {
 			$this->doc = t3lib_div::makeInstance('mediumDoc');
 			$this->doc->backPath = $BACK_PATH;
 
-			$this->content  = $this->doc->startPage($LANG->getLL('title'));
-			$this->content .= $this->doc->header($LANG->getLL('title'));
+			$this->content  = $this->doc->startPage($GLOBALS['LANG']->getLL('title'));
+			$this->content .= $this->doc->header($GLOBALS['LANG']->getLL('title'));
 			$this->content .= $this->doc->spacer(5);
 			$this->content .= $this->doc->spacer(10);
 			$this->content .= $this->doc->endPage();
@@ -494,7 +490,7 @@ class tx_templavoila_wizard_integral extends tx_templavoila_wizard {
 	 * @return	array		all available buttons as an assoc. array
 	 */
 	function getButtons()	{
-		global $TCA, $LANG, $BACK_PATH, $BE_USER;
+		global $TCA, $BACK_PATH, $BE_USER;
 
 		$this->R_URI = t3lib_div::_GP('returnUrl');
 
@@ -553,7 +549,7 @@ class tx_templavoila_wizard_integral extends tx_templavoila_wizard {
 				// Edit page properties
 				$params = '&edit[pages][' . $this->id . ']=edit';
 				$buttons['edit_page'] = '<a href="#" onclick="' . htmlspecialchars(t3lib_BEfunc::editOnClick($params, $BACK_PATH)) . '">' .
-					'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/edit2.gif', 'width="11" height="12"') . ' hspace="2" vspace="2" align="top" title="' . $LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:editPage', 1) . '" alt="" />' .
+					'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/edit2.gif', 'width="11" height="12"') . ' hspace="2" vspace="2" align="top" title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:editPage', 1) . '" alt="" />' .
 					'</a>';
 			}
 		}
@@ -573,7 +569,6 @@ class tx_templavoila_wizard_integral extends tx_templavoila_wizard {
 	 * @return	string		Page path
 	 */
 	function getPagePath($pageRecord) {
-		global $LANG;
 
 		// Is this a real page
 		if ($pageRecord['uid'])	{
@@ -583,7 +578,8 @@ class tx_templavoila_wizard_integral extends tx_templavoila_wizard {
 		}
 
 		// Setting the path of the page
-		$pagePath = $LANG->sL('LLL:EXT:lang/locallang_core.php:labels.path', 1) . ': <span class="typo3-docheader-pagePath">' . htmlspecialchars(t3lib_div::fixed_lgd_cs($title, -50)) . '</span>';
+		$pagePath = $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.path', 1) . ': <span class="typo3-docheader-pagePath">' . htmlspecialchars(t3lib_div::fixed_lgd_cs($title, -50)) . '</span>';
+
 		return $pagePath;
 	}
 

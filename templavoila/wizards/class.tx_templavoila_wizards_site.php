@@ -64,6 +64,8 @@ class tx_templavoila_wizards_site {
 		$this->doc = &$this->pObj->doc;
 		$this->extKey = &$this->pObj->extKey;
 		$this->MOD_SETTINGS = &$this->pObj->MOD_SETTINGS;
+
+		$GLOBALS['LANG']->includeLLFile('EXT:templavoila/wizards/locallang_site.xml');
 	}
 
 
@@ -102,9 +104,9 @@ class tx_templavoila_wizards_site {
 			')));
 
 			// Checks:
-			$missingExt = $this->wizard_checkMissingExtensions();
+			$missingExt  = $this->wizard_checkMissingExtensions();
 			$missingConf = $this->wizard_checkConfiguration();
-			$missingDir = $this->wizard_checkDirectory();
+			$missingDir  = $this->wizard_checkDirectory();
 			if (!$missingExt && !$missingConf) {
 				$outputString .= '
 				<br/>

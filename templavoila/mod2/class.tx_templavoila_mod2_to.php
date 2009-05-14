@@ -47,6 +47,7 @@ class tx_templavoila_mod2_to {
 	// References to the control-center module object
 	var $pObj;	// A pointer to the parent object, that is the templavoila control-center module script. Set by calling the method init() of this class.
 	var $doc;	// A reference to the doc object of the parent object.
+	var $modifiable;
 
 
 	/**
@@ -58,12 +59,58 @@ class tx_templavoila_mod2_to {
 	 * @access public
 	 */
 	function init(&$pObj) {
+		global $BE_USER;
+
 		// Make local reference to some important variables:
 		$this->pObj = &$pObj;
 		$this->doc = &$this->pObj->doc;
 		$this->extKey = &$this->pObj->extKey;
 		$this->modTSconfig = &$this->pObj->modTSconfig;
 		$this->MOD_SETTINGS = &$this->pObj->MOD_SETTINGS;
+
+		// Module may be allowed, but modify may not
+		$this->modifiable = $BE_USER->check('tables_modify', 'tx_templavoila_tmplobj');
+	}
+
+
+	/******************************
+	 *
+	 * TO helpers
+	 *
+	 *****************************/
+
+
+	function isModifiable() {
+		return $this->modifiable;
+	}
+
+
+	/**
+	 * Collects all TO-records in a given SysFolder
+	 *
+	 * @param	integer		SysFolder
+	 * @return	array		DS-rows
+	 */
+	function findRecords($pid) {
+
+		$toRecords = array();
+
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+			'cruser_id, crdate, tstamp, uid, title, parent, fileref, sys_language_uid, datastructure, rendertype, localprocessing, previewicon, description, fileref_mtime, fileref_md5',
+			'tx_templavoila_tmplobj',
+			'pid = ' . intval($pid) . t3lib_BEfunc::deleteClause('tx_templavoila_tmplobj'),
+			'',
+			'title'
+		);
+
+		while($res && false !== ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+			t3lib_BEfunc::workspaceOL('tx_templavoila_tmplobj',$row);
+			$toRecords[$row['parent']][] = $row;
+		}
+
+		$GLOBALS['TYPO3_DB']->sql_free_result($res);
+
+		return $toRecords;
 	}
 
 
@@ -86,7 +133,6 @@ class tx_templavoila_mod2_to {
 	 * @return	string		HTML content
 	 */
 	function renderTODisplay($toRow, &$toRecords, $scope, $children = 0) {
-		global $BE_USER;
 
 		// Put together the records icon including content sensitive menu link wrapped around it:
 		$recordIcon = t3lib_iconWorks::getIconImage('tx_templavoila_tmplobj', $toRow, $this->doc->backPath, 'class="absmiddle"');
@@ -108,6 +154,7 @@ class tx_templavoila_mod2_to {
 		// Mapping status / link:
 		$linkUrl = $this->pObj->cm1Script . 'id=' . $this->pObj->id . '&table=tx_templavoila_tmplobj&uid=' . $toRow['uid'] . '&_reload_from=1&returnUrl=' . rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI'));
 
+		/* ------------------------------------------------------------------------------ */
 		$fileReference = t3lib_div::getFileAbsFileName($toRow['fileref']);
 		if (@is_file($fileReference)) {
 			$this->tFileList[$fileReference]++;
@@ -121,7 +168,13 @@ class tx_templavoila_mod2_to {
 			$fileMtime = 0;
 		}
 
-		$mappingStatus = $mappingStatus_index = '';
+		/* ------------------------------------------------------------------------------ */
+		$mappingStatusError   = 0;
+		$mappingStatusIcon    = '';
+		$mappingStatusTitle   = '';
+		$mappingStatusMessage = '';
+		$mappingStatusActions = '';
+
 		if ($fileMtime && $toRow['fileref_mtime']) {
 			if ($toRow['fileref_md5'] != '') {
 				$modified = (@md5_file($fileReference) != $toRow['fileref_md5']);
@@ -129,50 +182,55 @@ class tx_templavoila_mod2_to {
 				$modified = ($toRow['fileref_mtime'] != $fileMtime);
 			}
 
-			if (!$modified)	{
-				$mappingStatus  = $mappingStatus_index = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_ok2.gif', 'width="18" height="16"') . ' alt="" class="absmiddle" />';
-				$mappingStatus .= $GLOBALS['LANG']->getLL('center_mapping_good') . '<br/>';
+			if (($mappingStatusError = $modified ? 1 : 0)) {
+				$mappingStatusIcon  .= t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_warning2.gif', 'width="18" height="16"');
+				$mappingStatusTitle .= sprintf($GLOBALS['LANG']->getLL('center_mapping_changed'), t3lib_BEfunc::datetime($toRow['tstamp']));
 			} else {
-				$mappingStatus  = $mappingStatus_index = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_warning2.gif', 'width="18" height="16"') . ' alt="" class="absmiddle" />';
-				$mappingStatus .= sprintf($GLOBALS['LANG']->getLL('center_mapping_changed'), t3lib_BEfunc::datetime($toRow['tstamp'])) . '<br/>';
-
-				$this->pObj->setErrorLog($scope, 'warning', $mappingStatus . ' (TO: "' . $toRow['title'] . '")');
+				$mappingStatusIcon  .= t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_ok2.gif', 'width="18" height="16"');
+				$mappingStatusTitle .= $GLOBALS['LANG']->getLL('center_mapping_good');
 			}
 
 			// Module may be allowed, but modify may not
-			if ($BE_USER->check('tables_modify', 'tx_templavoila_tmplobj')) {
-				$mappingStatus .= '<a href="' . htmlspecialchars($linkUrl) . '">[ ' . $GLOBALS['LANG']->getLL('center_view_to') . ' ]</a> ';
+			if ($this->modifiable) {
+				$mappingStatusActions .= '<a href="' . htmlspecialchars($linkUrl) . '">[ ' . $GLOBALS['LANG']->getLL('center_view_to') . ' ]</a> ';
 			}
-		} elseif (!$fileMtime) {
-			$mappingStatus  = $mappingStatus_index = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_fatalerror.gif', 'width="18" height="16"') . ' alt="" class="absmiddle" />';
-			$mappingStatus .= $GLOBALS['LANG']->getLL('center_mapping_unmapped') . '<br/>';
+		} else if (($mappingStatusError = !$fileMtime ? 2 : 0)) {
+			$mappingStatusIcon    .= t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_fatalerror.gif', 'width="18" height="16"');
+			$mappingStatusTitle   .= $GLOBALS['LANG']->getLL('center_mapping_unmapped');
+			$mappingStatusMessage .= '<em style="font-size: 0.8em;>' . $GLOBALS['LANG']->getLL('center_mapping_note') . '<br /></em>';
 
-			$this->pObj->setErrorLog($scope, 'fatal', $mappingStatus . ' (TO: "' . $toRow['title'] . '")');
-
-			$mappingStatus .= '<em style="font-size: 0.8em;>' . $GLOBALS['LANG']->getLL('center_mapping_note') . '<br/></em>';
-
-			if ($BE_USER->check('tables_modify', 'tx_templavoila_tmplobj')) {
-				$mappingStatus .= '<a href="' . htmlspecialchars($linkUrl) . '">[ ' . $GLOBALS['LANG']->getLL('center_view_to_map') . ' ]</a> ';
+			if ($this->modifiable) {
+				$mappingStatusActions .= '<a href="' . htmlspecialchars($linkUrl) . '">[ ' . $GLOBALS['LANG']->getLL('center_view_to_map') . ' ]</a> ';
 			}
 		} else {
-			$mappingStatus = '';
-
-			if ($BE_USER->check('tables_modify', 'tx_templavoila_tmplobj')) {
-				$mappingStatus .= '<a href="' . htmlspecialchars($linkUrl) . '">[ ' . $GLOBALS['LANG']->getLL('center_view_to_remap') . ' ]</a> ';
-				$mappingStatus .= '<a href="' . htmlspecialchars($linkUrl . '&SET[page]=preview') . '">[ ' . $GLOBALS['LANG']->getLL('center_view_to_verify') . ' ]</a>';
+			if ($this->modifiable) {
+				$mappingStatusActions .= '<a href="' . htmlspecialchars($linkUrl) . '">[ ' . $GLOBALS['LANG']->getLL('center_view_to_remap') . ' ]</a> ';
+				$mappingStatusActions .= '<a href="' . htmlspecialchars($linkUrl . '&SET[page]=preview') . '">[ ' . $GLOBALS['LANG']->getLL('center_view_to_verify') . ' ]</a>';
 			}
 		}
 
-		if (!$BE_USER->check('tables_modify', 'tx_templavoila_tmplobj')) {
-			$mappingStatus .= '<a href="' . htmlspecialchars($linkUrl . '&SET[page]=preview') . '">[ ' . $GLOBALS['LANG']->getLL('center_view_to_preview') . ' ]</a>';
+		if (!$this->modifiable) {
+			$mappingStatusActions .= '<a href="' . htmlspecialchars($linkUrl . '&SET[page]=preview') . '">[ ' . $GLOBALS['LANG']->getLL('center_view_to_preview') . ' ]</a>';
 		}
 
+		$mappingStatusShort = '<img' . $mappingStatusIcon . ' title="' . $mappingStatusTitle . '" class="absmiddle" />';
+		$mappingStatusLine  = '<img' . $mappingStatusIcon . ' alt="" class="absmiddle" /> ' . $mappingStatusTitle . '<br />';
+		$mappingStatusLong  = $mappingStatusLine . $mappingStatusMessage . $mappingStatusActions;
+
+		if ($mappingStatusError >= 2) {
+			$this->pObj->setErrorLog($scope, 'fatal', $mappingStatusLine . ' (TO: "' . $toRow['title'] . '")');
+		} else if ($mappingStatusError >= 1) {
+			$this->pObj->setErrorLog($scope, 'warning', $mappingStatusLine . ' (TO: "' . $toRow['title'] . '")');
+		}
+
+		/* ------------------------------------------------------------------------------ */
 		if ($this->MOD_SETTINGS['set_details'])	{
 			$XMLinfo = $this->pObj->xmlObj->DSdetails($toRow['localprocessing']);
 		}
 
+		/* ------------------------------------------------------------------------------ */
 		// Links:
-		if ($BE_USER->check('tables_modify', 'tx_templavoila_tmplobj')) {
+		if ($this->modifiable) {
 			$lpXML = '<a href="#" onclick="' . htmlspecialchars(t3lib_BEfunc::editOnClick('&edit[tx_templavoila_tmplobj][' . $toRow['uid'] . ']=edit&columnsOnly=localprocessing', $this->doc->backPath)) . '">' .
 					'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/edit2.gif', 'width="11" height="12"') . ' title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:edit') . '" alt="" class="absmiddle" />' .
 					'</a>';
@@ -205,14 +263,28 @@ class tx_templavoila_mod2_to {
 			? t3lib_div::formatSize(strlen($toRow['localprocessing'])) . 'bytes'
 			: '&mdash;';
 
+		/* ------------------------------------------------------------------------------ */
 		// Compile info table:
 		$tableAttribs = ' border="0" cellpadding="1" cellspacing="1" width="98%" style="margin-top: 3px;" class="lrPadding"';
 
-		$fRWTOUres = array();
-
 		if (!$children)	{
 			if ($this->MOD_SETTINGS['set_details'])	{
-				$fRWTOUres = $this->findRecordsWhereTOUsed($toRow, $scope);
+				/* ------------------------------------------------------------------------------ */
+				list($templateUsageError,
+				     $templateUsageIcon,
+				     $templateUsageTitle,
+				     $templateUsageMessage,
+				     $templateUsageCount) = $this->findRecordsWhereTOUsed($toRow, $scope);
+
+				$templateUsageShort = '<img' . $templateUsageIcon . ' title="' . $templateUsageTitle . '" class="absmiddle" />';
+				$templateUsageLine  = '<img' . $templateUsageIcon . ' alt="" class="absmiddle" /> ' . $templateUsageTitle . '<br />';
+				$templateUsageLong  = $templateUsageLine . $templateMessage . $templateActions;
+
+				if ($templateUsageError >= 2) {
+					$this->pObj->setErrorLog($scope, 'fatal', $templateUsageLine . ' (TO: "' . $toRow['title'] . '")');
+				} else if ($templateUsageError >= 1) {
+					$this->pObj->setErrorLog($scope, 'warning', $templateUsageLine . ' (TO: "' . $toRow['title'] . '")');
+				}
 			}
 
 			$content .= '
@@ -235,7 +307,7 @@ class tx_templavoila_mod2_to {
 				</tr>
 				<tr class="bgColor4">
 					<td>' . $GLOBALS['LANG']->getLL('center_list_mapstatus') . ':</td>
-					<td>' . $mappingStatus . '</td>
+					<td>' . $mappingStatusLong . '</td>
 				</tr>
 				<tr class="bgColor4">
 					<td>' . $GLOBALS['LANG']->getLL('center_view_localproc') . ' <strong>XML</strong>:</td>
@@ -243,7 +315,7 @@ class tx_templavoila_mod2_to {
 				</tr>' . ($this->MOD_SETTINGS['set_details'] ? '
 				<tr class="bgColor4">
 					<td>' . $GLOBALS['LANG']->getLL('used') . ':</td>
-					<td>' . $fRWTOUres['HTML'] . '</td>
+					<td>' . $templateUsageLong . '</td>
 				</tr>
 				<tr class="bgColor4">
 					<td>' . $GLOBALS['LANG']->getLL('created') . ':</td>
@@ -271,7 +343,7 @@ class tx_templavoila_mod2_to {
 				</tr>
 				<tr class="bgColor4">
 					<td>' . $GLOBALS['LANG']->getLL('center_list_mapstatus') . ':</td>
-					<td>' . $mappingStatus.'</td>
+					<td>' . $mappingStatusLong . '</td>
 				</tr>
 				<tr class="bgColor4">
 					<td>' . $GLOBALS['LANG']->getLL('rendertype') . ':</td>
@@ -297,6 +369,7 @@ class tx_templavoila_mod2_to {
 			';
 		}
 
+		/* ------------------------------------------------------------------------------ */
 		// Traverse template objects which are not children of anything:
 		if (!$children && is_array($toRecords[$toRow['uid']])) {
 			$TOchildrenContent = '';
@@ -314,9 +387,12 @@ class tx_templavoila_mod2_to {
 
 		// Return content
 		return array(
-			'HTML' => $content,
-			'mappingStatus' => $mappingStatus_index,
-			'usage' => $fRWTOUres['usage']
+			'HTML'   => $content,
+			'icon'   => $recordIcon,
+			'link'   => $linkUrl,
+			'action' => $editLink,
+			'status' => $mappingStatusShort,
+			'stats'  => $templateUsageCount
 		);
 	}
 
@@ -326,6 +402,7 @@ class tx_templavoila_mod2_to {
 	 * @return	string		HTML table
 	 */
 	function completeTemplateFileList() {
+
 		$output = '';
 		if (is_array($this->tFileList))	{
 			$output='';
@@ -337,15 +414,17 @@ class tx_templavoila_mod2_to {
 			foreach ($this->tFileList as $tFile => $count) {
 				$tRows[] = '
 					<tr class="' . ($i++ % 2 == 0 ? 'bgColor4' : 'bgColor6') . '">
-						<td>' .
-							'<a href="' . htmlspecialchars($this->doc->backPath . '../' . substr($tFile, strlen(PATH_site))) . '" target="_blank">'.
-							'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/zoom.gif', 'width="11" height="12"') . ' alt="" class="absmiddle" /> ' . htmlspecialchars(substr($tFile,strlen(PATH_site))) .
-							'</a></td>
-						<td align="center">' . $count . '</td>
-						<td align="center">' .
-							'<a href="'.htmlspecialchars($this->pObj->cm1Script . 'id=' . $this->pObj->id . '&file=' . rawurlencode($tFile)) . '&mapElPath=%5BROOT%5D">'.
-							'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/new_el.gif', 'width="11" height="12"') . ' alt="" class="absmiddle" /> ' . htmlspecialchars('Create...') .
-							'</a></td>
+						<td>
+							<a href="' . htmlspecialchars($this->doc->backPath . '../' . substr($tFile, strlen(PATH_site))) . '" target="_blank">'.
+								'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/zoom.gif', 'width="11" height="12"') . ' alt="" class="absmiddle" /> ' .
+								htmlspecialchars(substr($tFile,strlen(PATH_site))) . '
+							</a></td>
+						<td align="center">' . $count . '</td>' . ($this->modifiable ? '
+						<td align="center">
+							<a href="'.htmlspecialchars($this->pObj->cm1Script . 'id=' . $this->pObj->id . '&file=' . rawurlencode($tFile)) . '&mapElPath=%5BROOT%5D">'.
+								'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/new_el.gif', 'width="11" height="12"') . ' alt="" class="absmiddle" /> ' .
+								htmlspecialchars('Create...') . '
+							</a></td>' : '') . '
 					</tr>';
 			}
 
@@ -359,11 +438,11 @@ class tx_templavoila_mod2_to {
 					<col width="80" align="center" />
 				</colgroup>
 				<thead>
-				<tr class="c-headLineTable" style="font-weight: bold; color: #FFFFFF;">
-					<th>' . $GLOBALS['LANG']->getLL('center_templates_file') . '</th>
-					<th>' . $GLOBALS['LANG']->getLL('center_templates_count') . '</th>
-					<th>' . $GLOBALS['LANG']->getLL('center_templates_new') . '</th>
-				</tr>
+					<tr class="c-headLineTable" style="font-weight: bold; color: #FFFFFF;">
+						<th>' . $GLOBALS['LANG']->getLL('center_templates_file') . '</th>
+						<th>' . $GLOBALS['LANG']->getLL('center_templates_count') . '</th>' . ($this->modifiable ? '
+						<th>' . $GLOBALS['LANG']->getLL('center_templates_new') . '</th>' : '') . '
+					</tr>
 				</thead>
 				<tbody>
 					' . implode('', $tRows) . '
@@ -397,15 +476,17 @@ class tx_templavoila_mod2_to {
 							foreach($files as $tFile) {
 								$tRows[] = '
 									<tr class="' . ($i++ % 2 == 0 ? 'bgColor4' : 'bgColor6') . '">
-										<td>'.
-											'<a href="' . htmlspecialchars($this->doc->backPath . '../' . substr($tFile, strlen(PATH_site))) . '" target="_blank">' .
-											'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/zoom.gif','width="11" height="12"') . ' alt="" class="absmiddle" /> ' . htmlspecialchars(substr($tFile, strlen(PATH_site))) .
-											'</a></td>
-										<td align="center">' . ($this->tFileList[$tFile] ? $this->tFileList[$tFile] : '-') . '</td>
-										<td align="center">'.
-											'<a href="' . htmlspecialchars($this->pObj->cm1Script . 'id=' . $this->pObj->id . '&file=' . rawurlencode($tFile)) . '&mapElPath=%5BROOT%5D">' .
-											'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/new_el.gif','width="11" height="12"') . ' alt="" class="absmiddle" /> ' . htmlspecialchars('Create...') .
-											'</a></td>
+										<td>
+											<a href="' . htmlspecialchars($this->doc->backPath . '../' . substr($tFile, strlen(PATH_site))) . '" target="_blank">' .
+												'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/zoom.gif','width="11" height="12"') . ' alt="" class="absmiddle" /> ' .
+												htmlspecialchars(substr($tFile, strlen(PATH_site))) . '
+											</a></td>
+										<td align="center">' . ($this->tFileList[$tFile] ? $this->tFileList[$tFile] : '-') . '</td>' . ($this->modifiable ? '
+										<td align="center">
+											<a href="' . htmlspecialchars($this->pObj->cm1Script . 'id=' . $this->pObj->id . '&file=' . rawurlencode($tFile)) . '&mapElPath=%5BROOT%5D">' .
+												'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/new_el.gif','width="11" height="12"') . ' alt="" class="absmiddle" /> ' .
+												htmlspecialchars('Create...') . '
+											</a></td>' : '') . '
 									</tr>';
 							}
 
@@ -415,15 +496,15 @@ class tx_templavoila_mod2_to {
 								<table border="0" cellpadding="1" cellspacing="1" class="typo3-dblist typo3-tvlist">
 								<colgroup>
 									<col width="*"  align="left" />
-									<col width="80" align="center" />
-									<col width="80" align="center" />
+									<col width="80" align="center" />' . ($this->modifiable ? '
+									<col width="80" align="center" />' : '') . '
 								</colgroup>
 								<thead>
-								<tr class="c-headLineTable" style="font-weight: bold; color: #FFFFFF;">
-									<th>' . $GLOBALS['LANG']->getLL('center_templates_file') . '</th>
-									<th>' . $GLOBALS['LANG']->getLL('center_templates_count') . '</th>
-									<th>' . $GLOBALS['LANG']->getLL('center_templates_new') . '</th>
-								</tr>
+									<tr class="c-headLineTable" style="font-weight: bold; color: #FFFFFF;">
+										<th>' . $GLOBALS['LANG']->getLL('center_templates_file') . '</th>
+										<th>' . $GLOBALS['LANG']->getLL('center_templates_count') . '</th>' . ($this->modifiable ? '
+										<th>' . $GLOBALS['LANG']->getLL('center_templates_new') . '</th>' : '') . '
+									</tr>
 								</thead>
 								<tbody>
 									' . implode('', $tRows) . '
@@ -454,13 +535,14 @@ class tx_templavoila_mod2_to {
 			// PAGES:
 			case TVDS_SCOPE_PAGE:
 				// Header:
-				$output[]='
-							<tr class="bgColor5 tableheader">
-								<td>PID:</td>
-								<td>Title:</td>
-								<td>Path:</td>
-								<td>Workspace:</td>
-							</tr>';
+				$output[] = '
+					<tr class="bgColor5 tableheader">
+						<td>PID:</td>
+						<td>Title:</td>
+						<td>Path:</td>
+						<td>Workspace:</td>
+					</tr>
+				';
 
 				// Main templates:
 				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
@@ -474,7 +556,7 @@ class tx_templavoila_mod2_to {
 				);
 
 				while (false !== ($pRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
-					if (($path = $this->pObj->findRecordsWhereUsed_pid($pRow['uid']))) {
+					if (($path = $this->pObj->getPIDPath($pRow['uid']))) {
 						$output[] = '
 							<tr class="bgColor4-20">
 								<td nowrap="nowrap">'.
@@ -499,16 +581,27 @@ class tx_templavoila_mod2_to {
 									htmlspecialchars($pRow['uid']) .
 									'</td>
 								<td><em>No access</em></td>
-								<td>-</td>
-								<td>-</td>
+								<td>&mdash;</td>
+								<td>&mdash;</td>
 							</tr>';
 					}
 				}
 
 				$GLOBALS['TYPO3_DB']->sql_free_result($res);
 				break;
+
 			// FCE
 			case TVDS_SCOPE_FCE:
+				// Header:
+				$output[] = '
+					<tr class="bgColor5 tableheader">
+						<td>UID:</td>
+						<td>Header:</td>
+						<td>Path:</td>
+						<td>Workspace:</td>
+					</tr>
+				';
+
 				// Select Flexible Content Elements:
 				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 					'uid,header,pid,t3ver_wsid,t3ver_id',
@@ -521,18 +614,9 @@ class tx_templavoila_mod2_to {
 					'pid'
 				);
 
-				// Header:
-				$output[]='
-							<tr class="bgColor5 tableheader">
-								<td>UID:</td>
-								<td>Header:</td>
-								<td>Path:</td>
-								<td>Workspace:</td>
-							</tr>';
-
 				// Elements:
 				while (false !== ($pRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
-					if (($path = $this->pObj->findRecordsWhereUsed_pid($pRow['pid']))) {
+					if (($path = $this->pObj->getPIDPath($pRow['pid']))) {
 						$output[] = '
 							<tr class="bgColor4-20">
 								<td nowrap="nowrap">'.
@@ -557,8 +641,8 @@ class tx_templavoila_mod2_to {
 									htmlspecialchars($pRow['uid']).
 									'</td>
 								<td><em>No access</em></td>
-								<td>-</td>
-								<td>-</td>
+								<td>&mdash;</td>
+								<td>&mdash;</td>
 							</tr>';
 					}
 				}
@@ -568,19 +652,26 @@ class tx_templavoila_mod2_to {
 		}
 
 		// Create final output table:
-		if (count($output)) {
-			if (count($output) > 1) {
-				$outputString = 'Used in ' . (count($output) - 1) . ' Elements:<table border="0" cellspacing="1" cellpadding="1" class="lrPadding">' . implode('', $output) . '</table>';
-			} else {
-				$outputString = '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_warning2.gif', 'width="18" height="16"') . ' alt="" class="absmiddle" />No usage!';
-				$this->pObj->setErrorLog($scope, 'warning', $outputString . ' (TO: "' . $toRow['title'] . '")');
-			}
+		if (count($output) > 1) {
+			return array(
+				0,
+				t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_ok2.gif', 'width="18" height="16"'),
+				'Used in ' . (count($output) - 1) . ' Elements',
+				':
+				<table border="0" cellspacing="1" cellpadding="1" class="lrPadding">
+					' . implode('', $output) . '
+				</table>',
+				count($output) - 1
+			);
+		} else {
+			return array(
+				1,
+				t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_warning2.gif', 'width="18" height="16"'),
+				'No usage!',
+				'',
+				0
+			);
 		}
-
-		return array(
-			'HTML' => $outputString,
-			'usage' => count($output) - 1
-		);
 	}
 
 }

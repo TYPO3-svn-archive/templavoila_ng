@@ -110,10 +110,10 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 	 */
 	var $maxRecursion = 99;
 
-	var $onlyElements='';	// Commalist of lowercase tag names which are the only ones which will be added as "GNYF" tag images. If empty, ALL HTML tags will have these elements.
-	var $checkboxPathsSet=array();		// Array with header section paths to set checkbox for.
+	var $onlyElements = '';			// Commalist of lowercase tag names which are the only ones which will be added as "GNYF" tag images. If empty, ALL HTML tags will have these elements.
+	var $checkboxPathsSet = array();	// Array with header section paths to set checkbox for.
 
-		// INTERNAL STATIC:
+	// INTERNAL STATIC:
 	var $textGnyf = FALSE;
 
 	/**
@@ -127,65 +127,81 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 	 *   'wrap' => array('before','after')	:	(Block elements only) This means that the tag-image for this element will be wrapped in those HTML codes before being placed. Notice how this is cleverly used to represent '<tr>...</tr>' blocks.
 	 */
 	var $tags = array(
-			// Block elements:
-		'a' => array('anchor_outside'=>1),
-		'b' => array(),
-		'blockquote' => array(),
-		'body' => array(),
-		'div' => array(),
-		'dl' => array('anchor_outside'=>1),
-		'dt' => array(),
-		'dd' => array(),
-		'em' => array(),
-		'fieldset' => array('anchor_outside'=>1),
-		'font' => array(),
-		'form' => array('anchor_outside'=>1),
-		'h1' => array(),
-		'h2' => array(),
-		'h3' => array(),
-		'h4' => array(),
-		'h5' => array(),
-		'h6' => array(),
-		'i' => array(),
-		'label' => array(),
-		'legend' => array(),
-		'li' => array(),
-		'map' => array('anchor_outside'=>1),
-		'ol' => array('anchor_outside'=>1),
-		'option' => array('anchor_outside'=>1,'wrap'=>array('</select>','<select>')),
-		'p' => array(),
-		'pre' => array(),
-		'select' => array('anchor_outside'=>1),
-		'span' => array(),
-		'strong' => array(),
-		'table' => array('anchor_outside'=>1),
-		'tbody' => array('anchor_outside'=>1),
-		'thead' => array('anchor_outside'=>1),
-		'td' => array(),
-		'th' => array(),
-		'textarea' => array('anchor_outside'=>1),
-		'tr' => array('wrap'=>array('<td>','</td>')),
-		'u' => array(),
-		'ul' => array('anchor_outside'=>1),
-		'iframe' => array('anchor_outside'=>1),
+		// Block elements:
+		'a'		=> array('anchor_outside'=>1),
+		'abbr'		=> array(),
+		'acronym'	=> array(),
+		'address'	=> array(),
+		'b'		=> array(),
+		'blockquote'	=> array(),
+		'body'		=> array(),
+		'cite'		=> array(),
+		'code'		=> array(),
+		'del'		=> array(),
+		'dfn'		=> array(),
+		'div'		=> array(),
+		'dl'		=> array('anchor_outside'=>1),
+		'dt'		=> array(),
+		'dd'		=> array(),
+		'em'		=> array(),
+		'fieldset'	=> array('anchor_outside'=>1),
+		'font'		=> array(),
+		'form'		=> array('anchor_outside'=>1),
+		'h1'		=> array(),
+		'h2'		=> array(),
+		'h3'		=> array(),
+		'h4'		=> array(),
+		'h5'		=> array(),
+		'h6'		=> array(),
+		'i'		=> array(),
+		'ins'		=> array(),
+		'label'		=> array(),
+		'legend'	=> array(),
+		'li'		=> array(),
+		'map'		=> array('anchor_outside'=>1),
+		'ol'		=> array('anchor_outside'=>1),
+		'option'	=> array('anchor_outside'=>1, 'wrap' => array('</select>','<select>')),
+		'optgroup'	=> array('anchor_outside'=>1, 'wrap' => array('</select>','<select>')),
+		'p'		=> array(),
+		'pre'		=> array(),
+		'q'		=> array(),
+		'select'	=> array('anchor_outside'=>1),
+		'span'		=> array(),
+		'strong'	=> array(),
+		'table'		=> array('anchor_outside'=>1),
+		'caption'	=> array('anchor_outside'=>1),
+		'colgroup'	=> array('anchor_outside'=>1),
+		'col'		=> array(),
+		'thead'		=> array('anchor_outside'=>1),
+		'tbody'		=> array('anchor_outside'=>1),
+		'tfoot'		=> array('anchor_outside'=>1),
+		'tr'		=> array('wrap' => array('<td>','</td>')),
+		'td'		=> array(),
+		'th'		=> array(),
+		'textarea'	=> array('anchor_outside'=>1),
+		'u'		=> array(),
+		'ul'		=> array('anchor_outside'=>1),
+		'iframe'	=> array('anchor_outside'=>1),
+		'embed'		=> array('anchor_outside'=>1),
+		'object'	=> array('anchor_outside'=>1),
 
-			// Single elements:
-		'br' => array('single'=>1),
-		'hr' => array('single'=>1),
-		'img' => array('single'=>1),
-		'input' => array('single'=>1),
-		'area' => array('single'=>1),
-#		'embed' => array('anchor_outside'=>1),
+		// Single elements:
+		'br'		=> array('single'=>1),
+		'button'	=> array('single'=>1),
+		'hr'		=> array('single'=>1),
+		'img'		=> array('single'=>1),
+		'input'		=> array('single'=>1),
+		'area'		=> array('single'=>1),
 	);
 
 
-		// INTERNAL dynamic
+	// INTERNAL dynamic
 	var $htmlParse = '';		// Will contain the HTML-parser object. (See init())
-	var $backPath = '';			// Will contain the backend back-path which is necessary when marking-up the code in order to fix all media paths.
-	var $gnyfPath = '';			// Will contain the path to the tag-images ("gnyfs")
+	var $backPath = '';		// Will contain the backend back-path which is necessary when marking-up the code in order to fix all media paths.
+	var $gnyfPath = '';		// Will contain the path to the tag-images ("gnyfs")
 	var $gnyfStyle = '';		// will contain style-part for gnyf images. (see init())
 	var $gnyfImgAdd = '';		// Eg. 	onclick="return parent.mod.updPath('###PATH###');"
-	var $pathPrefix='';			// Prefix for the path returned to the mod frame when tag image is clicked.
+	var $pathPrefix='';		// Prefix for the path returned to the mod frame when tag image is clicked.
 	var $tDat='';
 
 	var $elCountArray=array();	// Used to register the paths during parsing the code (see init())
@@ -212,23 +228,23 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 	 * @return	string		Modified HTML
 	 */
 	function markupHTMLcontent($content,$backPath,$relPathFix,$showTags,$mode='')	{
-			// Initialize:
+		// Initialize:
 		$this->mode = $mode;
 
 		$this->init();
 		$this->backPath = $backPath;
-		$this->gnyfPath = t3lib_div::resolveBackPath($backPath.t3lib_extMgm::extRelPath('templavoila'));
+		$this->gnyfPath = t3lib_div::resolveBackPath($backPath . t3lib_extMgm::extRelPath('templavoila'));
 		list($tagList_elements, $tagList_single) = $this->splitTagTypes($showTags);
 
-			// Fix links/paths
+		// Fix links/paths
 		if ($this->mode!='source')	{
-			$content = $this->htmlParse->prefixResourcePath($relPathFix,$content);
+			$content = $this->htmlParse->prefixResourcePath($relPathFix, $content);
 		}
 
-			// elements:
-		$content = $this->recursiveBlockSplitting($content,$tagList_elements,$tagList_single,'markup');
+		// elements:
+		$content = $this->recursiveBlockSplitting($content, $tagList_elements, $tagList_single, 'markup');
 
-			// Wrap in <pre>-tags if source
+		// Wrap in <pre>-tags if source
 		if ($this->mode=='source')	{
 			$content = '<pre>'.$content.'</pre>';
 		}
@@ -254,7 +270,7 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 
 		// Wrap in <pre>-tags if source
 		if ($mode == 'source') {
-			$content = '<pre style="' . htmlspecialchars($altStyle ? $altStyle:'font-size:11px; color:#999999; font-style:italic;') . '">' . str_replace(chr(9), '    ', htmlspecialchars($content)) . '</pre>';
+			$content = '<pre style="' . htmlspecialchars($altStyle ? $altStyle : 'font-size:11px; color:#999999; font-style:italic;') . '">' . str_replace(chr(9), '    ', htmlspecialchars($content)) . '</pre>';
 		}
 
 		return $content;
@@ -289,11 +305,11 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 
 
 
-		list($tagsBlock,$tagsSolo) = $this->splitTagTypes($tagList);
+		list($tagsBlock, $tagsSolo) = $this->splitTagTypes($tagList);
 		// sort array by key so that smallest keys are first - thus we don't get ... ???
-#debug(array($tagsBlock,$tagsSolo),'$tagsBlock,$tagsSolo');
+#debug(array($tagsBlock, $tagsSolo), '$tagsBlock,$tagsSolo');
 
-		$newBase = $this->recursiveBlockSplitting($content,$tagsBlock,$tagsSolo,'search');
+		$newBase = $this->recursiveBlockSplitting($content, $tagsBlock, $tagsSolo, 'search');
 #debug($this->elCountArray,'getContentBasedOnPath: '.md5(serialize($this->elCountArray)));
 
 		return array(
@@ -1295,7 +1311,7 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 	 * @return	string		HTML
 	 */
 	function getGnyf($firstTagName, $path, $title) {
-		if (!$this->onlyElements || t3lib_div::inList($this->onlyElements,$firstTagName)) {
+		if (!$this->onlyElements || t3lib_div::inList($this->onlyElements, $firstTagName)) {
 			$onclick = str_replace('###PATH###', $this->pathPrefix . $path, $this->gnyfImgAdd);
 
 			$gnyf  = $this->textGnyf ? '<span '.$onclick.' style="border:1px solid blank; background-color: yellow;">[' . $firstTagName . ']</span>' : '<img ' . $onclick . ' src="' . $this->gnyfPath . 'html_tags/' . $firstTagName . '.gif" border="0" title="' . htmlspecialchars(t3lib_div::fixed_lgd_cs($title, -80)).'"'.$this->gnyfStyle.' alt="" />';

@@ -46,6 +46,15 @@ class tx_templavoila_cm1_display {
 	var $markupFile = '';		// Used to store the name of the file to mark up with a given path.
 	var $markupObj = '';
 
+	var $tagProfiles = array(
+		'' => '',
+		1 => 'body,h1,h2,h3,h4,h5,h6,div,hr,p,pre,blockquote,address',
+		2 => 'abbr,acronym,br,em,font,span,link,strong,b,u,i,code,cite,q,dfn,ins,del',
+		3 => 'form,fieldset,legend,input,select,label,textarea,button,optgroup,option',
+		4 => 'area,map,a,img,object,embed',
+		5 => 'table,caption,tbody,thead,tfoot,tr,th,td,colgroup,col',
+		6 => 'dl,dt,dd,ol,ul,li'
+	);
 
 	/**
 	 * Initializes the overview object. The calling class must make sure that the right locallang files are already loaded.
@@ -137,14 +146,29 @@ class tx_templavoila_cm1_display {
 	 * @see main_display()
 	 */
 	function displayFileContentWithMarkup($content, $path, $relPathFix, $limitTags) {
-
 		// Init mark up object.
 		$markupObj = t3lib_div::makeInstance('tx_templavoila_htmlmarkup');
 		$markupObj->htmlParse = t3lib_div::makeInstance('t3lib_parsehtml');
 
+		// Select shown tags of mark up object.
+		if (!empty($this->MOD_SETTINGS['displayTags'])) {
+			$baseTags = explode(',', $this->tagProfiles[$this->MOD_SETTINGS['displayTags']]);
+		} else {
+			$baseTags = array_keys($markupObj->tags);
+		}
+
+		if (!empty($limitTags)) {
+			$limitTags = explode(',', $limitTags);
+		} else {
+			$limitTags = array_keys($markupObj->tags);
+		}
+
+		$showTags = implode(',', array_intersect($baseTags, $limitTags));
+
+		// Set options of mark up object.
 		$markupObj->gnyfImgAdd = $this->show ? '' : 'onclick="return parent.updPath(\'###PATH###\');"';
 		$markupObj->pathPrefix = $path ? $path . '|' : '';
-		$markupObj->onlyElements = $limitTags;
+		$markupObj->onlyElements = $showTags;
 #		$markupObj->setTagsFromXML($content);
 
 		$cParts = $markupObj->splitByPath($content, $path);
@@ -155,7 +179,7 @@ class tx_templavoila_cm1_display {
 				$cParts[1],
 				$GLOBALS['BACK_PATH'],
 				$relPathFix,
-				implode(',', array_keys($markupObj->tags)),
+				$showTags,
 				$this->MOD_SETTINGS['displayMode']
 			);
 

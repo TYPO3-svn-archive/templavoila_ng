@@ -5,6 +5,11 @@
 @import url("../res/optionsmenu.css");
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+table.typo3-tvlist {
+	table-layout: fixed;
+}
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 dl.DS-infos dt,
 dl.TO-infos dt {
 	font-weight: bold;

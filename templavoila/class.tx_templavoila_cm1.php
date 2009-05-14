@@ -66,15 +66,15 @@ class tx_templavoila_cm1 {
 	 * @return	array		The modified menu array.
 	 */
 	function main(&$backRef, $menuItems, $table, $uid) {
-		global $BE_USER, $LANG, $TYPO3_DB;
+		global $BE_USER, $TYPO3_DB;
 
 		$cm1Icon  = '<img' . t3lib_iconWorks::skinImg($backRef->backPath, t3lib_extMgm::extRelPath('templavoila') . 'cm1/cm_icon.gif', ' width="15" height="12"') . ' border="0" align="top" alt="" />';
 		$cm2Icon  = '<img' . t3lib_iconWorks::skinImg($backRef->backPath, t3lib_extMgm::extRelPath('templavoila') . 'cm2/cm_icon.gif', ' width="15" height="12"') . ' border="0" align="top" alt="" />';
 
 		$localItems = array();
 		if (!$backRef->cmLevel)	{
-			$LL = $LANG->includeLLFile(t3lib_extMgm::extPath('templavoila') . 'locallang.xml', 0);
-			$CL = $LANG->includeLLFile(t3lib_extMgm::extPath('templavoila') . 'mod2/locallang.xml', 0);
+			$LL = $GLOBALS['LANG']->includeLLFile(t3lib_extMgm::extPath('templavoila') . 'locallang.xml', 0);
+			$CL = $GLOBALS['LANG']->includeLLFile(t3lib_extMgm::extPath('templavoila') . 'mod2/locallang.xml', 0);
 
 			// Adding link for Mapping tool:
 			if (@is_file($table)) {
@@ -95,7 +95,7 @@ class tx_templavoila_cm1 {
 							'file=' . rawurlencode($table);
 
 						$localItems[] = $backRef->linkItem(
-							$LANG->getLLL('center_templates_new', $CL, 1),
+							$GLOBALS['LANG']->getLLL('center_templates_new', $CL, 1),
 							$backRef->excludeIcon($cm1Icon),
 							$backRef->urlRefForCM($url),
 							1	// Disables the item in the top-bar. Set this to zero if you wish the item to appear in the top bar!
@@ -111,7 +111,7 @@ class tx_templavoila_cm1 {
 					'_reload_from=1';
 
 				$localItems[] = $backRef->linkItem(
-					$LANG->getLLL('center_view_ds', $CL, 1),
+					$GLOBALS['LANG']->getLLL('center_view_ds', $CL, 1),
 					$backRef->excludeIcon($cm1Icon),
 					$backRef->urlRefForCM($url),
 					1	// Disables the item in the top-bar. Set this to zero if you wish the item to appear in the top bar!
@@ -132,7 +132,7 @@ class tx_templavoila_cm1 {
 					'altRoot[field_flex]=tx_templavoila_flex';
 
 				$localItems[] = $backRef->linkItem(
-					$LANG->getLLL('cm1_viewsubelements',$LL,1),
+					$GLOBALS['LANG']->getLLL('cm1_viewsubelements',$LL,1),
 					$backRef->excludeIcon($cm1Icon),
 					$backRef->urlRefForCM($url),
 					1	// Disables the item in the top-bar. Set this to zero if you wish the item to appear in the top bar!
@@ -149,7 +149,7 @@ class tx_templavoila_cm1 {
 					'viewRec[field_flex]=tx_templavoila_flex';
 
 				$localItems[] = $backRef->linkItem(
-					$LANG->getLLL('cm1_viewflexformxml',$LL,1),
+					$GLOBALS['LANG']->getLLL('cm1_viewflexformxml',$LL,1),
 					$backRef->excludeIcon($cm2Icon),
 					$backRef->urlRefForCM($url),
 					1	// Disables the item in the top-bar. Set this to zero if you wish the item to appear in the top bar!
@@ -166,7 +166,7 @@ class tx_templavoila_cm1 {
 						'uid=' . $backRef->rec['tx_templavoila_ds'];
 
 					$localItems[] = $backRef->linkItem(
-						$LANG->getLLL('cm_viewdsto', $LL, 1) . ' [' . $backRef->rec['tx_templavoila_ds'] . '/' . $backRef->rec['tx_templavoila_to'] . ']',
+						$GLOBALS['LANG']->getLLL('cm_viewdsto', $LL, 1) . ' [' . $backRef->rec['tx_templavoila_ds'] . '/' . $backRef->rec['tx_templavoila_to'] . ']',
 						$backRef->excludeIcon($cm2Icon),
 						$backRef->urlRefForCM($url),
 						1	// Disables the item in the top-bar. Set this to zero if you wish the item to appear in the top bar!
@@ -177,7 +177,7 @@ class tx_templavoila_cm1 {
 #			if ($table == 'tt_content') {
 #				// Adding link for "Pages using this element":
 #				$localItems[] = $backRef->linkItem(
-#					$LANG->getLLL('cm1_pagesusingthiselement', $LL),
+#					$GLOBALS['LANG']->getLLL('cm1_pagesusingthiselement', $LL),
 #					$backRef->excludeIcon($cm1Icon),
 #					"top.loadTopMenu('" . t3lib_div::linkThisScript() . "&cmLevel=1&subname=tx_templavoila_cm1_pagesusingthiselement');return false;",
 #					0,

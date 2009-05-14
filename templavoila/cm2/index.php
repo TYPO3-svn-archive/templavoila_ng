@@ -45,7 +45,7 @@
  */
 
 // DEFAULT initialization of a module [BEGIN]
-$LANG->includeLLFile('EXT:templavoila/cm2/locallang.xml');
+$GLOBALS['LANG']->includeLLFile('EXT:templavoila/cm2/locallang.xml');
 
 require_once (PATH_t3lib . 'class.t3lib_scbase.php');
 require_once (PATH_t3lib . 'class.t3lib_flexformtools.php');
@@ -73,7 +73,7 @@ class tx_templavoila_cm2 extends t3lib_SCbase {
 	 * @return	void
 	 */
 	function main()	{
-		global $LANG,$BACK_PATH;
+		global $BACK_PATH;
 
 		// Check admin: If this is changed some day to other than admin users we HAVE to check if there is read access to the record being selected!
 		if (!$GLOBALS['BE_USER']->isAdmin())
@@ -84,8 +84,8 @@ class tx_templavoila_cm2 extends t3lib_SCbase {
 		$this->doc->backPath = $BACK_PATH;
 		$this->doc->docType = 'xhtml_trans';
 
-		$this->content.=$this->doc->startPage($LANG->getLL('title'));
-		$this->content.=$this->doc->header($LANG->getLL('title'));
+		$this->content.=$this->doc->startPage($GLOBALS['LANG']->getLL('title'));
+		$this->content.=$this->doc->header($GLOBALS['LANG']->getLL('title'));
 		$this->content.=$this->doc->spacer(5);
 
 		// XML code:
@@ -130,29 +130,29 @@ class tx_templavoila_cm2 extends t3lib_SCbase {
 				$diffres = $t3lib_diff_Obj->makeDiffDisplay($currentXML,$cleanXML);
 
 				$xmlContentMarkedUp = '
-				<b>'.$this->doc->icons(1).$LANG->getLL('needsCleaning',1).'</b>
+				<b>' . $this->doc->icons(1) . $GLOBALS['LANG']->getLL('needsCleaning', 1) . '</b>
 				<table border="0">
 					<tr class="bgColor5 tableheader">
-						<td>'.$LANG->getLL('current',1).'</td>
+						<td>' . $GLOBALS['LANG']->getLL('current', 1) . '</td>
 					</tr>
 					<tr>
-						<td>'.$this->markUpXML($currentXML).'<br/><br/></td>
+						<td>' . $this->markUpXML($currentXML) . '<br/><br/></td>
 					</tr>
 					<tr class="bgColor5 tableheader">
-						<td>'.$LANG->getLL('clean',1).'</td>
+						<td>' . $GLOBALS['LANG']->getLL('clean', 1) . '</td>
 					</tr>
 					<tr>
-						<td>'.$this->markUpXML($cleanXML).'</td>
+						<td>' . $this->markUpXML($cleanXML) . '</td>
 					</tr>
 					<tr class="bgColor5 tableheader">
-						<td>'.$LANG->getLL('diff',1).'</td>
+						<td>' . $GLOBALS['LANG']->getLL('diff', 1) . '</td>
 					</tr>
 					<tr>
-						<td>'.$diffres.'
+						<td>' . $diffres . '
 						<br/><br/><br/>
 
 						<form action="'.t3lib_div::getIndpEnv('REQUEST_URI').'" method="post">
-							<input type="submit" value="'.$LANG->getLL('cleanUp',1).'" name="_CLEAN_XML" />
+							<input type="submit" value="' . $GLOBALS['LANG']->getLL('cleanUp', 1) . '" name="_CLEAN_XML" />
 						</form>
 
 						</td>
@@ -162,13 +162,13 @@ class tx_templavoila_cm2 extends t3lib_SCbase {
 				';
 			} else {
 				$xmlContentMarkedUp = '';
-				if ($cleanXML)	{
-					$xmlContentMarkedUp.= '<b>'.$this->doc->icons(-1).$LANG->getLL('XMLclean',1).'</b><br/>';
+				if ($cleanXML) {
+					$xmlContentMarkedUp.= '<b>' . $this->doc->icons(-1) . $GLOBALS['LANG']->getLL('XMLclean', 1) . '</b><br/>';
 				}
-				$xmlContentMarkedUp.= $this->markUpXML($currentXML);
+				$xmlContentMarkedUp .= $this->markUpXML($currentXML);
 			}
 
-			$this->content.=$this->doc->section('',$xmlContentMarkedUp,0,1);
+			$this->content .= $this->doc->section('', $xmlContentMarkedUp, 0, 1);
 		}
 
 		// Add spacer:

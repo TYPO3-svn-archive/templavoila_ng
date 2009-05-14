@@ -110,23 +110,19 @@ class tx_templavoila_mod2_xml {
 					$conf = '';
 					if (isset($def['langDisable'])) $conf .= '<li>' .
 						(($def['langDisable'] == 1)
-? '<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/icon_fatalerror.gif','width="18" height="16"').' alt="" class="absmiddle" />'
-: '<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/icon_ok2.gif','width="18" height="16"').' alt="" class="absmiddle" />'
-						) . ' ' . $GLOBALS['LANG']->getLL('center_details_loc') . '</li>';
+? '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_fatalerror.gif', 'width="18" height="16"') . ' alt="" class="absmiddle" /> ' . $GLOBALS['LANG']->getLL('center_details_loc0')
+: '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_ok2.gif',        'width="18" height="16"') . ' alt="" class="absmiddle" /> ' . $GLOBALS['LANG']->getLL('center_details_loc1')
+					) . '</li>';
 					if (isset($def['langChildren'])) $conf .= '<li>' .
 						(($def['langChildren'] == 1)
-? '<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/icon_ok2.gif','width="18" height="16"').' alt="" class="absmiddle" />'
-: '<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/icon_fatalerror.gif','width="18" height="16"').' alt="" class="absmiddle" />'
-						) . ' ' . $GLOBALS['LANG']->getLL('center_details_locc') . '</li>';
+? '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_ok2.gif',        'width="18" height="16"') . ' alt="" class="absmiddle" /> ' . $GLOBALS['LANG']->getLL('center_details_locc1')
+: '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_fatalerror.gif', 'width="18" height="16"') . ' alt="" class="absmiddle" /> ' . $GLOBALS['LANG']->getLL('center_details_locc0')
+					) . '</li>';
 					if (isset($def['sheetSelector'])) $conf .= '<li>' .
 						(($def['sheetSelector'] != '')
-? '<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/icon_ok2.gif','width="18" height="16"').' alt="" class="absmiddle" />'
-: '<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/icon_fatalerror.gif','width="18" height="16"').' alt="" class="absmiddle" />'
-						) . ' ' . $GLOBALS['LANG']->getLL('center_details_sheet') .
-						(($def['sheetSelector'] != '')
-? ' [<em>' . $def['sheetSelector'] . '</em>]'
-: ''
-						) . '</li>';
+? '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_ok2.gif',        'width="18" height="16"') . ' alt="" class="absmiddle" /> ' . $GLOBALS['LANG']->getLL('center_details_sheet1') . ' [<em>' . $def['sheetSelector'] . '</em>]'
+: '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_fatalerror.gif', 'width="18" height="16"') . ' alt="" class="absmiddle" /> ' . $GLOBALS['LANG']->getLL('center_details_sheet0')
+					) . '</li>';
 
 					if ($conf != '')
 						$HTML .= '<ul class="DS-config">' . $conf . '</ul>';
@@ -178,24 +174,20 @@ class tx_templavoila_mod2_xml {
 						 */
 						$proc = '';
 						if (isset($tv['proc']) && isset($tv['proc']['int'])) $proc .= '<li>' .
-						(($tv['proc']['int'] == 1)
-? '<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/icon_ok2.gif','width="18" height="16"').' alt="" class="absmiddle" />'
-: '<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/icon_fatalerror.gif','width="18" height="16"').' alt="" class="absmiddle" />'
-						) . ' ' . $GLOBALS['LANG']->getLL('center_details_integer') . '</li>';
+							(($tv['proc']['int'] == 1)
+? '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_ok2.gif',        'width="18" height="16"').' alt="" class="absmiddle" /> ' . $GLOBALS['LANG']->getLL('center_details_integer0')
+: '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_fatalerror.gif', 'width="18" height="16"').' alt="" class="absmiddle" /> ' . $GLOBALS['LANG']->getLL('center_details_integer1')
+						) . '</li>';
 						if (isset($tv['proc']) && isset($tv['proc']['HSC'])) $proc .= '<li>' .
-						(($tv['proc']['HSC'] == 1)
-? '<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/icon_ok2.gif','width="18" height="16"').' alt="" class="absmiddle" />'
-: '<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/icon_fatalerror.gif','width="18" height="16"').' alt="" class="absmiddle" />'
-						) . ' ' . $GLOBALS['LANG']->getLL('center_details_hsc') .
-						(($tv['proc']['HSC'] == 1)
-? ' [' . $GLOBALS['LANG']->getLL('center_details_hsc_on') . ']'
-: ' [' . $GLOBALS['LANG']->getLL('center_details_hsc_off') . ']'
+							(($tv['proc']['HSC'] == 1)
+? '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_ok2.gif',        'width="18" height="16"').' alt="" class="absmiddle" /> ' . $GLOBALS['LANG']->getLL('center_details_hsc0') . ' [' . $GLOBALS['LANG']->getLL('center_details_hsc_on' ) . ']'
+: '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_fatalerror.gif', 'width="18" height="16"').' alt="" class="absmiddle" /> ' . $GLOBALS['LANG']->getLL('center_details_hsc1') . ' [' . $GLOBALS['LANG']->getLL('center_details_hsc_off') . ']'
 						) . '</li>';
 						if (isset($tv['proc']) && isset($tv['proc']['stdWrap'])) $proc .= '<li>' .
-						(($tv['proc']['stdWrap'] != '')
-? '<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/icon_ok2.gif','width="18" height="16"').' alt="" class="absmiddle" />'
-: '<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/icon_fatalerror.gif','width="18" height="16"').' alt="" class="absmiddle" />'
-						) . ' ' . $GLOBALS['LANG']->getLL('center_details_wrap') . '</li>';
+							(($tv['proc']['stdWrap'] != '')
+? '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_ok2.gif',        'width="18" height="16"').' alt="" class="absmiddle" /> ' . $GLOBALS['LANG']->getLL('center_details_wrap0')
+: '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_fatalerror.gif', 'width="18" height="16"').' alt="" class="absmiddle" /> ' . $GLOBALS['LANG']->getLL('center_details_wrap1')
+						) . '</li>';
 
 						if ($proc != '')
 							$HTML .= '<ul class="DS-proc">' . $proc . '</ul>';
@@ -310,18 +302,18 @@ class tx_templavoila_mod2_xml {
 	function DSdetails($DSstring) {
 		$DScontent = t3lib_div::xml2array($DSstring);
 
-		$inputFields = 0;
+		$inputFields     = 0;
 		$referenceFields = 0;
-		$rootelements = 0;
+		$rootElements    = 0;
+
 		if (is_array ($DScontent) && is_array($DScontent['ROOT']['el'])) {
 			foreach($DScontent['ROOT']['el'] as $elKey => $elCfg) {
-				$rootelements++;
+
 				if (isset($elCfg['TCEforms']))	{
-						// Assuming that a reference field for content elements is recognized like this, increment counter. Otherwise assume input field of some sort.
-					if ($elCfg['TCEforms']['config']['type']==='group' && $elCfg['TCEforms']['config']['allowed']==='tt_content')	{
+					// Assuming that a reference field for content elements is recognized like this, increment counter. Otherwise assume input field of some sort.
+					if ($elCfg['TCEforms']['config']['type'] === 'group' && $elCfg['TCEforms']['config']['allowed'] === 'tt_content')	{
 						$referenceFields++;
-					}
-					else {
+					} else {
 						$inputFields++;
 					}
 				}
@@ -333,7 +325,8 @@ class tx_templavoila_mod2_xml {
 				unset($elCfg['tx_templavoila']['tags']);
 				unset($elCfg['tx_templavoila']['eType']);
 
-				$rootElementsHTML.='<b>'.$elCfg['tx_templavoila']['title'].'</b>'.t3lib_div::view_array($elCfg);
+				$rootElementsHTML .= '<b>' . $elCfg['tx_templavoila']['title'] . '</b>' . t3lib_div::view_array($elCfg);
+				$rootElements++;
 			}
 		}
 
@@ -352,11 +345,11 @@ class tx_templavoila_mod2_xml {
 
 		return array(
 			'HTML' => /*t3lib_div::view_array($DScontent).'Language Mode => "'.$languageMode.'"<hr/>
-						Root Elements = '.$rootelements.', hereof ref/input fields = '.($referenceFields.'/'.$inputFields).'<hr/>
+						Root Elements = ' . $rootElements . ', hereof ref/input fields = '.($referenceFields.'/'.$inputFields).'<hr/>
 						'.$rootElementsHTML*/ $this->renderDSdetails($DScontent),
-			'languageMode' => $languageMode,
-			'rootelements' => $rootelements,
-			'inputFields' => $inputFields,
+			'languageMode'    => $languageMode,
+			'rootElements'    => $rootElements,
+			'inputFields'     => $inputFields,
 			'referenceFields' => $referenceFields
 		);
 	}
