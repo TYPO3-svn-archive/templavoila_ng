@@ -2271,7 +2271,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 							$params = 'edit[tt_content][' .  $newUid . ']=edit';
 						} else {
 							// Create a new elements via standard-means if not to be inserted into a flexform
-							$params = 'edit[tt_content][' . -$newUid . ']=new';
+							$params = 'edit[tt_content][' . -$newUid . ']=new' . t3lib_div::implodeArrayForUrl('defVals', $defVals);
 						}
 
 						if (t3lib_div::_GP('returnUrl'))

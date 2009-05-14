@@ -231,35 +231,35 @@ class tx_templavoila_wizards_content {
 				'icon'=>'gfx/c_wiz/regular_text.gif',
 				'title'=>$LANG->getLL('common_1_title'),
 				'description'=>$LANG->getLL('common_1_description'),
-				'params'=>'&defVals[tt_content][CType]=text'.$defVals,
+				'params'=>'&defVals[tt_content][CType]=text' . $defVals,
 			),
 
 			'common_2' => array(
 				'icon'=>'gfx/c_wiz/text_image_below.gif',
 				'title'=>$LANG->getLL('common_2_title'),
 				'description'=>$LANG->getLL('common_2_description'),
-				'params'=>'&defVals[tt_content][CType]=textpic&defVals[tt_content][imageorient]=8'.$defVals,
+				'params'=>'&defVals[tt_content][CType]=textpic&defVals[tt_content][imageorient]=8' . $defVals,
 			),
 
 			'common_3' => array(
 				'icon'=>'gfx/c_wiz/text_image_right.gif',
 				'title'=>$LANG->getLL('common_3_title'),
 				'description'=>$LANG->getLL('common_3_description'),
-				'params'=>'&defVals[tt_content][CType]=textpic&defVals[tt_content][imageorient]=17'.$defVals,
+				'params'=>'&defVals[tt_content][CType]=textpic&defVals[tt_content][imageorient]=17' . $defVals,
 			),
 
 			'common_4' => array(
 				'icon'=>'gfx/c_wiz/images_only.gif',
 				'title'=>$LANG->getLL('common_4_title'),
 				'description'=>$LANG->getLL('common_4_description'),
-				'params'=>'&defVals[tt_content][CType]=image&defVals[tt_content][imagecols]=2'.$defVals,
+				'params'=>'&defVals[tt_content][CType]=image&defVals[tt_content][imagecols]=2' . $defVals,
 			),
 
 			'common_5' => array(
 				'icon'=>'gfx/c_wiz/bullet_list.gif',
 				'title'=>$LANG->getLL('common_5_title'),
 				'description'=>$LANG->getLL('common_5_description'),
-				'params'=>'&defVals[tt_content][CType]=bullets'.$defVals,
+				'params'=>'&defVals[tt_content][CType]=bullets' . $defVals,
 			),
 
 			'common_6' => array(
