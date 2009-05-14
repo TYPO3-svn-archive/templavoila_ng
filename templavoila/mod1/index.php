@@ -377,11 +377,11 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 				}
 				function jumpExt(URL,anchor)	{	//
 					var anc = anchor?anchor:"";
-					window.location.href = URL+(T3_THIS_LOCATION?"&returnUrl="+T3_THIS_LOCATION:"")+anc;
+					window.location.href = URL + (T3_THIS_LOCATION ? "&returnUrl=" + T3_THIS_LOCATION : "") + anc;
 					return false;
 				}
 				function jumpSelf(URL)	{	//
-					window.location.href = URL+(T3_RETURN_URL?"&returnUrl="+T3_RETURN_URL:"");
+					window.location.href = URL + (T3_RETURN_URL ? "&returnUrl=" + T3_RETURN_URL : "");
 					return false;
 				}
 
@@ -2238,7 +2238,17 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @access protected
 	 */
 	function handleIncomingCommands() {
-		$possibleCommands = array('clearCache', 'createNewRecord', 'unlinkRecord', 'deleteRecord','pasteRecord', 'makeLocalRecord', 'localizeElement', 'createNewPageTranslation', 'editPageLanguageOverlay');
+		$possibleCommands = array(
+			'clearCache',
+			'createNewRecord',
+			'unlinkRecord',
+			'deleteRecord',
+			'pasteRecord',
+			'makeLocalRecord',
+			'localizeElement',
+			'createNewPageTranslation',
+			'editPageLanguageOverlay'
+		);
 
 		foreach ($possibleCommands as $command) {
 			if (($commandParameters = t3lib_div::_GP($command)) != '') {
@@ -2250,17 +2260,27 @@ table.typo3-dyntabmenu td.disabled:hover {
 						break;
 
 					case 'createNewRecord':
-							// Historically "defVals" has been used for submitting the preset row data for the new element, so we still support it here:
+						// Historically "defVals" has been used for submitting the preset row data for the new element, so we still support it here:
 						$defVals = t3lib_div::_GP('defVals');
-						$newRow = is_array ($defVals['tt_content']) ? $defVals['tt_content'] : array();
+						$newRow = is_array($defVals['tt_content']) ? $defVals['tt_content'] : array();
 
+						if (($newUid = $commandParameters) >= 0) {
 							// Create new record and open it for editing
-						$destinationPointer = $this->apiObj->flexform_getPointerFromString($commandParameters);
-						$newUid = $this->apiObj->insertElement($destinationPointer, $newRow);
-							// TODO If $newUid==0, than we could create new element. Need to handle it...
-						$redirectLocation = $GLOBALS['BACK_PATH'] . 'alt_doc.php?edit[tt_content][' . $newUid . ']=edit&returnUrl=' . rawurlencode($this->mod1Script . $this->link_getParameters());
-						break;
+							$destinationPointer = $this->apiObj->flexform_getPointerFromString($commandParameters);
+							$newUid = $this->apiObj->insertElement($destinationPointer, $newRow);
+							$params = 'edit[tt_content][' .  $newUid . ']=edit';
+						} else {
+							// Create a new elements via standard-means if not to be inserted into a flexform
+							$params = 'edit[tt_content][' . -$newUid . ']=new';
+						}
 
+						if (t3lib_div::_GP('returnUrl'))
+							$returnUrl = '&returnUrl=' . rawurlencode(t3lib_div::_GP('returnUrl'));
+						else
+							$returnUrl = '&returnUrl=' . rawurlencode($this->mod1Script . $this->link_getParameters());
+
+						$redirectLocation = $GLOBALS['BACK_PATH'] . 'alt_doc.php?' . $params . $returnUrl;
+						break;
 					case 'unlinkRecord':
 						$unlinkDestinationPointer = $this->apiObj->flexform_getPointerFromString($commandParameters);
 						$this->apiObj->unlinkElement($unlinkDestinationPointer);
@@ -2298,14 +2318,19 @@ table.typo3-dyntabmenu td.disabled:hover {
 						break;
 
 					case 'createNewPageTranslation':
-							// Create parameters and finally run the classic page module for creating a new page translation
+						// Create parameters and finally run the classic page module for creating a new page translation
 						$params = '&edit[pages_language_overlay][' . intval (t3lib_div::_GP('pid')) . ']=new&overrideVals[pages_language_overlay][sys_language_uid]=' . intval($commandParameters);
-						$returnUrl = '&returnUrl=' . rawurlencode($this->mod1Script . $this->link_getParameters());
-						$redirectLocation = $GLOBALS['BACK_PATH'] . 'alt_doc.php?' . $params.$returnUrl;
+
+						if (t3lib_div::_GP('returnUrl'))
+							$returnUrl = '&returnUrl=' . rawurlencode(t3lib_div::_GP('returnUrl'));
+						else
+							$returnUrl = '&returnUrl=' . rawurlencode($this->mod1Script . $this->link_getParameters());
+
+						$redirectLocation = $GLOBALS['BACK_PATH'] . 'alt_doc.php?' . $params . $returnUrl;
 						break;
 
 					case 'editPageLanguageOverlay':
-							// Look for pages language overlay record for language:
+						// Look for pages language overlay record for language:
 						$sys_language_uid = intval($commandParameters);
 						$params = '';
 						if ($sys_language_uid != 0) {
@@ -2323,23 +2348,28 @@ table.typo3-dyntabmenu td.disabled:hover {
 									$params = '&edit[pages_language_overlay]['.$pLOrecord['uid'].']=edit';
 								}
 							}
-						}
-						else {
+						} else {
 							// Edit default language (page properties)
 							// No workspace overlay because we already on this page
 							$params = '&edit[pages]['.intval($this->id).']=edit';
 						}
+
 						if ($params) {
-							$returnUrl = '&returnUrl=' . rawurlencode($this->mod1Script . $this->link_getParameters());
+							if (t3lib_div::_GP('returnUrl'))
+								$returnUrl = '&returnUrl=' . rawurlencode(t3lib_div::_GP('returnUrl'));
+							else
+								$returnUrl = '&returnUrl=' . rawurlencode($this->mod1Script . $this->link_getParameters());
+
 							$redirectLocation = $GLOBALS['BACK_PATH'] . 'alt_doc.php?' . $params . $returnUrl;	//.'&localizationMode=text';
 						}
+
 						break;
 				}
 			}
 		}
 
 		if (isset($redirectLocation)) {
-			header('Location: '.t3lib_div::locationHeaderUrl($redirectLocation));
+			header('Location: ' . t3lib_div::locationHeaderUrl($redirectLocation));
 		}
 	}
 
@@ -2797,17 +2827,17 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 				}
 
 				'.$this->doc->redirectUrls().'
-				function jumpExt(URL,anchor)	{	//
-					var anc = anchor?anchor:"";
-					window.location.href = URL+(T3_THIS_LOCATION?"&returnUrl="+T3_THIS_LOCATION:"")+anc;
+				function jumpExt(URL,anchor) {	//
+					var anc = anchor ? anchor : "";
+					window.location.href = URL + (T3_THIS_LOCATION ? "&returnUrl=" + T3_THIS_LOCATION : "") + anc;
 					return false;
 				}
-				function jumpSelf(URL)	{	//
-					window.location.href = URL+(T3_RETURN_URL?"&returnUrl="+T3_RETURN_URL:"");
+				function jumpSelf(URL) {	//
+					window.location.href = URL + (T3_RETURN_URL ? "&returnUrl=" + T3_RETURN_URL : "");
 					return false;
 				}
 
-				function setHighlight(id)	{	//
+				function setHighlight(id) {	//
 					top.fsMod.recentIds["web"]=id;
 					top.fsMod.navFrameHighlightedID["web"]="pages"+id+"_"+top.fsMod.currentBank;	// For highlighting
 

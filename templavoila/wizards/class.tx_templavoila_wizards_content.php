@@ -107,6 +107,11 @@ class tx_templavoila_wizards_content {
 				$this->parentRecord = implode(SEPARATOR_PARMS, array('pages', $this->id, 'sDEF', 'lDEF', $mainContentAreaFieldName, 'vDEF', 0));
 			}
 		}
+
+		// If still no parent has been found, we're in list-module
+		if (!$this->parentRecord) {
+			$this->parentRecord = -$this->id;
+		}
 	}
 
 	/**
@@ -143,20 +148,22 @@ class tx_templavoila_wizards_content {
 						<td colspan="3"><strong>' . htmlspecialchars($wizardItem['header']) . '</strong></td>
 					</tr>';
 			} else {
-				$tableLinks=array();
+				$tableLinks = array();
 
 				// href URI for icon/title:
 				$newRecordLink = $this->pObj->mod1Script . $this->linkParams() . '&createNewRecord=' . rawurlencode($this->parentRecord) . $wizardItem['params'];
+				if (t3lib_div::_GP('returnUrl'))
+					$newRecordLink .= '&returnUrl=' . rawurlencode(t3lib_div::_GP('returnUrl'));
 
 				// Icon:
 				$iInfo = @getimagesize($wizardItem['icon']);
-				$tableLinks[]='<a href="' . $newRecordLink . '"><img'.t3lib_iconWorks::skinImg($this->doc->backPath,$wizardItem['icon'], '') . ' alt="" /></a>';
+				$tableLinks[] = '<a href="' . $newRecordLink . '"><img'.t3lib_iconWorks::skinImg($this->doc->backPath, $wizardItem['icon'], '') . ' alt="" /></a>';
 
 				// Title + description:
-				$tableLinks[]='<a href="' . $newRecordLink . '"><strong>' . htmlspecialchars($wizardItem['title']) . '</strong><br />' . nl2br(htmlspecialchars(trim($wizardItem['description']))).'</a>';
+				$tableLinks[] = '<a href="' . $newRecordLink . '"><strong>' . htmlspecialchars($wizardItem['title']) . '</strong><br />' . nl2br(htmlspecialchars(trim($wizardItem['description']))) . '</a>';
 
 				// Finally, put it together in a table row:
-				$tableRows[]='
+				$tableRows[] = '
 					<tr>
 						<td valign="top">' . implode('</td>
 						<td valign="top">', $tableLinks) . '</td>
@@ -167,13 +174,13 @@ class tx_templavoila_wizards_content {
 		}
 
 		// Add the wizard table to the content:
-		$wizardCode .= $GLOBALS['LANG']->getLL('sel1', 1) . '<br /><br />
-
+		$wizardCode .= $GLOBALS['LANG']->getLL('sel1', 1) . '
+		<br /><br />
 		<!--
 			Content Element wizard table:
 		-->
 			<table border="0" cellpadding="1" cellspacing="2" id="typo3-ceWizardTable">
-				'.implode('',$tableRows).'
+				' . implode('', $tableRows) . '
 			</table>';
 
 		return $this->doc->section($GLOBALS['LANG']->getLL('1_selectType'), $wizardCode, 0, 1);
@@ -349,8 +356,8 @@ class tx_templavoila_wizards_content {
 		$res = $TYPO3_DB->exec_SELECTquery(
 			'*',
 			'tx_templavoila_tmplobj',
-			'pid='.intval($storageFolderPID).' AND parent=0' . $addWhere .
-				t3lib_BEfunc::deleteClause('tx_templavoila_tmplobj').
+			'pid=' . intval($storageFolderPID) . ' AND parent=0' . $addWhere .
+				t3lib_BEfunc::deleteClause('tx_templavoila_tmplobj') .
 				t3lib_BEfunc::versioningPlaceholderClause('tx_templavoila_tmpl'), '', 'sorting'
 		);
 

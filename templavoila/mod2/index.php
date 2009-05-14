@@ -1020,7 +1020,7 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 		//	$this->doc->JScode .= $this->doc->getDynTabMenuJScode();
 			$this->doc->JScode .= $CMparts[0];
 			$this->doc->postCode .= $CMparts[2];
-			$this->doc->form = '<form action="'.htmlspecialchars($this->baseScript . 'id=' . $this->id) . '" method="post" autocomplete="off">';
+			$this->doc->form = '<form action="' . htmlspecialchars($this->baseScript . 'id=' . $this->id) . '" method="post" autocomplete="off">';
 
 			// Prototype /Scriptaculous
 			$this->doc->JScode .= '<script src="' . $this->doc->backPath . 'contrib/prototype/prototype.js" type="text/javascript"></script>';
