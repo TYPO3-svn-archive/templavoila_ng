@@ -455,7 +455,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 				if (!isset($this->MOD_MENU['page'][$func]))
 					$this->MOD_MENU['page'][$func] = $list[0]['label'];
 
-			foreach ($this->MOD_MENU['page'] as $label) {
+			foreach ($this->MOD_MENU['page'] as $label => $array) {
 				if (!$parts[$label])
 					unset($this->MOD_MENU['page'][$label]);
 				//	$this->MOD_MENU['page'][$label] = '<span style="text-decoration: line-through;">' .
@@ -476,13 +476,14 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 			else
 				$list = $parts['tmplfiles'];
 
-			foreach ($list as $cnf) {
-				$this->content .= $this->doc->section(
-					$cnf['label'] ? $cnf['label'] : $this->MOD_MENU['page'][$this->MOD_SETTINGS['page']],
-					$cnf['content'] ? $cnf['content'] : $GLOBALS['LANG']->getLL('none'),
-					FALSE,
-					TRUE);
-			}
+			if (is_array($list))
+				foreach ($list as $cnf) {
+					$this->content .= $this->doc->section(
+						$cnf['label'] ? $cnf['label'] : $this->MOD_MENU['page'][$this->MOD_SETTINGS['page']],
+						$cnf['content'] ? $cnf['content'] : $GLOBALS['LANG']->getLL('none'),
+						FALSE,
+						TRUE);
+				}
 		}
 		else {
 			// put all existing into tabs (no index!)

@@ -2,4 +2,4 @@
 enable.oldPageModule = 0
 
 	# cat=basic/enable; type=boolean; label=Enable data source selection:If this checkbox is checked, page and content elements will have data source selector as they had in older TemplaVoila versions. If current installation has very few template objects, it is recommended to have this checkbox unchecked.
-enable.selectDataSource = 0
+enable.selectDataSource = 1
