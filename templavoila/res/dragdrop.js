@@ -728,6 +728,18 @@ var Sortable = {
     (options.elements || this.findElements(element, options) || []).each( function(e,i) {
       var handle = options.handles ? $(options.handles[i]) :
         (options.handle ? $(e).select('.' + options.handle)[0] : e);
+
+//    /* FUCK you prototype, you break on every new FF-version */
+//    var handle = e;
+//    if (options.handles)
+//      handle = $(options.handles[i])
+//    else if (options.handle)
+//    	try {
+//        handle = $(e).select('.' + options.handle)[0];
+//      } catch(e) {
+//        handle = document.getElementsByClassName(options.handle, 'tr', e)[0];
+//      }
+
       options.draggables.push(
         new Draggable(e, Object.extend(options_for_draggable, { handle: handle })));
       Droppables.add(e, options_for_droppable);

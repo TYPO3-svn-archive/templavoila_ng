@@ -120,15 +120,15 @@ class tx_templavoila_mod1_clipboard {
 		if (!$elementPointer = $this->pObj->apiObj->flexform_getValidPointer($elementPointer)) return '';
 		$elementRecord = $this->pObj->apiObj->flexform_getRecordByPointer($elementPointer);
 
-			// Fetch the element from the "normal" clipboard (if any) and set the button states accordingly:
+		// Fetch the element from the "normal" clipboard (if any) and set the button states accordingly:
 		if (is_array ($this->t3libClipboardObj->clipData['normal']['el'])) {
 			reset($this->t3libClipboardObj->clipData['normal']['el']);
 			list ($clipboardElementTableAndUid, $clipboardElementPointerString) = each ($this->t3libClipboardObj->clipData['normal']['el']);
-			$clipboardElementPointer = $this->pObj->apiObj->flexform_getValidPointer ($clipboardElementPointerString);
+			$clipboardElementPointer = $this->pObj->apiObj->flexform_getValidPointer($clipboardElementPointerString);
 
-				// If we have no flexform reference pointing to the element, we create a short flexform pointer pointing to the record directly:
+			// If we have no flexform reference pointing to the element, we create a short flexform pointer pointing to the record directly:
 			if (!is_array($clipboardElementPointer)) {
-				list ($clipboardElementTable, $clipboardElementUid) = explode ('|',$clipboardElementTableAndUid);
+				list ($clipboardElementTable, $clipboardElementUid) = explode('|', $clipboardElementTableAndUid);
 
 				$clipboardElementPointer = array (
 					'table' => 'tt_content',
@@ -137,13 +137,13 @@ class tx_templavoila_mod1_clipboard {
 
 				$pointToTheSameRecord = ($elementRecord['uid'] == $clipboardElementUid);
 			} else {
-				unset ($clipboardElementPointer['targetCheckUid']);
-				unset ($elementPointer['targetCheckUid']);
+				unset($clipboardElementPointer['targetCheckUid']);
+				unset($elementPointer['targetCheckUid']);
 
 				$pointToTheSameRecord = ($clipboardElementPointer == $elementPointer);
 			}
 
-				// Set whether the current element is selected for copy/cut/reference or not:
+			// Set whether the current element is selected for copy/cut/reference or not:
 			if ($pointToTheSameRecord) {
 				$selectMode = isset ($this->t3libClipboardObj->clipData['normal']['flexMode']) ? $this->t3libClipboardObj->clipData['normal']['flexMode'] : ($this->t3libClipboardObj->clipData['normal']['mode'] == 'copy' ? 'copy' : 'cut');
 
@@ -249,6 +249,8 @@ class tx_templavoila_mod1_clipboard {
 	function sidebar_renderNonUsedElements() {
 		global $LANG, $TYPO3_DB, $BE_USER;
 
+		$elementBelongsToCurrentPage = true;
+
 		$canCreateNew   = $GLOBALS['BE_USER']->isPSet($this->pObj->calcPerms, 'pages', 'new');
 		$canEditPage    = $GLOBALS['BE_USER']->isPSet($this->pObj->calcPerms, 'pages', 'edit');
 		$canEditContent = $GLOBALS['BE_USER']->isPSet($this->pObj->calcPerms, 'pages', 'editcontent');
@@ -260,9 +262,9 @@ class tx_templavoila_mod1_clipboard {
 		$pid = $this->pObj->id;	// If workspaces should evaluated non-used elements it must consider the id: For "element" and "branch" versions it should accept the incoming id, for "page" type versions it must be remapped (because content elements are then related to the id of the offline version)
 
 		$res = $TYPO3_DB->exec_SELECTquery (
-			t3lib_BEfunc::getCommonSelectFields('tt_content','',array('uid', 'header', 'bodytext', 'sys_language_uid')),
+			t3lib_BEfunc::getCommonSelectFields('tt_content', '', array('uid', 'header', 'bodytext', 'sys_language_uid')),
 			'tt_content',
-			'pid='.intval($pid).' '.
+			'pid=' . intval($pid) . ' ' .
 				'AND uid NOT IN (' . implode(',', $usedUids) . ') '.
 				'AND t3ver_state!=1' .
 				t3lib_BEfunc::deleteClause('tt_content') .
@@ -271,10 +273,9 @@ class tx_templavoila_mod1_clipboard {
 			'uid'
 		);
 
-		$this->deleteUids = array();	// Used to collect all those tt_content uids with no references which can be deleted
-		while(false !== ($row = $TYPO3_DB->sql_fetch_assoc($res))) {
-			$elementPointerString = 'tt_content:' . $row['uid'];
-
+		// Used to collect all those tt_content uids with no references which can be deleted
+		$this->deleteUids = array();
+		while (false !== ($row = $TYPO3_DB->sql_fetch_assoc($res))) {
  			$elementTitlebarColor = $this->doc->bgColor5;
 			$elementTitlebarStyle = 'background-color: ' . $elementTitlebarColor;
 
@@ -289,6 +290,8 @@ class tx_templavoila_mod1_clipboard {
 			$titleBarLeftButtons = $recordButton;
 
 			if (!$this->pObj->translatorMode && $canEditContent) {
+				$elementPointerString = 'tt_content' . SEPARATOR_PARMS . $row['uid'];
+
 				$linkEdit = $this->pObj->icon_edit(array('table' => 'tt_content', 'uid' => $row['uid'], 'isHidden' => $row['hidden']));
 				$linkHide = $this->pObj->icon_hide(array('table' => 'tt_content', 'uid' => $row['uid'], 'isHidden' => $row['hidden']));
 
@@ -296,7 +299,14 @@ class tx_templavoila_mod1_clipboard {
 				$refButton  = $this->element_getSelectButtons($elementPointerString, 'ref');
 				$cutButton  = $this->element_getSelectButtons($elementPointerString, 'cut');
 
-				$titleBarRightButtons = $linkEdit . $linkHide . $copyButton . $refButton . $cutButton . $this->renderReferenceCount($row['uid']);
+				$titleBarRightButtons =
+					$linkEdit .
+					'<div class="typo3-clipCtrl">' .
+					$copyButton .
+					$refButton .
+					$cutButton .
+					'</div>' .
+					$this->renderReferenceCount($row['uid'], $linkHide);
 			} else {
 				$titleBarRightButtons = '';
 			}
@@ -315,26 +325,32 @@ class tx_templavoila_mod1_clipboard {
 							<span class="nobr">' .
 							$languageIcon .
 							$titleBarLeftButtons .
-							htmlspecialchars(' ' . t3lib_div::fixed_lgd_cs(trim(strip_tags($row['header'] . ($row['header'] && $row['bodytext'] ? ' - ' : '') . $row['bodytext'])), 100)) .
+							($elementBelongsToCurrentPage ? '' : '<em>') . htmlspecialchars($row['header'] ? $row['header'] : 'no') . ($elementBelongsToCurrentPage ? '' : '</em>') .
 							'</span>
 						</td>
 						<td nowrap="nowrap" class="sortableButtons">' .
 							$titleBarRightButtons .
 						'</td>
+						<tr>
+							<td colspan="2">' . $this->pObj->render_previewContent($row) . '</td>
+						</tr>
 					</tr>
 				</table>
 			';
 
 			// "Browse", "New" and "Paste" icon:
 			$cellFragment .= $this->pObj->icon_browse($subElementPointer);
-			if (!$this->pObj->translatorMode && $canCreateNew)	{
+			if (!$this->pObj->translatorMode && $canCreateNew) {
 				$cellFragment .= $this->pObj->icon_new($subElementPointer);
 			}
 
 			$cellFragment .= '<span class="sortablePaste">' . $this->element_getPasteButtons($subElementPointer) . '</span>';
 			if ($this->pObj->apiObj) {
-				$cellId = $this->pObj->apiObj->flexform_getStringFromPointer($subElementPointer);
-				$cellFragment = '<div class="sortableItem" id="' . $cellId . '" rel="' . $cellId . '">' . $cellFragment . '</div>';
+				/* id-strings must not contain double-colons because of the selectors-api */
+				$cellId = str_replace(SEPARATOR_PARMS, '§', $this->pObj->apiObj->flexform_getStringFromPointer($subElementPointer));
+				$cellRel = str_replace(SEPARATOR_PARMS, '§', $cellId);
+
+				$cellFragment = '<div class="sortableItem" id="' . $cellId . '" rel="' . $cellRel . '">' . $cellFragment . '</div>';
 			}
 
 			$elements[] = $cellFragment;
@@ -350,16 +366,9 @@ class tx_templavoila_mod1_clipboard {
 				}
 
 				$label = $LANG->getLL('rendernonusedelements_deleteall');
-				$deleteAll = '<a href="#" onclick="' . htmlspecialchars('jumpToUrl(\''.$this->doc->issueCommand($params, '') . '\');') . '">'.
-						'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/garbage.gif', 'width="11" height="12"') . ' title="'.htmlspecialchars($label) . '" alt="" />' .
-						htmlspecialchars($label) .
+				$deleteAll = '<a style="float: right;" href="#" onclick="' . htmlspecialchars('jumpToUrl(\'' . $this->doc->issueCommand($params, '') . '\');') . '">'.
+						'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/garbage.gif', 'width="11" height="12"') . ' title="' . htmlspecialchars($label) . '" alt="" />' .
 						'</a>';
-
-				$deleteAll = '
-				<tr class="bgColor4">
-					<td>' . $deleteAll . '</td>
-				</tr>
-				';
 			}
 
 		}
@@ -369,7 +378,9 @@ class tx_templavoila_mod1_clipboard {
 		);
 
 		if ($this->pObj->apiObj) {
-			$cellId = $this->pObj->apiObj->flexform_getStringFromPointer($groupElementPointer);
+			/* id-strings must not contain double-colons because of the selectors-api */
+			$cellId = str_replace(SEPARATOR_PARMS, '§', $this->pObj->apiObj->flexform_getStringFromPointer($groupElementPointer));
+
 			$this->pObj->sortableContainers[] = $cellId;
 		}
 
@@ -377,14 +388,16 @@ class tx_templavoila_mod1_clipboard {
 		$output = '
 			<table border="0" cellpadding="0" cellspacing="1" width="100%" class="tv-container tv-clipboard lrPadding" id="clipboard">
 				<tr class="bgColor4-20">
-					<td>' . $LANG->getLL('inititemno_elementsNotBeingUsed', '1') . ':</td>
+					<td>' .
+						$LANG->getLL('inititemno_elementsNotBeingUsed', '1') . ':' .
+						$deleteAll . '
+					</td>
 				</tr>
 				<tr class="bgColor4">
 					<td style="padding: 5px; border: 1px dashed #000000;" id="' . $cellId . '">'.
 						implode('', $elements) .
 					'</td>
 				</tr>
-				' . $deleteAll . '
 			</table>
 			<br />
 		';
@@ -400,39 +413,40 @@ class tx_templavoila_mod1_clipboard {
 	 * @return	string		HTML-table
 	 * @access	protected
 	 */
-	function renderReferenceCount($uid)	{
+	function renderReferenceCount($uid, $hideIcon) {
 		global $TYPO3_DB, $BE_USER, $LANG;
 
 		$rows = $TYPO3_DB->exec_SELECTgetRows(
 			'*',
 			'sys_refindex',
-			'ref_table='.$TYPO3_DB->fullQuoteStr('tt_content', 'sys_refindex') .
-				' AND ref_uid='.intval($uid).
+			'ref_table=' . $TYPO3_DB->fullQuoteStr('tt_content', 'sys_refindex') .
+				' AND ref_uid=' . intval($uid) .
 				' AND deleted=0'
 		);
 
-			// Compile information for title tag:
+		// Compile information for title tag:
 		$infoData = array();
-		if (is_array($rows))	{
+		if (is_array($rows)) {
 			foreach($rows as $row)	{
-				$infoData[] = $row['tablename'] . ':' . $row['recuid'] . ':' . $row['field'];
+				$infoData[] = $row['tablename'] . SEPARATOR_PARMS . $row['recuid'] . SEPARATOR_PARMS . $row['field'];
 			}
 		}
 
-		if (count($infoData))	{
-			return '<a href="#" onclick="'.htmlspecialchars('top.launchView(\'tt_content\', \'' . $uid . '\'); return false;') . '" title="' . htmlspecialchars(t3lib_div::fixed_lgd_cs(implode(' / ',$infoData),100)).'">Ref: '.count($infoData).'</a>';
-		} elseif (0===$BE_USER->workspace) {
+		if (count($infoData)) {
+			return $hideIcon . '<a href="#" onclick="'.htmlspecialchars('top.launchView(\'tt_content\', \'' . $uid . '\'); return false;') . '" title="' . htmlspecialchars(t3lib_div::fixed_lgd_cs(implode(' / ', $infoData), 100)) . '">Ref: ' . count($infoData) . '</a>';
+		} elseif (0 === $BE_USER->workspace) {
 			$this->deleteUids[] = $uid;
 
-				// Create flexform pointer pointing to "before the first sub element":
+			// Create flexform pointer pointing to "before the first sub element":
 			$unlinkPointer = array (
 				'table' => 'tt_content',
 				'uid'   => $row['uid']
 			);
 
-			return $this->pObj->icon_unlink($unlinkPointer, 2);
+			return $this->pObj->icon_unlink($unlinkPointer) . $hideIcon .
+			       $this->pObj->icon_delete($unlinkPointer);
 		} else {
-			return '';
+			return $hideIcon;
 		}
 	}
 }

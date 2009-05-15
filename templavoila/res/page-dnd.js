@@ -1,3 +1,4 @@
+var sortable_clipboard;
 var sortable_currentItem;
 var sortable_baseLink;
 var sortable_containers;
@@ -15,30 +16,68 @@ var sortable_parameters = {
 	onUpdate: sortable_update
 };
 
-function sortable_unhideRecord(it, command) {
-	jumpToUrl(command);
-}
-
-function sortable_hideRecord(it, command) {
-	if (!sortable_removeHidden)
-		return jumpToUrl(command);
-
-	while (it.className != 'sortableItem')
-		it = it.parentNode;
-
-	new Ajax.Request(command);
-	new Effect.Fade(it,
-		{ duration: 0.5,
-		  afterFinish: sortable_hideRecordCallBack });
-}
-
-function sortable_hideRecordCallBack(obj) {
+/* -------------------------------------------------------------------------- */
+function sortable_removeCallBack(obj) {
 	var el = obj.element;
 
 	while (el.lastChild)
 		el.removeChild(el.lastChild);
 }
 
+function sortable_removeRecord(it, command) {
+	while (it.className != 'sortableItem')
+		it = it.parentNode;
+
+	new Ajax.Request(command);
+	new Effect.Fade(it,
+		{ duration: 0.5,
+		  afterFinish: sortable_removeCallBack });
+}
+
+/* -------------------------------------------------------------------------- */
+function sortable_unhideRecordObscureCallBack(obj) {
+	obj.element.removeClassName('tv-hidden');
+}
+
+function sortable_unhideRecord(it, command) {
+	var tab = it.parentNode;
+	while (tab.tagName.toLowerCase() != 'table')
+		tab = tab.parentNode;
+
+	it.setAttribute('rel', it.getAttribute('rel').replace('[hidden]=0', '[hidden]=1').replace('unhide', 'hide'));
+	it.firstChild.src = it.firstChild.src.replace('unhide', 'hide');
+
+	new Ajax.Request(command);
+	new Effect.Fade(tab,
+		{ duration: 0.5,
+		  to: 1.0,
+		  afterFinish: sortable_unhideRecordObscureCallBack });
+}
+
+/* -------------------------------------------------------------------------- */
+function sortable_hideRecordObscureCallBack(obj) {
+	obj.element.addClassName('tv-hidden');
+}
+
+function sortable_hideRecord(it, command) {
+	if (sortable_removeHidden)
+		return sortable_removeRecord(it, command);
+
+	var tab = it.parentNode;
+	while (tab.tagName.toLowerCase() != 'table')
+		tab = tab.parentNode;
+
+	it.setAttribute('rel', it.getAttribute('rel').replace('[hidden]=1', '[hidden]=0').replace('hide', 'unhide'));
+	it.firstChild.src = it.firstChild.src.replace('hide', 'unhide');
+
+	new Ajax.Request(command);
+	new Effect.Fade(tab,
+		{ duration: 0.5,
+		  to: 0.5,
+		  afterFinish: sortable_hideRecordObscureCallBack });
+}
+
+/* -------------------------------------------------------------------------- */
 function sortable_unlinkRecordCallBack(obj) {
 	var el = obj.element;
 	var pn = el.parentNode;
@@ -48,7 +87,7 @@ function sortable_unlinkRecordCallBack(obj) {
 
 	if (el.innerHTML.match(/makeLocalRecord/))
 		return;
-	if (!(pn = document.getElementById('tt_content:')))
+	if (!(pn = document.getElementById(sortable_clipboard)))
 		return;
 
 	pn.appendChild(el);
@@ -65,6 +104,15 @@ function sortable_unlinkRecord(id) {
 		  afterFinish: sortable_unlinkRecordCallBack });
 }
 
+function sortable_unlinkRecordsAll(el) {
+	$(el).select('a').each( function(anchor) {
+		if (anchor.href.match(/unlinkRecord/)) {
+
+		}
+	} );
+}
+
+/* -------------------------------------------------------------------------- */
 function sortable_deleteRecordCallBack(obj) {
 	var el = obj.element;
 	var pn = el.parentNode;
@@ -80,46 +128,35 @@ function sortable_deleteRecord(id) {
 		  afterFinish: sortable_deleteRecordCallBack });
 }
 
+/* -------------------------------------------------------------------------- */
 function sortable_updateItemButtons(el, newPos) {
-	var p = new Array();
-	var p1 = new Array();
-	var href = "", i = 0;
-	var childs = el.childElements();
-
 	/* hidden elements still carry around their marker, but nothing else */
+	var childs = el.childElements();
 	if (!childs)
 		return;
-
-	var buttons = childs[0].childElements()[0].childElements()[0].childElements()[1].childNodes;
 
 	el.id = newPos;
 	newPos = escape(newPos);
 
-	for (i = 0; i < buttons.length ;i++) {
-		if (buttons[i].nodeType != 1) continue;
-		href = buttons[i].href;
+	$(el).select('a').each( function(anchor) {
+		var p, p1, href = anchor.href;
 
 		if (!href || href.charAt(href.length - 1) == "#") {
-			continue;
+			return;
+
 		} else if ((p = href.split("unlinkRecord")).length == 2) {
-			buttons[i].href = p[0] + "unlinkRecord('" + newPos + "');";
+			anchor.href = p[0] + "unlinkRecord('" + newPos + "');";
 		} else if ((p = href.split("deleteRecord")).length == 2) {
-			buttons[i].href = p[0] + "deleteRecord('" + newPos + "');";
-		} else if((p = href.split("CB[el][tt_content")).length == 2) { p1 = p[1].split("=");
-			buttons[i].href = p[0] + "CB[el][tt_content" + p1[0]+ "="  + newPos;
+			anchor.href = p[0] + "deleteRecord('" + newPos + "');";
 		} else if ((p = href.split("&parentRecord=")).length == 2) {
-			buttons[i].href = p[0] + "&parentRecord=" + newPos;
+			anchor.href = p[0] + "&parentRecord=" + newPos;
+
+		} else if((p = href.split("CB[el][tt_content")).length == 2) { p1 = p[1].split("=");
+			anchor.href = p[0] + "CB[el][tt_content" + p1[0] + "="  + newPos;
 		} else if ((p = href.split("&destination=")).length == 2) {
-			buttons[i].href = p[0] + "&destination=" + newPos;
+			anchor.href = p[0] + "&destination=" + newPos;
 		}
-	}
-
-	if ((p = childs[2].href.split("&parentRecord=")).length == 2)
-		childs[2].href = p[0] + "&parentRecord=" + newPos;
-
-	buttons = childs[3].childElements()[0];
-	if (buttons && (p = buttons.href.split("&destination=")).length == 2)
-		buttons.href = p[0] + "&destination=" + newPos;
+	} );
 }
 
 function sortable_updatePasteButtons(oldPos, newPos) {
@@ -160,7 +197,7 @@ function sortable_purify(el) {
 }
 
 function sortable_update(el) {
-	if (el.id == 'tt_content:')
+	if (el.id == sortable_clipboard)
 		return sortable_purify(el);
 
 	var node = el.firstChild;

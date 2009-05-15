@@ -24,7 +24,7 @@
 /**
  * Class/Function which manipulates the item-array for table/field tx_templavoila_tmplobj_datastructure.
  *
- * $Id: class.tx_templavoila_handlestaticdatastructures.php 15086 2008-12-19 13:18:09Z dmitry $
+ * $Id: class.tx_templavoila_handlestaticdatastructures.php 17762 2009-03-13 12:24:13Z steffenk $
  *
  * @author    Kasper Skaarhoj <kasper@typo3.com>
  */
@@ -56,8 +56,10 @@ require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_define
  */
 class tx_templavoila_handleStaticDataStructures {
 
+
 	var $prefix = 'Static: ';
 	var $iconPath = '../uploads/tx_templavoila/';
+
 
 	/**
 	 * Adds static data structures to selector box items arrays.
@@ -67,11 +69,11 @@ class tx_templavoila_handleStaticDataStructures {
 	 * @param	object		The parent object (t3lib_TCEforms / t3lib_transferData depending on context)
 	 * @return	void
 	 */
-	function main(&$params, &$pObj) {
+	function main(&$params,&$pObj)    {
 		// Adding an item!
-		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'])) {
-			foreach($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'] as $val) {
-				$params['items'][] = Array($this->prefix . (substr($val['title'], 0, 4) == 'LLL:' ? $GLOBALS['LANG']->sL($val['title']) : $val['title']), $val['path'], $val['icon']);
+		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures']))	{
+			foreach($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'] as $val)	{
+				$params['items'][]=Array($this->prefix.(substr($val['title'], 0, 4) == 'LLL:' ? $GLOBALS['LANG']->sL($val['title']) : $val['title']), $val['path'], $val['icon']);
 			}
 		}
 	}
@@ -84,15 +86,14 @@ class tx_templavoila_handleStaticDataStructures {
 	 * @param	object		The parent object (t3lib_TCEforms / t3lib_transferData depending on context)
 	 * @return	void
 	 */
-	function main_scope1(&$params, &$pObj) {
-		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'])) {
-			foreach($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'] as $val) {
-				if ($val['scope'] == TVDS_SCOPE_PAGE) {
-					$params['items'][] = Array($this->prefix.$val['title'], $val['path'], $val['icon']);
+	function main_scope1(&$params,&$pObj)    {
+		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures']))	{
+			foreach($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'] as $val)	{
+				if ($val['scope']==1)	{
+					$params['items'][]=Array($this->prefix.$val['title'], $val['path'], $val['icon']);
 				}
 			}
 		}
-
 		tx_templavoila_handleStaticDataStructures::check_permissions($params, $pObj);
 	}
 
@@ -104,11 +105,11 @@ class tx_templavoila_handleStaticDataStructures {
 	 * @param	object		The parent object (t3lib_TCEforms / t3lib_transferData depending on context)
 	 * @return	void
 	 */
-	function main_scope2(&$params, &$pObj) {
-		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'])) {
+	function main_scope2(&$params,&$pObj) {
+		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures']))	{
 			foreach($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'] as $val)	{
-				if ($val['scope'] == TVDS_SCOPE_FCE) {
-					$params['items'][] = Array($this->prefix.$val['title'], $val['path'], $val['icon']);
+				if ($val['scope']==2)	{
+					$params['items'][]=Array($this->prefix.$val['title'], $val['path'], $val['icon']);
 				}
 			}
 		}
@@ -123,15 +124,13 @@ class tx_templavoila_handleStaticDataStructures {
 	 * @param	object		The parent object (t3lib_TCEforms / t3lib_transferData depending on context)
 	 * @return	void
 	 */
-	function pi_templates(&$params,$pObj)	{
+	function pi_templates(&$params,$pObj) {
 		global $TYPO3_DB;
 
 		// Find the template data structure that belongs to this plugin:
 		$piKey = $params['row']['list_type'];
-		// This should be a value of a Data Structure.
-		$templateRef = $GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['piKey2DSMap'][$piKey];
-		// This should be the Storage PID (at least if the pObj is TCEforms! and t3lib_transferdata is not triggering this function since it is not a real foreign-table thing...)
-		$storagePid = intval($pObj->cachedTSconfig[$params['table'].':'.$params['row']['uid']]['_STORAGE_PID']);
+		$templateRef = $GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['piKey2DSMap'][$piKey];	// This should be a value of a Data Structure.
+		$storagePid = $this->getStoragePid($params, $pObj);
 
 		if ($templateRef && $storagePid) {
 			// Load the table:
@@ -141,7 +140,7 @@ class tx_templavoila_handleStaticDataStructures {
 			$res = $TYPO3_DB->exec_SELECTquery (
 				'title,uid,previewicon',
 				'tx_templavoila_tmplobj',
-				'tx_templavoila_tmplobj.pid=' . $storagePid . ' AND tx_templavoila_tmplobj.datastructure='.$TYPO3_DB->fullQuoteStr($templateRef, 'tx_templavoila_tmplobj').' AND tx_templavoila_tmplobj.parent=0',
+				'tx_templavoila_tmplobj.pid='.$storagePid.' AND tx_templavoila_tmplobj.datastructure='.$TYPO3_DB->fullQuoteStr($templateRef, 'tx_templavoila_tmplobj').' AND tx_templavoila_tmplobj.parent=0',
 				'',
 				'tx_templavoila_tmplobj.title'
 			);
@@ -154,8 +153,64 @@ class tx_templavoila_handleStaticDataStructures {
 					$icon = '';
 				}
 
-				$params['items'][]=Array($row['title'],$row['uid'],$icon);
+				$params['items'][] = Array($row['title'], $row['uid'], $icon);
 			}
+		}
+	}
+
+	/**
+	 * Creates the DS selector box. This function takes into account TS
+	 * config override of the GRSP.
+	 *
+	 * @param	array	$params	Parameters to the itemsProcFunc
+	 * @param	t3lib_TCEforms	$pObj	Calling object
+	 * @return	void
+	 */
+	function dataSourceItemsProcFunc(array &$params, t3lib_TCEforms& $pObj) {
+
+		// Get all DSes
+		$dsList = $this->getDSList($params, $pObj);
+		$params['items'] = array(
+			array(
+				'', ''
+			)
+		);
+
+		foreach ($dsList as $dsRecord) {
+			$icon = '';
+			if ($dsRecord['previewicon']) {
+				$icon = $this->iconPath . $dsRecord['previewicon'];
+			}
+
+			$params['items'][] = array(
+				$dsRecord['title'],
+				$dsRecord['uid'],
+				$icon
+			);
+		}
+
+		// Call functions to add static data structures
+		if ($params['table'] == 'pages') {
+			$this->main_scope1($params, $pObj);
+		} else {
+			$this->main_scope2($params, $pObj);
+		}
+	}
+
+	/**
+	 * Adds items to the template object selector according to the current
+	 * extension mode.
+	 *
+	 * @param	array	$params	Parameters for itemProcFunc
+	 * @param	t3lib_TCEforms	$pObj	Calling class
+	 * @return	void
+	 */
+	function templateObjectItemsProcFunc(array &$params, t3lib_TCEforms &$pObj) {
+		$conf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['templavoila']);
+		if ($conf['enable.']['selectDataSource']) {
+			$this->templateObjectItemsProcFuncForCurrentDS($params, $pObj);
+		} else {
+			$this->templateObjectItemsProcFuncForAllDSes($params, $pObj);
 		}
 	}
 
@@ -167,25 +222,47 @@ class tx_templavoila_handleStaticDataStructures {
 	 * @param	t3lib_TCEforms	$pObj	Calling class
 	 * @return	void
 	 */
-	function templateObjectItemsProcFunc(array &$params, t3lib_TCEforms &$pObj) {
-		// Find DS scope
-		$scope = ($params['table'] == 'pages' ? TVDS_SCOPE_PAGE : TVDS_SCOPE_FCE);
+	function templateObjectItemsProcFuncForCurrentDS(array &$params, t3lib_TCEforms &$pObj) {
+		// Get DS
+		$tsConfig = &$pObj->cachedTSconfig[$params['table'].':'.$params['row']['uid']];
+		$dataSource = $tsConfig['_THIS_ROW']['tx_templavoila_ds'];
+		$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+					'uid,title,previewicon,datastructure', 'tx_templavoila_tmplobj',
+					'datastructure=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($dataSource, 'tx_templavoila_tmplobj') .
+					self::enableFields('tx_templavoila_tmplobj'));
 
-		// Get storage folder
-		// This should be the Storage PID (at least if the pObj is TCEforms! and t3lib_transferdata is not triggering this function since it is not a real foreign-table thing...)
-		$storagePid = intval($pObj->cachedTSconfig[$params['table'].':'.$params['row']['uid']]['_STORAGE_PID']);
+		$params['items'] = array(
+			array(
+				'', ''
+			)
+		);
 
-		// Get all DSes from the current storage folder
-		$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('uid,title', 'tx_templavoila_datastructure',
-					'scope=' . $scope . ' AND pid=' . $storagePid .
-					self::enableFields('tx_templavoila_datastructure'),
-					'', 'title');
-
-		$this->dsList = array();
+		// Create items sorted visually by DS and title
 		foreach ($rows as $row) {
-			$this->dsList[$row['uid']] = $row['title'];
+			$icon = '';
+			if ($row['previewicon']) {
+				$icon = $this->iconPath . $row['previewicon'];
+			}
+
+			$params['items'][] = array(
+				$row['title'],
+				$row['uid'],
+				$icon
+			);
 		}
-		unset($rows);
+	}
+
+	/**
+	 * Adds items to the template object selector according to the scope and
+	 * storage folder of the current page/element.
+	 *
+	 * @param	array	$params	Parameters for itemProcFunc
+	 * @param	t3lib_TCEforms	$pObj	Calling class
+	 * @return	void
+	 */
+	function templateObjectItemsProcFuncForAllDSes(array &$params, t3lib_TCEforms &$pObj) {
+		// Find DSes
+		$this->dsList = $this->getDSList($params, $pObj);
 
 		if (count($this->dsList) > 0) {
 			// Get all TOs for these DSes
@@ -196,7 +273,6 @@ class tx_templavoila_handleStaticDataStructures {
 
 			// Sort by DS name than by TO name
 			uksort($this->toRows, array($this, 'sortTemplateObjects'));
-
 			$currentDS = 0;
 			$params['items'] = array(
 				array(
@@ -209,7 +285,7 @@ class tx_templavoila_handleStaticDataStructures {
 				// Check if we got a new DS
 				if ($currentDS != $row['datastructure']) {
 					$params['items'][] = array(
-						$this->dsList[$row['datastructure']],
+						$this->dsList[$row['datastructure']]['title'],
 						'--div--'
 					);
 					$currentDS = $row['datastructure'];
@@ -231,6 +307,53 @@ class tx_templavoila_handleStaticDataStructures {
 
 		unset($this->dsList);
 		unset($this->toRows);
+	}
+
+	/**
+	 * Retrieves DS list for the current itemsProcFunc parameters
+	 *
+	 * @param	array	$params	Parameters to the itemsProcFunc
+	 * @param	t3lib_TCEforms	$pObj	Calling function
+	 * @return	array	Rows with DSes (uid, title, previewicon)
+	 */
+	function getDSList(array &$params, t3lib_TCEforms& $pObj) {
+		// Find DS scope
+		$scope = ($params['table'] == 'pages' ? TVDS_SCOPE_PAGE : TVDS_SCOPE_FCE);
+
+		// Get storage folder
+		$storagePid = $this->getStoragePid($params, $pObj);
+
+		// Get all DSes from the current storage folder
+		$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('uid,title,previewicon',
+					'tx_templavoila_datastructure',
+					'scope=' . $scope . ' AND pid=' . $storagePid .
+					self::enableFields('tx_templavoila_datastructure'),
+					'', 'title', '', 'uid');
+
+		return $rows;
+	}
+
+	/**
+	 * Retrieves DS/TO storage pid for the current page. This function expectes
+	 * to be called from the itemsProcFunc only!
+	 *
+	 * @param	array	$params	Parameters as come to the itemsProcFunc
+	 * @param	t3lib_TCEforms	$pObj	Calling object
+	 * @return	int	Storage pid
+	 */
+	function getStoragePid(array &$params, t3lib_TCEforms &$pObj) {
+		// Get default first
+		$tsConfig = &$pObj->cachedTSconfig[$params['table'].':'.$params['row']['uid']];
+		$storagePid = intval($tsConfig['_STORAGE_PID']);
+
+		// Check for alternative storage folder
+		$field = $params['table'] == 'pages' ? 'uid' : 'pid';
+		$modTSConfig = t3lib_BEfunc::getModTSconfig($params['row'][$field], 'tx_templavoila.storagePid');
+		if (is_array($modTSConfig) && t3lib_div::testInt($modTSConfig['value'])) {
+			$storagePid = intval($modTSConfig['value']);
+		}
+
+		return $storagePid;
 	}
 
 	/**
@@ -266,14 +389,13 @@ class tx_templavoila_handleStaticDataStructures {
 	 */
 	function sortTemplateObjects($key1, $key2) {
 		$result = 0;
-
 		$row1 = $this->toRows[$key1];
 		$row2 = $this->toRows[$key2];
 
 		if ($row1['datastructure'] == $row2['datastructure']) {
 			$result = strcmp($row1['title'], $row2['title']);
 		} else {
-			$result = strcmp($this->dsList[$row1['datastructure']], $this->dsList[$row2['datastructure']]);
+			$result = strcmp($this->dsList[$row1['datastructure']]['title'], $this->dsList[$row2['datastructure']]['title']);
 		}
 
 		return $result;
@@ -293,7 +415,6 @@ class tx_templavoila_handleStaticDataStructures {
 		if ($BE_USER->isAdmin()) {
 			return;
 		}
-
 		foreach ($BE_USER->userGroups as $group) {
 			// Get list of DS & TO
 			$items = t3lib_div::trimExplode(',', $group['tx_templavoila_access'], true);
@@ -303,8 +424,7 @@ class tx_templavoila_handleStaticDataStructures {
 					$value1 = $params['row']['tx_templavoila_to'];
 					$value2 = ($params['table'] == 'pages' ? $params['row']['tx_templavoila_next_to'] : -1);
 					$test = substr($ref, 23);
-				}
-				else {
+				} else {
 					$value1 = $params['row']['tx_templavoila_ds'];
 					$value2 = ($params['table'] == 'pages' ? $params['row']['tx_templavoila_next_ds'] : -1);
 					$test = substr($ref, 29);
