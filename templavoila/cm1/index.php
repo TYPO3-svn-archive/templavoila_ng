@@ -2862,7 +2862,13 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					}
 
 					// Getting editing row, if applicable:
-					list($addEditRows, $placeBefore) = $this->drawDataStructureMap_editItem($formPrefix, $key, $value, $level, $path);
+					list($addEditRows, $placeBefore) = $this->drawDataStructureMap_editItem(
+						$formPrefix,
+						$key,
+						$value,
+						$level,
+						$path . ($path ? '|' : '') . $currentMappingInfo[$key]['MAP_EL']
+					);
 
 					// Add edit-row if found and destined to be set BEFORE:
 					if ($addEditRows && $placeBefore) {
