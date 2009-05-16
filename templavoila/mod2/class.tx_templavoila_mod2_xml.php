@@ -286,7 +286,7 @@ class tx_templavoila_mod2_xml {
 		}
 		else
 			$HTML .= '<p>
-					<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/icon_warning2.gif','width="18" height="16"').' alt="" class="absmiddle" />
+					<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_warning2.gif', 'width="18" height="16"') . ' alt="" class="absmiddle" />
 					' . $GLOBALS['LANG']->getLL('center_details_nochild') . '
 				</p>';
 
@@ -343,14 +343,34 @@ class tx_templavoila_mod2_xml {
 			}
 		}
 
-		return array(
-			'HTML' => /*t3lib_div::view_array($DScontent).'Language Mode => "'.$languageMode.'"<hr/>
+		if ($referenceFields) {
+			$containerMode = $GLOBALS['LANG']->getLL('yes');
+
+			if ($languageMode === 'Separate') {
+				$containerMode .= ' ' . $this->doc->icons(3) . $GLOBALS['LANG']->getLL('center_refs_sep');
+			} else if ($languageMode === 'Inheritance') {
+				$containerMode .= ' ' . $this->doc->icons(2);
+				if ($inputFields) {
+					$containerMode .= $GLOBALS['LANG']->getLL('center_refs_inp');
+				} else {
+					$containerMode .= htmlspecialchars($GLOBALS['LANG']->getLL('center_refs_no'));
+				}
+			}
+		} else {
+			$containerMode = $GLOBALS['LANG']->getLL('no');
+		}
+
+		return array(/*t3lib_div::view_array($DScontent).'Language Mode => "'.$languageMode.'"<hr/>
 						Root Elements = ' . $rootElements . ', hereof ref/input fields = '.($referenceFields.'/'.$inputFields).'<hr/>
-						'.$rootElementsHTML*/ $this->renderDSdetails($DScontent),
-			'languageMode'    => $languageMode,
-			'rootElements'    => $rootElements,
-			'inputFields'     => $inputFields,
-			'referenceFields' => $referenceFields
+						'.$rootElementsHTML*/
+			'HTML'   => $this->renderDSdetails($DScontent),
+			'status' => $containerMode,
+			'stats'  => array(
+				'rootElements'    => $rootElements,
+				'referenceFields' => $referenceFields,
+				'inputFields'     => $inputFields,
+				'languageMode'    => $languageMode
+			)
 		);
 	}
 

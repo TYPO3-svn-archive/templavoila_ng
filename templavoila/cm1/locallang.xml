@@ -33,6 +33,7 @@
 			<label index="titleOverwriteDSTO">UPDATE existing Data Structure / Template Object</label>
 			<label index="titlePreview">Preview of Data Structure sample data merged into the mapped tags</label>
 			<label index="titleMapping">Mapping window</label>
+			<label index="titleBuilding">Building Data Structure</label>
 
 			<label index="tabFileDetails">Information</label>
 			<label index="tabFileStructure">Structure</label>
@@ -94,6 +95,11 @@
 			<label index="mappingPreview">Data Structure to be mapped to HTML template</label>
 			<label index="mappingFound">Content found (at %d chars)</label>
 			<label index="mappingEmpty">Content empty</label>
+
+			<label index="displayModeExploded">Mode: Exploded Visual</label>
+			<label index="displayModeOverlay">Mode: Overlay</label>
+			<label index="displayModeSource">Mode: HTML Source</label>
+			<label index="displayModeTable">Mode: Table Borders</label>
 
 			<label index="headInc">Incl.</label>
 			<label index="headTag">Tag</label>
@@ -174,6 +180,7 @@
 			<label index="titleOverwriteDSTO">Erneuere vorhandene/s Datenstruktur / Vorlage-Objekt</label>
 			<label index="titlePreview">Vorschau der Datenstruktur mit eingefügten Beispel-Inhalten</label>
 			<label index="titleMapping">Assoziations-Fenster</label>
+			<label index="titleBuilding">Datenstruktur zusammenstellen</label>
 
 			<label index="tabFileDetails">Information</label>
 			<label index="tabFileStructure">Struktur</label>
@@ -208,6 +215,23 @@
 			<label index="structureAction">Befehle</label>
 			<label index="structureEdit">Aktionen</label>
 
+			<label index="structureFormFieldNew">Der Name des neuen Feldes</label>
+			<label index="structureFormTitle">Titel</label>
+			<label index="structureFormInstruction">Assoziations-Anweisungen</label>
+			<label index="structureFormSamples">Beispiel-Inhalt</label>
+			<label index="structureFormPreset">Element-Vorgabe</label>
+			<label index="structureFormTCEFields">TCE-Felder</label>
+			<label index="structureFormTSElements">TS-Elemente</label>
+			<label index="structureFormOther">Andere</label>
+			<label index="structureFormRules">Assoziations-Regeln</label>
+			<label index="structureFormInheritance">Vererbung</label>
+			<label index="structureFormTSConst">Typoscript Konstanten</label>
+			<label index="structureFormTSCode">Typoscript Kode</label>
+			<label index="structureFormExtra">Extra Optionen</label>
+			<label index="structureFormTSODescription">Beschreibung</label>
+			<label index="structureFormTSOPath">Objekt-Pfad</label>
+			<label index="structureFormTSOContext">Kontext</label>
+
 			<label index="originXML">Reiner XML import</label>
 			<label index="originScratch">Manuelle Konstruktion</label>
 
@@ -218,6 +242,11 @@
 			<label index="mappingPreview">Datenstruktur die mit der HTML-Vorlage assoziiert wurde</label>
 			<label index="mappingFound">Inhalt gefunden (nach %d Zeichen)</label>
 			<label index="mappingEmpty">Inhalt ist leer</label>
+
+			<label index="displayModeExploded">Modus: Normal mit Auszeichnung</label>
+			<label index="displayModeOverlay">Modus: Überlagert</label>
+			<label index="displayModeSource">Modus: HTML Quelltext</label>
+			<label index="displayModeTable">Modus: Tabellen mit Rahmen</label>
 
 			<label index="headInc">Inkl.</label>
 			<label index="headTag">Tag</label>

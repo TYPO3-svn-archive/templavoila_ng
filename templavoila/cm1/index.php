@@ -249,10 +249,10 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	function menuConfig()    {
 		$this->MOD_MENU = Array (
 			'displayMode' => array	(
-				'explode' => 'Mode: Exploded Visual',
-#				'_' => 'Mode: Overlay',
-				'source' => 'Mode: HTML Source ',
-#				'borders' => 'Mode: Table Borders',
+				'explode' => $GLOBALS['LANG']->getLL('displayModeExploded'),
+#				'_'	  => $GLOBALS['LANG']->getLL('displayModeOverlay'),
+				'source'  => $GLOBALS['LANG']->getLL('displayModeSource'),
+#				'borders' => $GLOBALS['LANG']->getLL('displayModeTable'),
 			),
 			'displayTags' => '',
 			'showDSxml' => ''
@@ -888,6 +888,8 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			$cmd = 'reload_from';
 		} elseif (t3lib_div::_GP('_load_ds_xml')) {			// Loading DS from XML or TO uid
 			$cmd = 'load_ds_xml';
+		} elseif (t3lib_div::_GP('_new')) {				// This is all new
+			$cmd = 'new';
 		} elseif (t3lib_div::_GP('_clear') == TVDS_CLEAR_MAPPING) {	// Resetting all Mapping
 			$cmd = 'clear_mapping';
 		} elseif (t3lib_div::_GP('_clear') == TVDS_CLEAR_ALL ||
@@ -944,7 +946,13 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		}
 
 		// Session data
-		if ($cmd == 'clear') {
+		if ($cmd == 'new') {
+			// Reset session data:
+			$sesDat = array();
+			$orgDat = array();
+			   $GLOBALS['BE_USER']->setAndSaveSessionData($this->MCONF['name'] . '_mappingInfo', $sesDat);
+			   $GLOBALS['BE_USER']->setAndSaveSessionData($this->MCONF['name'] . '_origin', $orgDat);
+		} else if ($cmd == 'clear') {
 			// Reset session data:
 			$sesDat = array();
 			   $GLOBALS['BE_USER']->setAndSaveSessionData($this->MCONF['name'] . '_mappingInfo', $sesDat);
@@ -1442,34 +1450,34 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			case 'saveScreen':
 				$content .= $this->doc->section(
 					$GLOBALS['LANG']->getLL('titleSaveDSTO') . ': ' . $this->cshItem('xMOD_tx_templavoila', 'mapping_file_createDSTO', $this->doc->backPath, ''),
-					'<table border="0" cellpadding="2" cellspacing="2">
-						<tr>
-							<td class="bgColor5"><strong>' . $GLOBALS['LANG']->getLL('titleDSTO') . ':</strong></td>
-							<td class="bgColor4"><input type="text" name="_save_dsto_spec[title]" /></td>
-						</tr>
-						<tr>
-							<td class="bgColor5"><strong>' . $GLOBALS['LANG']->getLL('templateType') . ':</strong></td>
-							<td class="bgColor4">
-								<select name="_save_dsto_spec[type]">
-									<option value="1">' . $GLOBALS['LANG']->getLL('structureTypePage') . '</option>
-									<option value="2">' . $GLOBALS['LANG']->getLL('structureTypeFCE') . '</option>
-									<option value="0">' . $GLOBALS['LANG']->getLL('structureTypeCustom') . '</option>
-								</select>
-							</td>
-						</tr>
-						<tr>
-							<td class="bgColor5"><strong>' . $GLOBALS['LANG']->getLL('selectPID') . ':</strong></td>
-							<td class="bgColor4">
-								<select name="_save_dsto_spec[pid]">
-									' . implode('
-									', $sf_opt) . '
-								</select>
-							</td>
-						</tr>
-					</table>
+					'<dl>
+						<dt><label for="_save_dsto_spec-title">' . $GLOBALS['LANG']->getLL('titleDSTO') . ':</label></dt>
+						<dd>
+							<input id="_save_dsto_spec-title" type="text" name="_save_dsto_spec[title]" />
+						</dd>
+						<dt><label for="_save_dsto_spec-type">' . $GLOBALS['LANG']->getLL('templateType') . ':</label></dt>
+						<dd>
+							<select id="_save_dsto_spec-type" name="_save_dsto_spec[type]">
+								<option value="1">' . $GLOBALS['LANG']->getLL('structureTypePage') . '</option>
+								<option value="2">' . $GLOBALS['LANG']->getLL('structureTypeFCE') . '</option>
+								<option value="0">' . $GLOBALS['LANG']->getLL('structureTypeCustom') . '</option>
+							</select>
+						</dd>
+						<dt><label for="_save_dsto_spec-pid">' . $GLOBALS['LANG']->getLL('selectPID') . ':</label></dt>
+						<dd>
+							<select id="_save_dsto_spec-pid" name="_save_dsto_spec[pid]">
+								' . implode('
+								', $sf_opt) . '
+							</select>
+						</dd>
+					</dl>
 
-					<input type="submit" name="_save_dsto_into" value="' . $GLOBALS['LANG']->getLL('createDSTO') . '" />
-					<input type="submit" name="_" value="' . $GLOBALS['LANG']->getLL('cancel') . '" />',
+					<div style="text-align: center;">
+						<hr />
+
+						<input type="submit" name="_save_dsto_into" value="' . $GLOBALS['LANG']->getLL('createDSTO') . '" />
+						<input type="submit" name="_" value="' . $GLOBALS['LANG']->getLL('cancel') . '" />
+					</div>',
 					FALSE,
 					TRUE,
 					0,
@@ -1477,20 +1485,22 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 					$this->doc->section(
 					$GLOBALS['LANG']->getLL('titleOverwriteDSTO') . ': ' . $this->cshItem('xMOD_tx_templavoila', 'mapping_file_updateDSTO', $this->doc->backPath, ''),
-					'<table border="0" cellpadding="2" cellspacing="2">
-						<tr>
-							<td class="bgColor5"><strong>' . $GLOBALS['LANG']->getLL('selectTO') . ':</strong></td>
-							<td class="bgColor4">
-								<select name="_save_dsto_spec[uid]">
-									' . implode('
-									', $opt) . '
-								</select>
-							</td>
-						</tr>
-					</table>
+					'<dl>
+						<dt><label for="_save_dsto_spec-uid">' . $GLOBALS['LANG']->getLL('selectTO') . ':</label></dt>
+						<dd>
+							<select id="_save_dsto_spec-uid" name="_save_dsto_spec[uid]">
+								' . implode('
+								', $opt) . '
+							</select>
+						</dd>
+					</dl>
 
-					<input type="submit" name="_save_dsto" value="' . $GLOBALS['LANG']->getLL('updateDSTO') . '" onclick="return confirm(\'' . $GLOBALS['LANG']->getLL('mess.onOverwriteAlert') . '\');" />
-					<input type="submit" name="_" value="' . $GLOBALS['LANG']->getLL('cancel') . '" />',
+					<div style="text-align: center;">
+						<hr />
+
+						<input type="submit" name="_save_dsto" value="' . $GLOBALS['LANG']->getLL('updateDSTO') . '" onclick="return confirm(\'' . $GLOBALS['LANG']->getLL('mess.onOverwriteAlert') . '\');" />
+						<input type="submit" name="_" value="' . $GLOBALS['LANG']->getLL('cancel') . '" />
+					</div>',
 					FALSE,
 					TRUE,
 					0,
@@ -1529,15 +1539,15 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 				// the preview-screen has it's own section and csh
 				if ($cmd == 'preview') {
-					$content.=
+					$content .=
 						$this->renderTemplateMapper($this->displayFile,$this->displayPath, $dataStruct, $currentMappingInfo, $menuContent);
 				} else {
-					$content.='
+					$content .= '
 						<!--
 							Data Structure creation table:
 						-->' .
 						$this->doc->section(
-						'Building Data Structure: ' . $this->cshItem('xMOD_tx_templavoila', 'mapping_file', $this->doc->backPath, ''),
+						$GLOBALS['LANG']->getLL('titleBuilding') . ': ' . $this->cshItem('xMOD_tx_templavoila', 'mapping_file', $this->doc->backPath, ''),
 						$this->renderTemplateMapper($this->displayFile, $this->displayPath, $dataStruct, $currentMappingInfo, $menuContent),
 						FALSE,
 						TRUE,
@@ -1918,8 +1928,8 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			$row = t3lib_BEfunc::getRecordWSOL('tx_templavoila_tmplobj', $this->displayUid);
 
 			if (is_array($row)) {
-				$tRows=array();
-				$fRows=array();
+				$tRows = array();
+				$fRows = array();
 
 				// Preview icon:
 				$tRows[] = $this->renderTO_icon($row);
@@ -1946,8 +1956,8 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 						$DSOfile = t3lib_div::getFileAbsFileName($dsValue);
 					}
 
-					if (is_array($DS_row) || @is_file($DSOfile))	{
-							// Get main DS array:
+					if (is_array($DS_row) || @is_file($DSOfile)) {
+						// Get main DS array:
 						if (is_array($DS_row))	{
 							// Get title and icon:
 							$tRows[] = $this->renderDS_info($DS_row);
@@ -1967,7 +1977,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 								'<input type="submit" name="_" value="' . $GLOBALS['LANG']->getLL('modifyDSTO') . '" onclick="'.htmlspecialchars($onClMsg).'"/>';
 
 							if ($BE_USER->check('tables_modify', 'tx_templavoila_datastructure') && !$singleView)
-								$fRows[]='
+								$fRows[] = '
 									<div class="clear">
 										' . $this->parts['modify'] . $this->cshItem('xMOD_tx_templavoila', 'mapping_to_modifyDSTO', $this->doc->backPath, '') . '
 									</div>
@@ -1989,7 +1999,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 						// Write header of page:
 						$this->doc->sectionBegin();
-						$content='
+						$content = '
 							<!--
 								Template Object Header:
 							-->
@@ -2014,10 +2024,10 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 							// -----------------------------------------------------
 							// -- Processing the head editing --
-							list($editContent,$currentHeaderMappingInfo) = $this->renderTO_editProcessing($singleView,$dataStruct,$row,$theFile, 1);
+							list($editContent, $currentHeaderMappingInfo) = $this->renderTO_editProcessing($singleView, $dataStruct, $row, $theFile, 1);
 
 							$this->doc->sectionBegin();
-							$headerContent='
+							$headerContent = '
 								<!--
 									HTML header parts selection:
 								-->
@@ -2037,10 +2047,10 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 							// -----------------------------------------------------
 							// -- Processing the body editing --
-							list($editContent,$currentMappingInfo) = $this->renderTO_editProcessing($singleView,$dataStruct,$row,$theFile, 0);
+							list($editContent, $currentMappingInfo) = $this->renderTO_editProcessing($singleView, $dataStruct, $row, $theFile, 0);
 
 							$this->doc->sectionBegin();
-							$bodyContent='
+							$bodyContent = '
 								<!--
 									Data Structure mapping table:
 								-->
@@ -2063,7 +2073,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 							$this->_preview = TRUE;
 
 							$this->doc->sectionBegin();
-							$previewContent='
+							$previewContent = '
 								<!--
 									Data Structure mapping table preview:
 								-->

@@ -324,25 +324,6 @@ class tx_templavoila_mod2_ds {
 				</table>';
 		}
 
-		if ($this->MOD_SETTINGS['set_details'])	{
-			if ($XMLinfo['referenceFields']) {
-				$containerMode = $GLOBALS['LANG']->getLL('yes');
-
-				if ($XMLinfo['languageMode'] === 'Separate') {
-					$containerMode .= ' ' . $this->doc->icons(3) . $GLOBALS['LANG']->getLL('center_refs_sep');
-				} else if ($XMLinfo['languageMode'] === 'Inheritance') {
-					$containerMode .= ' ' . $this->doc->icons(2);
-					if ($XMLinfo['inputFields']) {
-						$containerMode .= $GLOBALS['LANG']->getLL('center_refs_inp');
-					} else {
-						$containerMode .= htmlspecialchars($GLOBALS['LANG']->getLL('center_refs_no'));
-					}
-				}
-			} else {
-				$containerMode = $GLOBALS['LANG']->getLL('no');
-			}
-		}
-
 		// Return content
 		return array(
 			'HTML'   => $content,
@@ -350,12 +331,7 @@ class tx_templavoila_mod2_ds {
 			'link'   => $linkUrl,
 			'action' => $editLink,
 			'status' => $templateStatusShort,
-			'stats'  => array(
-				'rootElements'    => $XMLinfo['rootElements'],
-				'referenceFields' => $XMLinfo['referenceFields'],
-				'inputFields'     => $XMLinfo['inputFields'],
-				'languageMode'    => $XMLinfo['languageMode']
-			)
+			'stats'  => $XMLinfo['stats']
 		);
 	}
 

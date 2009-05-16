@@ -311,6 +311,10 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 		$this->toObj =& t3lib_div::getUserObj('EXT:templavoila/mod2/class.tx_templavoila_mod2_to.php:&tx_templavoila_mod2_to', '');
 		$this->toObj->init($this);
 
+		// Initialize the templatefile-submodule
+		$this->fileObj =& t3lib_div::getUserObj('EXT:templavoila/mod2/class.tx_templavoila_mod2_files.php:&tx_templavoila_mod2_files', '');
+		$this->fileObj->init($this);
+
 		// Initialize the xml-submodule
 		$this->xmlObj =& t3lib_div::getUserObj('EXT:templavoila/mod2/class.tx_templavoila_mod2_xml.php:&tx_templavoila_mod2_xml', '');
 		$this->xmlObj->init($this);
@@ -427,7 +431,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 		// Complete Template File List
 		$parts['tmplfiles'][] = array(
 			'label' => $GLOBALS['LANG']->getLL('center_tab_tmplfiles'),
-			'content' => $this->toObj->completeTemplateFileList()
+			'content' => $this->fileObj->renderTemplateFileList($this->toObj->findFilesWhereTOUsed())
 		);
 
 		// -----------------------------------------------------
@@ -649,6 +653,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 		}
 
 		if (!empty($index)) {
+
 			$index = '
 			<!--	<h4>' . $GLOBALS['LANG']->getLL('center_list_overview') . ':</h4>	-->
 				<table border="0" cellpadding="1" cellspacing="1" class="typo3-dblist typo3-tvlist">
@@ -677,6 +682,16 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 				</thead>
 					' . $index . '
 				</table>';
+
+			// Module may be allowed, but modify may not
+			if ($this->dsObj->isModifiable()) {
+				// New-DS link:
+				$index .= '
+					<a href="' . $this->mod2Script . $this->link_getParameters() . '&SET[page]=tmplfiles' . '">
+						<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/new_el.gif', 'width="11" height="12"') . ' alt="" class="absmiddle" /> ' . $GLOBALS['LANG']->getLL('center_view_ds_new') . '
+					</a><br />';
+			}
+
 		}
 
 		if (!empty($content)) {
