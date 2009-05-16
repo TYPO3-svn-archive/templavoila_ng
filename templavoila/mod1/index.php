@@ -318,26 +318,7 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 		}
 
 		if ($access && !($cmd = t3lib_div::_GP('cmd'))) {
-
-			// calls from drag and drop
-			if (t3lib_div::_GP("ajaxPasteRecord") == 'cut') {
-				$sourcePointer = $this->apiObj->flexform_getPointerFromString(t3lib_div::_GP('source'));
-				$destinationPointer = $this->apiObj->flexform_getPointerFromString(t3lib_div::_GP('destination'));
-				$this->apiObj->moveElement($sourcePointer, $destinationPointer);
-				exit;
-			}
-
-			if (t3lib_div::_GP("ajaxUnlinkRecord")) {
-				$unlinkDestinationPointer = $this->apiObj->flexform_getPointerFromString(t3lib_div::_GP('ajaxUnlinkRecord'));
-				$this->apiObj->unlinkElement($unlinkDestinationPointer);
-				exit;
-			}
-
-			if (t3lib_div::_GP("ajaxDeleteRecord")) {
-				$deleteDestinationPointer = $this->apiObj->flexform_getPointerFromString(t3lib_div::_GP('ajaxDeleteRecord'));
-				$this->apiObj->deleteElement($unlinkDestinationPointer);
-				exit;
-			}
+			$this->handleIncomingAjaxCommands();
 
 			$this->calcPerms = $GLOBALS['BE_USER']->calcPerms($pageInfoArr);
 
@@ -1203,21 +1184,22 @@ table.typo3-dyntabmenu td.disabled:hover {
 		// ----------------------------------------------------------------------------------
 		// Preview of FlexForm content if any:
 		if (($fieldData = $elementContentTreeArr['previewData']['sheets'][$sheet][$fieldID])) {
-			$edit2 = '<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/edit2.gif','').' title="'.$GLOBALS['LANG']->getLL ('editrecord').'" border="0" alt="" />';
+			$edit2 = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/edit2.gif', '') . ' title="' . $GLOBALS['LANG']->getLL('editrecord') . '" border="0" alt="" />';
 			$table = $elementContentTreeArr['el']['table'];
 			$uid   = $elementContentTreeArr['previewData']['fullRow']['uid'];
 
 			$TCEformsConfiguration = $fieldData['TCEforms']['config'];
 			$TCEformsLabel = $this->localizedFFLabel($fieldData['TCEforms']['label'], 1);	// title for non-section elements
+
 			$cellContent = '';
 
-							// --------------------------------------------------------------------------
-							// Making preview for array/section parts of a FlexForm structure:
+			// --------------------------------------------------------------------------
+			// Making preview for array/section parts of a FlexForm structure:
 			if ($fieldData['type'] == 'array') {
 				if (is_array($fieldData['subElements'][$lKey])) {
 					if ($fieldData['section']) {
 						$cellContent .=
-							'<strong>'.$fieldData['title'].'</strong><br /> ' .
+							'<strong>' . $fieldData['title'] . '</strong><br /> ' .
 							'<ol>';
 
 						foreach($fieldData['subElements'][$lKey] as $sectionData) {
@@ -1230,10 +1212,10 @@ table.typo3-dyntabmenu td.disabled:hover {
 									foreach ($sectionData[$sectionFieldKey]['el'] as $containerFieldKey => $containerData) {
 										if ($containerFieldKey[0] != '_') {
 											$cellContent .=
-												'<dt style="width: 25%; float: left; clear: left;"><strong>'.$containerFieldKey.'</strong></dt> '.
+												'<dt style="width: 25%; float: left; clear: left;"><strong>' . $containerFieldKey.'</strong></dt> ' .
 												'<dd style="margin-left: 25%;">'.
 												(trim($containerData[$vKey]) != ''
-												?	$this->link_edit(htmlspecialchars(t3lib_div::fixed_lgd_cs(strip_tags($containerData[$vKey]),200)), $table, $uid) . ' &nbsp;'
+												?	$this->link_edit(htmlspecialchars(t3lib_div::fixed_lgd_cs(strip_tags($containerData[$vKey]), 200)), $table, $uid) . ' &nbsp;'
 												:	(is_array($containerData['el']) ? '&hellip;' : '&mdash;')
 												).
 												'</dd>';
@@ -1248,35 +1230,37 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 						$cellContent .=
 							'</ol>';
-					}
-					else {
+					} else if (count($fieldData['subElements']) > 0) {
 						foreach ($fieldData['subElements'][$lKey] as $containerKey => $containerData) {
 							$cellContent .=
-								'<strong>'.$containerKey.'</strong><br /> '.
-								'<p>'.$this->link_edit($edit2 . '&nbsp;' . htmlspecialchars(t3lib_div::fixed_lgd_cs(strip_tags($containerData[$vKey]),200)), $table, $uid).'</p>';
+								'<strong>' . $containerKey . '</strong><br /> ' .
+								'<p>' . $this->link_edit($edit2 . '&nbsp;' . htmlspecialchars(t3lib_div::fixed_lgd_cs(strip_tags($containerData[$vKey]), 200)), $table, $uid) . '</p>';
 						}
 					}
 				}
 			}
-							// --------------------------------------------------------------------------
-				// Preview of flexform fields on top-level:
+			// --------------------------------------------------------------------------
+			// Preview of flexform fields on top-level:
 			else {
 				$fieldValue = $fieldData['data'][$lKey][$vKey];
 
 				if ($TCEformsConfiguration['type'] == 'group') {
-					if ($TCEformsConfiguration['internal_type'] == 'file')	{
+					if ($TCEformsConfiguration['internal_type'] == 'file') {
 						// Render preview for images:
-						$thumbnail = t3lib_BEfunc::thumbCode(array('dummyFieldName'=> $fieldValue), '', 'dummyFieldName', $this->doc->backPath, '', $TCEformsConfiguration['uploadfolder']);
+						$thumbnail = t3lib_BEfunc::thumbCode(array('dummyFieldName' => $fieldValue), '', 'dummyFieldName', $this->doc->backPath, '', $TCEformsConfiguration['uploadfolder']);
 						$cellContent .=
-							'<strong>'.$TCEformsLabel.'</strong><br /> '.
-							$thumbnail.'<br />';
+							'<strong>' . $TCEformsLabel . '</strong><br /> '.
+							$thumbnail . '<br />';
 					}
-				}
-				else if ($TCEformsConfiguration['type'] != '') {
-						// Render for everything else:
+				} else if ($TCEformsConfiguration['type'] != '') {
+					// Render for everything else:
 					$cellContent .=
-						'<strong>'.$TCEformsLabel.'</strong><br /> '.
-						$this->link_edit($edit2 . '&nbsp;' . htmlspecialchars(t3lib_div::fixed_lgd_cs(strip_tags($fieldValue),200)), $table, $uid).'<br />';
+						'<strong>' . $TCEformsLabel . '</strong><br /> ' .
+						$this->link_edit($edit2 . '&nbsp;' . htmlspecialchars(t3lib_div::fixed_lgd_cs(strip_tags($fieldValue), 200)), $table, $uid) . '<br />';
+				} else {
+					// Render for everything else:
+					$cellContent .=
+						'<strong>' . $TCEformsLabel . '</strong><br />';
 				}
 			}
 
@@ -1392,13 +1376,15 @@ table.typo3-dyntabmenu td.disabled:hover {
 		} elseif (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['cms/layout/class.tx_cms_layout.php']['list_type_Info']['_DEFAULT']))	{
 			$hookArr = $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['cms/layout/class.tx_cms_layout.php']['list_type_Info']['_DEFAULT'];
 		}
+
 		$hookOut = '';
-		if (count($hookArr) > 0)	{
+		if (count($hookArr) > 0) {
 			$_params = array('pObj' => &$this, 'row' => $row, 'infoArr' => $infoArr);
 			foreach ($hookArr as $_funcRef)	{
 				$hookOut .= t3lib_div::callUserFunction($_funcRef, $_params, $this);
 			}
 		}
+
 		return $hookOut;
 	}
 
@@ -2170,7 +2156,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 */
 	function link_unlink($label, $unlinkPointer) {
 
-		$unlinkPointerString = rawurlencode($this->apiObj->flexform_getStringFromPointer($unlinkPointer));
+		$unlinkPointerString = rawurlencode(str_replace(SEPARATOR_PARMS, '§', $this->apiObj->flexform_getStringFromPointer($unlinkPointer)));
 
 		return '<a href="javascript:' . htmlspecialchars('if (confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('unlinkRecordMsg')) . '))') . ' sortable_unlinkRecord(\'' . $unlinkPointerString . '\');" class="onoff">' . $label . '</a>';
 //		return '<a href="' . $this->baseScript.$this->link_getParameters() . '&amp;unlinkRecord=' . $unlinkPointerString . '" onclick="' . htmlspecialchars('return confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('unlinkRecordMsg')) . ');') . '">' . $label . '</a>';
@@ -2203,7 +2189,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 */
 	function link_delete($label, $unlinkPointer) {
 
-		$unlinkPointerString = rawurlencode($this->apiObj->flexform_getStringFromPointer($unlinkPointer));
+		$unlinkPointerString = rawurlencode(str_replace(SEPARATOR_PARMS, '§', $this->apiObj->flexform_getStringFromPointer($unlinkPointer)));
 
 		return '<a href="javascript:' . htmlspecialchars('if (confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('deleteRecordMsg')) . '))') . ' sortable_deleteRecord(\'' . $unlinkPointerString . '\');">' . $label . '</a>';
 //		return '<a href="' . $this->baseScript.$this->link_getParameters() . '&amp;deleteRecord=' . $unlinkPointerString . '" onclick="' . htmlspecialchars('return confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('deleteRecordMsg')) . ');') . '">' . $label . '</a>';

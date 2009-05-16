@@ -77,6 +77,7 @@
                     </sample_data>
                     <eType>TypoScriptObject</eType>
                     <eType_EXTRA type="array">
+                        <objDesc>T3unittestcase menu</objDesc>
                         <objPath>lib.templavoila.t3unittestcase.menu</objPath>
                     </eType_EXTRA>
                     <TypoScriptObjPath>lib.templavoila.t3unittestcase.menu</TypoScriptObjPath>

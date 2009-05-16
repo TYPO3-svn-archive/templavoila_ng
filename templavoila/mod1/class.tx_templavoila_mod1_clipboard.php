@@ -70,25 +70,25 @@ class tx_templavoila_mod1_clipboard {
 	 * @access	public
 	 */
 	function init(&$pObj) {
-		global $LANG, $BACK_PATH;
+		global $BACK_PATH;
 
-			// Make local reference to some important variables:
+		// Make local reference to some important variables:
 		$this->pObj =& $pObj;
 		$this->doc =& $this->pObj->doc;
 		$this->extKey =& $this->pObj->extKey;
 		$this->MOD_SETTINGS =& $this->pObj->MOD_SETTINGS;
 
-			// Initialize the t3lib clipboard:
+		// Initialize the t3lib clipboard:
 		$this->t3libClipboardObj = t3lib_div::makeInstance('t3lib_clipboard');
 		$this->t3libClipboardObj->backPath = $BACK_PATH;
 		$this->t3libClipboardObj->initializeClipboard();
 		$this->t3libClipboardObj->lockToNormal();
 
-			// Clipboard actions are handled:
-		$CB = t3lib_div::_GP('CB');	// CB is the clipboard command array
+		// Clipboard actions are handled:
+		$CB = t3lib_div::_GP('CB');			// CB is the clipboard command array
 		$this->t3libClipboardObj->setCmd($CB);		// Execute commands.
 
-		if (isset ($CB['setFlexMode'])) {
+		if (isset($CB['setFlexMode'])) {
 			switch ($CB['setFlexMode']) {
 				case 'copy':    $this->t3libClipboardObj->clipData['normal']['flexMode'] = 'copy'; break;
 				case 'cut':     $this->t3libClipboardObj->clipData['normal']['flexMode'] = 'cut'; break;
@@ -101,7 +101,7 @@ class tx_templavoila_mod1_clipboard {
 		$this->t3libClipboardObj->endClipboard();	// Save the clipboard content
 
 		// Add a list of non-used elements to the sidebar:
-		$this->pObj->sideBarObj->addItem('nonUsedElements', $this, 'sidebar_renderNonUsedElements', $LANG->getLL('nonusedelements'),30);
+		$this->pObj->sideBarObj->addItem('nonUsedElements', $this, 'sidebar_renderNonUsedElements', $GLOBALS['LANG']->getLL('nonusedelements'), 30);
 	}
 
 	/**

@@ -151,7 +151,7 @@ class tx_templavoila_mod1_sidebar {
 	 * @access	public
 	 */
 	function removeItem($itemKey) {
-		unset ($this->sideBarItems[$itemKey]);
+		unset($this->sideBarItems[$itemKey]);
 	}
 
 	/**
@@ -161,10 +161,10 @@ class tx_templavoila_mod1_sidebar {
 	 * @access	public
 	 */
 	function render() {
-		if (is_array ($this->sideBarItems) && count ($this->sideBarItems)) {
-			uasort ($this->sideBarItems, array ($this, 'sortItemsCompare'));
+		if (is_array($this->sideBarItems) && count($this->sideBarItems)) {
+			uasort ($this->sideBarItems, array($this, 'sortItemsCompare'));
 
-				// Render content of each sidebar item:
+			// Render content of each sidebar item:
 			$index = 0;
 			$numSortedSideBarItems = array();
 			foreach ($this->sideBarItems as $itemKey => $sideBarItem) {
@@ -176,18 +176,18 @@ class tx_templavoila_mod1_sidebar {
 				}
 			}
 
-				// Create the whole sidebar:
+			// Create the whole sidebar:
 			switch ($this->position) {
 				case 'left':
 					$sideBar = '
 						<!-- TemplaVoila Sidebar (left) begin -->
 
-						<div id="tx_templavoila_mod1_sidebar-bar" style="height: 100%; width: '.$this->sideBarWidth.'px; margin: 0 4px 0 0; display:none;" class="bgColor-10">
-							<div style="text-align:right;"><a href="#" onClick="tx_templavoila_mod1_sidebar_toggle();"><img '.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/minusbullet_list.gif','').' title="" alt="" /></a></div>
-							'.$this->doc->getDynTabMenu($numSortedSideBarItems, 'TEMPLAVOILA:pagemodule:sidebar', 1, true).'
+						<div id="tx_templavoila_mod1_sidebar-bar" style="height: 100%; width: ' . $this->sideBarWidth.'px; margin: 0 4px 0 0; display:none;" class="bgColor-10">
+							<div style="text-align: right;"><a href="#" onClick="tx_templavoila_mod1_sidebar_toggle();"><img' . t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/minusbullet_list.gif','').' title="" alt="" /></a></div>
+							' . $this->doc->getDynTabMenu($numSortedSideBarItems, 'TEMPLAVOILA:pagemodule:sidebar', 1, true) . '
 						</div>
 						<div id="tx_templavoila_mod1_sidebar-showbutton" style="height: 100%; width: 18px; margin: 0 4px 0 0; display:block; " class="bgColor-10">
-							<a href="#" onClick="tx_templavoila_mod1_sidebar_toggle();"><img '.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/plusbullet_list.gif','').' title="" alt="" /></a>
+							<a href="#" onClick="tx_templavoila_mod1_sidebar_toggle();"><img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/plusbullet_list.gif','').' title="" alt="" /></a>
 						</div>
 
 						<script type="text/javascript">
@@ -200,40 +200,42 @@ class tx_templavoila_mod1_sidebar {
 
 						<!-- TemplaVoila Sidebar end -->
 					';
-				break;
+					break;
 
 				case 'toprows':
 					$sideBar = '
 						<!-- TemplaVoila Sidebar (top) begin -->
 
 						<div id="tx_templavoila_mod1_sidebar-bar" style="width:100%; margin-bottom: 10px;" class="bgColor-10">
-							'.$this->doc->getDynTabMenu($numSortedSideBarItems, 'TEMPLAVOILA:pagemodule:sidebar', 1, true).'
+							' . $this->doc->getDynTabMenu($numSortedSideBarItems, 'TEMPLAVOILA:pagemodule:sidebar', 1, true) . '
 						</div>
 
 						<!-- TemplaVoila Sidebar end -->
 					';
-				break;
+					break;
 
 				case 'toptabs':
 					$sideBar = '
 						<!-- TemplaVoila Sidebar (top) begin -->
 
 						<div id="tx_templavoila_mod1_sidebar-bar" style="width:100%; border-bottom: 1px solid black; margin-bottom: 10px;" class="bgColor-10">
-							'.$this->doc->getDynTabMenu($numSortedSideBarItems, 'TEMPLAVOILA:pagemodule:sidebar', 1, FALSE, 100, 0, TRUE).'
+							' . $this->doc->getDynTabMenu($numSortedSideBarItems, 'TEMPLAVOILA:pagemodule:sidebar', 1, FALSE, 100, 0, TRUE) . '
 						</div>
 
 						<!-- TemplaVoila Sidebar end -->
 					';
-				break;
+					break;
 
 				default:
 					$sideBar = '
 						<!-- TemplaVoila Sidebar ERROR: Invalid position -->
 					';
-				break;
+					break;
 			}
+
 			return $sideBar;
 		}
+
 		return FALSE;
 	}
 

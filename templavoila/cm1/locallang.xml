@@ -67,6 +67,23 @@
 			<label index="structureAction">Actions</label>
 			<label index="structureEdit">Actions</label>
 
+			<label index="structureFormFieldNew">Enter new fieldname</label>
+			<label index="structureFormTitle">Title</label>
+			<label index="structureFormInstruction">Mapping instructions</label>
+			<label index="structureFormSamples">Sample Data</label>
+			<label index="structureFormPreset">Element Preset</label>
+			<label index="structureFormTCEFields">TCE-Fields</label>
+			<label index="structureFormTSElements">TS-Elements</label>
+			<label index="structureFormOther">Other</label>
+			<label index="structureFormRules">Mapping rules</label>
+			<label index="structureFormInheritance">Inheritance</label>
+			<label index="structureFormTSConst">Typoscript Constants</label>
+			<label index="structureFormTSCode">Typoscript Code</label>
+			<label index="structureFormExtra">Extra options</label>
+			<label index="structureFormTSODescription">Description</label>
+			<label index="structureFormTSOPath">Object path</label>
+			<label index="structureFormTSOContext">Context</label>
+
 			<label index="originXML">Pure XML import</label>
 			<label index="originScratch">From scratch construction</label>
 

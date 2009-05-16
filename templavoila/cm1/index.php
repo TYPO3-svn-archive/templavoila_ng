@@ -2479,19 +2479,19 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		$this->markupObj = t3lib_div::makeInstance('tx_templavoila_htmlmarkup');
 
 		// Load splitted content from currentMappingInfo array (used to show us which elements maps to some real content).
-		$contentSplittedByMapping = $this->markupObj->splitContentToMappingInfo($fileContent,$currentMappingInfo);
+		$contentSplittedByMapping = $this->markupObj->splitContentToMappingInfo($fileContent, $currentMappingInfo);
 
 		// Show path:
 		$pathRendered = t3lib_div::trimExplode('|', $path, 1);
-		$acc=array();
-		foreach($pathRendered as $k => $v) {
+		$acc = array();
+		foreach ($pathRendered as $k => $v) {
 			$acc[] = $v;
 			$pathRendered[$k] = $this->linkForDisplayOfPath($v, implode('|', $acc));
 		}
 		array_unshift($pathRendered, $this->linkForDisplayOfPath('[ROOT]', ''));
 
 		// Get attributes of the extracted content:
-		$attrDat=array();
+		$attrDat = array();
 		$contentFromPath = $this->markupObj->splitByPath($fileContent, $path);	// ,'td#content table[1] tr[1]','td#content table[1]','map#cdf / INNER','td#content table[2] tr[1] td[1] table[1] tr[4] td.bckgd1[2] table[1] tr[1] td[1] table[1] tr[1] td.bold1px[1] img[1] / RANGE:img[2]'
 		$firstTag = $this->markupObj->htmlParse->getFirstTag($contentFromPath[1]);
 		list($attrDat) = $this->markupObj->htmlParse->get_tag_attributes($firstTag,1);
@@ -2930,7 +2930,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				// Initialize, detecting either "add" or "edit" (default) mode:
 				$autokey = '';
 				if ($this->DS_cmd == 'add') {
-					if (trim($this->fieldName) != '[Enter new fieldname]' && trim($this->fieldName) != 'field_') {
+					if (trim($this->fieldName) != '[' . $GLOBALS['LANG']->getLL('structureFormFieldNew') . ']' && trim($this->fieldName) != 'field_') {
 						$autokey = strtolower(ereg_replace('[^[:alnum:]_]', '', trim($this->fieldName)));
 						if (isset($value['el'][$autokey]))	{
 							$autokey .= '_' . substr(md5(microtime()), 0, 2);
@@ -2978,54 +2978,54 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				$form = '
 				<dl id="dsel-general" class="DS-config">
 					<!-- always present options +++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-					<dt><label>Title:</label></dt>
+					<dt><label>' . $GLOBALS['LANG']->getLL('structureFormTitle') . ':</label></dt>
 					<dd><input type="text" size="80" name="' . $formFieldName.'[tx_templavoila][title]" value="' . htmlspecialchars($insertDataArray['tx_templavoila']['title']) . '" /></dd>
 
-					<dt><label>Mapping instructions:</label></dt>
+					<dt><label>' . $GLOBALS['LANG']->getLL('structureFormInstruction') . ':</label></dt>
 					<dd><input type="text" size="80" name="' . $formFieldName.'[tx_templavoila][description]" value="' . htmlspecialchars($insertDataArray['tx_templavoila']['description']) . '" /></dd>
 
 					' . (($insertDataArray['type'] != 'array') &&
 					     ($insertDataArray['type'] != 'section') ? '
 					<!-- non-array options ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-					<dt><label>Sample Data:</label></dt>
+					<dt><label>' . $GLOBALS['LANG']->getLL('structureFormSamples') . ':</label></dt>
 					<dd><textarea class="fixed-font enable-tab" cols="' . $this->textareaCols . '" rows="5" name="' . $formFieldName . '[tx_templavoila][sample_data][]">' . t3lib_div::deHSCentities(htmlspecialchars($insertDataArray['tx_templavoila']['sample_data'][0])) . '</textarea>
 						' . $this->lipsumLink($formFieldName . '[tx_templavoila][sample_data]') . '</dd>
 
-					<dt><label>Element Preset:</label></dt>
+					<dt><label>' . $GLOBALS['LANG']->getLL('structureFormPreset') . ':</label></dt>
 					<dd><select onchange="if (confirm(\'' . $GLOBALS['LANG']->getLL('mess.onChangeAlert') . '\')) document.getElementById(\'_updateDS\').click();"
-						name="'.$formFieldName.'[tx_templavoila][eType]">
-						<optgroup class="c-divider" label="TCE-Fields">
-							<option value="input"'.           ($insertDataArray['tx_templavoila']['eType']=='input'            ? ' selected="selected"' : '').'>Plain input field</option>
-							<option value="input_h"'.         ($insertDataArray['tx_templavoila']['eType']=='input_h'          ? ' selected="selected"' : '').'>Header field</option>
-							<option value="input_g"'.         ($insertDataArray['tx_templavoila']['eType']=='input_g'          ? ' selected="selected"' : '').'>Header field, Graphical</option>
-							<option value="text"'.            ($insertDataArray['tx_templavoila']['eType']=='text'             ? ' selected="selected"' : '').'>Text area for bodytext</option>
-							<option value="rte"'.             ($insertDataArray['tx_templavoila']['eType']=='rte'              ? ' selected="selected"' : '').'>Rich text editor for bodytext</option>
-							<option value="link"'.            ($insertDataArray['tx_templavoila']['eType']=='link'             ? ' selected="selected"' : '').'>Link field</option>
-							<option value="int"'.             ($insertDataArray['tx_templavoila']['eType']=='int'              ? ' selected="selected"' : '').'>Integer value</option>
-							<option value="image"'.           ($insertDataArray['tx_templavoila']['eType']=='image'            ? ' selected="selected"' : '').'>Image field</option>
-							<option value="imagefixed"'.      ($insertDataArray['tx_templavoila']['eType']=='imagefixed'       ? ' selected="selected"' : '').'>Image field, fixed W+H</option>
-							<option value="select"'.          ($insertDataArray['tx_templavoila']['eType']=='select'           ? ' selected="selected"' : '').'>Selector box</option>
+						name="' . $formFieldName . '[tx_templavoila][eType]">
+						<optgroup class="c-divider" label="' . $GLOBALS['LANG']->getLL('structureFormTCEFields') . '">
+							<option value="input"'.           ($insertDataArray['tx_templavoila']['eType'] == 'input'            ? ' selected="selected"' : '') . '>Plain input field</option>
+							<option value="input_h"'.         ($insertDataArray['tx_templavoila']['eType'] == 'input_h'          ? ' selected="selected"' : '') . '>Header field</option>
+							<option value="input_g"'.         ($insertDataArray['tx_templavoila']['eType'] == 'input_g'          ? ' selected="selected"' : '') . '>Header field, Graphical</option>
+							<option value="text"'.            ($insertDataArray['tx_templavoila']['eType'] == 'text'             ? ' selected="selected"' : '') . '>Text area for bodytext</option>
+							<option value="rte"'.             ($insertDataArray['tx_templavoila']['eType'] == 'rte'              ? ' selected="selected"' : '') . '>Rich text editor for bodytext</option>
+							<option value="link"'.            ($insertDataArray['tx_templavoila']['eType'] == 'link'             ? ' selected="selected"' : '') . '>Link field</option>
+							<option value="int"'.             ($insertDataArray['tx_templavoila']['eType'] == 'int'              ? ' selected="selected"' : '') . '>Integer value</option>
+							<option value="image"'.           ($insertDataArray['tx_templavoila']['eType'] == 'image'            ? ' selected="selected"' : '') . '>Image field</option>
+							<option value="imagefixed"'.      ($insertDataArray['tx_templavoila']['eType'] == 'imagefixed'       ? ' selected="selected"' : '') . '>Image field, fixed W+H</option>
+							<option value="select"'.          ($insertDataArray['tx_templavoila']['eType'] == 'select'           ? ' selected="selected"' : '') . '>Selector box</option>
 						</optgroup>
-						<optgroup class="c-divider" label="TS-Elements">
-							<option value="ce"'.              ($insertDataArray['tx_templavoila']['eType']=='ce'               ? ' selected="selected"' : '').'>Page-Content Elements [Pos.: '.($insertDataArray['tx_templavoila']['oldStyleColumnNumber'] ? $insertDataArray['tx_templavoila']['oldStyleColumnNumber'] : 'to be defined').']</option>
-							<option value="TypoScriptObject"'.($insertDataArray['tx_templavoila']['eType']=='TypoScriptObject' ? ' selected="selected"' : '').'>TypoScript Object Path</option>
+						<optgroup class="c-divider" label="' . $GLOBALS['LANG']->getLL('structureFormTSElements') . '">
+							<option value="ce"'.              ($insertDataArray['tx_templavoila']['eType'] == 'ce'               ? ' selected="selected"' : '') . '>Page-Content Elements [Pos.: '.($insertDataArray['tx_templavoila']['oldStyleColumnNumber'] ? $insertDataArray['tx_templavoila']['oldStyleColumnNumber'] : 'to be defined').']</option>
+							<option value="TypoScriptObject"'.($insertDataArray['tx_templavoila']['eType'] == 'TypoScriptObject' ? ' selected="selected"' : '') . '>TypoScript Object Path</option>
 						</optgroup>
-						<optgroup class="c-divider" label="Other">
-							<option value="none"'.            ($insertDataArray['tx_templavoila']['eType']=='none'             ? ' selected="selected"' : '').'>None (only TS)</option>
-							<option value="custom"'.          ($insertDataArray['tx_templavoila']['eType']=='custom'           ? ' selected="selected"' : '').'>Custom TCE</option>
+						<optgroup class="c-divider" label="' . $GLOBALS['LANG']->getLL('structureFormOther') . '">
+							<option value="none"'.            ($insertDataArray['tx_templavoila']['eType'] == 'none'             ? ' selected="selected"' : '') . '>None (only TS)</option>
+							<option value="custom"'.          ($insertDataArray['tx_templavoila']['eType'] == 'custom'           ? ' selected="selected"' : '') . '>Custom TCE</option>
 						</optgroup>
 					</select><input type="hidden"
-						name="'.$formFieldName.'[tx_templavoila][eType_before]"
-						value="'.$insertDataArray['tx_templavoila']['eType'].'" /></dd>
+						name="' . $formFieldName . '[tx_templavoila][eType_before]"
+						value="' . $insertDataArray['tx_templavoila']['eType'] . '" /></dd>
 					' :'').'
 
-					<dt><label>Mapping rules:</label></dt>
+					<dt><label>' . $GLOBALS['LANG']->getLL('structureFormRules') . ':</label></dt>
 					<dd><input type="text" size="80" name="'.$formFieldName.'[tx_templavoila][tags]" value="'.htmlspecialchars($insertDataArray['tx_templavoila']['tags']).'" /></dd>
-					<dt><label>Inheritance:</label></dt>
+					<dt><label>' . $GLOBALS['LANG']->getLL('structureFormInheritance') . ':</label></dt>
 					<dd>
-						<input type="radio" name="'.$formFieldName.'[tx_templavoila][inheritance]" value="0" '.($insertDataArray['tx_templavoila']['inheritance']==0?'checked="checked"':'').' /> Never<br />
-						<input type="radio" name="'.$formFieldName.'[tx_templavoila][inheritance]" value="1" '.($insertDataArray['tx_templavoila']['inheritance']==1?'checked="checked"':'').' /> Replace<br />
-						<input type="radio" name="'.$formFieldName.'[tx_templavoila][inheritance]" value="2" '.($insertDataArray['tx_templavoila']['inheritance']==2?'checked="checked"':'').' /> Accumulate<br />
+						<input type="radio" name="' . $formFieldName . '[tx_templavoila][inheritance]" value="0" ' . ($insertDataArray['tx_templavoila']['inheritance'] == 0 ? 'checked="checked"' : '') . ' /> Never<br />
+						<input type="radio" name="' . $formFieldName . '[tx_templavoila][inheritance]" value="1" ' . ($insertDataArray['tx_templavoila']['inheritance'] == 1 ? 'checked="checked"' : '') . ' /> Replace<br />
+						<input type="radio" name="' . $formFieldName . '[tx_templavoila][inheritance]" value="2" ' . ($insertDataArray['tx_templavoila']['inheritance'] == 2 ? 'checked="checked"' : '') . ' /> Accumulate<br />
 					</dd>
 				</dl>';
 
@@ -3041,7 +3041,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				}	*/
 
 				if (($insertDataArray['type'] != 'array') &&
-					($insertDataArray['type'] != 'section')) {
+				    ($insertDataArray['type'] != 'section')) {
 					/* The Typoscript-related XML-structure of an tx_templavoila-entry is:
 					 *
 					 * <tx_templavoila>
@@ -3052,17 +3052,17 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					if ($insertDataArray['tx_templavoila']['eType'] != 'TypoScriptObject')
 					$form .= '
 					<dl id="dsel-ts" class="DS-config">
-						<dt><label>Typoscript Constants:</label></dt>
+						<dt><label>' . $GLOBALS['LANG']->getLL('structureFormTSConst') . ':</label></dt>
 						<dd><textarea class="fixed-font enable-tab xml" cols="' . $this->textareaCols . '" rows="10" name="' . $formFieldName . '[tx_templavoila][TypoScript_constants]" rel="tx_templavoila.TypoScript_constants">' . htmlspecialchars($this->flattenarray($insertDataArray['tx_templavoila']['TypoScript_constants'])) . '</textarea></dd>
-						<dt><label>Typoscript Code:</label></dt>
+						<dt><label>' . $GLOBALS['LANG']->getLL('structureFormTSCode') . ':</label></dt>
 						<dd>' . (!$this->t3e ? '
 							<textarea
 								class="fixed-font enable-tab ts"
 								cols="' . $this->textareaCols . '"
 								rows="10"
-								name="'.$formFieldName.'[tx_templavoila][TypoScript]"
+								name="' . $formFieldName.'[tx_templavoila][TypoScript]"
 								rel="tx_templavoila.TypoScript">'.
-								htmlspecialchars($insertDataArray['tx_templavoila']['TypoScript']).'
+								htmlspecialchars($insertDataArray['tx_templavoila']['TypoScript']) . '
 							</textarea>' :
 							str_replace('<br/>', '', $this->t3e->getCodeEditor(
 								$formFieldName . '[tx_templavoila][TypoScript]',
@@ -3080,15 +3080,19 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					 */
 					if (($extra = $this->drawDataStructureMap_editItem_editTypeExtra(
 							$insertDataArray['tx_templavoila']['eType'],
-							$formFieldName.'[tx_templavoila][eType_EXTRA]',
-							($insertDataArray['tx_templavoila']['eType_EXTRA'] ?	// Use eType_EXTRA only if it is set (could be modified, etc), otherwise use TypoScriptObjPath!
-								$insertDataArray['tx_templavoila']['eType_EXTRA'] :
-									($insertDataArray['tx_templavoila']['TypoScriptObjPath'] ?
-									array('objPath' => $insertDataArray['tx_templavoila']['TypoScriptObjPath']) : ''))
+							$formFieldName . '[tx_templavoila][eType_EXTRA]',
+							($insertDataArray['tx_templavoila']['eType_EXTRA'] 	// Use eType_EXTRA only if it is set (could be modified, etc), otherwise use TypoScriptObjPath!
+							?	$insertDataArray['tx_templavoila']['eType_EXTRA']
+							:	($insertDataArray['tx_templavoila']['TypoScriptObjPath']
+								?	array(
+										'objDesc' => $insertDataArray['tx_templavoila']['TypoScriptObjDesc'],
+										'objPath' => $insertDataArray['tx_templavoila']['TypoScriptObjPath']
+									)
+								:	''))
 						)))
 					$form .= '
 					<dl id="dsel-extra" class="DS-config">
-						<dt>Extra options</dt>
+						<dt>' . $GLOBALS['LANG']->getLL('structureFormExtra') . '</dt>
 						<dd>' . $extra . '</dd>
 					</dl>';
 
@@ -3275,7 +3279,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				<tr class="bgColor4">
 					<td colspan="6">
 						<img src="clear.gif" width="' . (($level + 1) * 16) . '" height="1" alt="" />
-						<input type="text" name="' . md5($formPrefix . '[' . $key . ']') . '" value="[Enter new fieldname]" onfocus="if (this.value==\'[Enter new fieldname]\'){this.value=\'field_\';}" />
+						<input type="text" name="' . md5($formPrefix . '[' . $key . ']') . '" value="[' . $GLOBALS['LANG']->getLL('structureFormFieldNew') . ']" onfocus="if (this.value==\'[' . $GLOBALS['LANG']->getLL('structureFormFieldNew') . ']\'){this.value=\'field_\';}" />
 						<img style="cursor: pointer; vertical-align: -3px;" title="Add" src="' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/new_record.gif', '', 1) . '" hspace="2"
 							onclick="document.location=\'' . $this->linkThisScript(array('DS_element' => $formPrefix . '[' . $key . ']', 'DS_cmd' => 'add')) . '&amp;fieldName=\'+document.pageform[\'' . md5($formPrefix . '[' . $key . ']') . '\'].value; return false;" />
 						' . $this->cshItem('xMOD_tx_templavoila', 'mapping_addfield', $this->doc->backPath, '', FALSE, 'margin-bottom: 0px;') . '
@@ -3302,7 +3306,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 * @see drawDataStructureMap_editItem()
 	 */
 	function drawDataStructureMap_editItem_editTypeExtra($type, $formFieldName, $curValue)	{
-			// If a user function was registered, use that instead of our own handlers:
+		// If a user function was registered, use that instead of our own handlers:
 		if (isset ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['templavoila']['cm1']['eTypesExtraFormFields'][$type])) {
 			$_params = array (
 				'type' => $type,
@@ -3311,22 +3315,26 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			);
 
 			$output = t3lib_div::callUserFunction($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['templavoila']['cm1']['eTypesExtraFormFields'][$type], $_params, $this);
-		}
-		else {
-			switch($type)	{
+		} else {
+			switch ($type) {
 				case 'TypoScriptObject':
 					$output = '
-						Object path:<br />
-						<input style="width: 95%;" id="browser[result]" type="text" name="'.$formFieldName.'[objPath]" value="'.htmlspecialchars($curValue['objPath'] ? $curValue['objPath'] : 'lib.myObject').'" />
+						' . $GLOBALS['LANG']->getLL('structureFormTSODescription') . ':<br />
+						<input style="width: 95%;" id="browser[descrp]" type="text" name="' . $formFieldName . '[objDesc]" value="' . htmlspecialchars($curValue['objDesc'] ? $curValue['objDesc'] : 'My object') . '" />
 					';
 
 					$output .= '
-						Context:<br />
+						' . $GLOBALS['LANG']->getLL('structureFormTSOPath') . ':<br />
+						<input style="width: 95%;" id="browser[result]" type="text" name="' . $formFieldName . '[objPath]" value="' . htmlspecialchars($curValue['objPath'] ? $curValue['objPath'] : 'lib.myObject') . '" />
+					';
+
+					$output .= '
+						' . $GLOBALS['LANG']->getLL('structureFormTSOContext') . ':<br />
 						<div style="width: 94.7%;" class="tv-ts-tree">
 							<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/insert3.gif') . ' title="Context" alt="Load context"
 								 onclick="setFormValueOpenBrowser(\'db\',\'browser[communication]|||pages\');" style="cursor: pointer; vertical-align: middle;" />
 							<span id="browser[context]">root <em>[pid: 0]</em></span>
-							<iframe width="100%" height="400" style="border: 0;" id="browser[communication]" src="' . $this->baseScript . 'mode=browser&pid=&current='.$curValue['objPath'].'"></iframe>
+							<iframe width="100%" height="400" style="border: 0;" id="browser[communication]" src="' . $this->baseScript . 'mode=browser&pid=&current=' . $curValue['objPath'] . '"></iframe>
 						</div>
 					';
 					break;

@@ -450,10 +450,17 @@ class tx_templavoila_cm1_presets {
 							/* preserve previous config, if of the right kind */
 						//	if (($reset || ($elArray[$key]['tx_templavoila']['TypoScriptObjPath'] == ''))) {
 								$elArray[$key]['tx_templavoila']['TypoScriptObjPath'] =
-									($elArray[$key]['tx_templavoila']['eType_EXTRA']['objPath'] ?
-										$elArray[$key]['tx_templavoila']['eType_EXTRA']['objPath'] :
-										($elArray[$key]['tx_templavoila']['TypoScriptObjPath'] ?
-											$elArray[$key]['tx_templavoila']['TypoScriptObjPath'] : ''));
+									($elArray[$key]['tx_templavoila']['eType_EXTRA']['objPath']
+									?	$elArray[$key]['tx_templavoila']['eType_EXTRA']['objPath']
+									:	($elArray[$key]['tx_templavoila']['TypoScriptObjPath']
+										?	$elArray[$key]['tx_templavoila']['TypoScriptObjPath']
+										:	''));
+								$elArray[$key]['tx_templavoila']['TypoScriptObjDesc'] =
+									($elArray[$key]['tx_templavoila']['eType_EXTRA']['objDesc']
+									?	$elArray[$key]['tx_templavoila']['eType_EXTRA']['objDesc']
+									:	($elArray[$key]['tx_templavoila']['TypoScriptObjDesc']
+										?	$elArray[$key]['tx_templavoila']['TypoScriptObjDesc']
+										:	''));
 						//	}
 							break;
 						case 'none':
@@ -464,12 +471,17 @@ class tx_templavoila_cm1_presets {
 				// End switch else
 
 				if ($elArray[$key]['tx_templavoila']['eType'] != 'TypoScriptObject') {
-					if (isset($elArray[$key]['tx_templavoila']['TypoScriptObjPath'])) {
+
+					if (isset($elArray[$key]['tx_templavoila']['TypoScriptObjPath']))
 						unset($elArray[$key]['tx_templavoila']['TypoScriptObjPath']);
-					}
-				}
-				else if (isset($elArray[$key]['tx_templavoila']['eType_EXTRA']['objPath'])) {
+					if (isset($elArray[$key]['tx_templavoila']['TypoScriptObjDesc']))
+						unset($elArray[$key]['tx_templavoila']['TypoScriptObjDesc']);
+
+				} else if (isset($elArray[$key]['tx_templavoila']['eType_EXTRA']['objPath']) ||
+					   isset($elArray[$key]['tx_templavoila']['eType_EXTRA']['objDesc'])) {
 					unset($elArray[$key]['tx_templavoila']['eType_EXTRA']['objPath']);
+					unset($elArray[$key]['tx_templavoila']['eType_EXTRA']['objDesc']);
+
 					if (count($elArray[$key]['tx_templavoila']['eType_EXTRA']) == 0) {
 						unset($elArray[$key]['tx_templavoila']['eType_EXTRA']);
 					}

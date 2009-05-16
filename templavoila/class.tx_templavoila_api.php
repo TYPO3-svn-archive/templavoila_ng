@@ -1528,7 +1528,7 @@ class tx_templavoila_api {
 		foreach($fieldList as $fieldKey => $fieldData) {
 			$fieldPath = $xpath . $fieldKey;
 
-				// Compile preview data:
+			// Compile preview data:
 			if ($this->includePreviewData)	{
 				$dsel = $map[$fieldKey];
 
@@ -1549,7 +1549,7 @@ class tx_templavoila_api {
 				}
 
 				if ($fieldData['type'] == 'array') {
-						// we fully go into COs and register them XPathed
+					// we fully go into COs and register them XPathed
 					if ($fieldData['section'] == 0) {
 						$this->traverseContentTree_element(
 							$fieldPath . SEPARATOR_XPATH . 'el' . SEPARATOR_XPATH, $fieldData['el'], $map[$fieldKey]['el'], $data,
@@ -1558,7 +1558,7 @@ class tx_templavoila_api {
 							$tt_content_elementRegister, $prevRecList
 						);
 					}
-						// sections are stoppers, recursion here isn't permited
+					// sections are stoppers, recursion here isn't permited
 					else {
 						foreach($lKeys as $lKey) {
 							$previewData[$fieldPath]['subElements'][$lKey] = $this->api_getFFvalue($data, $fieldPath, $sKey, $lKey, 'el');
@@ -1567,7 +1567,7 @@ class tx_templavoila_api {
 				}
 			}
 
-				// If the current field points to other content elements, process them:
+			// If the current field points to other content elements, process them:
 			if ($fieldData['TCEforms']['config']['type'         ] == 'group' &&
 			    $fieldData['TCEforms']['config']['internal_type'] == 'db' &&
 			    $fieldData['TCEforms']['config']['allowed'      ] == 'tt_content') {
@@ -1575,15 +1575,15 @@ class tx_templavoila_api {
 						foreach($vKeys as $vKey) {
 							$listOfSubElementUids = $this->api_getFFvalue($data, $fieldPath, $sKey, $lKey, $vKey);
 
-								// sub->XPath
+							// sub->XPath
 							$sub[$lKey][$fieldPath][$vKey] = $this->getContentTree_processSubContent($listOfSubElementUids, $tt_content_elementRegister, $prevRecList);
 							$sub[$lKey][$fieldPath][$vKey]['meta']['title'] = $fieldData['TCEforms']['label'];
 						}
 					}
 			}
-				// If generally there are non-container fields, register them:
+			// If generally there are non-container fields, register them:
 			elseif ($fieldData['type']!='array' && $fieldData['TCEforms']['config']) {
-					// contentFields->XPath
+				// contentFields->XPath
 				$contentFields[] = $fieldPath;
 			}
 		}
