@@ -27,6 +27,23 @@
  * @author   Kasper Sk?rh?j <kasper@typo3.com>
  * @coauthor Niels Fröhling <niels@frohling.biz>
  */
+/**
+ * [CLASS/FUNCTION INDEX of SCRIPT]
+ *
+ *
+ *
+ *   55: class tx_templavoila_mod2_overview
+ *   71:     function init(&$pObj)
+ *
+ *              SECTION: Overview rendering
+ *   92:     function renderSysFolders()
+ *  164:     function cmp($a, $b)
+ *
+ * TOTAL FUNCTIONS: 3
+ * (This index is automatically created/updated by the extension "extdeveval")
+ *
+ */
+
 
 /**
  * Submodule 'overview' for the templavoila control-center module

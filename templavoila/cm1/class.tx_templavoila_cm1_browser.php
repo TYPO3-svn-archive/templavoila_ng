@@ -27,6 +27,24 @@
  * @author   Kasper Sk?rh?j <kasper@typo3.com>
  * @coauthor Niels Fröhling <niels@frohling.biz>
  */
+/**
+ * [CLASS/FUNCTION INDEX of SCRIPT]
+ *
+ *
+ *
+ *   56: class tx_templavoila_cm1_browser
+ *  109:     function init(&$pObj)
+ *  126:     function getConfigArray()
+ *  160:     function showTemplate($conf, $pObj = false)
+ *  220:     function renderModuleContent()
+ *  279:     function flip(li)
+ *  298:     function touch(loc)
+ *
+ * TOTAL FUNCTIONS: 6
+ * (This index is automatically created/updated by the extension "extdeveval")
+ *
+ */
+
 
 /**
  * Submodule 'browser' for the templavoila control-center module
@@ -258,6 +276,7 @@ class tx_templavoila_cm1_browser {
 
 
 		</style><script type="text/javascript">
+
 			function flip(li) {
 				if (li.className.match(/plus/)) {
 					li.className =

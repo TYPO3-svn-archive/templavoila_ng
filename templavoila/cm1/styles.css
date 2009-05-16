@@ -9,6 +9,11 @@ table.typo3-tvlist {
 	table-layout: fixed;
 }
 
+table#c-headerParts pre {
+	overflow-x: auto;
+	white-space: normal;
+}
+
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 dl.DS-infos dt,
 dl.TO-infos dt {

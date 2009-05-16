@@ -227,17 +227,18 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 	 * @param	string		The mode of display; [blank], explode, borders. Set in $this->mode. "checkbox" is also an option, used for header data.
 	 * @return	string		Modified HTML
 	 */
-	function markupHTMLcontent($content,$backPath,$relPathFix,$showTags,$mode='')	{
+	function markupHTMLcontent($content, $backPath, $relPathFix, $showTags, $mode = '') {
 		// Initialize:
 		$this->mode = $mode;
 
 		$this->init();
 		$this->backPath = $backPath;
 		$this->gnyfPath = t3lib_div::resolveBackPath($backPath . t3lib_extMgm::extRelPath('templavoila'));
+
 		list($tagList_elements, $tagList_single) = $this->splitTagTypes($showTags);
 
 		// Fix links/paths
-		if ($this->mode!='source')	{
+		if ($this->mode != 'source') {
 			$content = $this->htmlParse->prefixResourcePath($relPathFix, $content);
 		}
 
@@ -245,8 +246,8 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 		$content = $this->recursiveBlockSplitting($content, $tagList_elements, $tagList_single, 'markup');
 
 		// Wrap in <pre>-tags if source
-		if ($this->mode=='source')	{
-			$content = '<pre>'.$content.'</pre>';
+		if ($this->mode == 'source') {
+			$content = '<pre>' . $content . '</pre>';
 		}
 
 		return $content;
@@ -270,7 +271,7 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 
 		// Wrap in <pre>-tags if source
 		if ($mode == 'source') {
-			$content = '<pre style="' . htmlspecialchars($altStyle ? $altStyle : 'font-size:11px; color:#999999; font-style:italic;') . '">' . str_replace(chr(9), '    ', htmlspecialchars($content)) . '</pre>';
+			$content = '<pre style="' . htmlspecialchars($altStyle ? $altStyle : 'font-size: 11px; color: #999999; font-style: italic;') . '">' . str_replace(chr(9), '    ', htmlspecialchars($content)) . '</pre>';
 		}
 
 		return $content;
@@ -283,25 +284,25 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 	 * @param	string		The array where the values are paths, eg. array('td#content table[1] tr[1]','td#content table[1]','map#cdf / INNER') - takes only the first level in a path!
 	 * @return	array		Content... (not welldefined yet)
 	 */
-	function getContentBasedOnPath($content,$pathStrArr)	{
-			// INIT:
+	function getContentBasedOnPath($content, $pathStrArr) {
+		// INIT:
 		$this->init();
 		$this->searchPaths=array();
 		$tagList = '';
 
-
-
-		foreach($pathStrArr as $pathStr)	{
+		foreach($pathStrArr as $pathStr) {
 			list($pathInfo) = $this->splitPath($pathStr);
 			$this->searchPaths[$pathInfo['path']] = $pathInfo;
 
-				# 21/1 2005: Commented out because the line below is commented in...
-			#$tagList.=','.$pathInfo['tagList'];
+			# 21/1 2005: Commented out because the line below is commented in...
+			#$tagList .= ',' . $pathInfo['tagList'];
 		}
 
 
-			# 21/1 2005:  USING ALL TAGS (otherwise we may get those strange "lost" references - but I DON'T KNOW what may break because of this!!! It just seems that the taglist being used for the "search" should be the SAME as used for the MARKUP!
-		$tagList = implode(',',array_keys($this->tags));
+		# 21/1 2005:  USING ALL TAGS (otherwise we may get those strange "lost" references -
+		# but I DON'T KNOW what may break because of this!!! It just seems that the taglist
+		# being used for the "search" should be the SAME as used for the MARKUP!
+		$tagList = implode(',', array_keys($this->tags));
 
 
 
@@ -1236,7 +1237,7 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 			return str_pad('',$recursion*2,' ',STR_PAD_LEFT).
 				$gnyf.
 				($valueStr ? '<font color="#6666FF"><em>' : '').
-				htmlspecialchars(t3lib_div::fixed_lgd_cs(ereg_replace('[[:space:]]+',' ',$str),$this->maxLineLengthInSourceMode)).
+				htmlspecialchars(t3lib_div::fixed_lgd_cs(ereg_replace('[[:space:]]+', ' ', $str), $this->maxLineLengthInSourceMode)).
 				($valueStr ? '</em></font>' : '').
 				chr(10);
 		}
@@ -1314,8 +1315,12 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 		if (!$this->onlyElements || t3lib_div::inList($this->onlyElements, $firstTagName)) {
 			$onclick = str_replace('###PATH###', $this->pathPrefix . $path, $this->gnyfImgAdd);
 
-			$gnyf  = $this->textGnyf ? '<span '.$onclick.' style="border:1px solid blank; background-color: yellow;">[' . $firstTagName . ']</span>' : '<img ' . $onclick . ' src="' . $this->gnyfPath . 'html_tags/' . $firstTagName . '.gif" border="0" title="' . htmlspecialchars(t3lib_div::fixed_lgd_cs($title, -80)).'"'.$this->gnyfStyle.' alt="" />';
-			$gnyf .= ($this->mode == 'explode' ? '<br />' : '');
+			$gnyf  = $this->textGnyf
+				? '<span ' . $onclick . ' style="cursor:pointer; border: 1px solid blank; background-color: yellow;">[' . $firstTagName . ']</span>'
+				: '<img ' . $onclick . ' style="cursor:pointer;" src="' . $this->gnyfPath . 'html_tags/' . $firstTagName . '.gif" border="0" title="' . htmlspecialchars(t3lib_div::fixed_lgd_cs($title, -200)) . '"' . $this->gnyfStyle . ' alt="" />';
+			$gnyf .= $this->mode == 'explode'
+				? '<br />'
+				: '';
 
 			return $gnyf;
 		}

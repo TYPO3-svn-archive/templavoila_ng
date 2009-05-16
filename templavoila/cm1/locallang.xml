@@ -78,6 +78,10 @@
 			<label index="mappingFound">Content found (at %d chars)</label>
 			<label index="mappingEmpty">Content empty</label>
 
+			<label index="headInc">Incl.</label>
+			<label index="headTag">Tag</label>
+			<label index="headContent">Tag content</label>
+
 			<label index="none">None found</label>
 			<label index="noicon">No icon</label>
 			<label index="rootDescription">Select the HTML element on the page which you want to be the overall container element for the template.</label>
@@ -197,6 +201,10 @@
 			<label index="mappingPreview">Datenstruktur die mit der HTML-Vorlage assoziiert wurde</label>
 			<label index="mappingFound">Inhalt gefunden (nach %d Zeichen)</label>
 			<label index="mappingEmpty">Inhalt ist leer</label>
+
+			<label index="headInc">Inkl.</label>
+			<label index="headTag">Tag</label>
+			<label index="headContent">Tag-Inhalt</label>
 
 			<label index="none">Keine Einträge vorhanden</label>
 			<label index="noicon">Keine Miniatur</label>

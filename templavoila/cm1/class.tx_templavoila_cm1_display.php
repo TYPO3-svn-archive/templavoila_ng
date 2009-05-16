@@ -27,6 +27,23 @@
  * @author   Kasper Sk?rh?j <kasper@typo3.com>
  * @coauthor Niels Fröhling <niels@frohling.biz>
  */
+/**
+ * [CLASS/FUNCTION INDEX of SCRIPT]
+ *
+ *
+ *
+ *   55: class tx_templavoila_cm1_display
+ *   83:     function init(&$pObj)
+ *   98:     function displayFrameError($error)
+ *  123:     function displayFileContentWithPreview($content, $relPathFix)
+ *  164:     function displayFileContentWithMarkup($content, $path, $relPathFix, $limitTags)
+ *  218:     function renderModuleContent()
+ *
+ * TOTAL FUNCTIONS: 5
+ * (This index is automatically created/updated by the extension "extdeveval")
+ *
+ */
+
 
 /**
  * Submodule 'display' for the templavoila control-center module
@@ -163,6 +180,7 @@ class tx_templavoila_cm1_display {
 			$limitTags = array_keys($markupObj->tags);
 		}
 
+		$validTags = implode(',', array_keys($markupObj->tags));
 		$showTags = implode(',', array_intersect($baseTags, $limitTags));
 
 		// Set options of mark up object.
@@ -179,7 +197,7 @@ class tx_templavoila_cm1_display {
 				$cParts[1],
 				$GLOBALS['BACK_PATH'],
 				$relPathFix,
-				$showTags,
+				$validTags,
 				$this->MOD_SETTINGS['displayMode']
 			);
 
