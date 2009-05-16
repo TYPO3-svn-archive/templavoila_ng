@@ -1056,7 +1056,10 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					$usDS = array_keys($ucDS);
 					switch ($usDS[0]) {
 						case 'uu': break;
-						case 'um': $this->mapElPath = $this->DS_element; $this->DS_element = ''; break;
+						case 'um': $this->displayPath = t3lib_div::_GP('DS_path');
+							   $this->mapElPath =
+							   $this->DS_element;
+							   $this->DS_element = ''; break;
 						case 'uc': $this->DS_element = ''; break;
 					}
 				}
@@ -1527,7 +1530,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				// the preview-screen has it's own section and csh
 				if ($cmd == 'preview') {
 					$content.=
-						$this->renderTemplateMapper($this->displayFile,$this->displayPath,$dataStruct,$currentMappingInfo,$menuContent);
+						$this->renderTemplateMapper($this->displayFile,$this->displayPath, $dataStruct, $currentMappingInfo, $menuContent);
 				} else {
 					$content.='
 						<!--
@@ -1721,7 +1724,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					$tRows = $this->drawDataStructureMap($dataStruct);
 
 					$this->doc->sectionBegin();
-					$content='
+					$content = '
 					<!--
 						Data Structure content:
 					-->
@@ -2671,7 +2674,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 * @param	boolean		If true, the "Map" link can be shown, otherwise not. Used internally in the recursions.
 	 * @return	array		Table rows as an array of <tr> tags, $tRows
 	 */
-	function drawDataStructureMap($dataStruct, $mappingMode = 0, $currentMappingInfo = array(), $pathLevels = array(), $optDat = array(), $contentSplittedByMapping = array(), $level = 0, $tRows = array(), $formPrefix = '', $path = '', $mapOK = 1)	{
+	function drawDataStructureMap($dataStruct, $mappingMode = 0, $currentMappingInfo = array(), $pathLevels = array(), $optDat = array(), $contentSplittedByMapping = array(), $level = 0, $tRows = array(), $formPrefix = '', $path = '', $mapOK = 1) {
 		global $BE_USER;
 
 		$bInfo = t3lib_div::clientInfo();
@@ -2848,7 +2851,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 							'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/garbage.gif', 'width="11" height="12"') . ' hspace="2" border="0" alt="" title="DELETE entry" onclick=" return confirm(\'' . $GLOBALS['LANG']->getLL('mess.onDeleteAlert') . '\');" />'.
 							'</a>';
 
-						$editAddCol = '<td nowrap="nowrap">'.$editAddCol.'</td>';
+						$editAddCol = '<td nowrap="nowrap">' . $editAddCol . '</td>';
 					} else {
 						$editAddCol = '';
 					}
@@ -2859,7 +2862,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					}
 
 					// Getting editing row, if applicable:
-					list($addEditRows, $placeBefore) = $this->drawDataStructureMap_editItem($formPrefix, $key, $value, $level);
+					list($addEditRows, $placeBefore) = $this->drawDataStructureMap_editItem($formPrefix, $key, $value, $level, $path);
 
 					// Add edit-row if found and destined to be set BEFORE:
 					if ($addEditRows && $placeBefore) {
@@ -2921,7 +2924,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 * @param	integer		Indentation level
 	 * @return	array		Two values, first is addEditRows (string HTML content), second is boolean whether to place row before or after.
 	 */
-	function drawDataStructureMap_editItem($formPrefix,$key,$value,$level)	{
+	function drawDataStructureMap_editItem($formPrefix, $key, $value, $level, $path = '') {
 
 		// Init:
 		$addEditRows = '';
@@ -3116,16 +3119,16 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 						<dt>Applied post-processes:</dt>
 						<dd>
 							<label style="float: left; width: 20em;">Cast content to integer:</label>
-							<input type="radio" name="'.$formFieldName.'[tx_templavoila][proc][int]" value="1" '.( $insertDataArray['tx_templavoila']['proc']['int'] ? 'checked="checked"' : '').' /> yes
-							<input type="radio" name="'.$formFieldName.'[tx_templavoila][proc][int]" value="0" '.(!$insertDataArray['tx_templavoila']['proc']['int'] ? 'checked="checked"' : '').' /> no
+							<input type="radio" name="' . $formFieldName . '[tx_templavoila][proc][int]" value="1" ' . ( $insertDataArray['tx_templavoila']['proc']['int'] ? 'checked="checked"' : '').' /> yes
+							<input type="radio" name="' . $formFieldName . '[tx_templavoila][proc][int]" value="0" ' . (!$insertDataArray['tx_templavoila']['proc']['int'] ? 'checked="checked"' : '').' /> no
 							<br />
 							<label style="float: left; width: 20em;">Pass content through htmlentities():</label>
-							<input type="radio" name="'.$formFieldName.'[tx_templavoila][proc][HSC]" value="1" '.( $insertDataArray['tx_templavoila']['proc']['HSC'] ? 'checked="checked"' : '').' /> yes
-							<input type="radio" name="'.$formFieldName.'[tx_templavoila][proc][HSC]" value="0" '.(!$insertDataArray['tx_templavoila']['proc']['HSC'] ? 'checked="checked"' : '').' /> no
+							<input type="radio" name="' . $formFieldName . '[tx_templavoila][proc][HSC]" value="1" ' . ( $insertDataArray['tx_templavoila']['proc']['HSC'] ? 'checked="checked"' : '').' /> yes
+							<input type="radio" name="' . $formFieldName . '[tx_templavoila][proc][HSC]" value="0" ' . (!$insertDataArray['tx_templavoila']['proc']['HSC'] ? 'checked="checked"' : '').' /> no
 						</dd>
 
 						<dt><label>Custom stdWrap:</label></dt>
-						<dd><textarea class="fixed-font enable-tab ts" cols="' . $this->textareaCols . '" rows="10" name="'.$formFieldName.'[tx_templavoila][proc][stdWrap]" rel="tx_templavoila.proc.stdWrap">'.htmlspecialchars($insertDataArray['tx_templavoila']['proc']['stdWrap']).'</textarea></dd>
+						<dd><textarea class="fixed-font enable-tab ts" cols="' . $this->textareaCols . '" rows="10" name="' . $formFieldName . '[tx_templavoila][proc][stdWrap]" rel="tx_templavoila.proc.stdWrap">'.htmlspecialchars($insertDataArray['tx_templavoila']['proc']['stdWrap']).'</textarea></dd>
 					</dl>';
 
 					/* The basic XML-structure of an TCEforms-entry is:
@@ -3139,7 +3142,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					$form .= '
 					<dl id="dsel-tce" class="DS-config">
 						<dt><label>TCE Label:</label></dt>
-						<dd><input type="text" size="80" name="'.$formFieldName.'[TCEforms][label]" value="'.htmlspecialchars($insertDataArray['TCEforms']['label']).'" /></dd>
+						<dd><input type="text" size="80" name="' . $formFieldName . '[TCEforms][label]" value="' . htmlspecialchars($insertDataArray['TCEforms']['label']).'" /></dd>
 
 						<dt><label>TCE Configuration:</label></dt>
 						<dd><textarea class="fixed-font enable-tab xml" cols="' . $this->textareaCols . '" rows="10" name="' . $formFieldName . '[TCEforms][config]" rel="TCEforms.config">' . htmlspecialchars($this->flattenarray($insertDataArray['TCEforms']['config'])) . '</textarea></dd>
@@ -3165,17 +3168,19 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				}
 
 				$formSubmit = '
+					<input type="hidden" name="DS_path"    value="' . htmlspecialchars($path) . '" />
 					<input type="hidden" name="DS_element" value="' . htmlspecialchars($this->DS_cmd == 'add' ? $this->DS_element . '[el][' . $autokey . ']' : $this->DS_element) . '" />
+
 					<input type="submit" name="_updateDS" id="_updateDS" style="display: none;" />
 
-					<input type="image" name="_updateDS[uu]" title="' . ($this->DS_cmd == 'add' ? 'Add' : 'Update') . '"
+					<input type="image"  name="_updateDS[uu]" title="' . ($this->DS_cmd == 'add' ? 'Add' : 'Update') . '"
 						style="cursor: pointer; vertical-align: middle;" src="' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/savedok' . ($this->DS_cmd == 'add' ? 'new' : '') . '.gif', '', 1) . '" />
-					<input type="image" name="_updateDS[um]" title="' . ($this->DS_cmd == 'add' ? 'Add then map' : 'Update then map') . '"
+					<input type="image"  name="_updateDS[um]" title="' . ($this->DS_cmd == 'add' ? 'Add then map' : 'Update then map') . '"
 						style="cursor: pointer; vertical-align: middle;" src="' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/savedokshow' . '.gif', '', 1) . '" />
-					<input type="image" name="_updateDS[uc]" title="' . ($this->DS_cmd == 'add' ? 'Add then close' : 'Update then close') . '"
+					<input type="image"  name="_updateDS[uc]" title="' . ($this->DS_cmd == 'add' ? 'Add then close' : 'Update then close') . '"
 						style="cursor: pointer; vertical-align: middle;" src="' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/saveandclosedok' . '.gif', '', 1) . '" />
 
-					<img                                 title="' . ($this->DS_cmd == 'add' ? 'Cancel' : 'Cancel/Close') . '"
+					<img                                      title="' . ($this->DS_cmd == 'add' ? 'Cancel' : 'Cancel/Close') . '"
 						style="cursor: pointer; vertical-align: middle;" src="' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/close.gif', '', 1) . '"
 						onclick="document.location=\'' . $this->linkThisScript() . '\'; return false;" hspace="2" />
 
@@ -3959,7 +3964,7 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 		$access = is_array($this->pageinfo) ? 1 : 0;
 
 		if (($this->id && $access) || ($BE_USER->user['admin'] && !$this->id))	{
-				// calls from sticky
+			// calls from sticky
 			if (t3lib_div::_GP("ajaxStick")) {
 				$this->MOD_SETTINGS = t3lib_BEfunc::getModuleData(array('stick'=>''), t3lib_div::_GP('SET'), $this->MCONF['name']);
 				exit;
