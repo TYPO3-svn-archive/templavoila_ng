@@ -459,13 +459,16 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		$this->doc->form = '<form id="tv-form" action="' . $this->linkThisScript(array()) . '" method="post" name="pageform">';
 
 		// JavaScript
-		$this->doc->JScode.= $this->doc->wrapScriptTags('
+		$this->doc->JScode .= $this->doc->wrapScriptTags('
 			script_ended = 0;
 			function jumpToUrl(URL)	{
 				document.location = URL;
 			}
 			function updPath(inPath) {
-				document.location = "' . t3lib_div::linkThisScript(array('htmlPath' => '', 'doMappingOfPath' => 1)) . '&htmlPath=" + top.rawurlencode(inPath);
+				document.location = "' . t3lib_div::linkThisScript(array(
+					'mapElPath' => ($this->mapElPath ? $this->mapElPath : $this->DS_element),
+					'htmlPath' => '', 'doMappingOfPath' => 1)
+				) . '&htmlPath=" + top.rawurlencode(inPath);
 			}
 		');
 
@@ -1027,7 +1030,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		// Setting Current Mapping information to session variable content OR blank if none exists.
 		$currentMappingInfo = is_array($sesDat['currentMappingInfo']) ? $sesDat['currentMappingInfo'] : array();
 		// This will clean up the Current Mapping info to match the Data Structure.
-		$this->cleanUpMappingInfoAccordingToDS($currentMappingInfo,$dataStruct);
+		$this->cleanUpMappingInfoAccordingToDS($currentMappingInfo, $dataStruct);
 
 		// CMD switch:
 		switch ($cmd) {
@@ -1099,8 +1102,10 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			$fileContent = t3lib_div::getUrl($this->displayFile);
 			$htmlParse = t3lib_div::makeInstance('t3lib_parsehtml');
 			$relPathFix = dirname(substr($this->displayFile, strlen(PATH_site))) . '/';
+
 			$fileContent = $htmlParse->prefixResourcePath($relPathFix, $fileContent);
 			$this->markupObj = t3lib_div::makeInstance('tx_templavoila_htmlmarkup');
+
 			$contentSplittedByMapping = $this->markupObj->splitContentToMappingInfo($fileContent, $currentMappingInfo);
 			$templatemapping['MappingData_cached'] = $contentSplittedByMapping['sub']['ROOT'];
 
@@ -1523,8 +1528,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				if ($cmd == 'preview') {
 					$content.=
 						$this->renderTemplateMapper($this->displayFile,$this->displayPath,$dataStruct,$currentMappingInfo,$menuContent);
-				}
-				else {
+				} else {
 					$content.='
 						<!--
 							Data Structure creation table:
@@ -2063,7 +2067,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 								' .
 								$this->doc->section(
 									$GLOBALS['LANG']->getLL('mappingPreview') . ': ',
-									$this->renderTemplateMapper($theFile,$this->displayPath,$dataStruct,$currentMappingInfo,$editContent),
+									$this->renderTemplateMapper($theFile, $this->displayPath, $dataStruct, $currentMappingInfo, $editContent),
 									FALSE,
 									TRUE,
 									0,
@@ -2264,43 +2268,44 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			$this->markupObj = t3lib_div::makeInstance('tx_templavoila_htmlmarkup');
 
 			// Fix relative paths in source:
-			$relPathFix=dirname(substr($theFile, strlen(PATH_site))) . '/';
+			$relPathFix = dirname(substr($theFile, strlen(PATH_site))) . '/';
 			$uniqueMarker = uniqid('###') . '###';
 			$fileContent = $htmlParse->prefixResourcePath($relPathFix, $fileContent, array('A' => $uniqueMarker));
 			$fileContent = $this->fixPrefixForLinks($relPathFix, $fileContent, $uniqueMarker);
 
 			// Get BODY content for caching:
-			$contentSplittedByMapping=$this->markupObj->splitContentToMappingInfo($fileContent,$currentMappingInfo);
+			$contentSplittedByMapping = $this->markupObj->splitContentToMappingInfo($fileContent, $currentMappingInfo);
 			$templatemapping['MappingData_cached'] = $contentSplittedByMapping['sub']['ROOT'];
 
 			// Get HEAD content for caching:
-			list($html_header) =  $this->markupObj->htmlParse->getAllParts($htmlParse->splitIntoBlock('head', $fileContent), 1, 0);
+			list($html_header) = $this->markupObj->htmlParse->getAllParts($htmlParse->splitIntoBlock('head', $fileContent), 1, 0);
+
 			// Set up the markupObject to process only header-section tags:
 			$this->markupObj->tags = $this->head_markUpTags;
 
-			$h_currentMappingInfo=array();
+			$h_currentMappingInfo = array();
 			if (is_array($currentMappingInfo_head['headElementPaths'])) {
 				foreach($currentMappingInfo_head['headElementPaths'] as $kk => $vv) {
-					$h_currentMappingInfo['el_'.$kk]['MAP_EL'] = $vv;
+					$h_currentMappingInfo['el_' . $kk]['MAP_EL'] = $vv;
 				}
 			}
 
-			$contentSplittedByMapping = $this->markupObj->splitContentToMappingInfo($html_header,$h_currentMappingInfo);
+			$contentSplittedByMapping = $this->markupObj->splitContentToMappingInfo($html_header, $h_currentMappingInfo);
 			$templatemapping['MappingData_head_cached'] = $contentSplittedByMapping;
 
 			// Get <body> tag:
-			$reg='';
-			eregi('<body[^>]*>',$fileContent,$reg);
+			$reg = '';
+			eregi('<body[^>]*>', $fileContent, $reg);
 			$templatemapping['BodyTag_cached'] = $currentMappingInfo_head['addBodyTag'] ? $reg[0] : '';
 
-			$TOuid = t3lib_BEfunc::wsMapId('tx_templavoila_tmplobj',$row['uid']);
+			$TOuid = t3lib_BEfunc::wsMapId('tx_templavoila_tmplobj', $row['uid']);
 			$dataArr['tx_templavoila_tmplobj'][$TOuid]['templatemapping'] = serialize($templatemapping);
 			$dataArr['tx_templavoila_tmplobj'][$TOuid]['fileref_mtime'] = @filemtime($theFile);
 			$dataArr['tx_templavoila_tmplobj'][$TOuid]['fileref_md5'] = @md5_file($theFile);
 
 			$tce = t3lib_div::makeInstance('t3lib_TCEmain');
-			$tce->stripslashes_values=0;
-			$tce->start($dataArr,array());
+			$tce->stripslashes_values = 0;
+			$tce->start($dataArr, array());
 			$tce->process_datamap();
 			unset($tce);
 			$msg[] = $GLOBALS['LANG']->getLL('msgMappingSaved');
@@ -3709,14 +3714,15 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	}
 
 	function buildCachedMappingInfo_head($currentMappingInfo_head, $html_header) {
-		$h_currentMappingInfo=array();
-		if (is_array($currentMappingInfo_head['headElementPaths']))	{
-			foreach($currentMappingInfo_head['headElementPaths'] as $kk => $vv)	{
-				$h_currentMappingInfo['el_'.$kk]['MAP_EL'] = $vv;
+		$h_currentMappingInfo = array();
+
+		if (is_array($currentMappingInfo_head['headElementPaths'])) {
+			foreach($currentMappingInfo_head['headElementPaths'] as $kk => $vv) {
+				$h_currentMappingInfo['el_' . $kk]['MAP_EL'] = $vv;
 			}
 		}
 
-		return $this->markupObj->splitContentToMappingInfo($html_header,$h_currentMappingInfo);
+		return $this->markupObj->splitContentToMappingInfo($html_header, $h_currentMappingInfo);
 	}
 
 	/**
@@ -3729,6 +3735,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 */
 	function fixPrefixForLinks($relPathFix, $fileContent, $uniqueMarker) {
 		$parts = explode($uniqueMarker, $fileContent);
+
 		$count = count($parts);
 		if ($count > 1) {
 			for ($i = 1; $i < $count; $i++) {
@@ -3737,6 +3744,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				}
 			}
 		}
+
 		return implode($parts);
 	}
 
@@ -4007,7 +4015,10 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 					window.location.href = URL;
 				}
 				function updPath(inPath) {	//
-					window.location.href = "' . t3lib_div::linkThisScript(array('htmlPath' => '', 'doMappingOfPath' => 1)) . '&htmlPath=" + top.rawurlencode(inPath);
+					window.location.href = "' . t3lib_div::linkThisScript(array(
+						'mapElPath' => ($this->mapElPath ? $this->mapElPath : $this->DS_element),
+						'htmlPath' => '', 'doMappingOfPath' => 1)
+					) . '&htmlPath=" + top.rawurlencode(inPath);
 				}
 			');
 			$this->doc->postCode = $this->doc->wrapScriptTags('
