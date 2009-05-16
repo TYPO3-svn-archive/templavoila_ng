@@ -715,7 +715,7 @@
 			arr = document.createElement('div');
 			hir = document.createElement('ul');
 
-			row.id = Math.random();
+			row.id = 'id' + Math.floor(Math.random() * 0xFFFFFFFF);
 			row.className = 'node empty last-child';
 			row.struct = {
 				edt : tarea.struct.editor,
@@ -804,7 +804,7 @@
 					hir = document.createElement('ul');
 
 					/* create element structure */
-					row.id = Math.random();
+					row.id = 'id' + Math.floor(Math.random() * 0xFFFFFFFF);
 					row.className = 'node';
 					row.struct = {
 						edt : tarea.struct.editor,

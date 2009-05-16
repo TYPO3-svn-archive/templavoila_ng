@@ -91,6 +91,9 @@
 			<label index="noDSDefined">No Data Structure was defined in the record... (Must be T3DataStructure XML content)</label>
 			<label index="pasteDSXml">Alternatively, paste the Data Structure XML into this form</label>
 			<label index="loadDSXml">Load Data Structure</label>
+			<label index="add">Add</label>
+			<label index="update">Update</label>
+			<label index="set">Set</label>
 			<label index="cancel">Cancel</label>
 
 			<label index="actionShow"   >Show XML</label>		<label index="actiontitleShow"   >Preview the currently build Data Structure as XML</label>
@@ -208,6 +211,9 @@
 			<label index="noDSDefined">Im Eintrag ist keine Datenstruktur vorhanden ... (Es muss T3DataStructure XML-Inhalt sein)</label>
 			<label index="pasteDSXml">Alternativ, füge die Datenstruktur in XML in das folgende Feld ein</label>
 			<label index="loadDSXml">Lade Datenstruktur</label>
+			<label index="add">Hinzufügen</label>
+			<label index="update">Erneuern</label>
+			<label index="set">Setzen</label>
 			<label index="cancel">Abbruch</label>
 
 			<label index="actionShow"   >Zeige XML</label>		       <label index="actiontitleShow"   >XML-Vorschau der aktuellen Datenstruktur</label>

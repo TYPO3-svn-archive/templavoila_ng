@@ -145,7 +145,7 @@ class tx_templavoila_mod2_overview {
 			uasort($list, cmp);
 
 			$i = 0;
-			foreach($list as $pid => $stat) {
+			foreach($list as $pid => &$stat) {
 				if (($path = $stat['path'])) {
 					$tRows[] = '
 						<tr class="' . ($i++ % 2 == 0 ? 'bgColor4' : 'bgColor6') . '">

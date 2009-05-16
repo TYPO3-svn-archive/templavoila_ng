@@ -42,6 +42,22 @@
 		position: relative;
 	}
 
+	div.xmlarea ul.DS-tree > li > div > div.nodevalue {
+		cursor: pointer;
+	}
+
+	div.xmlarea ul.DS-tree > li > div > div.nodevalue:hover {
+		text-decoration: blink;
+	}
+
+	div.xmlarea ul.DS-tree > li > div > div.nodevalue * {
+		cursor: default;
+	}
+
+	div.xmlarea ul.DS-tree > li > div > div.nodevalue *:hover {
+		text-decoration: none;
+	}
+
 	div.xmlarea ul.DS-tree > li > div > div.nodename > input,
 	div.xmlarea ul.DS-tree > li > div > div.nodevalue > input {
 		position: relative;
