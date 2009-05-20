@@ -393,7 +393,7 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 				if (!isset($newArray['cArray'][$theKeyFound])) {
 					$newArray['cArray'][$theKeyFound] = $lC;
 					if(is_array($currentMappingInfo[$theKeyFound]['el'])) {
-						$newArray['sub'][$theKeyFound] = $this->splitContentToMappingInfo($lC,$currentMappingInfo[$theKeyFound]['el']);
+						$newArray['sub'][$theKeyFound] = $this->splitContentToMappingInfo($lC, $currentMappingInfo[$theKeyFound]['el']);
 					}
 				} else {
 					$newArray['cArray'][$k] = $lC;
@@ -549,25 +549,26 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 				}
 			}
 		} else {
-			if (is_array($currentMappingInfo['cArray']))	{
-				foreach($currentMappingInfo['cArray'] as $key => $val)	{
-					if (!t3lib_div::testInt($key))	{
-						if (is_array($editStruct[$key]['el']) && $currentMappingInfo['sub'][$key])	{
+			if (is_array($currentMappingInfo['cArray'])) {
+				foreach($currentMappingInfo['cArray'] as $key => $val) {
+					if (!t3lib_div::testInt($key)) {
+						if (is_array($editStruct[$key]['el']) && $currentMappingInfo['sub'][$key]) {
 							$rcs = $this->mergeFormDataIntoTemplateStructure($editStruct[$key]['el'],$currentMappingInfo['sub'][$key],'',$valueKey);
 
 							$currentMappingInfo['cArray'][$key] = str_replace('###GROUP###', $rcs, $editStruct[$key][$valueKey]);
 						} else {
-								# NO htmlspecialchars()'ing here ... it might be processed values that should be allowed to go through easily.
+							# NO htmlspecialchars()'ing here ... it might be processed values that should be allowed to go through easily.
 							$currentMappingInfo['cArray'][$key] = $editStruct[$key][$valueKey];
 						}
-					}
-					else {
+					} else {
 						$currentMappingInfo['cArray'][$key] = $htmlParse->XHTML_clean($currentMappingInfo['cArray'][$key]);
 					}
 				}
+
 				$out = implode($firstLevelImplodeToken,$currentMappingInfo['cArray']);
 			}
 		}
+
 		return $out;
 	}
 
@@ -780,7 +781,7 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 			foreach(array_keys($MappingInfo_head['headElementPaths']) as $kk) {
 				if (isset($MappingData_head_cached['cArray']['el_' . $kk])) {
 					$uKey = md5(trim($MappingData_head_cached['cArray']['el_' . $kk]));
-					$extraHeaderData['TV_'.$uKey] = chr(10) . chr(9) . trim($htmlParse->XHTML_clean($MappingData_head_cached['cArray']['el_'.$kk]));
+					$extraHeaderData['TV_' . $uKey] = chr(10) . chr(9) . trim($htmlParse->XHTML_clean($MappingData_head_cached['cArray']['el_' . $kk]));
 				}
 			}
 
@@ -823,17 +824,16 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 	 * @return	void
 	 */
 	function init()	{
-			// HTML parser object initialized.
+		// HTML parser object initialized.
 		$this->htmlParse = t3lib_div::makeInstance('t3lib_parsehtml');
 
-			// Resetting element count array
-		$this->elCountArray=array();
-		$this->elParentLevel=array();
+		// Resetting element count array
+		$this->elCountArray = array();
+		$this->elParentLevel = array();
 
-			// Setting gnyf style
-		$style = '';
-		$style.=(!t3lib_div::inList('explode,checkbox',$this->mode)?'position:absolute;':'');
-		$this->gnyfStyle = $style?' style="'.htmlspecialchars($style).'"':'';
+		// Setting gnyf style
+		$style = (!t3lib_div::inList('explode,checkbox', $this->mode) ? 'position:absolute;' : '');
+		$this->gnyfStyle = $style ? ' style="' . htmlspecialchars($style) . '"' : '';
 	}
 
 	/**
@@ -971,12 +971,12 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 				$subPath = $this->makePath($path,$firstTagName,$params[0]);
 
 				// Make the call again - recursively.
-				if ($recursion < $this->maxRecursion && !($mode=='search' && isset($this->searchPaths[$subPath]) && ($this->searchPaths[$subPath]['modifier']!='ATTR')))
+				if ($recursion < $this->maxRecursion && !($mode == 'search' && isset($this->searchPaths[$subPath]) && ($this->searchPaths[$subPath]['modifier']!='ATTR')))
 					$v = $this->recursiveBlockSplitting($v, $tagsBlock, $tagsSolo, $mode, $subPath, $recursion + 1);
 
 				if ($mode == 'markup') {
 					$v = $this->getMarkupCode('block', $v, $params, $firstTagName, $firstTag, $endTag, $subPath, $recursion);
-				} elseif ($mode=='search') {
+				} else if ($mode == 'search') {
 					$v = $this->getSearchCode('block', $v, $params, $firstTagName, $firstTag, $endTag, $subPath, $path, $recursion);
 				} else {
 					$v = $firstTag . $v . $endTag;
@@ -985,9 +985,8 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 			} else {
 				// OUTSIDE of block; Processing of SOLO tags in there...
 				if ($tagsSolo) {
-
 					// Split content by the solo tags
-					$soloParts = $this->htmlParse->splitTags($tagsSolo,$v);
+					$soloParts = $this->htmlParse->splitTags($tagsSolo, $v);
 
                     			//search for conditional comments
 					$startTag = '';
@@ -1020,10 +1019,10 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 						if ($kk % 2) {
 							$firstTag = $vv;	// The first tag's content
 							$firstTagName = strtolower($this->htmlParse->getFirstTagName($vv));	// The 'name' of the first tag
-							$params = $this->htmlParse->get_tag_attributes($firstTag,1);
+							$params = $this->htmlParse->get_tag_attributes($firstTag, 1);
 
 							// Get path for THIS element:
-							$subPath = $this->makePath($path,$firstTagName,$params[0]);
+							$subPath = $this->makePath($path, $firstTagName, $params[0]);
 
 							if ($mode == 'markup') {
 								$vv = $this->getMarkupCode('', $vv, $params, $firstTagName, $firstTag, '', $subPath, $recursion + 1);

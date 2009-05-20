@@ -352,50 +352,61 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 
 			// Adding classic jumpToUrl function, needed for the function menu. Also, the id in the parent frameset is configured.
 			$this->doc->JScode = $this->doc->wrapScriptTags('
+
 				function jumpToUrl(URL)	{ //
 					document.location = URL;
 					return false;
 				}
-				if (top.fsMod) top.fsMod.recentIds["web"] = '.intval($this->id).';
+
+
 			' . $this->doc->redirectUrls() . '
+
 				function jumpToUrl(URL)	{	//
 					window.location.href = URL;
 					return false;
 				}
-				function jumpExt(URL,anchor)	{	//
+
+				function jumpExt(URL, anchor) {	//
 					var anc = anchor?anchor:"";
 					window.location.href = URL + (T3_THIS_LOCATION ? "&returnUrl=" + T3_THIS_LOCATION : "") + anc;
 					return false;
 				}
-				function jumpSelf(URL)	{	//
+
+				function jumpSelf(URL) {	//
 					window.location.href = URL + (T3_RETURN_URL ? "&returnUrl=" + T3_RETURN_URL : "");
 					return false;
 				}
 
-				function setHighlight(id)	{	//
-					top.fsMod.recentIds["web"]=id;
-					top.fsMod.navFrameHighlightedID["web"]="pages"+id+"_"+top.fsMod.currentBank;	// For highlighting
+				function setHighlight(id) {	//
+					if (top.fsMod.recentIds["web"] == id)
+						return;
 
-					if (top.content && top.content.nav_frame && top.content.nav_frame.refresh_nav)	{
+					top.fsMod.recentIds["web"] = id;
+					top.fsMod.navFrameHighlightedID["web"] = "pages" + id + "_" + top.fsMod.currentBank;	// For highlighting
+
+					if (top.content &&
+					    top.content.nav_frame &&
+					    top.content.nav_frame.refresh_nav) {
 						top.content.nav_frame.refresh_nav();
 					}
 				}
 
-				function editRecords(table,idList,addParams,CBflag)	{	//
-					window.location.href="'.$BACK_PATH.'alt_doc.php?returnUrl='.rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI')).
-						'&edit["+table+"]["+idList+"]=edit"+addParams;
+				function editRecords(table, idList, addParams, CBflag) {	//
+					window.location.href = "' . $BACK_PATH . 'alt_doc.php?returnUrl=' . rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI')).
+						'&edit[" + table + "][" + idList + "]=edit" + addParams;
 				}
-				function editList(table,idList)	{	//
-					var list="";
 
-						// Checking how many is checked, how many is not
+				function editList(table,idList)	{	//
+					var list = "";
+
+					// Checking how many is checked, how many is not
 					var pointer=0;
 					var pos = idList.indexOf(",");
-					while (pos!=-1)	{
-						if (cbValue(table+"|"+idList.substr(pointer,pos-pointer))) {
-							list+=idList.substr(pointer,pos-pointer)+",";
+					while (pos != -1) {
+						if (cbValue(table + "|" + idList.substr(pointer, pos - pointer))) {
+							list += idList.substr(pointer, pos - pointer) + ",";
 						}
-						pointer=pos+1;
+						pointer = pos + 1;
 						pos = idList.indexOf(",",pointer);
 					}
 					if (cbValue(table+"|"+idList.substr(pointer))) {
@@ -407,13 +418,13 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 
 				var browserPos = null,
 				    browserWin = "",
-				    browserPlus = "'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/plusbullet2.gif','', 1).'",
-				    browserInsert = "'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/insert3.gif','', 1).'";
+				    browserPlus = "' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/plusbullet2.gif', '', 1) . '",
+				    browserInsert = "' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/insert3.gif', '', 1) . '";
 
 				function setFormValueOpenBrowser(mode,params) {	//
-					var url = "'.$BACK_PATH.'browser.php?mode="+mode+"&bparams="+params;
+					var url = "' . $BACK_PATH . 'browser.php?mode=" + mode + "&bparams=" + params;
 
-					browserWin = window.open(url,"Typo3WinBrowser - TemplaVoila Element Selector","height=350,width="+(mode=="db"?650:600)+",status=0,menubar=0,resizable=1,scrollbars=1");
+					browserWin = window.open(url, "Typo3WinBrowser - TemplaVoila Element Selector", "height=350,width=" + (mode == "db" ? 650 : 600) + ",status=0,menubar=0,resizable=1,scrollbars=1");
 					browserWin.focus();
 
 					$$(\'img.browse\').each(function(browserElm) {
@@ -427,17 +438,22 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 				 * @param	[type]		$fName,value,label,exclusiveValues: ...
 				 * @return	[type]		...
 				 */
-				function setFormValueFromBrowseWin(fName,value,label,exclusiveValues){
+				function setFormValueFromBrowseWin(fName, value, label, exclusiveValues) {
 					if (value) {
 						var ret = value.split(\'_\');
 						var rid = ret.pop();
 							ret = ret.join(\'_\')
-						browserPos.href = browserPos.rel.replace(\''.rawurlencode('###').'\', ret+\':\'+rid);
+
+						browserPos.href = browserPos.rel.replace(\'' . rawurlencode('###') . '\', ret + \':\' + rid);
 						jumpToUrl(browserPos.href);
 					}
 				}
+			');
 
-				if (top.fsMod) top.fsMod.recentIds["web"] = '.intval($this->id).';
+			$this->doc->postCode = $this->doc->wrapScriptTags('
+				script_ended = 1;
+
+				setHighlight(' . intval($this->id) . ');
 			');
 
 			/* Prototype /Scriptaculous */
@@ -759,7 +775,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 		$elementBelongsToCurrentPage = $contentTreeArr['el']['table'] == 'pages' || $contentTreeArr['el']['pid'] == $this->rootElementUid_pidForContent;
 
 		// Prepare the record icon including a content sensitive menu link wrapped around it:
-		$recordIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, $contentTreeArr['el']['icon'], 'width="18" height="16"') . ' border="0" title="'.htmlspecialchars('['.$contentTreeArr['el']['table'].':'.$contentTreeArr['el']['uid'].']').'" alt="" />';
+		$recordIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, $contentTreeArr['el']['icon'], 'width="18" height="16"') . ' border="0" title="' . htmlspecialchars('[' . $contentTreeArr['el']['table'] . ':' . $contentTreeArr['el']['uid'] . ']') . '" alt="" />';
 
 		$menuCommands = array();
 		if ($this->canCreateNew) {
@@ -770,7 +786,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 			$menuCommands[] = 'copy';
 		}
 
-		$titleBarLeftButtons  = $this->translatorMode ? $recordIcon : (count($menuCommands) == 0 ? $recordIcon : $this->doc->wrapClickMenuOnIcon($recordIcon,$contentTreeArr['el']['table'], $contentTreeArr['el']['uid'], 1,'&amp;callingScriptId='.rawurlencode($this->doc->scriptID), implode(',', $menuCommands)));
+		$titleBarLeftButtons  = $this->translatorMode ? $recordIcon : (count($menuCommands) == 0 ? $recordIcon : $this->doc->wrapClickMenuOnIcon($recordIcon,$contentTreeArr['el']['table'], $contentTreeArr['el']['uid'], 1, '&amp;callingScriptId='.rawurlencode($this->doc->scriptID), implode(',', $menuCommands)));
 		$titleBarLeftButtons .= $this->getRecordStatHookValue($contentTreeArr['el']['table'], $contentTreeArr['el']['uid']);
 
 		unset($menuCommands);
@@ -1355,7 +1371,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 				case 'splash':		//	Textbox
 					$thumbnail = '<strong>'.$GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'image'), 1) . '</strong><br />';
 					$thumbnail .= t3lib_BEfunc::thumbCode($row, 'tt_content', 'image', $this->doc->backPath);
-					$text = $this->link_edit('<strong>'.$GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'bodytext'), 1) . '</strong> ' . htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['bodytext'])), 2000)), 'tt_content', $row['uid']);
+					$text = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'bodytext'), 1) . '</strong> ' . htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['bodytext'])), 2000)), 'tt_content', $row['uid']);
 					$output='<table><tr><td valign="top">' . $text . '</td><td valign="top">' . $thumbnail . '</td></tr></table>';
 					break;
 				case 'bullets':		//	Bullets
@@ -1494,19 +1510,19 @@ table.typo3-dyntabmenu td.disabled:hover {
 								'sys_language' => $contentTreeArr['el']['sys_language_uid']
 							);
 							break;
-						case 'localize':
 
-							if ($this->rootElementLangParadigm =='free')	{
+						case 'localize':
+							if ($this->rootElementLangParadigm == 'free') {
 								$showLocalizationLinks = !$parentDsMeta['langDisable'];	// For this paradigm, show localization links only if localization is enabled for DS (regardless of Inheritance and Separate)
 							} else {
 								$showLocalizationLinks = ($parentDsMeta['langDisable'] || $parentDsMeta['langChildren']);	// Adding $parentDsMeta['langDisable'] here means that the "Create a copy for translation" link is shown only if the parent container element has localization mode set to "Disabled" or "Inheritance" - and not "Separate"!
 							}
 
 							// Assuming that only elements which have the default language set are candidates for localization. In case the language is [ALL] then it is assumed that the element should stay "international".
-							if ((int)$contentTreeArr['el']['sys_language_uid']===0 && $showLocalizationLinks)	{
+							if ((int)$contentTreeArr['el']['sys_language_uid'] === 0 && $showLocalizationLinks) {
 
-									// Copy for language:
-								if ($this->rootElementLangParadigm =='free')	{
+								// Copy for language:
+								if ($this->rootElementLangParadigm == 'free') {
 									$sourcePointerString = $this->apiObj->flexform_getStringFromPointer($parentPointer);
 									$onClick = "document.location='".$this->baseScript . $this->link_getParameters() . '&source=' . rawurlencode($sourcePointerString) . '&localizeElement=' . $sLInfo['ISOcode'] . "'; return false;";
 								} else {
@@ -1515,23 +1531,24 @@ table.typo3-dyntabmenu td.disabled:hover {
 								}
 
 								$linkLabel = $GLOBALS['LANG']->getLL('createcopyfortranslation', 1) . ' (' . htmlspecialchars($sLInfo['title']) . ')';
-								$localizeIcon = '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/clip_copy.gif', 'width="12" height="12"') . ' class="bottom" title="' . $linkLabel . '" alt="" />';
+								$localizeIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/clip_copy.gif', 'width="12" height="12"') . ' class="bottom" title="' . $linkLabel . '" alt="" />';
 
-								$l10nInfo = '<a href="#" onclick="'.htmlspecialchars($onClick).'">'.$localizeIcon.'</a>';
-								$l10nInfo .= ' <em><a href="#" onclick="'.htmlspecialchars($onClick).'">'.$linkLabel.'</a></em>';
-								$flagLink_begin = '<a href="#" onclick="'.htmlspecialchars($onClick).'">';
+								$l10nInfo = '<a href="#" onclick="' . htmlspecialchars($onClick) . '">' . $localizeIcon . '</a>';
+								$l10nInfo .= ' <em><a href="#" onclick="' . htmlspecialchars($onClick) . '">'.$linkLabel . '</a></em>';
+								$flagLink_begin = '<a href="#" onclick="' . htmlspecialchars($onClick) . '">';
 								$flagLink_end = '</a>';
 
-								$this->global_localization_status[$sys_language_uid][]=array(
+								$this->global_localization_status[$sys_language_uid][] = array(
 									'status' => 'localize',
 									'parent_uid' => $contentTreeArr['el']['uid'],
 									'sys_language' => $contentTreeArr['el']['sys_language_uid']
 								);
 							}
 							break;
+
 						case 'localizedFlexform':
-								// Here we want to show the "Localized FlexForm" information (and link to edit record) _only_ if there are other fields than group-fields for content elements: It only makes sense for a translator to deal with the record if that is the case.
-								// Change of strategy (27/11): Because there does not have to be content fields; could be in sections or arrays and if thats the case you still want to localize them! There has to be another way...
+							// Here we want to show the "Localized FlexForm" information (and link to edit record) _only_ if there are other fields than group-fields for content elements: It only makes sense for a translator to deal with the record if that is the case.
+							// Change of strategy (27/11): Because there does not have to be content fields; could be in sections or arrays and if thats the case you still want to localize them! There has to be another way...
 							// if (count($contentTreeArr['contentFields']['sDEF']))	{
 								list($flagLink_begin, $flagLink_end) = explode('|*|', $this->link_edit('|*|', 'tt_content', $contentTreeArr['el']['uid'], TRUE));
 								$l10nInfo = $flagLink_begin.'<em>[Click to translate FlexForm]</em>'.$flagLink_end;
@@ -1619,7 +1636,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 			// Create indentation code:
 			$indent = '';
-			for($a = 0; $a < $entry['indentLevel']; $a++) {
+			for ($a = 0; $a < $entry['indentLevel']; $a++) {
 				$indent .= '&nbsp;&nbsp;&nbsp;&nbsp;';
 			}
 
@@ -1630,21 +1647,23 @@ table.typo3-dyntabmenu td.disabled:hover {
 			if ($entry['table'] && $entry['uid']) {
 				$flexObj = t3lib_div::makeInstance('t3lib_flexformtools');
 				$recRow = t3lib_BEfunc::getRecord($entry['table'], $entry['uid']);
-				if ($recRow['tx_templavoila_flex']) {
+				if (($recRow['CType'] == 'templavoila_pi1') &&
+				    ($recRow['tx_templavoila_flex'])) {
 
 					// Clean XML:
-					$newXML = $flexObj->cleanFlexFormXML($entry['table'],'tx_templavoila_flex',$recRow);
+					$oldXML = $recRow['tx_templavoila_flex'];
+					$newXML = $flexObj->cleanFlexFormXML($entry['table'], 'tx_templavoila_flex', $recRow);
 
 					// If the clean-all command is sent AND there is a difference in current/clean XML, save the clean:
 					if ((t3lib_div::_POST('_CLEAN_XML_ALL') ||
-					     t3lib_div::_POST('_CLEAN_XML_ALL_x')) && (md5($recRow['tx_templavoila_flex']) != md5($newXML))) {
+					     t3lib_div::_POST('_CLEAN_XML_ALL_x')) && (md5($oldXML) != md5($newXML))) {
 						$dataArr = array();
 						$dataArr[$entry['table']][$entry['uid']]['tx_templavoila_flex'] = $newXML;
 
 							// Init TCEmain object and store:
 						$tce = t3lib_div::makeInstance('t3lib_TCEmain');
-						$tce->stripslashes_values=0;
-						$tce->start($dataArr,array());
+						$tce->stripslashes_values = 0;
+						$tce->start($dataArr, array());
 						$tce->process_datamap();
 
 						// Re-fetch record:
@@ -1652,13 +1671,14 @@ table.typo3-dyntabmenu td.disabled:hover {
 					}
 
 					// Render status:
-					$xmlUrl = $this->cm2Script.'viewRec[table]='.$entry['table'].'&viewRec[uid]='.$entry['uid'].'&viewRec[field_flex]=tx_templavoila_flex';
+					$xmlUrl = $this->cm2Script . 'viewRec[table]=' . $entry['table'] . '&viewRec[uid]=' . $entry['uid'] . '&viewRec[field_flex]=tx_templavoila_flex';
 
-					if (md5($recRow['tx_templavoila_flex']) != md5($newXML)) {
-						$status = $this->doc->icons(1).'<a href="'.htmlspecialchars($xmlUrl).'">'.$GLOBALS['LANG']->getLL('outline_status_dirty',1).'</a><br />';
+					if (md5($oldXML) != md5($newXML)) {
 						$this->xmlCleanCandidates = TRUE;
+
+						$status = $this->doc->icons( 1) . '<a href="'.htmlspecialchars($xmlUrl) . '">' . $GLOBALS['LANG']->getLL('outline_status_dirty', 1) . '</a><br />';
 					} else {
-						$status = $this->doc->icons(-1).'<a href="'.htmlspecialchars($xmlUrl).'">'.$GLOBALS['LANG']->getLL('outline_status_clean',1).'</a><br />';
+						$status = $this->doc->icons(-1) . '<a href="'.htmlspecialchars($xmlUrl) . '">' . $GLOBALS['LANG']->getLL('outline_status_clean', 1) . '</a><br />';
 					}
 				}
 			}
@@ -1783,7 +1803,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 		$entries[] = array(
 			'indentLevel' => $indentLevel,
 			'icon' => $titleBarLeftButtons,
-			'title' => ($elementBelongsToCurrentPage?'':'<em>').htmlspecialchars($contentTreeArr['el']['title']).($elementBelongsToCurrentPage ? '' : '</em>'),
+			'title' => ($elementBelongsToCurrentPage ? '' : '<em>') . htmlspecialchars($contentTreeArr['el']['title']) . ($elementBelongsToCurrentPage ? '' : '</em>'),
 			'warnings' => $warnings,
 			'controls' => $titleBarRightButtons.$controls,
 			'table' => $contentTreeArr['el']['table'],
@@ -1851,7 +1871,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 							$controls = $this->icon_nbp($subElementPointer);
 
 							// Add entry for lKey level:
-							$specialPath = ($sheet != 'sDEF' ? '<' . $sheet . '>' : '') . ($lKey != 'lDEF' ? '<' . $lKey . '>' : '') . ($vKey != 'vDEF' ? '<' . $vKey . '>':'');
+							$specialPath = ($sheet != 'sDEF' ? '<' . $sheet . '>' : '') . ($lKey != 'lDEF' ? '<' . $lKey . '>' : '') . ($vKey != 'vDEF' ? '<' . $vKey . '>' : '');
 							$entries[] = array(
 								'indentLevel' => $indentLevel,
 								'icon'        => '',
@@ -2816,18 +2836,18 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 			foreach($menuItems as $value => $label) {
 				$options[] = str_replace('><span ', '',
 						 str_replace('</span>', '',
-						 '<option value="'.htmlspecialchars($value).'"'.(!strcmp($currentValue, $value)?' selected="selected"':'').'>'.
-								/*t3lib_div::deHSCentities(htmlspecialchars(*/$label/*))*/.
+						 '<option value="' . htmlspecialchars($value) . '"' . (!strcmp($currentValue, $value) ? ' selected="selected"' : '') . '>' .
+								/*t3lib_div::deHSCentities(htmlspecialchars(*/$label/*))*/ .
 								'</option>'));
 			}
 			if (count($options)) {
-				$onChange = 'jumpToUrl(\''.$script.'?'.$mainParams.$addparams.'&'.$elementName.'=\'+this.options[this.selectedIndex].value,this);';
+				$onChange = 'jumpToUrl(\'' . $script . '?' . $mainParams . $addparams . '&' . $elementName . '=\' + this.options[this.selectedIndex].value, this);';
 				return '
 
 					<!-- Function Menu of module -->
-					<select style="width: 180px;" name="'.$elementName.'" onchange="'.htmlspecialchars($onChange).'">
-						'.implode('
-						',$options).'
+					<select style="width: 180px;" name="' . $elementName . '" onchange="' . htmlspecialchars($onChange) . '">
+						' . implode('
+						', $options) . '
 					</select>
 							';
 			}
@@ -2964,11 +2984,13 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 			// JavaScript
 			$this->doc->JScode = $this->doc->wrapScriptTags('
 				script_ended = 0;
+
 				function jumpToUrl(URL)	{	//
 					window.location.href = URL;
 				}
 
-				'.$this->doc->redirectUrls().'
+				' . $this->doc->redirectUrls() . '
+
 				function jumpExt(URL,anchor) {	//
 					var anc = anchor ? anchor : "";
 					window.location.href = URL + (T3_THIS_LOCATION ? "&returnUrl=" + T3_THIS_LOCATION : "") + anc;
@@ -2980,32 +3002,38 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 				}
 
 				function setHighlight(id) {	//
-					top.fsMod.recentIds["web"]=id;
-					top.fsMod.navFrameHighlightedID["web"]="pages"+id+"_"+top.fsMod.currentBank;	// For highlighting
+					if (top.fsMod.recentIds["web"] == id)
+						return;
 
-					if (top.content && top.content.nav_frame && top.content.nav_frame.refresh_nav)	{
+					top.fsMod.recentIds["web"] = id;
+					top.fsMod.navFrameHighlightedID["web"] = "pages" + id + "_" + top.fsMod.currentBank;	// For highlighting
+
+					if (top.content &&
+					    top.content.nav_frame &&
+					    top.content.nav_frame.refresh_nav) {
 						top.content.nav_frame.refresh_nav();
 					}
 				}
 
 				function editRecords(table, idList, addParams, CBflag) {
-					window.location.href="'.$BACK_PATH.'alt_doc.php?returnUrl='.rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI')).
-						'&edit["+table+"]["+idList+"]=edit"+addParams;
+					window.location.href="' . $BACK_PATH . 'alt_doc.php?returnUrl=' . rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI')) .
+						'&edit[" + table + "][" + idList + "]=edit" + addParams;
 				}
+
 				function editList(table,idList)	{
 					var list = "";
 
 					// Checking how many is checked, how many is not
-					var pointer=0;
+					var pointer = 0;
 					var pos = idList.indexOf(",");
 					while (pos != -1) {
 						if (cbValue(table + "|" + idList.substr(pointer, pos - pointer))) {
-							list += idList.substr(pointer, pos-pointer) + ",";
+							list += idList.substr(pointer, pos - pointer) + ",";
 						}
 						pointer=pos+1;
-						pos = idList.indexOf(",",pointer);
+						pos = idList.indexOf(",", pointer);
 					}
-					if (cbValue(table+"|"+idList.substr(pointer))) {
+					if (cbValue(table + "|" + idList.substr(pointer))) {
 						list += idList.substr(pointer) + ",";
 					}
 
@@ -3014,13 +3042,13 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 
 				var browserPos = null,
 				    browserWin = "",
-				    browserPlus = "'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/plusbullet2.gif','', 1).'",
-				    browserInsert = "'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/insert3.gif','', 1).'";
+				    browserPlus = "' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/plusbullet2.gif', '', 1) . '",
+				    browserInsert = "' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/insert3.gif', '', 1) . '";
 
-				function setFormValueOpenBrowser(mode,params) {	//
+				function setFormValueOpenBrowser(mode, params) {	//
 					var url = "' . $BACK_PATH . 'browser.php?mode=" + mode + "&bparams=" + params;
 
-					browserWin = window.open(url,"Typo3WinBrowser - TemplaVoila Element Selector","height=350,width="+(mode=="db"?650:600)+",status=0,menubar=0,resizable=1,scrollbars=1");
+					browserWin = window.open(url, "Typo3WinBrowser - TemplaVoila Element Selector","height=350,width=" + (mode == "db" ? 650 : 600) + ",status=0,menubar=0,resizable=1,scrollbars=1");
 					browserWin.focus();
 
 					$$(\'img.browse\').each(function(browserElm) {
@@ -3034,11 +3062,10 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 				 * @param	[type]		$fName,value,label,exclusiveValues: ...
 				 * @return	[type]		...
 				 */
-				function setFormValueFromBrowseWin(fName,value,label,exclusiveValues){
+				function setFormValueFromBrowseWin(fName, value, label, exclusiveValues) {
 					if (value) {
 						if (!browserPos) {
-							browserPos = document.getElementById(\''.rawurlencode($GLOBALS['BE_USER']->getSessionData('lastPasteRecord')).'\');
-
+							browserPos = document.getElementById(\'' . rawurlencode($this->sanitizeID($GLOBALS['BE_USER']->getSessionData('lastPasteRecord'))) . '\');
 							if (!browserPos) {
 								return;
 							}
@@ -3047,7 +3074,8 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 						var ret = value.split(\'_\');
 						var rid = ret.pop();
 							ret = ret.join(\'_\');
-						browserPos.href = browserPos.id.replace(\''.rawurlencode('###').'\', ret+\':\'+rid);
+
+						browserPos.href = browserPos.id.replace(\'' . rawurlencode('###') . '\', ret + \':\' + rid);
 						jumpToUrl(browserPos.href);
 					}
 				}
@@ -3055,7 +3083,8 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 
 			$this->doc->postCode = $this->doc->wrapScriptTags('
 				script_ended = 1;
-				if (top.fsMod) top.fsMod.recentIds["web"] = ' . intval($this->id) . ';
+
+				setHighlight(' . intval($this->id) . ');
 			');
 
 			// Setting up the context sensitive menu:

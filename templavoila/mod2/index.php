@@ -152,23 +152,32 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 			// Adding classic jumpToUrl function, needed for the function menu.
 			// Also, the id in the parent frameset is configured.
 			$this->doc->JScode = $this->doc->wrapScriptTags('
+				script_ended = 0;
+
 				function jumpToUrl(URL)	{
 					document.location = URL;
 					return false;
 				}
 
-				function setHighlight(id) {
-					if (top.fsMod) {
-						top.fsMod.recentIds["web"] = id;
-						top.fsMod.navFrameHighlightedID["web"] = "pages" + id + "_" + top.fsMod.currentBank;	// For highlighting
+				function setHighlight(id) {	//
+					if (top.fsMod.recentIds["web"] == id)
+						return;
 
-						if (top.content && top.content.nav_frame && top.content.nav_frame.refresh_nav) {
-							top.content.nav_frame.refresh_nav();
-						}
+					top.fsMod.recentIds["web"] = id;
+					top.fsMod.navFrameHighlightedID["web"] = "pages" + id + "_" + top.fsMod.currentBank;	// For highlighting
+
+					if (top.content &&
+					    top.content.nav_frame &&
+					    top.content.nav_frame.refresh_nav) {
+						top.content.nav_frame.refresh_nav();
 					}
 				}
+			');
 
-			//	if (top.fsMod) top.fsMod.recentIds["web"] = ' . intval($this->id) . ';
+			$this->doc->postCode = $this->doc->wrapScriptTags('
+				script_ended = 1;
+
+				setHighlight(' . intval($this->id) . ');
 			');
 
 			// Setting up support for context menus (when clicking the items icon)
@@ -1005,25 +1014,30 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 			// JavaScript
 			$this->doc->JScode = $this->doc->wrapScriptTags('
 				script_ended = 0;
+
 				function jumpToUrl(URL)	{	//
 					window.location.href = URL;
 				}
+
+				function setHighlight(id) {	//
+					if (top.fsMod.recentIds["web"] == id)
+						return;
+
+					top.fsMod.recentIds["web"] = id;
+					top.fsMod.navFrameHighlightedID["web"] = "pages" + id + "_" + top.fsMod.currentBank;	// For highlighting
+
+					if (top.content &&
+					    top.content.nav_frame &&
+					    top.content.nav_frame.refresh_nav) {
+						top.content.nav_frame.refresh_nav();
+					}
+				}
 			');
+
 			$this->doc->postCode = $this->doc->wrapScriptTags('
 				script_ended = 1;
 
-				function setHighlight(id) {
-					if (top.fsMod) {
-						top.fsMod.recentIds["web"] = id;
-						top.fsMod.navFrameHighlightedID["web"] = "pages" + id + "_" + top.fsMod.currentBank;	// For highlighting
-
-						if (top.content && top.content.nav_frame && top.content.nav_frame.refresh_nav) {
-							top.content.nav_frame.refresh_nav();
-						}
-					}
-				}
-
-			//	if (top.fsMod) top.fsMod.recentIds["web"] = '.intval($this->id).';
+				setHighlight(' . intval($this->id) . ');
 			');
 
 			// Setting up the context sensitive menu:

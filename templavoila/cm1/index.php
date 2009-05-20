@@ -461,9 +461,11 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		// JavaScript
 		$this->doc->JScode .= $this->doc->wrapScriptTags('
 			script_ended = 0;
+
 			function jumpToUrl(URL)	{
 				document.location = URL;
 			}
+
 			function updPath(inPath) {
 				document.location = "' . t3lib_div::linkThisScript(array(
 					'mapElPath' => ($this->mapElPath ? $this->mapElPath : $this->DS_element),
@@ -474,6 +476,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 		// Setting up the context sensitive menu:
 		$CMparts = $this->doc->getContextMenuCode();
+
 		$this->doc->bodyTagAdditions = $CMparts[1];
 		$this->doc->JScode .= $CMparts[0];
 		$this->doc->JScode .= $this->doc->getDynTabMenuJScode();
@@ -4036,9 +4039,11 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 			// JavaScript
 			$this->doc->JScode = $this->doc->wrapScriptTags('
 				script_ended = 0;
+
 				function jumpToUrl(URL)	{	//
 					window.location.href = URL;
 				}
+
 				function updPath(inPath) {	//
 					window.location.href = "' . t3lib_div::linkThisScript(array(
 						'mapElPath' => ($this->mapElPath ? $this->mapElPath : $this->DS_element),
@@ -4046,8 +4051,10 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 					) . '&htmlPath=" + top.rawurlencode(inPath);
 				}
 			');
+
 			$this->doc->postCode = $this->doc->wrapScriptTags('
 				script_ended = 1;
+
 				if (top.fsMod) top.fsMod.recentIds["web"] = ' . intval($this->id) . ';
 			');
 

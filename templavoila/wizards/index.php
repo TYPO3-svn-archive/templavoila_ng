@@ -396,24 +396,28 @@ class tx_templavoila_wizard_integral extends tx_templavoila_wizard {
 			// JavaScript
 			$this->doc->JScode = $this->doc->wrapScriptTags('
 				script_ended = 0;
+
 				function jumpToUrl(URL)	{	//
 					window.location.href = URL;
 				}
 
-				'.$this->doc->redirectUrls().'
-				function jumpExt(URL,anchor)	{	//
-					var anc = anchor?anchor:"";
-					window.location.href = URL+(T3_THIS_LOCATION?"&returnUrl="+T3_THIS_LOCATION:"")+anc;
+				' . $this->doc->redirectUrls() . '
+
+				function jumpExt(URL,anchor) {	//
+					var anc = anchor ? anchor : "";
+					window.location.href = URL+(T3_THIS_LOCATION ? "&returnUrl=" + T3_THIS_LOCATION : "") + anc;
 					return false;
 				}
+
 				function jumpSelf(URL)	{	//
-					window.location.href = URL+(T3_RETURN_URL?"&returnUrl="+T3_RETURN_URL:"");
+					window.location.href = URL+(T3_RETURN_URL ? "&returnUrl=" + T3_RETURN_URL : "");
 					return false;
 				}
 			');
 
 			$this->doc->postCode = $this->doc->wrapScriptTags('
 				script_ended = 1;
+
 				if (top.fsMod) top.fsMod.recentIds["web"] = ' . intval($this->id) . ';
 			');
 

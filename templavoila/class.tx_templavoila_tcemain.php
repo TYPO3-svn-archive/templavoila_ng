@@ -34,19 +34,22 @@
  *
  *
  *
- *   64: class tx_templavoila_tcemain
+ *   67: class tx_templavoila_tcemain
+ *   83:     public function __construct()
  *
  *              SECTION: Public API (called by hook handler)
- *   86:     function processDatamap_preProcessFieldArray (&$incomingFieldArray, $table, $id, &$reference)
- *  111:     function processDatamap_postProcessFieldArray ($status, $table, $id, &$fieldArray, &$reference)
- *  166:     function processDatamap_afterDatabaseOperations ($status, $table, $id, $fieldArray, &$reference)
- *  225:     function processCmdmap_preProcess ($command, $table, $id, $value, &$reference)
- *  261:     function processCmdmap_postProcess($command, $table, $id, $value, &$reference)
- *  283:     function moveRecord_firstElementPostProcess ($table, $uid, $destPid, $sourceRecordBeforeMove, $updateFields, &$reference)
- *  324:     function moveRecord_afterAnotherElementPostProcess ($table, $uid, $destPid, $origDestPid, $sourceRecordBeforeMove, $updateFields, &$reference)
- *  354:     function correctSortingAndColposFieldsForPage($flexformXML)
+ *  105:     function processDatamap_preProcessFieldArray(array &$incomingFieldArray, $table, $id, t3lib_TCEmain &$reference)
+ *  140:     function processDatamap_postProcessFieldArray ($status, $table, $id, &$fieldArray, &$reference)
+ *  218:     function processDatamap_afterDatabaseOperations ($status, $table, $id, $fieldArray, &$reference)
+ *  294:     function processCmdmap_preProcess (&$command, $table, $id, $value, &$reference)
+ *  350:     function processCmdmap_postProcess($command, $table, $id, $value, &$reference)
+ *  376:     function moveRecord_firstElementPostProcess ($table, $uid, $destPid, $sourceRecordBeforeMove, $updateFields, &$reference)
+ *  417:     function moveRecord_afterAnotherElementPostProcess ($table, $uid, $destPid, $origDestPid, $sourceRecordBeforeMove, $updateFields, &$reference)
+ *  448:     function correctSortingAndColposFieldsForPage($flexformXML, $pid)
+ *  520:     protected function updateDataSourceFromTemplateObject($table, array &$incomingFieldArray, t3lib_beUserAuth &$beUser)
+ *  540:     protected function updateDataSourceFieldFromTemplateObjectField(array &$incomingFieldArray, $dsField, $toField, t3lib_beUserAuth &$beUser)
  *
- * TOTAL FUNCTIONS: 8
+ * TOTAL FUNCTIONS: 11
  * (This index is automatically created/updated by the extension "extdeveval")
  *
  */
@@ -95,9 +98,9 @@ class tx_templavoila_tcemain {
 	 * @param	array		$incomingFieldArray: The original field names and their values before they are processed
 	 * @param	string		$table: The table TCEmain is currently processing
 	 * @param	string		$id: The records id (if any)
-	 * @param	t3lib_TCEmain	$reference: Reference to the parent object (TCEmain)
+	 * @param	t3lib_TCEmain		$reference: Reference to the parent object (TCEmain)
 	 * @return	void
-	 * @access	public
+	 * @access public
 	 */
 	function processDatamap_preProcessFieldArray(array &$incomingFieldArray, $table, $id, t3lib_TCEmain &$reference) {
 		global $TYPO3_DB, $TCA;
@@ -132,7 +135,7 @@ class tx_templavoila_tcemain {
 	 * @param	array		$fieldArray: The field names and their values to be processed
 	 * @param	object		$reference: Reference to the parent object (TCEmain)
 	 * @return	void
-	 * @access	public
+	 * @access public
 	 */
 	function processDatamap_postProcessFieldArray ($status, $table, $id, &$fieldArray, &$reference) {
 		if ($this->debug) t3lib_div::devLog ('processDatamap_postProcessFieldArray', 'templavoila',0,array ($status, $table, $id, $fieldArray));
@@ -210,7 +213,7 @@ class tx_templavoila_tcemain {
 	 * @param	array		$fieldArray: The record row how it has been inserted into the database
 	 * @param	object		$reference: A reference to the TCEmain instance
 	 * @return	void
-	 * @access	public
+	 * @access public
 	 */
 	function processDatamap_afterDatabaseOperations ($status, $table, $id, $fieldArray, &$reference) {
 
@@ -285,7 +288,7 @@ class tx_templavoila_tcemain {
 	 * @param	array		$fieldArray: The field names and their values to be processed
 	 * @param	object		$reference: Reference to the parent object (TCEmain)
 	 * @return	void
-	 * @access	public
+	 * @access public
 	 * @todo	"delete" should search for all references to the element.
 	 */
 	function processCmdmap_preProcess (&$command, $table, $id, $value, &$reference) {
@@ -342,7 +345,7 @@ class tx_templavoila_tcemain {
 	 * @param	array		$fieldArray: The field names and their values to be processed
 	 * @param	object		$reference: Reference to the parent object (TCEmain)
 	 * @return	void
-	 * @access	public
+	 * @access public
 	 */
 	function processCmdmap_postProcess($command, $table, $id, $value, &$reference) {
 
@@ -368,7 +371,7 @@ class tx_templavoila_tcemain {
 	 * @param	array		$updateFields: The updated fields of the record row in question (we don't use that)
 	 * @param	object		$reference: A reference to the TCEmain instance
 	 * @return	void
-	 * @access	public
+	 * @access public
 	 */
 	function moveRecord_firstElementPostProcess ($table, $uid, $destPid, $sourceRecordBeforeMove, $updateFields, &$reference) {
 		global $TCA;
@@ -409,7 +412,7 @@ class tx_templavoila_tcemain {
 	 * @param	array		$updateFields: The updated fields of the record row in question (we don't use that)
 	 * @param	object		$reference: A reference to the TCEmain instance
 	 * @return	void
-	 * @access	public
+	 * @access public
 	 */
 	function moveRecord_afterAnotherElementPostProcess ($table, $uid, $destPid, $origDestPid, $sourceRecordBeforeMove, $updateFields, &$reference) {
 
@@ -440,7 +443,7 @@ class tx_templavoila_tcemain {
 	 * @param	string		$flexformXML: The flexform XML data of the page
 	 * @param	integer		$pid: Current page id
 	 * @return	void
-	 * @access	protected
+	 * @access protected
 	 */
 	function correctSortingAndColposFieldsForPage($flexformXML, $pid) {
 		global $TCA, $TYPO3_DB;
@@ -509,9 +512,9 @@ class tx_templavoila_tcemain {
 	 * Checks if template object was changed (== exists in the $incomingFieldArray)
 	 * and sets data source accordingly.
 	 *
-	 * @param	string	$table	Table name
-	 * @param	string	$incomingFieldArray	Array with fields
-	 * @param	t3lib_beUserAuth	$beUser	Current backend user for this operation
+	 * @param	string		$table	Table name
+	 * @param	string		$incomingFieldArray	Array with fields
+	 * @param	t3lib_beUserAuth		$beUser	Current backend user for this operation
 	 * @return	void
 	 */
 	protected function updateDataSourceFromTemplateObject($table, array &$incomingFieldArray, t3lib_beUserAuth &$beUser) {
@@ -528,10 +531,10 @@ class tx_templavoila_tcemain {
 	 * Finds data source value for the current template object and sets it to the
 	 * $incomingFieldArray.
 	 *
-	 * @param	array	$incomingFieldArray	Array with fields
-	 * @param	string	$dsField	Data source field name in the $incomingFieldArray
-	 * @param	string	$toField	Template object field name in the $incomingFieldArray
-	 * @param	t3lib_beUserAuth	$beUser	Current backend user for this operation
+	 * @param	array		$incomingFieldArray	Array with fields
+	 * @param	string		$dsField	Data source field name in the $incomingFieldArray
+	 * @param	string		$toField	Template object field name in the $incomingFieldArray
+	 * @param	t3lib_beUserAuth		$beUser	Current backend user for this operation
 	 * @return	void
 	 */
 	protected function updateDataSourceFieldFromTemplateObjectField(array &$incomingFieldArray, $dsField, $toField, t3lib_beUserAuth &$beUser) {

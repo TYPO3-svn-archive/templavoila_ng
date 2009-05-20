@@ -1,5 +1,12 @@
 @import url("../res/optionsmenu.css");
 
+div.typo3-clipCtrl {
+	display: inline-block;
+	border: 1px solid #456482;
+	padding: 0 2px 0 2px;
+	margin: 0 5px 0 5px;
+}
+
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 table.tv-container div.sortableItem > span > a,
 table.tv-container div.sortableItem >        a {
@@ -32,13 +39,6 @@ table.tv-container img.browse,
 table.tv-container img.paste {
 	margin: 1px;
 	margin-bottom: 5px;
-}
-
-table.tv-container div.typo3-clipCtrl {
-	display: inline-block;
-	border: 1px solid #456482;
-	padding: 0 2px 0 2px;
-	margin: 0 5px 0 5px;
 }
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
