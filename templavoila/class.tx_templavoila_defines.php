@@ -28,15 +28,20 @@
  */
 
 /* this is the 'default' encoding of content-elements */
-define('SEPARATOR_XPATH', '/');
-define('SEPARATOR_PARMS', ':');
-define('SEPARATOR_PARMG', '|');	// parameter-groups
+define('SEPARATOR_XPATH', 		'/');
+define('SEPARATOR_PARMS', 		':');
+define('SEPARATOR_PARMG', 		'|');	// parameter-groups
 
 /* scope-definitions of the TV-datastructure */
-define('TVDS_SCOPE_OTHER',	0);
-define('TVDS_SCOPE_PAGE',	1);
-define('TVDS_SCOPE_FCE',	2);
+define('TVDS_SCOPE_OTHER',		0);
+define('TVDS_SCOPE_PAGE',		1);
+define('TVDS_SCOPE_FCE',		2);
 
-define('TVDS_SCOPE_KNOWN',	2);
+define('TVDS_SCOPE_KNOWN',		2);	// frontier
+
+/* inheritance-definitions of the TV-datastructure */
+define('TVDS_INHERITANCE_NONE',		0);
+define('TVDS_INHERITANCE_REPLACE',	1);
+define('TVDS_INHERITANCE_ACCUMULATE',	2);
 
 ?>

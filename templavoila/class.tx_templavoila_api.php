@@ -1534,6 +1534,7 @@ class tx_templavoila_api {
 
 				$previewData[$fieldPath] = array(
 					'title'       => $fieldData['tx_templavoila']['title'],
+					'inheritance' => $fieldData['tx_templavoila']['inheritance'],
 					'TCEforms'    => $fieldData['TCEforms'],
 					'type'        => $fieldData['type'],
 					'section'     => $fieldData['section'],

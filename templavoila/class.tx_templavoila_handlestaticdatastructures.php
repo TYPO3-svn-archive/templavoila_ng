@@ -224,7 +224,7 @@ class tx_templavoila_handleStaticDataStructures {
 	 */
 	function templateObjectItemsProcFuncForCurrentDS(array &$params, t3lib_TCEforms &$pObj) {
 		// Get DS
-		$tsConfig = &$pObj->cachedTSconfig[$params['table'].':'.$params['row']['uid']];
+		$tsConfig = &$pObj->cachedTSconfig[$params['table'] . ':' . $params['row']['uid']];
 		$dataSource = $tsConfig['_THIS_ROW']['tx_templavoila_ds'];
 		$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
 					'uid,title,previewicon,datastructure', 'tx_templavoila_tmplobj',
@@ -343,7 +343,7 @@ class tx_templavoila_handleStaticDataStructures {
 	 */
 	function getStoragePid(array &$params, t3lib_TCEforms &$pObj) {
 		// Get default first
-		$tsConfig = &$pObj->cachedTSconfig[$params['table'].':'.$params['row']['uid']];
+		$tsConfig = &$pObj->cachedTSconfig[$params['table'] . ':' . $params['row']['uid']];
 		$storagePid = intval($tsConfig['_STORAGE_PID']);
 
 		// Check for alternative storage folder
@@ -415,6 +415,7 @@ class tx_templavoila_handleStaticDataStructures {
 		if ($BE_USER->isAdmin()) {
 			return;
 		}
+
 		foreach ($BE_USER->userGroups as $group) {
 			// Get list of DS & TO
 			$items = t3lib_div::trimExplode(',', $group['tx_templavoila_access'], true);

@@ -208,7 +208,7 @@ class tx_templavoila_mod1_clipboard {
 		$destinationRecord = $this->pObj->apiObj->flexform_getRecordByPointer($destinationPointer);
 		$clipboardElementRecord = $this->pObj->apiObj->flexform_getRecordByPointer($clipboardElementPointer);
 		$dummyArr = array();
-		$clipboardSubElementUidsArr = $this->pObj->apiObj->flexform_getListOfSubElementUidsRecursively ('tt_content', $clipboardElementRecord['uid'], $dummyArr);
+		$clipboardSubElementUidsArr = $this->pObj->apiObj->flexform_getListOfSubElementUidsRecursively('tt_content', $clipboardElementRecord['uid'], $dummyArr);
 		$clipboardElementHasSubElements = count($clipboardSubElementUidsArr) > 0;
 
 		if ($clipboardElementHasSubElements) {
@@ -222,18 +222,18 @@ class tx_templavoila_mod1_clipboard {
 
 			// Prepare the ingredients for the different buttons:
 		$pasteMode = isset ($this->t3libClipboardObj->clipData['normal']['flexMode']) ? $this->t3libClipboardObj->clipData['normal']['flexMode'] : ($this->t3libClipboardObj->clipData['normal']['mode'] == 'copy' ? 'copy' : 'cut');
-		$pasteAfterIcon = '<img class="paste"'.t3lib_iconWorks::skinImg($this->pObj->doc->backPath,'gfx/clip_pasteafter.gif','').' border="0" title="'.$LANG->getLL ('pasterecord').'" alt="" />';
-		$pasteSubRefIcon = '<img class="paste"'.t3lib_iconWorks::skinImg('clip_pastesubref.gif','').' border="0" title="'.$LANG->getLL ('pastefce_andreferencesubs').'" alt="" />';
+		$pasteAfterIcon  = '<img class="paste"' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/clip_pasteafter.gif', '') . ' border="0" title="'.$LANG->getLL('pasterecord') . '" alt="" />';
+		$pasteSubRefIcon = '<img class="paste"' . t3lib_iconWorks::skinImg('clip_pastesubref.gif', '') . ' border="0" title="' . $LANG->getLL('pastefce_andreferencesubs') . '" alt="" />';
 
 		$sourcePointerString = $this->pObj->apiObj->flexform_getStringFromPointer($clipboardElementPointer);
 		$destinationPointerString = $this->pObj->apiObj->flexform_getStringFromPointer($destinationPointer);
 
 			// FCEs with sub elements have two different paste icons, normal elements only one:
 		if ($pasteMode == 'copy' && $clipboardElementHasSubElements) {
-			$output  = '<a href="'.$this->pObj->baseScript.$this->pObj->link_getParameters().'&amp;CB[removeAll]=normal&amp;pasteRecord=copy&amp;source='.rawurlencode($sourcePointerString).'&amp;destination='.rawurlencode($destinationPointerString).'">'.$pasteAfterIcon.'</a>';
-			$output .= '<a href="'.$this->pObj->baseScript.$this->pObj->link_getParameters().'&amp;CB[removeAll]=normal&amp;pasteRecord=copyref&amp;source='.rawurlencode($sourcePointerString).'&amp;destination='.rawurlencode($destinationPointerString).'">'.$pasteSubRefIcon.'</a>';
+			$output  = '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;CB[removeAll]=normal&amp;pasteRecord=copy&amp;source=' . rawurlencode($sourcePointerString).'&amp;destination='.rawurlencode($destinationPointerString).'">'.$pasteAfterIcon.'</a>';
+			$output .= '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;CB[removeAll]=normal&amp;pasteRecord=copyref&amp;source=' . rawurlencode($sourcePointerString).'&amp;destination='.rawurlencode($destinationPointerString).'">'.$pasteSubRefIcon.'</a>';
 		} else {
-			$output  = '<a href="'.$this->pObj->baseScript.$this->pObj->link_getParameters().'&amp;CB[removeAll]=normal&amp;pasteRecord='.$pasteMode.'&amp;source='.rawurlencode($sourcePointerString).'&amp;destination='.rawurlencode($destinationPointerString).'">'.$pasteAfterIcon.'</a>';
+			$output  = '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;CB[removeAll]=normal&amp;pasteRecord=' . $pasteMode . '&amp;source='.rawurlencode($sourcePointerString).'&amp;destination='.rawurlencode($destinationPointerString).'">'.$pasteAfterIcon.'</a>';
 		}
 
 		return $output;
@@ -250,10 +250,6 @@ class tx_templavoila_mod1_clipboard {
 		global $LANG, $TYPO3_DB, $BE_USER;
 
 		$elementBelongsToCurrentPage = true;
-
-		$canCreateNew   = $GLOBALS['BE_USER']->isPSet($this->pObj->calcPerms, 'pages', 'new');
-		$canEditPage    = $GLOBALS['BE_USER']->isPSet($this->pObj->calcPerms, 'pages', 'edit');
-		$canEditContent = $GLOBALS['BE_USER']->isPSet($this->pObj->calcPerms, 'pages', 'editcontent');
 
 		$output = '';
 		$elements = array();
@@ -289,7 +285,7 @@ class tx_templavoila_mod1_clipboard {
 
 			$titleBarLeftButtons = $recordButton;
 
-			if (!$this->pObj->translatorMode && $canEditContent) {
+			if (!$this->pObj->translatorMode && $this->pObj->canEditContent) {
 				$elementPointerString = 'tt_content' . SEPARATOR_PARMS . $row['uid'];
 
 				$linkEdit = $this->pObj->icon_edit(array('table' => 'tt_content', 'uid' => $row['uid'], 'isHidden' => $row['hidden']));
@@ -320,35 +316,39 @@ class tx_templavoila_mod1_clipboard {
 			// Finally assemble the table:
 			$cellFragment = '
 				<table cellpadding="0" cellspacing="0" width="100%" class="tv-coe">
+				<thead>
 					<tr style="' . $elementTitlebarStyle . ';" class="sortableHandle">
-						<td>
-							<span class="nobr">' .
-							$languageIcon .
-							$titleBarLeftButtons .
-							($elementBelongsToCurrentPage ? '' : '<em>') . htmlspecialchars($row['header'] ? $row['header'] : 'no') . ($elementBelongsToCurrentPage ? '' : '</em>') .
-							'</span>
-						</td>
-						<td nowrap="nowrap" class="sortableButtons">' .
-							$titleBarRightButtons .
-						'</td>
-						<tr>
-							<td colspan="2">' . $this->pObj->render_previewContent($row) . '</td>
-						</tr>
+						<th>
+							<div style="float:  left;" class="nobr">' .
+								$languageIcon .
+								$titleBarLeftButtons .
+								($elementBelongsToCurrentPage ? '' : '<em>') . htmlspecialchars($row['header'] ? $row['header'] : 'no') . ($elementBelongsToCurrentPage ? '' : '</em>') . '
+							</div>
+							<div style="float: right;" class="nobr sortableButtons">' .
+								$titleBarRightButtons . '
+							</div>
+						</th>
 					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>' . $this->pObj->render_previewContent($row) . '</td>
+					</tr>
+				<tbody>
 				</table>
 			';
 
 			// "Browse", "New" and "Paste" icon:
 			$cellFragment .= $this->pObj->icon_browse($subElementPointer);
-			if (!$this->pObj->translatorMode && $canCreateNew) {
+			if (!$this->pObj->translatorMode && $this->pObj->canCreateNew) {
 				$cellFragment .= $this->pObj->icon_new($subElementPointer);
 			}
 
 			$cellFragment .= '<span class="sortablePaste">' . $this->element_getPasteButtons($subElementPointer) . '</span>';
 			if ($this->pObj->apiObj) {
 				/* id-strings must not contain double-colons because of the selectors-api */
-				$cellId = str_replace(SEPARATOR_PARMS, '§', $this->pObj->apiObj->flexform_getStringFromPointer($subElementPointer));
-				$cellRel = str_replace(SEPARATOR_PARMS, '§', $cellId);
+				$cellId = $this->pObj->sanitizeID($this->pObj->apiObj->flexform_getStringFromPointer($subElementPointer));
+				$cellRel = $cellId;
 
 				$cellFragment = '<div class="sortableItem" id="' . $cellId . '" rel="' . $cellRel . '">' . $cellFragment . '</div>';
 			}
@@ -379,7 +379,7 @@ class tx_templavoila_mod1_clipboard {
 
 		if ($this->pObj->apiObj) {
 			/* id-strings must not contain double-colons because of the selectors-api */
-			$cellId = str_replace(SEPARATOR_PARMS, '§', $this->pObj->apiObj->flexform_getStringFromPointer($groupElementPointer));
+			$cellId = $this->pObj->sanitizeID($this->pObj->apiObj->flexform_getStringFromPointer($groupElementPointer));
 
 			$this->pObj->sortableContainers[] = $cellId;
 		}
@@ -387,17 +387,25 @@ class tx_templavoila_mod1_clipboard {
 		// Create table and header cell:
 		$output = '
 			<table border="0" cellpadding="0" cellspacing="1" width="100%" class="tv-container tv-clipboard lrPadding" id="clipboard">
+			<thead>
 				<tr class="bgColor4-20">
-					<td>' .
-						$LANG->getLL('inititemno_elementsNotBeingUsed', '1') . ':' .
-						$deleteAll . '
-					</td>
+					<th>
+						<div style="float:  left;" class="nobr">' .
+							$LANG->getLL('inititemno_elementsNotBeingUsed', '1') . ':
+						</div>
+						<div style="float: right;" class="nobr">' .
+							$deleteAll . '
+						</div>
+					</th>
 				</tr>
+			</thead>
+			<tbody>
 				<tr class="bgColor4">
 					<td style="padding: 5px; border: 1px dashed #000000;" id="' . $cellId . '">'.
-						implode('', $elements) .
-					'</td>
+						implode('', $elements) . '
+					</td>
 				</tr>
+			</tbody>
 			</table>
 			<br />
 		';

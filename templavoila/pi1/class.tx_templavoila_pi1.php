@@ -42,7 +42,7 @@
  *  244:     function renderElement($row, $table)
  *  383:     function processDataValues(&$dataValues, $DSelements, $TOelements, $valueKey='vDEF')
  *  463:     function processDataValues_traverse(&$dataValues, $DSelements, $TOelements, $valueKey='vDEF', $xpath='')
- *  675:     function inheritValue($dV, $valueKey, $overlayMode='')
+ *  675:     function overlayValue($dV, $valueKey, $overlayMode='')
  *  715:     function formatError($string)
  *  748:     function visualID($content, $srcPointer, $DSrec, $TOrec, $row, $table)
  *
@@ -72,7 +72,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 	var $scriptRelPath = 'pi1/class.tx_templavoila_pi1.php';	// Path to this script relative to the extension dir.
 	var $extKey = 'templavoila';    				// The extension key.
 
-	var $inheritValueFromDefault = 1;				// If set, children-translations will take the value from the default if "false" (zero or blank)
+	var $overlayValueFromDefault = 1;				// If set, children-translations will take the value from the default if "false" (zero or blank)
 
 	/**
 	 * Markup object
@@ -129,6 +129,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 	 * @param	string		$content Unused
 	 * @param	array		$conf Configuration (see above for entries)
 	 * @return	string		Generated content
+	 *
 	 * @todo Create a new content element with this functionality and DS/TO selector?
 	 * @todo Create TS element with this functionality?
 	 * @todo Support sheet selector?
@@ -163,17 +164,17 @@ class tx_templavoila_pi1 extends tslib_pibase {
 
 				if (is_array($DS)) {
 					$langChildren = $DS['meta']['langChildren'] ? 1 : 0;
-					$langDisabled = $DS['meta']['langDisable'] ? 1 : 0;
-					$lKey = (!$langDisabled && !$langChildren) ? 'l'.$GLOBALS['TSFE']->sys_language_isocode : 'lDEF';
-					$vKey = (!$langDisabled && $langChildren) ? 'v'.$GLOBALS['TSFE']->sys_language_isocode : 'vDEF';
+					$langDisabled = $DS['meta']['langDisable' ] ? 1 : 0;
+					$lKey = (!$langDisabled && !$langChildren) ? 'l' . $GLOBALS['TSFE']->sys_language_isocode : 'lDEF';
+					$vKey = (!$langDisabled &&  $langChildren) ? 'v' . $GLOBALS['TSFE']->sys_language_isocode : 'vDEF';
 				} else {
 					return $this->formatError('
-						Couldn\'t find a Data Structure set with uid/file='.$conf['ds'].'
+						Couldn\'t find a Data Structure set with uid/file=' . $conf['ds'] . '
 						Please put correct DS and TO into your TS setup first.');
 				}
-			}
-			else {
-				$lKey = 'lDEF'; $vKey = 'vDEF';
+			} else {
+				$lKey = 'lDEF';
+				$vKey = 'vDEF';
 			}
 
 			$values['data']['sDEF'][$lKey][$k][$vKey] = $v;
@@ -200,7 +201,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 
 		// Find DS and Template in root line IF there is no Data Structure set for the current page:
 		if (!$pageRecord['tx_templavoila_ds']) {
-			foreach($GLOBALS['TSFE']->tmpl->rootLine as $pRec) {
+			foreach ($GLOBALS['TSFE']->tmpl->rootLine as $pRec) {
 				if ($pageRecord['uid'] != $pRec['uid']) {
 					if ($pRec['tx_templavoila_next_ds']) {
 						// If there is a next-level DS:
@@ -211,7 +212,8 @@ class tx_templavoila_pi1 extends tslib_pibase {
 						$pageRecord['tx_templavoila_ds'] = $pRec['tx_templavoila_ds'];
 						$pageRecord['tx_templavoila_to'] = $pRec['tx_templavoila_to'];
 					}
-				} else break;
+				} else
+					break;
 			}
 		}
 
@@ -236,8 +238,8 @@ class tx_templavoila_pi1 extends tslib_pibase {
 	 * @return	void
 	 */
 	function initVars($conf) {
-		$this->inheritValueFromDefault = $conf['dontInheritValueFromDefault'] ? 0 : 1;
-		$this->conf=$conf;
+		$this->overlayValueFromDefault = $conf['dontInheritValueFromDefault'] ? 0 : 1;
+		$this->conf = $conf;
 	}
 
 	/**
@@ -260,7 +262,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 		}
 
 		// Hook: renderElement_preProcessRow
-		foreach($hookObjectsArr as $hookObj) {
+		foreach ($hookObjectsArr as $hookObj) {
 			if (method_exists ($hookObj, 'renderElement_preProcessRow')) {
 				$hookObj->renderElement_preProcessRow($row, $table, $this);
 			}
@@ -282,7 +284,6 @@ class tx_templavoila_pi1 extends tslib_pibase {
 
 		// If a Data Structure was found:
 		if (is_array($DS)) {
-
 			// Sheet Selector:
 			if ($DS['meta']['sheetSelector']) {
 				// <meta><sheetSelector> could be something like "EXT:user_extension/class.user_extension_selectsheet.php:&amp;user_extension_selectsheet"
@@ -294,17 +295,23 @@ class tx_templavoila_pi1 extends tslib_pibase {
 
 			// Initialize:
 			$langChildren = $DS['meta']['langChildren'] ? 1 : 0;
-			$langDisabled = $DS['meta']['langDisable'] ? 1 : 0;
-			list ($dataStruct, $sheet, $singleSheet) = t3lib_div::resolveSheetDefInDS($DS, $renderSheet);
+			$langDisabled = $DS['meta']['langDisable' ] ? 1 : 0;
+			$lKey = ($GLOBALS['TSFE']->sys_language_isocode && !$langDisabled && !$langChildren) ? 'l' . $GLOBALS['TSFE']->sys_language_isocode : 'lDEF';
+			$vKey = ($GLOBALS['TSFE']->sys_language_isocode && !$langDisabled &&  $langChildren) ? 'v' . $GLOBALS['TSFE']->sys_language_isocode : 'vDEF';
 
-			// Data from FlexForm field:
-			$data = t3lib_div::xml2array($row['tx_templavoila_flex']);
+			list($dataStruct, $sheet, $singleSheet) = t3lib_div::resolveSheetDefInDS($DS, $renderSheet);
 
-			$lKey = ($GLOBALS['TSFE']->sys_language_isocode && !$langDisabled && !$langChildren) ? 'l'.$GLOBALS['TSFE']->sys_language_isocode : 'lDEF';
+			// Apply data inheritance:
+			if ($table == 'pages')
+				$dataValues = $this->mergeDataValues($srcPointer, $sheet, $lKey, $DS);
+			else {
+				$data = t3lib_div::xml2array($row['tx_templavoila_flex']);
 
-			$dataValues = is_array($data['data']) ? $data['data'][$sheet][$lKey] : '';
-			if (!is_array($dataValues))
-				$dataValues = array();
+				// Data from FlexForm field(s):
+				$dataValues = is_array($data['data']) ? $data['data'][$sheet][$lKey] : '';
+				if (!is_array($dataValues))
+					$dataValues = array();
+			}
 
 			// Init mark up object.
 			$this->markupObj = t3lib_div::makeInstance('tx_templavoila_htmlmarkup');
@@ -314,11 +321,11 @@ class tx_templavoila_pi1 extends tslib_pibase {
 			if ($row['tx_templavoila_to']) {
 
 				// Initialize rendering type:
-				if ($this->conf['childTemplate']) {
+				if ($this->conf['childTemplate'])
 					$renderType = $this->conf['childTemplate'];
-				} else {	// Default:
+				// Default:
+				else
 					$renderType = t3lib_div::_GP('print') ? 'print' : '';
-				}
 
 				// Get Template Object record:
 				$TOrec = $this->markupObj->getTemplateRecord($row['tx_templavoila_to'], $renderType, $GLOBALS['TSFE']->sys_language_uid);
@@ -330,11 +337,11 @@ class tx_templavoila_pi1 extends tslib_pibase {
 
 						// Get local processing:
 						$TOproc = t3lib_div::xml2array($TOrec['localprocessing']);
-						if (!is_array($TOproc))	$TOproc = array();
+						if (!is_array($TOproc))
+							$TOproc = array();
 
 						// Processing the data array:
 						if ($GLOBALS['TT']->LR) $GLOBALS['TT']->push('Processing data');
-							$vKey = ($GLOBALS['TSFE']->sys_language_isocode && !$langDisabled && $langChildren) ? 'v'.$GLOBALS['TSFE']->sys_language_isocode : 'vDEF';
 							$TOlocalProc = $singleSheet ? $TOproc['ROOT']['el'] : $TOproc['sheets'][$sheet]['ROOT']['el'];
 							$this->processDataValues($dataValues, $dataStruct['ROOT']['el'], $TOlocalProc, $vKey);
 						if ($GLOBALS['TT']->LR) $GLOBALS['TT']->pull();
@@ -343,7 +350,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 						if ($GLOBALS['TT']->LR) $GLOBALS['TT']->push('Merge data and TO');
 							// Getting the cached mapping data out (if sheets, then default to "sDEF" if no mapping exists for the specified sheet!)
 							$mappingDataBody = $singleSheet ? $TO['MappingData_cached'] : (is_array($TO['MappingData_cached']['sub'][$sheet]) ? $TO['MappingData_cached']['sub'][$sheet] : $TO['MappingData_cached']['sub']['sDEF']);
-							$content = $this->markupObj->mergeFormDataIntoTemplateStructure($dataValues, $mappingDataBody,'', $vKey);
+							$content = $this->markupObj->mergeFormDataIntoTemplateStructure($dataValues, $mappingDataBody, '', $vKey);
 							$this->markupObj->setHeaderBodyParts($TO['MappingInfo_head'], $TO['MappingData_head_cached'], $TO['BodyTag_cached']);
 						if ($GLOBALS['TT']->LR) $GLOBALS['TT']->pull();
 
@@ -389,7 +396,227 @@ class tx_templavoila_pi1 extends tslib_pibase {
 	 * @param	string		Value key
 	 * @return	void
 	 */
-	function processDataValues(&$dataValues, $DSelements, $TOelements, $valueKey='vDEF') {
+	function mergeDataValues($srcPointer, $sheet, $lKey, $DS) {
+
+		$pageRecord = $GLOBALS['TSFE']->page;
+
+//		$DV['data'][$sheet][$lKey];
+//		$DS['ROOT']['el'];
+
+		$DVarray = array();
+		$DSroot = $DS['ROOT']['el'];
+
+		// Prepare inheritance resolution
+		foreach ($GLOBALS['TSFE']->tmpl->rootLine as $pRec) {
+			if (!$pRec['tx_templavoila_ds'] ||
+			    ($pRec['tx_templavoila_ds'] == $srcPointer)) {
+			    	if ($pRec['uid'] == $pageRecord['uid'])
+		   			$row = $pageRecord;
+		   		else
+		   			$row = $GLOBALS['TSFE']->sys_page->getPage($pRec['uid']);
+
+		   		if ($row['tx_templavoila_flex']) {
+					$data = t3lib_div::xml2array($row['tx_templavoila_flex']);
+
+					if (is_array($data['data'][$sheet][$lKey])) {
+						$DVarray[] = &$data['data'][$sheet][$lKey];
+					}
+				}
+			}
+		}
+
+		$DVarray = array_reverse($DVarray);
+
+	//	echo '<h1>DVarray before</h1>';
+	//	echo '<pre>'; print_r($DVarray); echo '</pre>';
+
+		if (count($DVarray) > 1)
+			$this->mergeDataValues_traverse($srcPointer, $sheet, $lKey, $DVarray, $DSroot);
+
+	//	echo '<h1>DVarray after</h1>';
+	//	echo '<pre>'; print_r($DVarray); echo '</pre>';
+
+		if (count($DVarray) > 0)
+			return $DVarray[0];
+
+		return array();
+	}
+
+	/**
+	 * Performing pre-processing of the data array.
+	 * This will transform the data in the data array according to various rules before the data is merged with the template HTML
+	 * Notice that $dataValues is changed internally as a reference so the function returns no content but internally changes the passed variable for $dataValues.
+	 *
+	 * @param	array		The data values from the XML file (converted to array). Passed by reference.
+	 * @param	array		The data structure definition which the data in the dataValues array reflects.
+	 * @param	array		The local XML processing information found in associated Template Objects (TO)
+	 * @param	string		Value key
+	 * @param	[type]		$xpath: ...
+	 * @return	void
+	 */
+	function mergeDataValues_traverse($srcPointer, $sheet, $lKey, $DVarray, $DS) {
+		if (is_array($DS)) {
+			foreach ($DS as $key => $val) {
+				// Array/Section:
+				if ($DS[$key]['type'] == 'array') {
+					/* no DS-childs: bail out
+					 * no EL-childs: progress (they may all be TypoScript elements without visual representation)
+					 */
+					if (is_array($DS[$key]['el'])) {
+						if ($DS[$key]['section']) {
+							/* templavoila configuration block */
+							if (isset($DS[$key]['tx_templavoila']) &&
+							    isset($DS[$key]['tx_templavoila']['inheritance'])) {
+								switch (intval($DS[$key]['tx_templavoila']['inheritance'])){
+									case TVDS_INHERITANCE_NONE:
+										break;
+									case TVDS_INHERITANCE_REPLACE:
+										$v = array();
+
+										/* [field_banner] => Array
+										 *     (
+										 *         [el] =>
+										 *     )
+										 */
+										foreach ($DVarray as $DV) {
+											if (is_array($DV[$key])) {
+												if (is_array($DV[$key]['el']) && count($DV[$key]['el'])) {
+													if (!$v['el']) {
+														$v['el'] = $DV[$key]['el'];
+													}
+												}
+											}
+										}
+
+										$DVarray[0][$key] = $v;
+										break;
+									case TVDS_INHERITANCE_ACCUMULATE:
+										$v = array();
+
+										/* [field_banner] => Array
+										 *     (
+										 *         [el] =>
+										 *     )
+										 */
+										foreach ($DVarray as $DV) {
+											if (is_array($DV[$key])) {
+												if (is_array($DV[$key]['el']) && count($DV[$key]['el'])) {
+													/* the merge is from low-tree to hi-tree,
+													 * sorting of entry is basically by "level-depth"
+													 */
+													$v['el'] = array_merge($DV[$key]['el'], $v['el']);
+												}
+											}
+										}
+
+										$DVarray[0][$key] = $v;
+										break;
+								}
+							}
+
+						//	/* even though it may seam attractive to give inheritance to elements
+						//	 * inside sections, it's an impossible to solve situation
+						//	 *
+						//	 * sections are virtually like "ce" a collection of X elements, they may
+						//	 * be set or merged but not intersected reliably
+						//	 */
+						//
+						//	foreach ($DV[$key]['el'] as $ik => $el) {
+						//		$DVa = array();
+						//		foreach ($DVarray as &$DV)
+						//			$DVa[] = &$DV[$key]['el'][$ik];
+						//
+						//		if (is_array($el)) {
+						//			$this->mergeDataValues_traverse($srcPointer, $sheet, $lKey, $DVa, $DS[$key]['el']);
+						//		}
+						//	}
+						} else {
+							$DVa = array();
+							foreach ($DVarray as &$DV)
+								$DVa[] = &$DV[$key]['el'];
+
+							$this->mergeDataValues_traverse($srcPointer, $sheet, $lKey, $DVa, $DS[$key]['el']);
+						}
+					}
+				}
+				else {
+					/* templavoila configuration block */
+					if (isset($DS[$key]['tx_templavoila']) &&
+					    isset($DS[$key]['tx_templavoila']['inheritance'])) {
+						switch (intval($DS[$key]['tx_templavoila']['inheritance'])){
+							case TVDS_INHERITANCE_NONE:
+								break;
+							case TVDS_INHERITANCE_REPLACE:
+								$v = array();
+
+								/* [field_banner] => Array
+								 *     (
+								 *         [vDEF] =>
+								 *     )
+								 */
+								foreach ($DVarray as $DV) {
+									if (is_array($DV[$key])) {
+										foreach ($DV[$key] as $vKey => $vVal) {
+											if (!$v[$vKey]) {
+												$v[$vKey] = $vVal;
+											}
+										}
+									}
+								}
+
+								$DVarray[0][$key] = $v;
+								break;
+							case TVDS_INHERITANCE_ACCUMULATE:
+								$v = array();
+
+								/* [field_banner] => Array
+								 *     (
+								 *         [vDEF] =>
+								 *     )
+								 */
+								foreach ($DVarray as $DV) {
+									if (is_array($DV[$key])) {
+										foreach ($DV[$key] as $vKey => $vVal) {
+											/* the merge is from low-tree to hi-tree,
+											 * sorting of entry is basically by "level-depth"
+											 */
+											if ($DS[$key]['TCEforms']['config']['type'] == 'group') {
+											//	maxitems ???
+
+												$v[$vKey] = implode(';',
+													array_merge(
+														explode(',', $vVal),
+														explode(',', $v[$vKey])
+													)
+												);
+											}
+											else
+												$v[$vKey] = $vVal . $v[$vKey];
+										}
+									}
+								}
+
+								$DVarray[0][$key] = $v;
+								break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Performing pre-processing of the data array.
+	 * This will transform the data in the data array according to various rules before the data is merged with the template HTML
+	 * Notice that $dataValues is changed internally as a reference so the function returns no content but internally changes the passed variable for $dataValues.
+	 *
+	 * @param	array		The data values from the XML file (converted to array). Passed by reference.
+	 * @param	array		The data structure definition which the data in the dataValues array reflects.
+	 * @param	array		The local XML processing information found in associated Template Objects (TO)
+	 * @param	string		Value key
+	 * @return	void
+	 */
+	function processDataValues(&$dataValues, $DSelements, $TOelements, $valueKey = 'vDEF') {
 		if (is_array($DSelements)) {
 
 			// Check if information about parent record should be set. Note: we do not push/pop registers here because it may break LOAD_REGISTER/RESTORE_REGISTER data transfer between FCEs!
@@ -474,7 +701,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 
 			// Create local processing information array:
 			$LP = array();
-			foreach($DSelements as $key => $dsConf) {
+			foreach ($DSelements as $key => $dsConf) {
 				// For all non-sections:
 				if (($DSelements[$key]['type'] != 'array') ||
 				    ($DSelements[$key]['section'] != 1)) {
@@ -496,7 +723,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 			$dataRecord = array();
 			if (is_array($dataValues)) {
 				foreach ($dataValues as $key => $values) {
-					$dataRecord[$key] = $this->inheritValue($dataValues[$key], $valueKey, $LP[$key]['langOverlayMode']);
+					$dataRecord[$key] = $this->overlayValue($dataValues[$key], $valueKey, $LP[$key]['langOverlayMode']);
 				}
 			}
 
@@ -517,7 +744,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 							$dataValues[$key]['el'] = array();
 
 						if ($DSelements[$key]['section']) {
-							foreach($dataValues[$key]['el'] as $ik => $el) {
+							foreach ($dataValues[$key]['el'] as $ik => $el) {
 								if (is_array($el)) {
 						//			$theKey = key($el);
 						//			if (is_array($dataValues[$key]['el'][$ik][$theKey]['el'])) {
@@ -564,15 +791,13 @@ class tx_templavoila_pi1 extends tslib_pibase {
 						}
 					}
 				} else {
-					// Language inheritance:
-					if ($valueKey != 'vDEF') {
-						$dataValues[$key][$valueKey] = $this->inheritValue($dataValues[$key], $valueKey, $LP[$key]['langOverlayMode']);
+					// Language/Object inheritance:
+					$dataValues[$key][$valueKey] = $this->overlayValue($dataValues[$key], $valueKey, $LP[$key]['langOverlayMode']);
 
-						// The value "__REMOVE" will trigger removal of the item!
-						if (is_array($dataValues[$key][$valueKey]) && !strcmp($dataValues[$key][$valueKey]['ERROR'], '__REMOVE')) {
-							$dataValues = '__REMOVE';
-							return;
-						}
+					// The value "__REMOVE" will trigger removal of the item!
+					if (is_array($dataValues[$key][$valueKey]) && !strcmp($dataValues[$key][$valueKey]['ERROR'], '__REMOVE')) {
+						$dataValues = '__REMOVE';
+						return;
 					}
 
 					$cObj->setCurrentVal($dataValues[$key][$valueKey]);
@@ -620,7 +845,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 									}
 
 									// Substitute constant:
-									$LP[$key]['TypoScript'] = str_replace('{$'.$constant.'}', $value, $LP[$key]['TypoScript']);
+									$LP[$key]['TypoScript'] = str_replace('{$' . $constant . '}', $value, $LP[$key]['TypoScript']);
 								}
 							}
 
@@ -629,7 +854,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 								foreach ($this->conf['TSconst.'] as $constant => $value) {
 									if (!is_array($value)) {
 										// Substitute constant:
-										$LP[$key]['TypoScript'] = str_replace('{$TSconst.'. $constant.'}', $value, $LP[$key]['TypoScript']);
+										$LP[$key]['TypoScript'] = str_replace('{$TSconst.' . $constant . '}', $value, $LP[$key]['TypoScript']);
 									}
 								}
 							}
@@ -654,9 +879,8 @@ class tx_templavoila_pi1 extends tslib_pibase {
 					}
 
 					// Various local quick-processing options:
-					$pOptions = $LP[$key]['proc'];
+					if (is_array($pOptions = $LP[$key]['proc'])) {
 
-					if (is_array($pOptions)) {
 						// HSC of all values by default:
 						if ($pOptions['int'])
 							$dataValues[$key][$valueKey] = intval($dataValues[$key][$valueKey]);
@@ -685,11 +909,11 @@ class tx_templavoila_pi1 extends tslib_pibase {
 	 * @param	string		Overriding overlay mode from local processing in Data Structure / TO.
 	 * @return	string		The value
 	 */
-	function inheritValue($dV, $valueKey, $overlayMode='') {
-		if ($valueKey!='vDEF') {
+	function overlayValue($dV, $valueKey, $overlayMode = '') {
+		if ($valueKey != 'vDEF') {
 
 			// Consider overlay modes:
-			switch((string)$overlayMode) {
+			switch ((string)$overlayMode) {
 				case 'ifFalse':
 					// Normal inheritance based on whether the value evaluates false or not (zero or blank string)
 					return trim($dV[$valueKey]) ? $dV[$valueKey] : $dV['vDEF'];
@@ -708,7 +932,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 					}
 				default:
 					// If none of the overlay modes matched, simply use the default:
-					if ($this->inheritValueFromDefault) {
+					if ($this->overlayValueFromDefault) {
 						return trim($dV[$valueKey]) ? $dV[$valueKey] : $dV['vDEF'];
 					}
 					break;
@@ -769,85 +993,95 @@ class tx_templavoila_pi1 extends tslib_pibase {
 				$tRows[] = '<tr style="background-color: #ABBBB4;">
 						<td colspan="2"><b>Page:</b> '.htmlspecialchars(t3lib_div::fixed_lgd_cs($row['title'],30)).' <em>[UID:'.$row['uid'].']</em></td>
 					</tr>';
-			break;
+				break;
 			case 'tt_content':
 				$tRows[] = '<tr style="background-color: #ABBBB4;">
 						<td colspan="2"><b>Flexible Content:</b> '.htmlspecialchars(t3lib_div::fixed_lgd_cs($row['header'],30)).' <em>[UID:'.$row['uid'].']</em></td>
 					</tr>';
-			break;
+				break;
 			default:
 				$tRows[] = '<tr style="background-color: #ABBBB4;">
 						<td colspan="2">Table "'.$table.'" <em>[UID:'.$row['uid'].']</em></td>
 					</tr>';
-			break;
+				break;
 		}
 
 		// Draw data structure:
 		if (is_numeric($srcPointer)) {
-			$tRows[] = '<tr>
+			$tRows[] = '
+				<tr>
 					<td valign="top"><b>Data Structure:</b></td>
 					<td>'.htmlspecialchars(t3lib_div::fixed_lgd_cs($DSrec['title'],30)).' <em>[UID:'.$srcPointer.']</em>'.
 						($DSrec['previewicon'] ? '<br/><img src="uploads/tx_templavoila/'.$DSrec['previewicon'].'" alt="" />' : '').
 						'</td>
 				</tr>';
 		} else {
-			$tRows[] = '<tr>
+			$tRows[] = '
+				<tr>
 					<td valign="top"><b>Data Structure:</b></td>
 					<td>'.htmlspecialchars($srcPointer).'</td>
 				</tr>';
 		}
 
 		// Template Object:
-		$tRows[] = '<tr>
+		$tRows[] = '
+			<tr>
 				<td valign="top"><b>Template Object:</b></td>
 				<td>'.htmlspecialchars(t3lib_div::fixed_lgd_cs($TOrec['title'],30)).' <em>[UID:'.$TOrec['uid'].']</em>'.
 					($TOrec['previewicon'] ? '<br/><img src="uploads/tx_templavoila/'.$TOrec['previewicon'].'" alt="" />' : '').
 					'</td>
 			</tr>';
 		if ($TOrec['description']) {
-			$tRows[] = '<tr>
+			$tRows[] = '
+				<tr>
 					<td valign="top" nowrap="nowrap">&nbsp; &nbsp; &nbsp; Description:</td>
-					<td>'.htmlspecialchars($TOrec['description']).'</td>
+					<td>' . htmlspecialchars($TOrec['description']) . '</td>
 				</tr>';
 		}
-		$tRows[] = '<tr>
+		$tRows[] = '
+			<tr>
 				<td valign="top" nowrap="nowrap">&nbsp; &nbsp; &nbsp; Template File:</td>
-				<td>'.htmlspecialchars($TOrec['fileref']).'</td>
+				<td>' . htmlspecialchars($TOrec['fileref']) . '</td>
 			</tr>';
-		$tRows[] = '<tr>
+		$tRows[] = '
+			<tr>
 				<td valign="top" nowrap="nowrap">&nbsp; &nbsp; &nbsp; Render type:</td>
-				<td>'.htmlspecialchars($TOrec['rendertype'] ? $TOrec['rendertype'] : 'Normal').'</td>
+				<td>' . htmlspecialchars($TOrec['rendertype'] ? $TOrec['rendertype'] : 'Normal') . '</td>
 			</tr>';
-		$tRows[] = '<tr>
+		$tRows[] = '
+			<tr>
 				<td valign="top" nowrap="nowrap">&nbsp; &nbsp; &nbsp; Language:</td>
-				<td>'.htmlspecialchars($TOrec['sys_language_uid'] ? $TOrec['sys_language_uid'] : 'Default').'</td>
+				<td>' . htmlspecialchars($TOrec['sys_language_uid'] ? $TOrec['sys_language_uid'] : 'Default') . '</td>
 			</tr>';
-		$tRows[] = '<tr>
+		$tRows[] = '
+			<tr>
 				<td valign="top" nowrap="nowrap">&nbsp; &nbsp; &nbsp; Local Proc.:</td>
-				<td>'.htmlspecialchars($TOrec['localprocessing'] ? 'Yes' : '-').'</td>
+				<td>' . htmlspecialchars($TOrec['localprocessing'] ? 'Yes' : '-') . '</td>
 			</tr>';
 
 		// Compile information table:
-		$infoArray = '<table style="border:1px solid black; background-color: #D9D5C9; font-family: verdana,arial; font-size: 10px;" border="0" cellspacing="1" cellpadding="1">
-						'.implode('', $tRows).'
-						</table>';
+		$infoArray = '
+			<table style="border:1px solid black; background-color: #D9D5C9; font-family: verdana,arial; font-size: 10px;" border="0" cellspacing="1" cellpadding="1">
+				' . implode('', $tRows) . '
+			</table>';
 
 		// Compile information:
 		$id = 'templavoila-preview-'.t3lib_div::shortMD5(microtime());
-		$content = '<div style="text-align: left; position: absolute; display:none; filter: alpha(Opacity=90);" id="'.$id.'">
-						'.$infoArray.'
-					</div>
-					<div id="'.$id.'-wrapper" style=""
-						onmouseover="
-							document.getElementById(\''.$id.'\').style.display=\'block\';
-							document.getElementById(\''.$id.'-wrapper\').attributes.getNamedItem(\'style\').nodeValue = \'border: 2px dashed #333366;\';
-								"
-						onmouseout="
-							document.getElementById(\''.$id.'\').style.display=\'none\';
-							document.getElementById(\''.$id.'-wrapper\').attributes.getNamedItem(\'style\').nodeValue = \'\';
-								">'.
-						$content.
-					'</div>';
+		$content = '
+			<div style="text-align: left; position: absolute; display:none; filter: alpha(Opacity=90);" id="' . $id . '">
+				' . $infoArray . '
+			</div>
+			<div id="' . $id . '-wrapper" style=""
+				onmouseover="
+					document.getElementById(\'' . $id . '\').style.display=\'block\';
+					document.getElementById(\'' . $id . '-wrapper\').attributes.getNamedItem(\'style\').nodeValue = \'border: 2px dashed #333366;\';
+						"
+				onmouseout="
+					document.getElementById(\'' . $id . '\').style.display=\'none\';
+					document.getElementById(\'' . $id . '-wrapper\').attributes.getNamedItem(\'style\').nodeValue = \'\';
+						">' .
+				$content . '
+			</div>';
 
 		return $content;
 	}

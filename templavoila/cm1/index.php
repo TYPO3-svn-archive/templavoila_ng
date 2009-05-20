@@ -1159,7 +1159,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				else {
 					// FCE defaults to inheritance
 					if (!isset($dataStruct['meta']['langDisable'])) {
-						$dataStruct['meta']['langDisable'] = '0';
+						$dataStruct['meta']['langDisable' ] = '0';
 						$dataStruct['meta']['langChildren'] = '1';
 					}
 				}
@@ -3045,12 +3045,16 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 					<dt><label>' . $GLOBALS['LANG']->getLL('structureFormRules') . ':</label></dt>
 					<dd><input type="text" size="80" name="'.$formFieldName.'[tx_templavoila][tags]" value="'.htmlspecialchars($insertDataArray['tx_templavoila']['tags']).'" /></dd>
+
+					' . (($insertDataArray['type'] != 'array') ? '
+					<!-- non-array options ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 					<dt><label>' . $GLOBALS['LANG']->getLL('structureFormInheritance') . ':</label></dt>
 					<dd>
-						<input type="radio" name="' . $formFieldName . '[tx_templavoila][inheritance]" value="0" ' . ($insertDataArray['tx_templavoila']['inheritance'] == 0 ? 'checked="checked"' : '') . ' /> Never<br />
-						<input type="radio" name="' . $formFieldName . '[tx_templavoila][inheritance]" value="1" ' . ($insertDataArray['tx_templavoila']['inheritance'] == 1 ? 'checked="checked"' : '') . ' /> Replace<br />
-						<input type="radio" name="' . $formFieldName . '[tx_templavoila][inheritance]" value="2" ' . ($insertDataArray['tx_templavoila']['inheritance'] == 2 ? 'checked="checked"' : '') . ' /> Accumulate<br />
+						<input type="radio" name="' . $formFieldName . '[tx_templavoila][inheritance]" value="' . TVDS_INHERITANCE_NONE       . '" ' . ($insertDataArray['tx_templavoila']['inheritance'] == TVDS_INHERITANCE_NONE       ? 'checked="checked"' : '') . ' /> Never<br />
+						<input type="radio" name="' . $formFieldName . '[tx_templavoila][inheritance]" value="' . TVDS_INHERITANCE_REPLACE    . '" ' . ($insertDataArray['tx_templavoila']['inheritance'] == TVDS_INHERITANCE_REPLACE    ? 'checked="checked"' : '') . ' /> Replace<br />
+						<input type="radio" name="' . $formFieldName . '[tx_templavoila][inheritance]" value="' . TVDS_INHERITANCE_ACCUMULATE . '" ' . ($insertDataArray['tx_templavoila']['inheritance'] == TVDS_INHERITANCE_ACCUMULATE ? 'checked="checked"' : '') . ' /> Accumulate<br />
 					</dd>
+					' :'').'
 				</dl>';
 
 			/*	// The dam-tv-connector will substitute the text above, that's $%*%&"$%, but well anyway, let's not break it
