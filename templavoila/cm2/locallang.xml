@@ -39,6 +39,13 @@
 		<languageKey index="es" type="array">
 		</languageKey>
 		<languageKey index="nl" type="array">
+			<label index="title">FlexForm XML-gegevens bekijken</label>
+			<label index="needsCleaning">De FlexForm XML kan waarschijnlijk wat opgeschoond worden. Vergelijk a.u.b. de huidige en de voorgesteld XML structuur en klik op de knop &quot;Opschonen&quot; hieronder om de voorgestelde structuur te gebruiken!</label>
+			<label index="XMLclean">XML is schoon</label>
+			<label index="cleanUp">De opgeschoonde XML opslaan in het record!</label>
+			<label index="current">Huidige XML:</label>
+			<label index="clean">Opgeschoonde XML:</label>
+			<label index="diff">Verschil:</label>
 		</languageKey>
 		<languageKey index="cz" type="array">
 		</languageKey>

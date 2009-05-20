@@ -303,6 +303,153 @@
 			<label index="mess.onModifyAlert">Warning: You should only modify Data Structures and Template Objects which have not been manually edited.\nYou risk that manual changes will be removed without further notice!</label>
 			<label index="mess.onDeleteAlert">Are you sure to delete this Data Structure entry?</label>
 		</languageKey>
+		<languageKey index="nl" type="array">
+			<label index="title">TemplaVoilà</label>
+
+			<label index="templateFile">Sjabloonbestand</label>
+			<label index="templateObject">Sjabloonobject</label>
+			<label index="templateIcon">Sjabloonpictogram</label>
+			<label index="templateType">Sjabloontype</label>
+			<label index="templateUID">UID</label>
+			<label index="templateTitle">Titel</label>
+			<label index="templateFileRef">Bestandsreferentie</label>
+			<label index="templateMappingSize">Projectie-gegevenslengte</label>
+
+			<label index="typeSC">Sectie</label>
+			<label index="typeCO">Container</label>
+			<label index="typeEL">Attribuut</label>
+			<label index="typeAT">Element</label>
+			<label index="typeNO">Niet geprojecteerd</label>
+
+			<label index="titleXmlConfiguration">XML-configuratie</label>
+			<label index="titleLoadDSXml">GS XML laden</label>
+			<label index="titleSaveDSTO">Gegevensstructuur / Sjabloonobject AANMAKEN</label>
+			<label index="titleOverwriteDSTO">Bestaande Gegevensstructuur / Sjabloonobject BIJWERKEN</label>
+			<label index="titlePreview">Voorbeeld van Gegevensstructuur voorbeeldgegevens samengevoegd in de geprojecteerde tags</label>
+			<label index="titleMapping">Projectievenster</label>
+			<label index="titleBuilding">Gegevensstructuur bouwen</label>
+
+			<label index="tabFileDetails">Informatie</label>
+			<label index="tabFileStructure">Structuur</label>
+			<label index="tabDSStructure">Structuur</label>
+			<label index="tabDSDetails">Informatie</label>
+			<label index="tabTODetails">Informatie</label>
+			<label index="tabHeadParts">Head-elementen</label>
+			<label index="tabBodyParts">Body-elementen</label>
+			<label index="tabMapHeadParts">Head-elementen projecteren</label>
+			<label index="tabMapBodyParts">Body-elementen projecteren</label>
+			<label index="tabPreview">Voorbeeld</label>
+			<label index="tabPreviewCurrent">Voorbeeld van huidige projectie</label>
+			<label index="tabXML">XML</label>
+
+			<label index="structureFile">Gegevensstructuurbestand</label>
+			<label index="structureInfoOrigin">Oorsprong van Gegevensstructuur</label>
+			<label index="structureInfoXML">Gegevensstructuur XML</label>
+			<label index="structureInfoParts">Gegevensstructuur details</label>
+			<label index="structureRecord">Gegevensstructuur Record</label>
+			<label index="structureRecordContent">Gegevensstructuur in Record</label>
+			<label index="structureRecordUsed">Objecten die deze Gegevensstructuur gebruiken</label>
+			<label index="structureType">Type Gegevensstructuur</label>
+			<label index="structureTypePage">Paginasjabloon</label>
+			<label index="structureTypeFCE">Flexibel InhoudsElement</label>
+			<label index="structureTypeCustom">Aangepast</label>
+			<label index="structureElement">GegevensElement</label>
+			<label index="structureField">Veld</label>
+			<label index="structureInstruction">Projectie-instructies</label>
+			<label index="structureSamples">Voorbeeldgegevens</label>
+			<label index="structureRule">Regels</label>
+			<label index="structurePath">HTML-pad</label>
+			<label index="structureAction">Acties</label>
+			<label index="structureEdit">Acties</label>
+
+			<label index="structureFormFieldNew">Nieuwe bestandsnaam invoeren</label>
+			<label index="structureFormTitle">Titek</label>
+			<label index="structureFormInstruction">Projectie-instructies</label>
+			<label index="structureFormSamples">Voorbeeldgegevens</label>
+			<label index="structureFormPreset">Voorinstelling van Element</label>
+			<label index="structureFormTCEFields">TCE-Velden</label>
+			<label index="structureFormTSElements">TS-Elementen</label>
+			<label index="structureFormOther">Overige</label>
+			<label index="structureFormRules">Projectieregels</label>
+			<label index="structureFormInheritance">Overerving</label>
+			<label index="structureFormTSConst">Typoscript Constanten</label>
+			<label index="structureFormTSCode">Typoscript Code</label>
+			<label index="structureFormExtra">Extra opties</label>
+			<label index="structureFormTSODescription">Beschrijving</label>
+			<label index="structureFormTSOPath">Objectpad</label>
+			<label index="structureFormTSOContext">Context</label>
+
+			<label index="originXML">Pure XML import</label>
+			<label index="originScratch">Opbouw vanaf begin</label>
+
+			<label index="mappingTitle">Sjabloonprojectie</label>
+			<label index="mappingInfoParts">Detaisl van SjabloonObject</label>
+			<label index="mappingHeadParts">Delen van de HTML header toevoegen</label>
+			<label index="mappingBodyParts">Gegevensstructuur die geprojecteerd moet worden op de HTML sjabloon</label>
+			<label index="mappingPreview">Gegevensstructuur die geprojecteerd moet worden op de HTML sjabloon</label>
+			<label index="mappingFound">Inhoud gevonden (op %d tekens)</label>
+			<label index="mappingEmpty">Inhoud leeg</label>
+
+			<label index="displayModeExploded">Modus: Uitgeklapte weergave</label>
+			<label index="displayModeOverlay">Mode: Overlappend</label>
+			<label index="displayModeSource">Mode: HTML Bron</label>
+			<label index="displayModeTable">Mode: Tabelranden</label>
+
+			<label index="headInc">Incl.</label>
+			<label index="headTag">Tag</label>
+			<label index="headContent">Tag inhoud</label>
+
+			<label index="none">Niets gevonden</label>
+			<label index="noicon">Geen pictogram</label>
+			<label index="rootDescription">Kies het HTML-element op de pagina dat de andere elementen van het sjabloon zal bevatten.</label>
+			<label index="selectTOrecrdToLoadDSFrom">Kies een Sjabloon-Object record waaruit de Gegevensstructuur en projectie-informatie geladen wordt.</label>
+			<label index="titleDSTO">Titel van GS/SO</label>
+			<label index="selectPID">In map Opslaan</label>
+			<label index="selectTO">SO kiezen</label>
+			<label index="modifyDSTO">GS/SO wijzigen</label>
+			<label index="createDSTO">GS en SO AANMAKEN</label>
+			<label index="updateDSTO">SO (en GS) BIJWERKEN</label>
+			<label index="noDSDefined">Er was geen Gegevensstructuur gedefinieerd in het record... (Moet T3DataStructure XML-inhoud zijn)</label>
+			<label index="pasteDSXml">Of plak de Gegevensstructuur XML in dit formulier</label>
+			<label index="loadDSXml">Gegevensstructuur laden</label>
+			<label index="add">Toevoegen</label>
+			<label index="update">Bijwerken</label>
+			<label index="set">Instellen</label>
+			<label index="cancel">Annuleren</label>
+
+			<label index="actionShow"   >XML tonen</label>		<label index="actiontitleShow"   >Voorbeeld bekijken van de huidige Gegevensstructuur als XML</label>
+			<label index="actionSet"    >Instellen</label>		<label index="actiontitleSet"    >De sessiegegevens bijwerken met de huidige instellingen</label>
+			<label index="actionClearDS">Alles leegmaken</label>		<label index="actiontitleClearDS">Alle gegevens van Gegevensstructuur en Projectie-informatie leegmaken</label>
+			<label index="actionClearTO">Alles leegmaken</label>		<label index="actiontitleClearTO">Alle projectie-informatie leegmaken</label>
+			<label index="actionPreview">Voorbeeld</label>		<label index="actiontitlePreview">Voorbeeld van de projectie op de sjabloon bekijken</label>
+			<label index="actionSaveas" >Opslaan als</label>		<label index="actiontitleSaveas" >Ga naar het menu opslaan</label>
+			<label index="actionSave"   >Opslaan</label>		<label index="actiontitleSave"   >Alle projectiedata in het sjabloonobject opslaan</label>
+			<label index="actionSaveret">Opslaan en terugkeren</label>	<label index="actiontitleSaveret">Alle projectiedata in het Sjabloonobject opslaan en terugkeren</label>
+			<label index="actionRevert" >Terugzetten</label>		<label index="actiontitleRevert" >De structuurgegevens terugzetten naar de laatste geïmporteerde gegevens</label>
+			<label index="actionLoad"   >Laden</label>		<label index="actiontitleLoad"   >Ga naar het menu laden</label>
+			<label index="actionRefresh">Verversen</label>		<label index="actiontitleRefresh">Scherm verversen</label>
+			<label index="actionApply"  >Wijzigingen toepassen</label>	<label index="actiontitleApply"  >De sessiegegevens bijwerken met de huidige instellingen.</label>
+			<label index="actionRemap"  >Opnieuw projecteren</label>	        <label index="actiontitleRemap"  >Dit GS element projecteren op een ander HTML element in het sjabloonbestand.</label>
+			<label index="actionChange" >Modus wijzigen</label>	<label index="actiontitleChange" >Projectiemodus wijzigen, bijv. van INTERN naar EXTERN, etc.</label>
+
+			<label index="msgDSTOSaved">Gegevensstructuur (UID %s) en Sjabloon-record (UID %s) zijn opgeslagen in PID %s</label>
+			<label index="msgDSTOUpdated">Gegevensstructuur (UID %s) en Sjabloon-record (UID %s) zijn bijgewerkt</label>
+			<label index="msgMappingSaved">Projectie-informatie is opgeslagen in het huidige Sjabloon-Object!</label>
+
+			<label index="error">Fout</label>
+			<label index="errorNoStorageFolder">Geen toegankelijk Opslagmap gevonden - a.u.b. eerst een aanmaken!</label>
+			<label index="errorTONotSaved">Er is geen Sjabloon-Object gemaakt, maar wel een Gegevensstructuur (UID %s)!</label>
+			<label index="errorTONotCreated">Er is geen Gegevensstructuur aangemaakt!</label>
+			<label index="errorNoUidFound">Er kon geen UID gevonden worden die wijst naar een Sjabloon-Object.</label>
+			<label index="errorFileNotFound">Het bestand waarvan de Gegevensstructuur gemaakt moet worden is niet gevonden.</label>
+			<label index="errorNoContentInFile">Geen inhoud gevonden in de bestandsreferentie</label>
+			<label index="errorNoFile">Geen bestand om af te beelden</label>
+
+			<label index="mess.onChangeAlert">Deze wijziging heeft invloed op welke velden in het formulier beschikbaar zijn.\nNu opslaan om het scherm te verversen?</label>
+			<label index="mess.onOverwriteAlert">Weet u zeker dat de huidige inhoud van deze records overschreven moet worden?\nDeze optie is bedoeld voor aanmaken van nieuwe Gegevensstructuren die nog niet handmatig aangepast zijn.</label>
+			<label index="mess.onModifyAlert">Waarschuwing: wijzig alleen Gegevensstructuren en SjabloonObjecten die niet handmatig aangepast zijn.\nHet risico is aanwezig dat handmatige aanpassingen zonder nader bericht worden overschreven!</label>
+			<label index="mess.onDeleteAlert">Weet u zeker dat deze Gegevensstructuur verwijderd moet worden?</label>
+		</languageKey>
 	</data>
 	<orig_hash type="array">
 	</orig_hash>

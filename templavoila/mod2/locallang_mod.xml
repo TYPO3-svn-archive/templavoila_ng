@@ -30,6 +30,9 @@
 		<languageKey index="es" type="array">
 		</languageKey>
 		<languageKey index="nl" type="array">
+			<label index="mlang_tabs_tab">TemplaVoilà</label>
+			<label index="mlang_labels_tabdescr">TemplaVoilà Controle Centrum somt alle beschikbare Gegevensstructuren en Sjabloon-Objecten op</label>
+			<label index="mlang_labels_tablabel">TemplaVoilà Controle Centrum</label>
 		</languageKey>
 		<languageKey index="cz" type="array">
 		</languageKey>

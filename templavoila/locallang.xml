@@ -36,12 +36,12 @@
 		<languageKey index="es" type="array">
 		</languageKey>
 		<languageKey index="nl" type="array">
-			<label index="cm1_title">TemplaVoila</label>
+			<label index="cm1_title">TemplaVoilà</label>
 			<label index="cm1_viewsubelements">Beeld: Sub Element</label>
 			<label index="cm1_viewflexformxml">Beeld: Flexform XML</label>
-			<label index="cm_viewdsto">Beeld: DS/TO</label>
+			<label index="cm_viewdsto">Beeld: GS/SO</label>
 			<label index="cm1_pagesusingthiselement">Pagina's die dit element gebruiken -&gt;</label>
-			<label index="wiz_refElements">Referentie van niet gebruikte inhoudselementen (TemplaVoila)</label>
+			<label index="wiz_refElements">Referentie van niet gebruikte inhoudselementen (TemplaVoilà)</label>
 		</languageKey>
 		<languageKey index="cz" type="array">
 		</languageKey>

@@ -11,5 +11,11 @@
 			<label index="function2">Import FCEs</label>
 			<label index="function3">Settings</label>
 		</languageKey>
+		<languageKey index="nl" type="array">
+			<label index="title">FCE Repository</label>
+			<label index="function1">FCE's exporteren</label>
+			<label index="function2">FCE's importeren</label>
+			<label index="function3">Instellingen</label>
+		</languageKey>
 	</data>
 </T3locallang>

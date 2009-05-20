@@ -25,6 +25,21 @@
             <!--label index="enableaccesscontrol.description">Enables access control for this template object</label-->
             <label index="access.description">Lists groups and users. Select users and/or groups that will have access to this template object</label>
         </languageKey>
+        <languageKey index="nl" type="array">
+            <label index="tx_templavoila_access.description">Kies de TemplaVoilà objecten waarvan de toegang geblokkeerd moet worden. Let op dat het blokkeren van de toegang tot een GS (Gegevensstructuur) impliciet ook de toegang blokkeert tot alle SO's (Sjabloon-Objecten) die bij de GS horen.</label>
+            <label index="datastructure.description">Kies de Gegevensstructuur van dit Sjabloonobject</label>
+            <label index="fileref.description">Referentie naar een bestand om het te projecteren met dit Sjabloonobject</label>
+            <label index="templatemapping.description"></label>
+            <label index="previewicon.description">Kies een voorbeeld-pictogram (optioneel)</label>
+            <label index="description.description">Beschrijving van dit sjabloonobject</label>
+            <label index="rendertype.description">Kies het type weergave</label>
+            <label index="sys_language_uid.description"></label>
+            <label index="parent.description">Kies de moedersjabloon</label>
+            <label index="localprocessing.description">Locale verwerkings-XML overschrijft delen van de XML van de Gegevensstructuur. Als het nodig is om delen van de GS XML te overschrijven kan die XML hier neergezet worden.</label>
+            <label index="enableaccessctrl.description">Toegangscontrole voor dit sjabloonobject. Vink deze optie aan om toegangscontrole in te schakelen.</label>
+            <!--label index="enableaccesscontrol.description">Schakelt toegangscontrole in voor dit sjabloonobject</label-->
+            <label index="access.description">Geeft een lijst met groepen en gebruikers. Selecteer gebruikers en/of groepen die toegang zullen hebben tot dit sjabloonobject</label>
+        </languageKey>
     </data>
     <orig_hash type="array">
         <languageKey index="default" type="array">

@@ -15,6 +15,12 @@
 			<label index="access_noModifyAccess">Modification of record %s:%d is not allowed because user has no access to its DS and/or TO</label>
 			<label index="access_noCreateAccess">Creation of record in %s is not allowed because user has no access to its DS and/or TO</label>
 		</languageKey>
+		<languageKey index="nl" type="array">
+			<label index="access_noDSaccess">Toegang tot de gegevensstructuur van dit record is geweigerd</label>
+			<label index="access_noTOaccess">Toegang tot het sjabloonobject van dit record is geweigerd</label>
+			<label index="access_noModifyAccess">Wijzigen van record %s:%d is niet toegestaan omdat de gebruiker geen toegang heeft tot de GS en/of het SO</label>
+			<label index="access_noCreateAccess">Aanmaken van een record in %s is niet toegestaan omdat de gebruiker geen toegang heeft tot de GS en/of het SO</label>
+		</languageKey>
 	</data>
 	<orig_hash type="array">
 	</orig_hash>

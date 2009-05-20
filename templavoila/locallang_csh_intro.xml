@@ -22,6 +22,14 @@
 			<label index=".description">Die Erweiterung TemplaVoila enthält eine neuartige Template Enginge für die Integration von HTML Vorlagen mit einigen Mausklicks, einen neuen Typ für flexible Inhaltselemente (&quot;Flexible Content&quot;) und ein neues Seiten Modul das die Erstellung von Websites mit verschachtelten Inhaltselementen erlaubt.</label>
 			<label index=".image_descr">Ein Teil von TemplaVoila ist das neuartige Template Mapping System, welches HTML Tags einer HTML Vorlage visuell darstellt und dem Entwickler erlaubt, Daten mit den HTML Element durch einen einfachen Mausklick zu verbinden.</label>
 		</languageKey>
+		<languageKey index="nl" type="array">
+			<label index=".alttitle">TemplaVoilà</label>
+			<label index=".description">De extensie TemplaVoilà bevat een unieke één-klik methode voor het projecteren van sjablonen, een nieuwe type content element &quot;Flexibel Content&quot; (voor elementen in vaste sjablonen) en een nieuwe module om webpagina's met geneste content elementen te bouwen.</label>
+			<label index="_.seeAlso">Handleiding (Futuristische Sjablonen Bouwen) | http://typo3.org/documentation/document-library/doc_tut_ftb1/</label>
+			<label index="_.image">EXT:templavoila/cshimages/intro.png</label>
+			<label index=".image_descr">Een deel van TemplaVoilà is het unieke sjabloonprojectiesysteem dat de HTML tags uit het sjabloonbestand toont en de gebruiker in staat stelt om data aan HTML elementen te koppelen met een enkele muisklik.</label>
+			<label index=".syntax"></label>
+		</languageKey>
 	</data>
 	<orig_hash type="array">
 		<languageKey index="de" type="array">

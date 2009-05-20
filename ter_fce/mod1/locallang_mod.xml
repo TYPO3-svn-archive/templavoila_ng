@@ -7,8 +7,8 @@
 	<data type="array">
 		<languageKey index="default" type="array">
 			<label index="mlang_tabs_tab">FCE Repository</label>
-			<label index="mlang_labels_tabdescr">export / import FCEs</label>
-			<label index="mlang_labels_tablabel">export / import FCEs</label>
+			<label index="mlang_labels_tabdescr">FCE's exporteren / importeren</label>
+			<label index="mlang_labels_tablabel">FCE's exporteren / importeren</label>
 		</languageKey>
 	</data>
 </T3locallang>
