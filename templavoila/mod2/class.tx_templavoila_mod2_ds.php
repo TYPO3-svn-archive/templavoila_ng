@@ -191,10 +191,10 @@ class tx_templavoila_mod2_ds {
 				$lpXML = '<a href="#" onclick="' . htmlspecialchars(t3lib_BEfunc::editOnClick('&edit[tx_templavoila_datastructure][' . $dsRow['uid'].']=edit&columnsOnly=dataprot', $this->doc->backPath)) . '">' .
 						'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/edit2.gif', 'width="11" height="12"') . ' title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:edit') . '" alt="" class="absmiddle" />' .
 						'</a>';
-				$editLink = '<a href="#" onclick="' . htmlspecialchars(t3lib_BEfunc::editOnClick('&edit[tx_templavoila_datastructure][' . $dsRow['uid'] . ']=delete', $this->doc->backPath)).'">' .
+				$editLink = '<a href="#" onclick="' . htmlspecialchars(t3lib_BEfunc::editOnClick('&edit[tx_templavoila_datastructure][' . $dsRow['uid'] . ']=delete', $this->doc->backPath)) . '">' .
 						'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/garbage.gif', 'width="11" height="12"') . ' title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:edit') . '" alt="" class="absmiddle" style="float: right;" />' .
 						'</a>';
-				$editLink .= '<a href="#" onclick="' . htmlspecialchars(t3lib_BEfunc::editOnClick('&edit[tx_templavoila_datastructure][' . $dsRow['uid'].']=edit', $this->doc->backPath)).'">' .
+				$editLink .= '<a href="#" onclick="' . htmlspecialchars(t3lib_BEfunc::editOnClick('&edit[tx_templavoila_datastructure][' . $dsRow['uid'].']=edit', $this->doc->backPath)) . '">' .
 						'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/edit2.gif', 'width="11" height="12"') . ' title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:edit') . '" alt="" class="absmiddle" style="float: right;" />' .
 						'</a>';
 				$dsTitle = '<a href="' . htmlspecialchars($linkUrl) . '" title="' . $GLOBALS['LANG']->getLL('center_view_ds') . '">' . htmlspecialchars($dsRow['title']) . '</a>';

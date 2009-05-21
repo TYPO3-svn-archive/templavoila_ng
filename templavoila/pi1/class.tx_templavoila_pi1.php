@@ -583,7 +583,8 @@ class tx_templavoila_pi1 extends tslib_pibase {
 											if ($DS[$key]['TCEforms']['config']['type'] == 'group') {
 											//	maxitems ???
 
-												$v[$vKey] = implode(';',
+
+												$v[$vKey] = implode(',',
 													array_merge(
 														explode(',', $vVal),
 														explode(',', $v[$vKey])

@@ -1039,7 +1039,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 							</th>';
 						$footerCells[] = '
 							<td valign="top" width="###WIDTH###" style="background-color: ' . $this->doc->bgColor4 . ';" align="center">
-								(assigned ' . count(explode(',', $fieldContent)) . ' element(s) of ' . $fieldData['TCEforms']['config']['maxitems'] . ' possible)
+								(assigned ' . count($fieldContent['el']) . ' element(s) of ' . $fieldData['TCEforms']['config']['maxitems'] . ' possible)
 							</td>';
 						$cells[] = '
 							<td valign="top" width="###WIDTH###" style="border: 1px dashed #000; padding: 5px 5px 5px 5px;" id="' . $cellId . '" class="' . (count(explode(',', $fieldContent)) >= $fieldData['TCEforms']['config']['maxitems'] ? 'full' : (count(explode(',', $fieldContent)) == 0 ? 'empty' : '')) . '" limit="' . $fieldData['TCEforms']['config']['maxitems'] . '">' .
