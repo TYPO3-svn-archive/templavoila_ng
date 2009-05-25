@@ -243,6 +243,20 @@ class tx_templavoila_pi1 extends tslib_pibase {
 	}
 
 	/**
+	 * Returns the pid of a record from $table with $uid
+	 *
+	 * @param	string		Table name
+	 * @param	integer		Record uid
+	 * @return	integer		PID value (unless the record did not exist in which case FALSE)
+	 */
+	function getPID($table, $uid) {
+		$res_tmp = $GLOBALS['TYPO3_DB']->exec_SELECTquery('pid', $table, 'uid=' . intval($uid));
+		if ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_tmp)) {
+			return $row['pid'];
+		}
+	}
+
+	/**
 	 * Common function for rendering of the Flexible Content / Page Templates.
 	 * For Page Templates the input row may be manipulated to contain the proper reference to a data structure (pages can have those inherited which content elements cannot).
 	 *
@@ -398,16 +412,18 @@ class tx_templavoila_pi1 extends tslib_pibase {
 	 */
 	function mergeDataValues($srcPointer, $sheet, $lKey, $DS) {
 
+		$rootLine = array_reverse($GLOBALS['TSFE']->tmpl->rootLine);
 		$pageRecord = $GLOBALS['TSFE']->page;
 
-//		$DV['data'][$sheet][$lKey];
-//		$DS['ROOT']['el'];
+		$DVarray = array();		//		$DV['data'][$sheet][$lKey];
+		$DSroot = $DS['ROOT']['el'];	//		$DS['ROOT']['el'];
 
-		$DVarray = array();
-		$DSroot = $DS['ROOT']['el'];
+		// Prepare inheritance resolution (top-down, not bottom-up)
+		$I = -1;
+		foreach ($rootLine as $pRec) {
+			$I++;
 
-		// Prepare inheritance resolution
-		foreach ($GLOBALS['TSFE']->tmpl->rootLine as $pRec) {
+			/* search for identical DSs (that can even be files) */
 			if (!$pRec['tx_templavoila_ds'] ||
 			    ($pRec['tx_templavoila_ds'] == $srcPointer)) {
 			    	if ($pRec['uid'] == $pageRecord['uid'])
@@ -419,27 +435,105 @@ class tx_templavoila_pi1 extends tslib_pibase {
 					$data = t3lib_div::xml2array($row['tx_templavoila_flex']);
 
 					if (is_array($data['data'][$sheet][$lKey])) {
-						$DVarray[] = &$data['data'][$sheet][$lKey];
+						$DVarray[$I] = &$data['data'][$sheet][$lKey];
 					}
 				}
 			}
+			/* stop on first non-matching DS (it doesn't matter if the same DS
+			 * continues afterwards like DS1->DS1->DS2->DS1)
+			 */
+			else
+				break;
 		}
-
-		$DVarray = array_reverse($DVarray);
 
 	//	echo '<h1>DVarray before</h1>';
 	//	echo '<pre>'; print_r($DVarray); echo '</pre>';
 
-		if (count($DVarray) > 1)
-			$this->mergeDataValues_traverse($srcPointer, $sheet, $lKey, $DVarray, $DSroot);
+		if (count($DVarray) > 1) {
+			/* array holding a boolean map to indicate which part of the rootline the inheritance covers */
+			$Imap = array();
+			/* array holding tags which indicate special involvement in the rendering of this page */
+			$Itags = array();
+
+			/* do the inheritance */
+			$this->mergeDataValues_traverse($srcPointer, $sheet, $lKey, $DVarray, $DSroot, $Imap, $Itags);
+
+			/* if we did fetch values of other root-line levels ... */
+			if (count($Imap) > 1) {
+				/* find the lowest laying page involved, everything
+				 * between us and that page is involved in inheritance
+				 * and must be recheced if they are changed
+				 */
+				$Imax = 0;
+				foreach ($Imap as $idx => $bool)
+					$Imax = max($Imax, $idx);
+
+				/* ... register the uids of the pages of the root-line we fetched values from */
+				$I = -1;
+				foreach ($rootLine as $pRec) {
+					$I++;
+
+					/* register this page for cache verification */
+			    		if ($pRec['uid'] != $pageRecord['uid']) {
+			    			/* double-id check through 'key' */
+						$Itags['pageId_' . $pRec['uid']] = true;
+					}
+
+					/* this was the last level, everything below is safe to be changed */
+					if ($I == $Imax)
+						break;
+				}
+			}
+
+			/* mark this current page to use those IDs in addition, if the clear-cache indicated
+			 * clearing all pages which are tagged with that page-uid, this page will be cleared too
+			 */
+			if (count($Itags) > 0) {
+				$GLOBALS['TSFE']->addCacheTags(array_keys($Itags));
+			}
+		}
 
 	//	echo '<h1>DVarray after</h1>';
 	//	echo '<pre>'; print_r($DVarray); echo '</pre>';
 
-		if (count($DVarray) > 0)
+		if (count($DVarray) > 0) {
 			return $DVarray[0];
+		}
 
 		return array();
+	}
+
+	function mergeDataValues_generateTag($vals, $TCEconf, &$Itags) {
+		/* we want array, but we may accept comma-strings */
+		if (!is_array($vals))
+			$vals = array_filter(explode(',', $vals));
+
+		/* search the record-table */
+		$allowed = explode(',', $TCEconf['allowed']);
+		foreach ($vals as $uid) {
+			$table = $allowed[0];
+
+			/* this is an entry of the kind 'tt_content_46' */
+			if (!intval($uid)) {
+				$table = '';
+				foreach ($allowed as $tbl) {
+					if (strpos($uid, $tbl . '_') === 0) {
+						$table = $tbl;
+						$uid = str_replace($tbl . '_', $uid);
+					}
+				}
+			}
+
+			// This follows the logic established in "tcemain"::clear_cache():
+			// For other tables than "pages", delete cache for the records "parent page".
+			if ($table) {
+				if (($pid = intval($this->getPID($table, $uid)))) {
+			    		/* double-id check through 'key' */
+					$Itags['pageId_' . $pid] = true;
+				//	echo $table . ':' . $uid . ' -> ' . $pid . '<br />';
+				}
+			}
+		}
 	}
 
 	/**
@@ -454,7 +548,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 	 * @param	[type]		$xpath: ...
 	 * @return	void
 	 */
-	function mergeDataValues_traverse($srcPointer, $sheet, $lKey, $DVarray, $DS) {
+	function mergeDataValues_traverse($srcPointer, $sheet, $lKey, &$DVarray, $DS, &$Imap, &$Itags) {
 		if (is_array($DS)) {
 			foreach ($DS as $key => $val) {
 				// Array/Section:
@@ -478,11 +572,17 @@ class tx_templavoila_pi1 extends tslib_pibase {
 										 *         [el] =>
 										 *     )
 										 */
-										foreach ($DVarray as $DV) {
+										foreach ($DVarray as $idx => $DV) {
 											if (is_array($DV[$key])) {
 												if (is_array($DV[$key]['el']) && count($DV[$key]['el'])) {
-													if (!$v['el']) {
-														$v['el'] = $DV[$key]['el'];
+													/* we go on untill the first stopper has been found
+													 * then we bail out of the tree
+													 */
+													if (empty($v['el']) && !empty($DV[$key]['el'])) {
+														  $v['el']  =         $DV[$key]['el'];
+
+														/* mark this rootline-level */
+														$Imap[$idx] = true;
 													}
 												}
 											}
@@ -498,7 +598,10 @@ class tx_templavoila_pi1 extends tslib_pibase {
 										 *         [el] =>
 										 *     )
 										 */
-										foreach ($DVarray as $DV) {
+										foreach ($DVarray as $idx => $DV) {
+											/* mark this rootline-level */
+											$Imap[$idx] = true;
+
 											if (is_array($DV[$key])) {
 												if (is_array($DV[$key]['el']) && count($DV[$key]['el'])) {
 													/* the merge is from low-tree to hi-tree,
@@ -532,10 +635,10 @@ class tx_templavoila_pi1 extends tslib_pibase {
 						//	}
 						} else {
 							$DVa = array();
-							foreach ($DVarray as &$DV)
-								$DVa[] = &$DV[$key]['el'];
+							foreach ($DVarray as $idx => &$DV)
+								$DVa[$idx] = &$DV[$key]['el'];
 
-							$this->mergeDataValues_traverse($srcPointer, $sheet, $lKey, $DVa, $DS[$key]['el']);
+							$this->mergeDataValues_traverse($srcPointer, $sheet, $lKey, $DVa, $DS[$key]['el'], $Imap, $Itags);
 						}
 					}
 				}
@@ -554,11 +657,28 @@ class tx_templavoila_pi1 extends tslib_pibase {
 								 *         [vDEF] =>
 								 *     )
 								 */
-								foreach ($DVarray as $DV) {
+								foreach ($DVarray as $idx => $DV) {
 									if (is_array($DV[$key])) {
 										foreach ($DV[$key] as $vKey => $vVal) {
-											if (!$v[$vKey]) {
-												$v[$vKey] = $vVal;
+											/* we go on untill the first stopper has been found
+											 * then we bail out of the tree
+											 */
+											if (empty($v[$vKey]) && !empty($vVal)) {
+												  $v[$vKey]  =         $vVal;
+
+												if (($DS[$key]['TCEforms']['config']['type'] == 'group') ||
+												    ($DS[$key]['TCEforms']['config']['type'] == 'select')) {
+											//	if ($DS[$key]['TCEforms']['config']['internal_type'] == 'db') {	???
+											//	if ($DS[$key]['TCEforms']['config']['allowed'] == 'tt_content') {	???
+												//	<internal_type>db</internal_type>
+												//	<allowed>tt_content</allowed>
+
+													/* register dependency */
+													$this->mergeDataValues_generateTag($vVal, $DS[$key]['TCEforms']['config'], $Itags);
+												}
+
+												/* mark this rootline-level */
+												$Imap[$idx] = true;
 											}
 										}
 									}
@@ -574,25 +694,39 @@ class tx_templavoila_pi1 extends tslib_pibase {
 								 *         [vDEF] =>
 								 *     )
 								 */
-								foreach ($DVarray as $DV) {
+								foreach ($DVarray as $idx => $DV) {
+									/* mark this rootline-level */
+									$Imap[$idx] = true;
+
 									if (is_array($DV[$key])) {
 										foreach ($DV[$key] as $vKey => $vVal) {
 											/* the merge is from low-tree to hi-tree,
 											 * sorting of entry is basically by "level-depth"
 											 */
-											if ($DS[$key]['TCEforms']['config']['type'] == 'group') {
+											if (($DS[$key]['TCEforms']['config']['type'] == 'group') ||
+											    ($DS[$key]['TCEforms']['config']['type'] == 'select')) {
+										//	if ($DS[$key]['TCEforms']['config']['internal_type'] == 'db') {	???
+										//	if ($DS[$key]['TCEforms']['config']['allowed'] == 'tt_content') {	???
+											//	<internal_type>db</internal_type>
+											//	<allowed>tt_content</allowed>
+
 											//	maxitems ???
 
+												$old_vals = array_filter(explode(',', $v[$vKey]));
+												$new_vals = array_filter(explode(',', $vVal));
 
 												$v[$vKey] = implode(',',
-													array_merge(
-														explode(',', $vVal),
-														explode(',', $v[$vKey])
-													)
+													array_filter(array_merge(
+														$new_vals,
+														$old_vals
+													))
 												);
-											}
-											else
+
+												/* register dependency */
+												$this->mergeDataValues_generateTag($new_vals, $DS[$key]['TCEforms']['config'], $Itags);
+											} else {
 												$v[$vKey] = $vVal . $v[$vKey];
+											}
 										}
 									}
 								}
