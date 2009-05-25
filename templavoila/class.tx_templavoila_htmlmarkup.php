@@ -198,7 +198,6 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 	// INTERNAL dynamic
 	var $htmlParse = '';		// Will contain the HTML-parser object. (See init())
 	var $backPath = '';		// Will contain the backend back-path which is necessary when marking-up the code in order to fix all media paths.
-	var $gnyfPath = '';		// Will contain the path to the tag-images ("gnyfs")
 	var $gnyfStyle = '';		// will contain style-part for gnyf images. (see init())
 	var $gnyfImgAdd = '';		// Eg. 	onclick="return parent.mod.updPath('###PATH###');"
 	var $pathPrefix='';		// Prefix for the path returned to the mod frame when tag image is clicked.
@@ -225,7 +224,10 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 
 		$this->init();
 		$this->backPath = $backPath;
-		$this->gnyfPath = t3lib_div::resolveBackPath($backPath . t3lib_extMgm::extRelPath('templavoila'));
+
+		/* build primary cache for icon-images */
+		foreach ($this->tags as $tag => &$conf)
+			$conf['icon'] = t3lib_iconWorks::skinImg($this->backPath, t3lib_extMgm::extRelPath('templavoila') . 'res/tags/' . $tag . '.gif', 'height="17"') . ' alt="" border="0"';
 
 		list($tagList_elements, $tagList_single) = $this->splitTagTypes($showTags);
 
@@ -843,7 +845,7 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 	 * @param	[type]		$content: ...
 	 * @return	[type]		...
 	 */
-	function setTagsFromXML($content)	{
+	function setTagsFromXML($content) {
 		$parser = xml_parser_create();
 		$vals = array();
 		$index = array();
@@ -852,11 +854,12 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 		xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 0);
 		xml_parse_into_struct($parser, $content, $vals, $index);
 
-		if (xml_get_error_code($parser))	return 'Line '.xml_get_current_line_number($parser).': '.xml_error_string(xml_get_error_code($parser));
+		if (xml_get_error_code($parser))
+			return 'Line '.xml_get_current_line_number($parser).': '.xml_error_string(xml_get_error_code($parser));
 		xml_parser_free($parser);
 
 		$this->tags = $index;
-		foreach($index as $idx => $value)	{
+		foreach($index as $idx => $value) {
 			$this->tags[$idx] = array();
 		}
 
@@ -1264,22 +1267,23 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 	 * @param	boolean		If set, then the line will be formatted in color as a "value" (means outside of the tag which might otherwise be what is shown)
 	 * @return	string		Formatted input.
 	 */
-	function checkboxDisplay($str,$recursion,$path,$gnyf='',$valueStr=0)	{
+	function checkboxDisplay($str, $recursion, $path, $gnyf = '', $valueStr = 0) {
 		static $rows = 0;
 
-		if ($valueStr)	{
+		if ($valueStr) {
 			return trim($str) ? '
 				<tr class="bgColor4">
-					<td>&nbsp;</td>
-					<td>&nbsp;</td>
-					<td>'.$this->passthroughHTMLcontent(trim($str),'','source').'</td>
+					<td align="center">&nbsp;</td>
+					<td align="center">&nbsp;</td>
+					<td>' . $this->passthroughHTMLcontent(trim($str), '', 'source') . '</td>
 				</tr>' : '';
 		}
+
 		return '
 				<tr class="bgColor' . ($rows++ % 2 == 0 ? '4' : '6') . '">
-					<td><input type="checkbox" name="checkboxElement[]" value="'.$path.'"'.(in_array($path,$this->checkboxPathsSet)?' checked="checked"':'').' /></td>
-					<td>'.$gnyf.'</td>
-					<td><pre>'.trim(htmlspecialchars($str)).'</pre></td>
+					<td align="center"><input type="checkbox" name="checkboxElement[]" value="' . $path . '"' . (in_array($path,$this->checkboxPathsSet) ? ' checked="checked"' : '') . ' /></td>
+					<td align="center">' . $gnyf . '</td>
+					<td><pre>' . trim(htmlspecialchars($str)) . '</pre></td>
 				</tr>';
 	}
 
@@ -1324,10 +1328,11 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 	function getGnyf($firstTagName, $path, $title) {
 		if (!$this->onlyElements || t3lib_div::inList($this->onlyElements, $firstTagName)) {
 			$onclick = str_replace('###PATH###', $this->pathPrefix . $path, $this->gnyfImgAdd);
+			$icon = $this->tags[$firstTagName]['icon'];
 
 			$gnyf  = $this->textGnyf
 				? '<span ' . $onclick . ' style="cursor:pointer; border: 1px solid blank; background-color: yellow;">[' . $firstTagName . ']</span>'
-				: '<img ' . $onclick . ' style="cursor:pointer;" src="' . $this->gnyfPath . 'html_tags/' . $firstTagName . '.gif" border="0" title="' . htmlspecialchars(t3lib_div::fixed_lgd_cs($title, -200)) . '"' . $this->gnyfStyle . ' alt="" />';
+				: '<img' . $icon . ' title="' . htmlspecialchars(t3lib_div::fixed_lgd_cs($title, -200)) . '"' . $this->gnyfStyle . ' alt="" />';
 			$gnyf .= $this->mode == 'explode'
 				? '<br />'
 				: '';
