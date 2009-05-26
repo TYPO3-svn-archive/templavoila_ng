@@ -415,7 +415,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 		$rootLine = array_reverse($GLOBALS['TSFE']->tmpl->rootLine);
 		$pageRecord = $GLOBALS['TSFE']->page;
 
-		$DVarray = array();		//		$DV['data'][$sheet][$lKey];
+		$DVarray = array(0 => array());	//		$DV['data'][$sheet][$lKey];
 		$DSroot = $DS['ROOT']['el'];	//		$DS['ROOT']['el'];
 
 		// Prepare inheritance resolution (top-down, not bottom-up)
