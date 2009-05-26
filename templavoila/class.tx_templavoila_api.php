@@ -1533,6 +1533,7 @@ class tx_templavoila_api {
 				$dsel = $map[$fieldKey];
 
 				$previewData[$fieldPath] = array(
+					'templavoila' => $fieldData['tx_templavoila'],
 					'title'       => $fieldData['tx_templavoila']['title'],
 					'inheritance' => $fieldData['tx_templavoila']['inheritance'],
 					'TCEforms'    => $fieldData['TCEforms'],
@@ -1583,7 +1584,7 @@ class tx_templavoila_api {
 					}
 			}
 			// If generally there are non-container fields, register them:
-			elseif ($fieldData['type']!='array' && $fieldData['TCEforms']['config']) {
+			elseif ($fieldData['type'] != 'array' && $fieldData['TCEforms']['config']) {
 				// contentFields->XPath
 				$contentFields[] = $fieldPath;
 			}
@@ -1664,9 +1665,9 @@ class tx_templavoila_api {
 				$tree['sub'][$sheetKey] = array();
 				$tree['contentFields'][$sheetKey] = array();
 				$tree['meta'][$sheetKey] = array(
-					'title' => (is_array($sheetData) && $sheetData['ROOT']['TCEforms']['sheetTitle'] ? $LANG->sL($sheetData['ROOT']['TCEforms']['sheetTitle']) : ''),
-					'description' => (is_array($sheetData) && $sheetData['ROOT']['TCEforms']['sheetDescription'] ? $LANG->sL($sheetData['ROOT']['TCEforms']['sheetDescription']) : ''),
-					'short' => (is_array($sheetData) && $sheetData['ROOT']['TCEforms']['sheetShortDescr'] ? $LANG->sL($sheetData['ROOT']['TCEforms']['sheetShortDescr']) : ''),
+					'title'		=> (is_array($sheetData) && $sheetData['ROOT']['TCEforms']['sheetTitle'      ] ? $LANG->sL($sheetData['ROOT']['TCEforms']['sheetTitle'      ]) : ''),
+					'description'	=> (is_array($sheetData) && $sheetData['ROOT']['TCEforms']['sheetDescription'] ? $LANG->sL($sheetData['ROOT']['TCEforms']['sheetDescription']) : ''),
+					'short'		=> (is_array($sheetData) && $sheetData['ROOT']['TCEforms']['sheetShortDescr' ] ? $LANG->sL($sheetData['ROOT']['TCEforms']['sheetShortDescr' ]) : ''),
 				);
 
 				// Traverse the sheet's elements:

@@ -932,8 +932,8 @@ table.typo3-dyntabmenu td.disabled:hover {
 		$langChildren = intval($elementContentTreeArr['ds_meta']['langChildren']);
 		$langDisable  = intval($elementContentTreeArr['ds_meta']['langDisable']);
 
-		$lKey = $langDisable ? 'lDEF' : ($langChildren ? 'lDEF' : 'l'.$languageKey);
-		$vKey = $langDisable ? 'vDEF' : ($langChildren ? 'v'.$languageKey : 'vDEF');
+		$lKey = $langDisable ? 'lDEF' : ($langChildren ? 'lDEF' : 'l' . $languageKey);
+		$vKey = $langDisable ? 'vDEF' : ($langChildren ? 'v' . $languageKey : 'vDEF');
 
 		// gets the layout
 		$beTemplate = $elementContentTreeArr['ds_meta']['beLayout'];
@@ -1231,8 +1231,8 @@ table.typo3-dyntabmenu td.disabled:hover {
 		$langChildren = intval($elementContentTreeArr['ds_meta']['langChildren']);
 		$langDisable  = intval($elementContentTreeArr['ds_meta']['langDisable']);
 
-		$lKey = $langDisable ? 'lDEF' : ($langChildren ? 'lDEF' : 'l'.$languageKey);
-		$vKey = $langDisable ? 'vDEF' : ($langChildren ? 'v'.$languageKey : 'vDEF');
+		$lKey = $langDisable ? 'lDEF' : ($langChildren ? 'lDEF' : 'l' . $languageKey);
+		$vKey = $langDisable ? 'vDEF' : ($langChildren ? 'v' . $languageKey : 'vDEF');
 
 		if (!is_array($elementContentTreeArr['previewData']['sheets'][$sheet]))
 			return '';
@@ -1313,6 +1313,11 @@ table.typo3-dyntabmenu td.disabled:hover {
 					$cellContent .=
 						'<strong>' . $TCEformsLabel . '</strong><br /> ' .
 						$this->link_edit($edit2 . '&nbsp;' . htmlspecialchars(t3lib_div::fixed_lgd_cs(strip_tags($fieldValue), 200)), $table, $uid) . '<br />';
+				} else if ($fieldData['templavoila']['eType'] == 'TypoScriptObject') {
+					// Render for everything else:
+					$cellContent .=
+						'<strong>' . $TCEformsLabel . '</strong> <em>[' . $fieldData['templavoila']['TypoScriptObjPath'] . ']</em>' .
+						'<p>' . $fieldData['templavoila']['TypoScriptObjDesc'] . '</p>';
 				} else {
 					// Render for everything else:
 					$cellContent .=
