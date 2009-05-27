@@ -1547,7 +1547,7 @@ class tx_templavoila_api {
 					'section'     => $fieldData['section'],
 					'data'        => array(),
 					'subElements' => array(),
-					'isMapped'    => is_array($dsel),
+					'isMapped'    => is_array($dsel) && !empty($dsel['MAP_EL']),
 					'isJammed'    => $this->api_getFFvalue($data, $fieldPath, $sKey, 'lDEF', '_JAMM')
 				);
 
