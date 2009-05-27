@@ -1332,7 +1332,7 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 
 			$gnyf  = $this->textGnyf
 				? '<span ' . $onclick . ' style="cursor:pointer; border: 1px solid blank; background-color: yellow;">[' . $firstTagName . ']</span>'
-				: '<img' . $icon . ' title="' . htmlspecialchars(t3lib_div::fixed_lgd_cs($title, -200)) . '"' . $this->gnyfStyle . ' alt="" />';
+				: '<img' . $icon . $onclick . ' style="cursor:pointer;" title="' . htmlspecialchars(t3lib_div::fixed_lgd_cs($title, -200)) . '"' . $this->gnyfStyle . ' alt="" />';
 			$gnyf .= $this->mode == 'explode'
 				? '<br />'
 				: '';
