@@ -378,8 +378,8 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 				}
 
 				function setHighlight(id) {	//
-					if (top.fsMod.recentIds["web"] == id)
-						return;
+				//	if (top.fsMod.recentIds["web"] == id)
+				//		return;
 
 					top.fsMod.recentIds["web"] = id;
 					top.fsMod.navFrameHighlightedID["web"] = "pages" + id + "_" + top.fsMod.currentBank;	// For highlighting
@@ -999,7 +999,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 					$cellContent = $this->render_framework_subElement($singleView, $elementContentTreeArr, $languageKey, $sheet, $fieldID);
 
 					// Create flexform pointer pointing to "before the first sub element":
-					$groupElementPointer = array (
+					$groupElementPointer = array(
 						'table' => $elementContentTreeArr['el']['table'],
 						'uid'   => $elementContentTreeArr['el']['uid'],
 						'sheet' => $sheet,
@@ -1033,7 +1033,12 @@ table.typo3-dyntabmenu td.disabled:hover {
 									$GLOBALS['LANG']->sL($fieldContent['meta']['title'], 1) . '
 								</div>
 								<div style="float: right;" class="nobr">' .
-									($fieldData['inheritance'] ? '<label><span>jamm inheritance</span> <input type="checkbox" /></label>' : '') .
+									($fieldData['inheritance'] ? '
+									<label>
+										<span>jamm inheritance</span>
+										<input type="checkbox" ' . ($fieldData['isJammed'] ? 'checked="checked" ' : '') . $this->cbox_jammswitch($groupElementPointer) . ' />
+									</label>
+									' : '') .
 									$this->icon_unlink($groupElementPointer) . '
 								</div>
 							</th>';
@@ -1971,6 +1976,13 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 *
 	 *******************************************/
 
+	/**
+	 * [Describe function...]
+	 *
+	 * @param	[type]		$label: ...
+	 * @param	[type]		$parentPointer: ...
+	 * @return	[type]		...
+	 */
 	function icon_nbp($el) {
 		$controls = '';
 
@@ -2122,7 +2134,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 			     $table != 'pages' && ($this->calcPerms & 16)) &&
 				(!$this->translatorMode || $forced))	{
 					if ($table == "pages" && $this->currentLanguageUid) {
-						return '<a href="'.$this->baseScript . $this->link_getParameters() . '&amp;editPageLanguageOverlay=' . $this->currentLanguageUid . '">' . $label . '</a>';
+						return '<a href="' . $this->baseScript . $this->link_getParameters() . '&amp;editPageLanguageOverlay=' . $this->currentLanguageUid . '">' . $label . '</a>';
 					} else {
 						$onClick = t3lib_BEfunc::editOnClick('&edit[' . $table . '][' . $uid . ']=edit', $this->doc->backPath);
 						return '<a href="#" onclick="' . htmlspecialchars($onClick) . '">' . $label . '</a>';
@@ -2197,7 +2209,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 	function link_new($label, $parentPointer) {
 		$parameters =
 			$this->link_getParameters() .
-			'&amp;parentRecord=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer));
+			'&amp;parentRecord=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '&amp;returnUrl=' . rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI'));
 
 		return '<a href="' . $this->wizScript . $parameters . '">' . $label . '</a>';
 	}
@@ -2214,7 +2226,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 */
 	function icon_unlink($unlinkPointer) {
 
-		$unlinkIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'res/link_delete.png', '') . ' title="'.$GLOBALS['LANG']->getLL('unlinkRecord') . '" border="0" alt="" />';
+		$unlinkIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'res/link_delete.png', '') . ' title="' . $GLOBALS['LANG']->getLL('unlinkRecord') . '" border="0" alt="" />';
 
 		return $this->link_unlink($unlinkIcon, $unlinkPointer);
 	}
@@ -2298,6 +2310,54 @@ table.typo3-dyntabmenu td.disabled:hover {
 	function link_makeLocal($label, $makeLocalPointer) {
 
 		return '<a href="' . $this->baseScript . $this->link_getParameters() . '&amp;makeLocalRecord=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($makeLocalPointer)) . '" onclick="' . htmlspecialchars('return confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('makeLocalMsg')) . ');') . '">' . $label . '</a>';
+	}
+
+	/**
+	 * [Describe function...]
+	 *
+	 * @param	[type]		$label: ...
+	 * @param	[type]		$parentPointer: ...
+	 * @return	[type]		...
+	 */
+	function cbox_jamm($parentPointer) {
+		$parentPointer['vLang'] = '_JAMM';
+
+		return ' onclick="sortable_exec(\'' . $this->baseScript . $this->link_getParameters() . '&amp;ajaxJammField=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '\');"';
+//		return ' onclick="jumpToUrl(\'' . $this->baseScript . $this->link_getParameters() . '&amp;ajaxJammField=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '\');"';
+	}
+
+	/**
+	 * [Describe function...]
+	 *
+	 * @param	[type]		$label: ...
+	 * @param	[type]		$parentPointer: ...
+	 * @return	[type]		...
+	 */
+	function cbox_unjamm($parentPointer) {
+		$parentPointer['vLang'] = '_JAMM';
+
+		return ' onclick="sortable_exec(\'' . $this->baseScript . $this->link_getParameters() . '&amp;ajaxUnjammField=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '\');"';
+//		return ' onclick="jumpToUrl(\'' . $this->baseScript . $this->link_getParameters() . '&amp;ajaxUnjammField=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '\');"';
+	}
+
+	/**
+	 * [Describe function...]
+	 *
+	 * @param	[type]		$label: ...
+	 * @param	[type]		$parentPointer: ...
+	 * @return	[type]		...
+	 */
+	function cbox_jammswitch($parentPointer) {
+		$parentPointer['vLang'] = '_JAMM';
+
+		return ' onclick="
+			if (this.checked)
+				sortable_exec(\'' . $this->baseScript . $this->link_getParameters() . '&amp;ajaxJammField=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '\');
+			else
+				sortable_exec(\'' . $this->baseScript . $this->link_getParameters() . '&amp;ajaxUnjammField=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '\');
+			"';
+
+//		return 'onclick="jumpToUrl(\'' . $this->baseScript . $this->link_getParameters() . '&amp;ajaxJammField=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '\');"';
 	}
 
 	/**
@@ -2511,11 +2571,13 @@ table.typo3-dyntabmenu td.disabled:hover {
 	function handleIncomingAjaxCommands() {
 		$possibleCommands = array(
 			'ajaxClearCache',
-		//	'createNewRecord',
+		//	'ajaxCreateNewRecord',
 			'ajaxUnlinkRecord',
 			'ajaxDeleteRecord',
 			'ajaxPasteRecord',
-		//	'makeLocalRecord'
+		//	'ajaxMakeLocalRecord',
+			'ajaxJammField',
+			'ajaxUnjammField'
 		);
 
 		// calls from drag and drop
@@ -2555,6 +2617,78 @@ table.typo3-dyntabmenu td.disabled:hover {
 						$destinationPointer['position'] = 1 + $destinationPointer['position'];
 
 						$GLOBALS['BE_USER']->setAndSaveSessionData('lastPasteRecord', $this->apiObj->flexform_getStringFromPointer($destinationPointer));
+						exit;
+
+					case 'ajaxJammField':
+						/* revert selector-api valid flex-string to original one */
+						$jammPointer = $this->apiObj->flexform_getPointerFromString($this->revertID($commandParameters));
+
+						{
+							$jammPointer['vLang'] = '_JAMM';
+
+							$parentRecord = t3lib_BEfunc::getRecordWSOL($jammPointer['table'], $jammPointer['uid'], 'uid,pid,tx_templavoila_flex');
+							if (!is_array ($parentRecord)) return FALSE;
+
+							$flexformXML = $parentRecord['tx_templavoila_flex'];
+							$flexformPointer = $jammPointer;
+
+							// Getting value of the field containing the relations:
+							$flexformXMLArr = t3lib_div::xml2array($flexformXML);
+							if (!is_array ($flexformXMLArr) && strlen($flexformXML) > 0) {
+								if ($this->debug) t3lib_div::devLog ('flexform_getReferencesToElementsFromXML: flexformXML seems to be no valid XML. Parser error message: '.$flexformXMLArr, 'TemplaVoila API', 2, $flexformXML);
+								return FALSE;
+							}
+
+							$dataArr = array();
+							$uid = t3lib_beFunc::wsMapId($flexformPointer['table'], $flexformPointer['uid']);
+
+							$this->apiObj->api_setFFvalue($dataArr[$flexformPointer['table']][$uid]['tx_templavoila_flex'], $flexformPointer['field'], '1', $flexformPointer['sheet'], $flexformPointer['sLang'], $flexformPointer['vLang']);
+
+							$flagWasSet = $this->apiObj->getTCEmainRunningFlag();
+							$this->apiObj->setTCEmainRunningFlag (TRUE);
+							$tce = t3lib_div::makeInstance('t3lib_TCEmain');
+							$tce->stripslashes_values = 0;
+							$tce->start($dataArr, array());
+							$tce->process_datamap();
+							if (!$flagWasSet) $this->apiObj->setTCEmainRunningFlag (FALSE);
+						}
+
+						exit;
+
+					case 'ajaxUnjammField':
+						/* revert selector-api valid flex-string to original one */
+						$unjammPointer = $this->apiObj->flexform_getPointerFromString($this->revertID($commandParameters));
+
+						{
+							$unjammPointer['vLang'] = '_JAMM';
+
+							$parentRecord = t3lib_BEfunc::getRecordWSOL($unjammPointer['table'], $unjammPointer['uid'], 'uid,pid,tx_templavoila_flex');
+							if (!is_array ($parentRecord)) return FALSE;
+
+							$flexformXML = $parentRecord['tx_templavoila_flex'];
+							$flexformPointer = $unjammPointer;
+
+							// Getting value of the field containing the relations:
+							$flexformXMLArr = t3lib_div::xml2array($flexformXML);
+							if (!is_array ($flexformXMLArr) && strlen($flexformXML) > 0) {
+								if ($this->debug) t3lib_div::devLog ('flexform_getReferencesToElementsFromXML: flexformXML seems to be no valid XML. Parser error message: '.$flexformXMLArr, 'TemplaVoila API', 2, $flexformXML);
+								return FALSE;
+							}
+
+							$dataArr = array();
+							$uid = t3lib_beFunc::wsMapId($flexformPointer['table'], $flexformPointer['uid']);
+
+							$this->apiObj->api_setFFvalue($dataArr[$flexformPointer['table']][$uid]['tx_templavoila_flex'], $flexformPointer['field'], '0', $flexformPointer['sheet'], $flexformPointer['sLang'], $flexformPointer['vLang']);
+
+							$flagWasSet = $this->apiObj->getTCEmainRunningFlag();
+							$this->apiObj->setTCEmainRunningFlag (TRUE);
+							$tce = t3lib_div::makeInstance('t3lib_TCEmain');
+							$tce->stripslashes_values = 0;
+							$tce->start($dataArr, array());
+							$tce->process_datamap();
+							if (!$flagWasSet) $this->apiObj->setTCEmainRunningFlag (FALSE);
+						}
+
 						exit;
 				}
 			}
@@ -3007,8 +3141,8 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 				}
 
 				function setHighlight(id) {	//
-					if (top.fsMod.recentIds["web"] == id)
-						return;
+				//	if (top.fsMod.recentIds["web"] == id)
+				//		return;
 
 					top.fsMod.recentIds["web"] = id;
 					top.fsMod.navFrameHighlightedID["web"] = "pages" + id + "_" + top.fsMod.currentBank;	// For highlighting

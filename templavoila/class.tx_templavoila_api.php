@@ -57,7 +57,7 @@
  *  525:     function deleteElement ($sourcePointer)
  *
  *              SECTION: Processing functions (protected)
- *  550:     function process ($mode, $sourcePointer, $destinationPointer = NULL, $onlyHandleReferences = FALSE)
+ *  550:     function process($mode, $sourcePointer, $destinationPointer = NULL, $onlyHandleReferences = FALSE)
  *  611:     function process_move ($sourcePointer, $destinationPointer, $sourceReferencesArr, $destinationReferencesArr, $sourceParentRecord, $destinationParentRecord, $elementRecord, $onlyHandleReferences)
  *  677:     function process_copy ($sourceElementUid, $destinationPointer, $destinationReferencesArr, $destinationParentRecord)
  *  711:     function process_copyRecursively ($sourceElementUid, $destinationPointer, $destinationReferencesArr, $destinationParentRecord)
@@ -79,7 +79,7 @@
  *              SECTION: Flexform helper functions (protected)
  * 1187:     function flexform_insertElementReferenceIntoList($currentReferencesArr, $position, $elementUid)
  * 1227:     function flexform_removeElementReferenceFromList($currentReferencesArr, $position)
- * 1249:     function flexform_storeElementReferencesListInRecord ($referencesArr, $destinationPointer)
+ * 1249:     function flexform_storeElementReferencesListInRecord($referencesArr, $destinationPointer)
  *
  *              SECTION: Data structure helper functions (public)
  * 1292:     function ds_getFieldNameByColumnPosition ($contextPageUid, $columnPosition)
@@ -385,7 +385,7 @@ class tx_templavoila_api {
 
 		$currentReferencesArr = $this->flexform_getElementReferencesFromXML ($parentRecord['tx_templavoila_flex'], $destinationPointer);
 		$newReferencesArr = $this->flexform_insertElementReferenceIntoList ($currentReferencesArr, $destinationPointer['position'], $uid);
-		$this->flexform_storeElementReferencesListInRecord ($newReferencesArr, $destinationPointer);
+		$this->flexform_storeElementReferencesListInRecord($newReferencesArr, $destinationPointer);
 
 		return TRUE;
 	}
@@ -401,7 +401,7 @@ class tx_templavoila_api {
 	 */
 	function moveElement ($sourcePointer, $destinationPointer) {
 		if ($this->debug) t3lib_div::devLog ('API: moveElement()', 'templavoila', 0, array ('sourcePointer' => $sourcePointer, 'destinationPointer' => $destinationPointer));
-		return $this->process ('move', $sourcePointer, $destinationPointer);
+		return $this->process('move', $sourcePointer, $destinationPointer);
 	}
 
 	/**
@@ -432,7 +432,7 @@ class tx_templavoila_api {
 	 */
 	function copyElement($sourcePointer, $destinationPointer, $copySubElements = TRUE) {
 		if ($this->debug) t3lib_div::devLog ('API: copyElement()', 'templavoila', 0, array('sourcePointer' => $sourcePointer, 'destinationPointer' => $destinationPointer, 'copySubElements' => $copySubElements));
-		return $this->process ($copySubElements ? 'copyrecursively' : 'copy', $sourcePointer, $destinationPointer);
+		return $this->process($copySubElements ? 'copyrecursively' : 'copy', $sourcePointer, $destinationPointer);
 	}
 
 	/**
@@ -470,7 +470,7 @@ class tx_templavoila_api {
 		$destinationPointer['position'] = -1;
 		$destinationPointer['_languageKey'] = $languageKey;
 
-		$newElementUid = $this->process ('localize', $sourcePointer, $destinationPointer);
+		$newElementUid = $this->process('localize', $sourcePointer, $destinationPointer);
 
 		return $newElementUid;
 	}
@@ -486,7 +486,7 @@ class tx_templavoila_api {
 	 */
 	function referenceElement ($sourcePointer, $destinationPointer) {
 		if ($this->debug) t3lib_div::devLog ('API: referenceElement()', 'templavoila', 0, array ('sourcePointer' => $sourcePointer, 'destinationPointer' => $destinationPointer));
-		return $this->process ('reference', $sourcePointer, $destinationPointer);
+		return $this->process('reference', $sourcePointer, $destinationPointer);
 	}
 
 	/**
@@ -507,7 +507,7 @@ class tx_templavoila_api {
 			'table' => 'tt_content',
 			'uid' => intval($uid)
 		);
-		return $this->process ('referencebyuid', $sourcePointer, $destinationPointer);
+		return $this->process('referencebyuid', $sourcePointer, $destinationPointer);
 	}
 
 	/**
@@ -519,7 +519,7 @@ class tx_templavoila_api {
 	 */
 	function unlinkElement ($sourcePointer) {
 		if ($this->debug) t3lib_div::devLog ('API: unlinkElement()', 'templavoila', 0, array ('sourcePointer' => $sourcePointer));
-		return $this->process ('unlink', $sourcePointer);
+		return $this->process('unlink', $sourcePointer);
 	}
 
 	/**
@@ -532,7 +532,7 @@ class tx_templavoila_api {
 	 */
 	function deleteElement ($sourcePointer) {
 		if ($this->debug) t3lib_div::devLog ('API: deleteElement()', 'templavoila', 0, array ('sourcePointer' => $sourcePointer));
-		return $this->process ('delete', $sourcePointer);
+		return $this->process('delete', $sourcePointer);
 	}
 
 
@@ -555,7 +555,7 @@ class tx_templavoila_api {
 	 * @return	mixed		TRUE or something else (depends on operation) if operation was successful, otherwise FALSE
 	 * @access protected
 	 */
-	function process ($mode, $sourcePointer, $destinationPointer = NULL, $onlyHandleReferences = FALSE) {
+	function process($mode, $sourcePointer, $destinationPointer = NULL, $onlyHandleReferences = FALSE) {
 
 			// Check and get all information about the source position:
 		if (!$sourcePointer = $this->flexform_getValidPointer ($sourcePointer)) return FALSE;
@@ -588,14 +588,14 @@ class tx_templavoila_api {
 		}
 
 		switch ($mode) {
-			case 'move' :			$result = $this->process_move ($sourcePointer, $destinationPointer, $sourceReferencesArr, $destinationReferencesArr, $sourceParentRecord, $destinationParentRecord, $sourceElementRecord, $onlyHandleReferences); break;
-			case 'copy':			$result = $this->process_copy ($sourceElementRecord['uid'], $destinationPointer, $destinationReferencesArr, $destinationParentRecord); break;
-			case 'copyrecursively':	$result = $this->process_copyRecursively ($sourceElementRecord['uid'], $destinationPointer, $destinationReferencesArr, $destinationParentRecord); break;
-			case 'localize':		$result = $this->process_localize ($sourceElementRecord['uid'], $destinationPointer, $destinationReferencesArr); break;
-			case 'reference':		$result = $this->process_reference ($destinationPointer, $destinationReferencesArr, $sourceElementRecord['uid']); break;
-			case 'referencebyuid':	$result = $this->process_reference ($destinationPointer, $destinationReferencesArr, $sourcePointer['uid']); break;
-			case 'unlink':			$result = $this->process_unlink ($sourcePointer, $sourceReferencesArr); break;
-			case 'delete':			$result = $this->process_delete ($sourcePointer, $sourceReferencesArr, $sourceElementRecord['uid']); break;
+			case 'move' :		$result = $this->process_move           ($sourcePointer, $destinationPointer, $sourceReferencesArr, $destinationReferencesArr, $sourceParentRecord, $destinationParentRecord, $sourceElementRecord, $onlyHandleReferences); break;
+			case 'copy':		$result = $this->process_copy           ($sourceElementRecord['uid'], $destinationPointer, $destinationReferencesArr, $destinationParentRecord); break;
+			case 'copyrecursively':	$result = $this->process_copyRecursively($sourceElementRecord['uid'], $destinationPointer, $destinationReferencesArr, $destinationParentRecord); break;
+			case 'localize':	$result = $this->process_localize       ($sourceElementRecord['uid'], $destinationPointer, $destinationReferencesArr); break;
+			case 'reference':	$result = $this->process_reference      ($destinationPointer, $destinationReferencesArr, $sourceElementRecord['uid']); break;
+			case 'referencebyuid':	$result = $this->process_reference      ($destinationPointer, $destinationReferencesArr, $sourcePointer['uid']); break;
+			case 'unlink':		$result = $this->process_unlink         ($sourcePointer, $sourceReferencesArr); break;
+			case 'delete':		$result = $this->process_delete         ($sourcePointer, $sourceReferencesArr, $sourceElementRecord['uid']); break;
 		}
 
 		return $result;
@@ -620,13 +620,13 @@ class tx_templavoila_api {
 
 		$elementUid = $elementRecord['uid'];
 
-			// Move the element within the same parent element:
+		// Move the element within the same parent element:
 		$elementsAreWithinTheSameParentElement = (
 			$sourcePointer['table'] == $destinationPointer['table'] &&
 			$sourcePointer['uid'] == $destinationPointer['uid']
 		);
-		if ($elementsAreWithinTheSameParentElement) {
 
+		if ($elementsAreWithinTheSameParentElement) {
 			$elementsAreWithinTheSameParentField = (
 				$sourcePointer['sheet'] == $destinationPointer['sheet'] &&
 				$sourcePointer['sLang'] == $destinationPointer['sLang'] &&
@@ -638,34 +638,38 @@ class tx_templavoila_api {
 				$newPosition = ($sourcePointer['position'] < $destinationPointer['position']) ? $destinationPointer['position']-1 : $destinationPointer['position'];
 				$newReferencesArr = $this->flexform_removeElementReferenceFromList ($sourceReferencesArr, $sourcePointer['position']);
 				$newReferencesArr = $this->flexform_insertElementReferenceIntoList ($newReferencesArr, $newPosition, $elementUid);
-				$this->flexform_storeElementReferencesListInRecord ($newReferencesArr, $destinationPointer);
+				$this->flexform_storeElementReferencesListInRecord($newReferencesArr, $destinationPointer);
 			} else {
 				$sourceParentReferencesArr = $this->flexform_removeElementReferenceFromList ($sourceReferencesArr, $sourcePointer['position']);
-				$this->flexform_storeElementReferencesListInRecord ($sourceParentReferencesArr, $sourcePointer);
+				$this->flexform_storeElementReferencesListInRecord($sourceParentReferencesArr, $sourcePointer);
 				$destinationParentReferencesArr = $this->flexform_insertElementReferenceIntoList ($destinationReferencesArr, $destinationPointer['position'], $elementUid);
-				$this->flexform_storeElementReferencesListInRecord ($destinationParentReferencesArr, $destinationPointer);
+				$this->flexform_storeElementReferencesListInRecord($destinationParentReferencesArr, $destinationPointer);
 			}
 
 		} else {
-				// Move the element to a different parent element:
+			// Move the element to a different parent element:
 			$newSourceReferencesArr = $this->flexform_removeElementReferenceFromList ($sourceReferencesArr, $sourcePointer['position']);
 			$newDestinationReferencesArr = $this->flexform_insertElementReferenceIntoList ($destinationReferencesArr, $destinationPointer['position'], $elementUid);
 
-			$this->flexform_storeElementReferencesListInRecord ($newSourceReferencesArr, $sourcePointer);
-			$this->flexform_storeElementReferencesListInRecord ($newDestinationReferencesArr, $destinationPointer);
+			$this->flexform_storeElementReferencesListInRecord($newSourceReferencesArr, $sourcePointer);
+			$this->flexform_storeElementReferencesListInRecord($newDestinationReferencesArr, $destinationPointer);
 
-				// Make sure the PID is changed as well so the element belongs to the page where it is moved to:
+			// Make sure the PID is changed as well so the element belongs to the page where it is moved to:
 		 	if (!$onlyHandleReferences && $elementRecord['pid'] == $sourceParentRecord['uid']) {
 				$destinationPID = $destinationPointer['table'] == 'pages' ? $destinationParentRecord['uid'] : $destinationParentRecord['pid'];
 				$cmdArray = array();
 				$cmdArray['tt_content'][$elementUid]['move'] = $destinationPID;
+
 				$flagWasSet = $this->getTCEmainRunningFlag();
 				$this->setTCEmainRunningFlag (TRUE);
+
 				$tce = t3lib_div::makeInstance('t3lib_TCEmain');
 				$tce->stripslashes_values = 0;
-				$tce->start(array(),$cmdArray);
+				$tce->start(array(), $cmdArray);
 				$tce->process_cmdmap();
-				if (!$flagWasSet) $this->setTCEmainRunningFlag (FALSE);
+
+				if (!$flagWasSet)
+					$this->setTCEmainRunningFlag(FALSE);
 		 	}
 		}
 
@@ -700,7 +704,7 @@ class tx_templavoila_api {
 		if (!$flagWasSet) $this->setTCEmainRunningFlag (FALSE);
 
 		$newDestinationReferencesArr = $this->flexform_insertElementReferenceIntoList ($destinationReferencesArr, $destinationPointer['position'], $newElementUid);
-		$this->flexform_storeElementReferencesListInRecord ($newDestinationReferencesArr, $destinationPointer);
+		$this->flexform_storeElementReferencesListInRecord($newDestinationReferencesArr, $destinationPointer);
 
 		return $newElementUid;
 	}
@@ -741,7 +745,7 @@ class tx_templavoila_api {
 		$newElementUid = $tce->copyMappingArray_merged['tt_content'][$sourceElementUid];
 
 		$newDestinationReferencesArr = $this->flexform_insertElementReferenceIntoList ($destinationReferencesArr, $destinationPointer['position'], $newElementUid);
-		$this->flexform_storeElementReferencesListInRecord ($newDestinationReferencesArr, $destinationPointer);
+		$this->flexform_storeElementReferencesListInRecord($newDestinationReferencesArr, $destinationPointer);
 
 		return $newElementUid;
 	}
@@ -783,7 +787,7 @@ class tx_templavoila_api {
 		if (!$flagWasSet) $this->setTCEmainRunningFlag (FALSE);
 
 		$newDestinationReferencesArr = $this->flexform_insertElementReferenceIntoList ($destinationReferencesArr, $destinationPointer['position'], $newElementUid);
-		$this->flexform_storeElementReferencesListInRecord ($newDestinationReferencesArr, $destinationPointer);
+		$this->flexform_storeElementReferencesListInRecord($newDestinationReferencesArr, $destinationPointer);
 
 		return $newElementUid;
 	}
@@ -800,7 +804,7 @@ class tx_templavoila_api {
 	function process_reference ($destinationPointer, $destinationReferencesArr, $elementUid) {
 
 		$newDestinationReferencesArr = $this->flexform_insertElementReferenceIntoList ($destinationReferencesArr, $destinationPointer['position'], $elementUid);
-		$this->flexform_storeElementReferencesListInRecord ($newDestinationReferencesArr, $destinationPointer);
+		$this->flexform_storeElementReferencesListInRecord($newDestinationReferencesArr, $destinationPointer);
 
 		return TRUE;
 	}
@@ -816,7 +820,7 @@ class tx_templavoila_api {
 	function process_unlink ($sourcePointer, $sourceReferencesArr) {
 
 		$newSourceReferencesArr = $this->flexform_removeElementReferenceFromList ($sourceReferencesArr, $sourcePointer['position']);
-		$this->flexform_storeElementReferencesListInRecord ($newSourceReferencesArr, $sourcePointer);
+		$this->flexform_storeElementReferencesListInRecord($newSourceReferencesArr, $sourcePointer);
 
 		return TRUE;
 	}
@@ -929,13 +933,13 @@ class tx_templavoila_api {
 			);
 		} else {
 			$flexformPointer = array (
-				'table' => $locationArr[0],
-				'uid' => $locationArr[1],
-				'sheet' => $locationArr[2],
-				'sLang' => $locationArr[3],
-				'field' => $locationArr[4],
-				'vLang' => $locationArr[5],
-				'position' => $locationArr[6],
+				'table'		 => $locationArr[0],
+				'uid'		 => $locationArr[1],
+				'sheet'		 => $locationArr[2],
+				'sLang'		 => $locationArr[3],
+				'field'		 => $locationArr[4],
+				'vLang'		 => $locationArr[5],
+				'position'	 => $locationArr[6],
 				'targetCheckUid' => $targetCheckArr[1],
 			);
 		}
@@ -964,7 +968,9 @@ class tx_templavoila_api {
 				$flexformPointer['sLang'],
 				$flexformPointer['field'],
 				$flexformPointer['vLang'],
-				$flexformPointer['position']));
+				$flexformPointer['position'])
+			);
+
 			if (isset ($flexformPointer['targetCheckUid'])) {
 				$flexformPointerString .= SEPARATOR_PARMG.'tt_content'.SEPARATOR_PARMS.$flexformPointer['targetCheckUid'];
 			}
@@ -1254,7 +1260,7 @@ class tx_templavoila_api {
 	 * @return	void
 	 * @access protected
 	 */
-	function flexform_storeElementReferencesListInRecord ($referencesArr, $destinationPointer) {
+	function flexform_storeElementReferencesListInRecord($referencesArr, $destinationPointer) {
 		if ($this->debug) t3lib_div::devLog ('API: flexform_storeElementReferencesListInRecord()', 'templavoila', 0, array ('referencesArr' => $referencesArr, 'destinationPointer' => $destinationPointer));
 
 		$dataArr = array();
@@ -1541,10 +1547,11 @@ class tx_templavoila_api {
 					'section'     => $fieldData['section'],
 					'data'        => array(),
 					'subElements' => array(),
-					'isMapped'    => is_array($dsel)
+					'isMapped'    => is_array($dsel),
+					'isJammed'    => $this->api_getFFvalue($data, $fieldPath, $sKey, 'lDEF', '_JAMM')
 				);
 
-				foreach($lKeys as $lKey) {
+				foreach ($lKeys as $lKey) {
 					foreach($vKeys as $vKey) {
 						$previewData[$fieldPath]['data'][$lKey][$vKey] = $this->api_getFFvalue($data, $fieldPath, $sKey, $lKey, $vKey);
 					}

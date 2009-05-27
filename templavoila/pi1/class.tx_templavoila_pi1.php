@@ -651,6 +651,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 								break;
 							case TVDS_INHERITANCE_REPLACE:
 								$v = array();
+								$j = false;
 
 								/* [field_banner] => Array
 								 *     (
@@ -680,14 +681,23 @@ class tx_templavoila_pi1 extends tslib_pibase {
 												/* mark this rootline-level */
 												$Imap[$idx] = true;
 											}
+
+											/* we jamm on this level for this field */
+											if (($vKey == '_JAMM') && $vVal)
+												$j = true;
 										}
 									}
+
+									/* stop */
+									if ($j)
+										break;
 								}
 
 								$DVarray[0][$key] = $v;
 								break;
 							case TVDS_INHERITANCE_ACCUMULATE:
 								$v = array();
+								$j = false;
 
 								/* [field_banner] => Array
 								 *     (
@@ -727,8 +737,16 @@ class tx_templavoila_pi1 extends tslib_pibase {
 											} else {
 												$v[$vKey] = $vVal . $v[$vKey];
 											}
+
+											/* we jamm on this level for this field */
+											if (($vKey == '_JAMM') && $vVal)
+												$j = true;
 										}
 									}
+
+									/* stop */
+									if ($j)
+										break;
 								}
 
 								$DVarray[0][$key] = $v;

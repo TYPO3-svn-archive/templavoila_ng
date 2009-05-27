@@ -17,6 +17,11 @@ var sortable_parameters = {
 };
 
 /* -------------------------------------------------------------------------- */
+function sortable_exec(url) {
+	new Ajax.Request(url);
+}
+
+/* -------------------------------------------------------------------------- */
 function sortable_removeCallBack(obj) {
 	var el = obj.element;
 

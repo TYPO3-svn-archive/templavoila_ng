@@ -160,8 +160,8 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 				}
 
 				function setHighlight(id) {	//
-					if (top.fsMod.recentIds["web"] == id)
-						return;
+				//	if (top.fsMod.recentIds["web"] == id)
+				//		return;
 
 					top.fsMod.recentIds["web"] = id;
 					top.fsMod.navFrameHighlightedID["web"] = "pages" + id + "_" + top.fsMod.currentBank;	// For highlighting
@@ -1020,8 +1020,8 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 				}
 
 				function setHighlight(id) {	//
-					if (top.fsMod.recentIds["web"] == id)
-						return;
+				//	if (top.fsMod.recentIds["web"] == id)
+				//		return;
 
 					top.fsMod.recentIds["web"] = id;
 					top.fsMod.navFrameHighlightedID["web"] = "pages" + id + "_" + top.fsMod.currentBank;	// For highlighting
