@@ -868,7 +868,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 		// Finally assemble the table:
 		$finalContent = '
-			<table cellpadding="0" cellspacing="0" width="100%" class="tv-coe">
+			<table cellpadding="0" cellspacing="0" width="100%" class="tv-coe' . ($contentTreeArr['el']['isHidden'] ? ' tv-hidden' : '') . '">
 			<thead>
 				<tr style="' . $elementTitlebarStyle . ';" class="sortableHandle">
 					<th>
@@ -958,7 +958,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 			// check for early bail out
 			if (strlen($fieldID) <= strlen($group))
 				continue;
-			if (!$fieldData['isMapped'])
+			if (!$fieldData['isMapped'] || $fieldData['isHidden'])
 				continue;
 
 			// remove the group from the field

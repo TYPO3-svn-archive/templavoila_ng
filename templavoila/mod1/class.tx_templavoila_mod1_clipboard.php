@@ -441,14 +441,17 @@ class tx_templavoila_mod1_clipboard {
 		}
 
 		if (count($infoData)) {
-			return $hideIcon . '<a href="#" onclick="'.htmlspecialchars('top.launchView(\'tt_content\', \'' . $uid . '\'); return false;') . '" title="' . htmlspecialchars(t3lib_div::fixed_lgd_cs(implode(' / ', $infoData), 100)) . '">Ref: ' . count($infoData) . '</a>';
+			return $this->pObj->icon_unlink($unlinkPointer) . $hideIcon .
+				'<a href="#" onclick="' . htmlspecialchars('top.launchView(\'tt_content\', \'' . $uid . '\'); return false;') . '" title="' . htmlspecialchars(t3lib_div::fixed_lgd_cs(implode(' / ', $infoData), 100)) . '">' .
+					'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_warning2.gif', 'width="18" height="16"') . ' title="' . htmlspecialchars('Ref: ' . count($infoData)) . '" />' .
+				'</a>';
 		} elseif (0 === $BE_USER->workspace) {
 			$this->deleteUids[] = $uid;
 
 			// Create flexform pointer pointing to "before the first sub element":
 			$unlinkPointer = array (
 				'table' => 'tt_content',
-				'uid'   => $row['uid']
+				'uid'   => $uid
 			);
 
 			return $this->pObj->icon_unlink($unlinkPointer) . $hideIcon .

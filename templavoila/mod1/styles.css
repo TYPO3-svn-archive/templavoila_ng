@@ -18,11 +18,11 @@ table.tv-clipboard div.sortableItem >        a {
 	display: none;
 }
 
-table.tv-container td.sortableButtons > a.onoff {
+table.tv-container div.sortableButtons > a.onoff {
 	visibility: visible !important;
 }
 
-table.tv-clipboard td.sortableButtons > a.onoff {
+table.tv-clipboard div.sortableButtons > a.onoff {
 	visibility: hidden !important;
 }
 
