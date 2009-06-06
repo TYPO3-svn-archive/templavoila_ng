@@ -2229,9 +2229,12 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 */
 	function icon_unlink($unlinkPointer) {
 
-		$unlinkIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'res/link_delete.png', '') . ' title="' . $GLOBALS['LANG']->getLL('unlinkRecord') . '" border="0" alt="" />';
+		if (!$unlinkPointer['position'])
+			$unlinkIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'res/link_delete.png', '') . ' title="' . $GLOBALS['LANG']->getLL('unlinkRecord'    ) . '" border="0" alt="" />';
+		else
+			$unlinkIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'res/link_delete.png', '') . ' title="' . $GLOBALS['LANG']->getLL('unlinkRecordsAll') . '" border="0" alt="" />';
 
-		return $this->link_unlink($unlinkIcon, $unlinkPointer, $all);
+		return $this->link_unlink($unlinkIcon, $unlinkPointer);
 	}
 
 	/**
@@ -2248,6 +2251,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 		if (!$unlinkPointer['position'])
 			return '<a href="javascript:' . htmlspecialchars('if (confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('unlinkRecordsAllMsg')) . '))') . ' sortable_unlinkRecordsAll(\'' . $unlinkPointerString . '\');" class="onoff">' . $label . '</a>';
+		else
 			return '<a href="javascript:' . htmlspecialchars('if (confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('unlinkRecordMsg'    )) . '))') . ' sortable_unlinkRecord    (\'' . $unlinkPointerString . '\');" class="onoff">' . $label . '</a>';
 
 //			return '<a href="' . $this->baseScript . $this->link_getParameters() . '&amp;unlinkRecord=' . $unlinkPointerString . '" onclick="' . htmlspecialchars('return confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('unlinkRecordMsg')) . ');') . '">' . $label . '</a>';

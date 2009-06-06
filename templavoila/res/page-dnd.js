@@ -110,9 +110,14 @@ function sortable_unlinkRecord(id) {
 }
 
 function sortable_unlinkRecordsAll(id) {
-	$(id).select('a').each( function(anchor) {
+	$(id).select('a').reverse().each( function(anchor) {
 		if (anchor.href.match(/unlinkRecord/)) {
-			anchor.click();
+			// eval(decodeURI(anchor.href.split(':')[1]));
+			var code = decodeURI(anchor.href.split(':')[1]);
+			var idnt = code.match(/sortable_unlinkRecord *\(\'(.*)\'\)/);
+
+			if (idnt[1])
+				sortable_unlinkRecord(idnt[1]);
 		}
 	} );
 }
