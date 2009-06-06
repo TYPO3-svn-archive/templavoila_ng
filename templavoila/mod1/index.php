@@ -332,7 +332,7 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 			$this->rootElementTable = is_array($this->altRoot) ? $this->altRoot['table'] : 'pages';
 			$this->rootElementUid = is_array($this->altRoot) ? $this->altRoot['uid'] : $this->id;
 			$this->rootElementRecord = t3lib_BEfunc::getRecordWSOL($this->rootElementTable, $this->rootElementUid, '*');
-			$this->rootElementUid_pidForContent = $this->rootElementRecord['t3ver_swapmode']==0 && $this->rootElementRecord['_ORIG_uid'] ? $this->rootElementRecord['_ORIG_uid'] : $this->rootElementRecord['uid'];
+			$this->rootElementUid_pidForContent = $this->rootElementRecord['t3ver_swapmode'] == 0 && $this->rootElementRecord['_ORIG_uid'] ? $this->rootElementRecord['_ORIG_uid'] : $this->rootElementRecord['uid'];
 
 			// Check if we have to update the pagetree:
 			if (t3lib_div::_GP('updatePageTree')) {
@@ -344,7 +344,7 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 			$this->doc->docType= 'xhtml_trans';
 			$this->doc->backPath = $BACK_PATH;
 			$this->doc->divClass = '';
-			$this->doc->form='<form action="'.htmlspecialchars($this->baseScript . $this->link_getParameters()) . '" method="post" autocomplete="off">' .
+			$this->doc->form = '<form action="'.htmlspecialchars($this->baseScript . $this->link_getParameters()) . '" method="post" autocomplete="off">' .
 				'<input type="hidden" id="browser[communication]" name="browser[communication]" />';
 
 			// Add custom styles
@@ -424,7 +424,7 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 				function setFormValueOpenBrowser(mode,params) {	//
 					var url = "' . $BACK_PATH . 'browser.php?mode=" + mode + "&bparams=" + params;
 
-					browserWin = window.open(url, "Typo3WinBrowser - TemplaVoila Element Selector", "height=350,width=" + (mode == "db" ? 650 : 600) + ",status=0,menubar=0,resizable=1,scrollbars=1");
+					browserWin = window.open(url, "Typo3WinBrowser - TemplaVoila Element Selector", "height=350,width=" + (mode == "db" ? 800 : 600) + ",status=0,menubar=0,resizable=1,scrollbars=1");
 					browserWin.focus();
 
 					$$(\'img.browse\').each(function(browserElm) {
@@ -820,8 +820,9 @@ table.typo3-dyntabmenu td.disabled:hover {
 						$this->icon_makeLocal($parentPointer, !$elementBelongsToCurrentPage);
 					$linkEdit = ($elementBelongsToCurrentPage ?
 						$this->icon_edit($contentTreeArr['el']) : '');
-					$linkUnlink = ($elementBelongsToCurrentPage ?
+					$linkUnlink =
 						$this->icon_unlink($parentPointer) .
+						($elementBelongsToCurrentPage ?
 						$this->icon_hide($contentTreeArr['el']) .
 						$this->icon_delete($parentPointer) : '');
 
@@ -1764,8 +1765,8 @@ table.typo3-dyntabmenu td.disabled:hover {
 					$linkEdit = ($elementBelongsToCurrentPage ?
 						$this->icon_edit($contentTreeArr['el']) : '');
 					$linkUnlink =
-						($elementBelongsToCurrentPage ?
 						$this->icon_unlink($parentPointer) .
+						($elementBelongsToCurrentPage ?
 						$this->icon_hide($contentTreeArr['el']) .
 						$this->icon_delete($parentPointer) : '');
 
@@ -2179,7 +2180,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 			'setFormValueOpenBrowser(\'db\',\'browser[communication]|||tt_content\');' .
 			'return false;';
 
-		return '<a href="#" id="' . $this->baseScript . $parameters . '" onclick="' . $browser . '">' . $label . '</a>';
+		return '<a href="#" ' . ($p == $b ? 'id="browserPos"' : '') . ' rel="' . $this->baseScript . $parameters . '" onclick="' . $browser . '">' . $label . '</a>';
 	}
 
 	/**
@@ -2477,7 +2478,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 							case 'copyref':	$this->apiObj->copyElement($sourcePointer, $destinationPointer, FALSE); break;
 							case 'cut':	$this->apiObj->moveElement($sourcePointer, $destinationPointer); break;
 							case 'ref':	list(,$uid) = explode(SEPARATOR_PARMS, $this->revertID(t3lib_div::_GP('source')));
-									$this->apiObj->referenceElementByUid ($uid, $destinationPointer);
+									$this->apiObj->referenceElementByUid($uid, $destinationPointer);
 							break;
 						}
 
@@ -3187,7 +3188,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 				function setFormValueOpenBrowser(mode, params) {	//
 					var url = "' . $BACK_PATH . 'browser.php?mode=" + mode + "&bparams=" + params;
 
-					browserWin = window.open(url, "Typo3WinBrowser - TemplaVoila Element Selector","height=350,width=" + (mode == "db" ? 650 : 600) + ",status=0,menubar=0,resizable=1,scrollbars=1");
+					browserWin = window.open(url, "Typo3WinBrowser - TemplaVoila Element Selector","height=350,width=" + (mode == "db" ? 800 : 600) + ",status=0,menubar=0,resizable=1,scrollbars=1");
 					browserWin.focus();
 
 					$$(\'img.browse\').each(function(browserElm) {
@@ -3204,7 +3205,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 				function setFormValueFromBrowseWin(fName, value, label, exclusiveValues) {
 					if (value) {
 						if (!browserPos) {
-							browserPos = document.getElementById(\'' . rawurlencode($this->sanitizeID($GLOBALS['BE_USER']->getSessionData('lastPasteRecord'))) . '\');
+							browserPos = document.getElementById(\'browserPos\');
 							if (!browserPos) {
 								return;
 							}
@@ -3214,7 +3215,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 						var rid = ret.pop();
 							ret = ret.join(\'_\');
 
-						browserPos.href = browserPos.id.replace(\'' . rawurlencode('###') . '\', ret + \':\' + rid);
+						browserPos.href = browserPos.getAttribute(\'rel\').replace(\'' . rawurlencode('###') . '\', ret + \':\' + rid);
 						jumpToUrl(browserPos.href);
 					}
 				}
@@ -3236,7 +3237,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 			$this->doc->JScode .= $CMparts[0];
 		//	$this->doc->JScode .= $this->doc->getDynTabMenuJScode();
 			$this->doc->postCode .= $CMparts[2];
-			$this->doc->form = '<form action="'.htmlspecialchars($this->baseScript . $this->link_getParameters()) . '" method="post" autocomplete="off">' .
+			$this->doc->form = '<form action="' . htmlspecialchars($this->baseScript . $this->link_getParameters()) . '" method="post" autocomplete="off">' .
 				'<input type="hidden" id="browser[communication]" name="browser[communication]" />';
 
 			/* Prototype /Scriptaculous */
