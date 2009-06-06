@@ -109,10 +109,10 @@ function sortable_unlinkRecord(id) {
 		  afterFinish: sortable_unlinkRecordCallBack });
 }
 
-function sortable_unlinkRecordsAll(el) {
-	$(el).select('a').each( function(anchor) {
+function sortable_unlinkRecordsAll(id) {
+	$(id).select('a').each( function(anchor) {
 		if (anchor.href.match(/unlinkRecord/)) {
-
+			anchor.click();
 		}
 	} );
 }
@@ -179,6 +179,17 @@ function sortable_updatePasteButtons(oldPos, newPos) {
 	}
 }
 
+/**
+ * This function restores the original IDs of the content elements which have
+ * been sucked out of the flexforms. The flexform-api allows most operations
+ * to operate with elements which are not pointers into a flexform but which
+ * directly identify a content-element.
+ * In the case of that elements aren't present in a flexform anymore we have to
+ * restore that ID. This ID is not obvious contained in the flexform-pointer but
+ * must be carried around in a backup location (it's in the rel-attribute).
+ *
+ * el	-	this is the container-element (a td) which contains all drag'n'dropppable items
+ */
 function sortable_purify(el) {
 	var node = el.firstChild;
 
@@ -201,13 +212,21 @@ function sortable_purify(el) {
 	}
 }
 
+/**
+ * This function re-percolates the contents of the given container, constructing
+ * new IDs like "container-id" + "position". In flexforms the pointer to an entry
+ * is given through it's position, so one just has to take care that the internal
+ * flexform-state matches the dynamic state of the present items.
+ *
+ * el	-	this is the container-element (a td) which contains all drag'n'dropppable items
+ */
 function sortable_update(el) {
 	if (el.id == sortable_clipboard)
 		return sortable_purify(el);
 
-	var node = el.firstChild;
 	var i = 1;
 
+	var node = el.firstChild;
 	while (node != null) {
 		if (node.className == "sortableItem") {
 			var actPos = node.id;
@@ -227,6 +246,31 @@ function sortable_update(el) {
 
 		node = node.nextSibling;
 	}
+
+	/* verify and reflect the state of occupation */
+	var row = el.parentNode;
+	var tbody = row.parentNode;
+	var table = tbody.parentNode;
+
+	for (var r = 0; r < row.cells.length; r++)
+		if (row.cells[r] == el)
+			break;
+
+	var elems = el;
+	var stats = table.tFoot.rows[0].cells[r];
+	var tools = table.tHead.rows[0].cells[r];
+	var valus = $(stats).select('span');
+
+	valus[0].innerHTML = i - 1;
+	stats.className = (parseInt(valus[1].innerHTML) <= i - 1 ? 'full' : (i - 1 > 0 ? 'used' : 'empty'));
+	elems.className = stats.className;
+	tools.className = elems.className;
+
+	/* TODO: how to remove droppables reliably? */
+//	if (stats.className == 'full')
+//		Droppables.remove(el);
+//	else
+//		Droppables.add(el);
 }
 
 function sortable_change(el) {

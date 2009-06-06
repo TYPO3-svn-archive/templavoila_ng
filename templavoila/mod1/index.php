@@ -772,7 +772,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 	function render_framework_singleSheet($singleView, $contentTreeArr, $languageKey, $sheet, $parentPointer = array(), $parentDsMeta = array()) {
 		global $TYPO3_CONF_VARS;
 
-		$elementBelongsToCurrentPage = $contentTreeArr['el']['table'] == 'pages' || $contentTreeArr['el']['pid'] == $this->rootElementUid_pidForContent;
+		$elementBelongsToCurrentPage = ($contentTreeArr['el']['table'] == 'pages') || ($contentTreeArr['el']['pid'] == $this->rootElementUid_pidForContent);
 
 		// Prepare the record icon including a content sensitive menu link wrapped around it:
 		$recordIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, $contentTreeArr['el']['icon'], 'width="18" height="16"') . ' border="0" title="' . htmlspecialchars('[' . $contentTreeArr['el']['table'] . ':' . $contentTreeArr['el']['uid'] . ']') . '" alt="" />';
@@ -841,31 +841,10 @@ table.typo3-dyntabmenu td.disabled:hover {
 		}
 
 		// Prepare the language icon:
-		$languageLabel = htmlspecialchars ($this->allAvailableLanguages[$contentTreeArr['el']['sys_language_uid']]['title']);
-		$languageIcon = $this->allAvailableLanguages[$languageUid]['flagIcon'] ? '<img src="' . $this->allAvailableLanguages[$languageUid]['flagIcon'].'" title="'.$languageLabel.'" alt="'.$languageLabel.'" />' : ($languageLabel && $languageUid ? '['.$languageLabel.']' : '');
-
-		// If there was a language icon and the language was not default or [all] and if that langauge is accessible for the user, then wrap the  flag with an edit link (to support the "Click the flag!" principle for translators)
-		if ($languageIcon && $languageUid > 0 && $GLOBALS['BE_USER']->checkLanguageAccess($languageUid) && $contentTreeArr['el']['table'] === 'tt_content')	{
-			$languageIcon = $this->link_edit($languageIcon, 'tt_content', $contentTreeArr['el']['uid'], TRUE);
-		}
+		$languageIcon = $this->icon_lang($contentTreeArr['el'], $languageUid);
 
 		// Create warning messages if neccessary:
-		$warnings = '';
-		if ($this->global_tt_content_elementRegister[$contentTreeArr['el']['uid']] > 1 && $this->rootElementLangParadigm != 'free') {
-			$warnings .= '<br />' . $this->doc->icons(2) . ' <em>' . htmlspecialchars(sprintf($GLOBALS['LANG']->getLL('warning_elementusedmorethanonce',''), $this->global_tt_content_elementRegister[$contentTreeArr['el']['uid']], $contentTreeArr['el']['uid'])).'</em>';
-		}
-
-		// Displaying warning for container content (in default sheet - a limitation) elements if localization is enabled:
-		$isContainerEl = count($contentTreeArr['sub']['sDEF']);
-		if (!$this->modTSconfig['properties']['disableContainerElementLocalizationWarning'] && $this->rootElementLangParadigm != 'free' && $isContainerEl && $contentTreeArr['el']['table'] === 'tt_content' && $contentTreeArr['el']['CType'] === 'templavoila_pi1' && !$contentTreeArr['ds_meta']['langDisable'])	{
-			if ($contentTreeArr['ds_meta']['langChildren'])	{
-				if (!$this->modTSconfig['properties']['disableContainerElementLocalizationWarning_warningOnly']) {
-					$warnings .= '<br />' . $this->doc->icons(2) . ' <strong>' . $GLOBALS['LANG']->getLL('warning_containerInheritance') . '</strong>';
-				}
-			} else {
-				$warnings .= '<br />' . $this->doc->icons(3) . ' <strong>' . $GLOBALS['LANG']->getLL('warning_containerSeparate') . '</strong>';
-			}
-		}
+		$warnings = $this->render_warnings($contentTreeArr, false);
 
 		// Finally assemble the table:
 		$finalContent = '
@@ -998,6 +977,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 					// sub-element
 					$fieldContent = $subs[$fieldID][$vKey];
 					$cellContent = $this->render_framework_subElement($singleView, $elementContentTreeArr, $languageKey, $sheet, $fieldID);
+					$stateClass = ($fieldData['TCEforms']['config']['maxitems'] <= count($fieldContent['el']) ? 'full' : (count($fieldContent['el']) > 0 ? 'used' : 'empty'));
 
 					// Create flexform pointer pointing to "before the first sub element":
 					$groupElementPointer = array(
@@ -1017,18 +997,22 @@ table.typo3-dyntabmenu td.disabled:hover {
 						// Add cell content to registers:
 						$beTemplateCell = '
 							<table width="100%" class="beTemplateCell">
+							<tbody>
 							<tr>
-								<td valign="top" style="background-color: ' . $this->doc->bgColor4 . '; padding-top:0; padding-bottom: 0;">' . $GLOBALS['LANG']->sL($fieldContent['meta']['title'], 1) . '</td>
+								<td valign="top" style="background-color: ' . $this->doc->bgColor4 . '; padding-top:0; padding-bottom: 0;" class="' . $stateClass . '">' . $GLOBALS['LANG']->sL($fieldContent['meta']['title'], 1) . '</td>
 							</tr>
+							</tbody>
+							<tfoot>
 							<tr>
-								<td valign="top" style="padding: 5px;" id="' . $cellId . '">' . $cellContent . '</td>
+								<td valign="top" style="padding: 5px;" id="' . $cellId . '" class="' . $stateClass . '">' . $cellContent . '</td>
 							</tr>
+							</tfoot>
 							</table>';
 						$beTemplate = str_replace('###' . $fieldID . '###', $beTemplateCell, $beTemplate);
 					} else {
 						// Add cell content to registers:
 						$headerCells[] = '
-							<th valign="top" width="###WIDTH###" style="background-color: ' . $this->doc->bgColor4 . ';">
+							<th valign="top" width="###WIDTH###" style="background-color: ' . $this->doc->bgColor4 . ';" class="' . $stateClass . '">
 								<div style="float:  left;" class="nobr">
 									<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/i/tt_content.gif', 'width="11" height="12"') . ' title="Container for content elements" class="absmiddle" />' .
 									$GLOBALS['LANG']->sL($fieldContent['meta']['title'], 1) . '
@@ -1044,11 +1028,11 @@ table.typo3-dyntabmenu td.disabled:hover {
 								</div>
 							</th>';
 						$footerCells[] = '
-							<td valign="top" width="###WIDTH###" style="background-color: ' . $this->doc->bgColor4 . ';" align="center">
-								(assigned ' . count($fieldContent['el']) . ' element(s) of ' . $fieldData['TCEforms']['config']['maxitems'] . ' possible)
+							<td valign="top" width="###WIDTH###" style="background-color: ' . $this->doc->bgColor4 . ';" align="center" class="' . $stateClass . '">
+								(assigned <span>' . count($fieldContent['el']) . '</span> element(s) of <span>' . $fieldData['TCEforms']['config']['maxitems'] . '</span> possible)
 							</td>';
 						$cells[] = '
-							<td valign="top" width="###WIDTH###" style="border: 1px dashed #000; padding: 5px 5px 5px 5px;" id="' . $cellId . '" class="' . (count(explode(',', $fieldContent)) >= $fieldData['TCEforms']['config']['maxitems'] ? 'full' : (count(explode(',', $fieldContent)) == 0 ? 'empty' : '')) . '" limit="' . $fieldData['TCEforms']['config']['maxitems'] . '">' .
+							<td valign="top" width="###WIDTH###" style="border: 1px dashed #000; padding: 5px 5px 5px 5px;" id="' . $cellId . '" class="' . $stateClass . '">' .
 								$cellContent . '
 							</td>';
 					}
@@ -1562,8 +1546,8 @@ table.typo3-dyntabmenu td.disabled:hover {
 							// Change of strategy (27/11): Because there does not have to be content fields; could be in sections or arrays and if thats the case you still want to localize them! There has to be another way...
 							// if (count($contentTreeArr['contentFields']['sDEF']))	{
 								list($flagLink_begin, $flagLink_end) = explode('|*|', $this->link_edit('|*|', 'tt_content', $contentTreeArr['el']['uid'], TRUE));
-								$l10nInfo = $flagLink_begin.'<em>[Click to translate FlexForm]</em>'.$flagLink_end;
-								$this->global_localization_status[$sys_language_uid][]=array(
+								$l10nInfo = $flagLink_begin . '<em>[Click to translate FlexForm]</em>' . $flagLink_end;
+								$this->global_localization_status[$sys_language_uid][] = array(
 									'status' => 'flex',
 									'parent_uid' => $contentTreeArr['el']['uid'],
 									'sys_language' => $contentTreeArr['el']['sys_language_uid']
@@ -1778,45 +1762,25 @@ table.typo3-dyntabmenu td.disabled:hover {
 						'</div>' .
 						$linkUnlink;
 				} else {
-					$titleBarRightButtons = '';
+					$titleBarRightButtons =
+						'';
 				}
 				break;
 		}
 
-			// Prepare the language icon:
-		$languageLabel = htmlspecialchars ($this->allAvailableLanguages[$contentTreeArr['el']['sys_language_uid']]['title']);
-		$languageIcon = $this->allAvailableLanguages[$languageUid]['flagIcon'] ? '<img src="'.$this->allAvailableLanguages[$languageUid]['flagIcon'].'" title="'.$languageLabel.'" alt="'.$languageLabel.'" />' : ($languageLabel && $languageUid ? '['.$languageLabel.']' : '');
+		// Prepare the language icon:
+		$languageIcon = $this->icon_lang($contentTreeArr['el'], $languageUid);
 
-			// If there was a langauge icon and the language was not default or [all] and if that langauge is accessible for the user, then wrap the flag with an edit link (to support the "Click the flag!" principle for translators)
-		if ($languageIcon && $languageUid>0 && $GLOBALS['BE_USER']->checkLanguageAccess($languageUid) && $contentTreeArr['el']['table'] === 'tt_content') {
-			$languageIcon = $this->link_edit($languageIcon, 'tt_content', $contentTreeArr['el']['uid'], TRUE);
-		}
+		// Create warning messages if neccessary:
+		$warnings = $this->render_warnings($contentTreeArr, true);
 
-			// Create warning messages if neccessary:
-		$warnings = '';
-		if ($this->global_tt_content_elementRegister[$contentTreeArr['el']['uid']] > 1 && $this->rootElementLangParadigm != 'free') {
-			$warnings .= '<br />' . $this->doc->icons(2) . ' <em>' . htmlspecialchars(sprintf($GLOBALS['LANG']->getLL('warning_elementusedmorethanonce',''), $this->global_tt_content_elementRegister[$contentTreeArr['el']['uid']], $contentTreeArr['el']['uid'])).'</em>';
-		}
-
-			// Displaying warning for container content (in default sheet - a limitation) elements if localization is enabled:
-		$isContainerEl = count($contentTreeArr['sub']['sDEF']);
-		if (!$this->modTSconfig['properties']['disableContainerElementLocalizationWarning'] && $this->rootElementLangParadigm != 'free' && $isContainerEl && $contentTreeArr['el']['table'] === 'tt_content' && $contentTreeArr['el']['CType'] === 'templavoila_pi1' && !$contentTreeArr['ds_meta']['langDisable'])	{
-			if ($contentTreeArr['ds_meta']['langChildren'])	{
-				if (!$this->modTSconfig['properties']['disableContainerElementLocalizationWarning_warningOnly']) {
-					$warnings .= '<br />' . $this->doc->icons(2) . ' <strong>' . $GLOBALS['LANG']->getLL('warning_containerInheritance_short') . '</strong>';
-				}
-			} else {
-				$warnings .= '<br />' . $this->doc->icons(3) . ' <strong>' . $GLOBALS['LANG']->getLL('warning_containerSeparate_short')  .'</strong>';
-			}
-		}
-
-			// Create entry for this element:
+		// Create entry for this element:
 		$entries[] = array(
 			'indentLevel' => $indentLevel,
 			'icon' => $titleBarLeftButtons,
 			'title' => ($elementBelongsToCurrentPage ? '' : '<em>') . htmlspecialchars($contentTreeArr['el']['title']) . ($elementBelongsToCurrentPage ? '' : '</em>'),
 			'warnings' => $warnings,
-			'controls' => $titleBarRightButtons.$controls,
+			'controls' => $titleBarRightButtons . $controls,
 			'table' => $contentTreeArr['el']['table'],
 			'uid' =>  $contentTreeArr['el']['uid'],
 			'flag' => $languageIcon,
@@ -1825,14 +1789,14 @@ table.typo3-dyntabmenu td.disabled:hover {
 		);
 
 
-			// Create entry for localizaitons...
+		// Create entry for localizaitons...
 		$this->render_outline_localizations($contentTreeArr, $entries, $indentLevel+1);
 
-			// Create entries for sub-elements in all sheets:
-		if ($contentTreeArr['sub'])	{
-			foreach($contentTreeArr['sub'] as $sheetKey => $sheetInfo)	{
-				if (is_array($sheetInfo))	{
-					$this->render_outline_subElements($contentTreeArr, $sheetKey, $entries, $indentLevel+1);
+		// Create entries for sub-elements in all sheets:
+		if ($contentTreeArr['sub']) {
+			foreach($contentTreeArr['sub'] as $sheetKey => $sheetInfo) {
+				if (is_array($sheetInfo)) {
+					$this->render_outline_subElements($contentTreeArr, $sheetKey, $entries, $indentLevel + 1);
 				}
 			}
 		}
@@ -1964,18 +1928,56 @@ table.typo3-dyntabmenu td.disabled:hover {
 		}
 	}
 
+	/*******************************************
+	 *
+	 * Utility functions (protected)
+	 *
+	 *******************************************/
 
+	function render_warnings(&$contentTreeArr, $shortmessage = false) {
+		$suffix = ($shortmessage ? '_short' : '');
+		$warnings = '';
+		if ($this->global_tt_content_elementRegister[$contentTreeArr['el']['uid']] > 1 && ($this->rootElementLangParadigm != 'free')) {
+			$warnings .= '<div>' . $this->doc->icons(2) . ' <em>' . htmlspecialchars(sprintf($GLOBALS['LANG']->getLL('warning_elementusedmorethanonce', ''), $this->global_tt_content_elementRegister[$contentTreeArr['el']['uid']], $contentTreeArr['el']['uid'])) . '</em></div>';
+		}
 
+		// Displaying warning for container content (in default sheet - a limitation) elements if localization is enabled:
+		$isContainerEl = count($contentTreeArr['sub']['sDEF']);
+		if (!$this->modTSconfig['properties']['disableContainerElementLocalizationWarning'] &&
+		    ($this->rootElementLangParadigm != 'free') &&
+		    $isContainerEl &&
+		    ($contentTreeArr['el']['table'] === 'tt_content') &&
+		    ($contentTreeArr['el']['CType'] === 'templavoila_pi1') &&
+		    !$contentTreeArr['ds_meta']['langDisable'])	{
+			if ($contentTreeArr['ds_meta']['langChildren'])	{
+				if (!$this->modTSconfig['properties']['disableContainerElementLocalizationWarning_warningOnly']) {
+					$warnings .= '<div>' . $this->doc->icons(2) . ' <strong>' . $GLOBALS['LANG']->getLL('warning_containerInheritance' . $suffix) . '</strong></div>';
+				}
+			} else {
+				$warnings .= '<div>' . $this->doc->icons(3) . ' <strong>' . $GLOBALS['LANG']->getLL('warning_containerSeparate' . $suffix) . '</strong></div>';
+			}
+		}
 
-
-
-
+		return $warnings;
+	}
 
 	/*******************************************
 	 *
 	 * Link functions (protected)
 	 *
 	 *******************************************/
+
+	function icon_lang($el, $languageUid) {
+		$languageLabel = htmlspecialchars ($this->allAvailableLanguages[$el['sys_language_uid']]['title']);
+		$languageIcon = $this->allAvailableLanguages[$languageUid]['flagIcon'] ? '<img src="' . $this->allAvailableLanguages[$languageUid]['flagIcon'] . '" title="' . $languageLabel . '" alt="' . $languageLabel . '" />' : ($languageLabel && $languageUid ? '[' . $languageLabel . ']' : '');
+
+		// If there was a language icon and the language was not default or [all] and if that langauge is accessible for the user, then wrap the flag with an edit link (to support the "Click the flag!" principle for translators)
+		if ($languageIcon && ($languageUid > 0) && $GLOBALS['BE_USER']->checkLanguageAccess($languageUid) && ($el['table'] === 'tt_content')) {
+			$languageIcon = $this->link_edit($languageIcon, 'tt_content', $el['uid'], TRUE);
+		}
+
+		return $languageIcon;
+	}
 
 	/**
 	 * [Describe function...]
@@ -2180,7 +2182,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 			'setFormValueOpenBrowser(\'db\',\'browser[communication]|||tt_content\');' .
 			'return false;';
 
-		return '<a href="#" ' . ($p == $b ? 'id="browserPos"' : '') . ' rel="' . $this->baseScript . $parameters . '" onclick="' . $browser . '">' . $label . '</a>';
+		return '<a href="#" ' . ($p == $b ? 'id="browserPos"' : '') . ' rel="' . $this->baseScript . $parameters . '#browserPos" onclick="' . $browser . '">' . $label . '</a>';
 	}
 
 	/**
@@ -2229,7 +2231,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 		$unlinkIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'res/link_delete.png', '') . ' title="' . $GLOBALS['LANG']->getLL('unlinkRecord') . '" border="0" alt="" />';
 
-		return $this->link_unlink($unlinkIcon, $unlinkPointer);
+		return $this->link_unlink($unlinkIcon, $unlinkPointer, $all);
 	}
 
 	/**
@@ -2244,8 +2246,11 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 		$unlinkPointerString = rawurlencode($this->sanitizeID($this->apiObj->flexform_getStringFromPointer($unlinkPointer)));
 
-		return '<a href="javascript:' . htmlspecialchars('if (confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('unlinkRecordMsg')) . '))') . ' sortable_unlinkRecord(\'' . $unlinkPointerString . '\');" class="onoff">' . $label . '</a>';
-//		return '<a href="' . $this->baseScript.$this->link_getParameters() . '&amp;unlinkRecord=' . $unlinkPointerString . '" onclick="' . htmlspecialchars('return confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('unlinkRecordMsg')) . ');') . '">' . $label . '</a>';
+		if (!$unlinkPointer['position'])
+			return '<a href="javascript:' . htmlspecialchars('if (confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('unlinkRecordsAllMsg')) . '))') . ' sortable_unlinkRecordsAll(\'' . $unlinkPointerString . '\');" class="onoff">' . $label . '</a>';
+			return '<a href="javascript:' . htmlspecialchars('if (confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('unlinkRecordMsg'    )) . '))') . ' sortable_unlinkRecord    (\'' . $unlinkPointerString . '\');" class="onoff">' . $label . '</a>';
+
+//			return '<a href="' . $this->baseScript . $this->link_getParameters() . '&amp;unlinkRecord=' . $unlinkPointerString . '" onclick="' . htmlspecialchars('return confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('unlinkRecordMsg')) . ');') . '">' . $label . '</a>';
 	}
 
 	/**

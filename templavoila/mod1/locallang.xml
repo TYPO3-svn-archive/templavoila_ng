@@ -76,9 +76,11 @@
 			<label index="cutrecord">Cut element</label>
 			<label index="createreference">Create reference</label>
 			<label index="unlinkRecord">Unlink element</label>
+			<label index="unlinkRecordMsg">Unlink element?</label>
+			<label index="unlinkRecordsAll">Unlink all elements</label>
+			<label index="unlinkRecordsAllMsg">Unlink all elements?</label>
 			<label index="deleteRecord">Delete element (!)</label>
 			<label index="deleteRecordMsg">Do you really want to delete this element?</label>
-			<label index="unlinkRecordMsg">Unlink element?</label>
 			<label index="pagerelatedinformation">Page related information</label>
 			<label index="advancedfunctions">Advanced functions</label>
 			<label index="localization">Translations</label>
@@ -195,9 +197,11 @@
 			<label index="cutrecord">Element ausschneiden</label>
 			<label index="createreference">Erstelle Verknüpfung</label>
 			<label index="unlinkRecord">Verknüpfung entfernen</label>
+			<label index="unlinkRecordMsg">Verknüpfung für diese Element lösen?</label>
+			<label index="unlinkRecordsAll">Alle Verknüpfung entfernen</label>
+			<label index="unlinkRecordsAllMsg">Alle Verknüpfung von allen diese Elementen lösen?</label>
 			<label index="deleteRecord">Element löschen (!)</label>
 			<label index="deleteRecordMsg">Möchten Sie dieses Element wirklich löschen?</label>
-			<label index="unlinkRecordMsg">Verknüpfung für diese Element lösen?</label>
 			<label index="pagerelatedinformation">Seitenbezogene Informationen</label>
 			<label index="advancedfunctions">Erweiterte Funktionen</label>
 			<label index="localization">Übersetzungen</label>
@@ -329,7 +333,7 @@
 			<label index="element_localizations">Vertalingen</label>
 			<label index="records">Andere elementen (geen inhoud)</label>
 			<label index="displayRecordsFrom">Elementen tonen van:</label>
-<!--			
+<!--
 			<label index="createnewpage_selecttemplate">Kies een sjabloon voor de nieuwe pagina:</label>
 			<label index="createnewpage_defaultlayoutsubmitlabel">Maak een pagina met de standaard lay-out</label>
 			<label index="createnewpage_templateobject_createemptypage">Maak een lege pagina gebaseerd op dit sjabloon:</label>
