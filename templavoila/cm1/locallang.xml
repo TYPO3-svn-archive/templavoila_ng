@@ -60,6 +60,7 @@
 			<label index="structureTypeFCE">Flexible Content Element</label>
 			<label index="structureTypeCustom">Custom</label>
 			<label index="structureElement">Data Element</label>
+			<label index="structureHide">No UI</label>
 			<label index="structureField">Field</label>
 			<label index="structureInstruction">Mapping instructions</label>
 			<label index="structureSamples">Sample Data</label>
@@ -207,6 +208,7 @@
 			<label index="structureTypeFCE">Flexibles Inhaltselement</label>
 			<label index="structureTypeCustom">Eigenes</label>
 			<label index="structureElement">Datenelement</label>
+			<label index="structureHide">Verst.</label>
 			<label index="structureField">Feld</label>
 			<label index="structureInstruction">Assoziations-Anweisungen</label>
 			<label index="structureSamples">Beispiel-Inhalt</label>

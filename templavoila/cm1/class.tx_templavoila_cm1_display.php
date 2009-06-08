@@ -60,8 +60,12 @@ class tx_templavoila_cm1_display {
 	var $pObj;			// A pointer to the parent object, that is the templavoila control-center module script. Set by calling the method init() of this class.
 	var $doc;			// A reference to the doc object of the parent object.
 
-	var $markupFile = '';		// Used to store the name of the file to mark up with a given path.
-	var $markupObj = '';
+	// GPvars:
+	var $displayFile = '';		// (GPvar "file", shared with DISPLAY mode!) The file to display, if file is referenced directly from filelist module. Takes precedence over displayTable/displayUid
+	var $show;			// Boolean; if true no mapping-links are rendered.
+	var $preview;			// Boolean; if true, the currentMappingInfo preview data is merged in
+	var $path;			// HTML-path to explode in template.
+	var $limitTags;			// String, list of tags to limit display by
 
 	var $tagProfiles = array(
 		'' => '',
@@ -122,7 +126,6 @@ class tx_templavoila_cm1_display {
 	 * @see main_display()
 	 */
 	function displayFileContentWithPreview($content, $relPathFix) {
-
 		// Init mark up object.
 		$markupObj = t3lib_div::makeInstance('tx_templavoila_htmlmarkup');
 		$markupObj->htmlParse = t3lib_div::makeInstance('t3lib_parsehtml');
@@ -226,7 +229,8 @@ class tx_templavoila_cm1_display {
 		$this->path = t3lib_div::_GP('path');
 
 		// Checking if the displayFile parameter is set:
-		if (@is_file($this->displayFile) && t3lib_div::getFileAbsFileName($this->displayFile)) {	// FUTURE: grabbing URLS?: 		.... || substr($this->displayFile,0,7)=='http://'
+		if (@is_file($this->displayFile) && t3lib_div::getFileAbsFileName($this->displayFile)) {
+			// FUTURE: grabbing URLS?: 		.... || substr($this->displayFile,0,7)=='http://'
 			if (($content = t3lib_div::getUrl($this->displayFile))) {
 				$relPathFix = $GLOBALS['BACK_PATH'] . '../' . dirname(substr($this->displayFile, strlen(PATH_site))) . '/';
 

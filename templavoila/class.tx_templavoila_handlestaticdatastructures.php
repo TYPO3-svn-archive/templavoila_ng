@@ -71,9 +71,9 @@ class tx_templavoila_handleStaticDataStructures {
 	 */
 	function main(&$params,&$pObj)    {
 		// Adding an item!
-		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures']))	{
+		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'])) {
 			foreach($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'] as $val)	{
-				$params['items'][]=Array($this->prefix.(substr($val['title'], 0, 4) == 'LLL:' ? $GLOBALS['LANG']->sL($val['title']) : $val['title']), $val['path'], $val['icon']);
+				$params['items'][] = Array($this->prefix . (substr($val['title'], 0, 4) == 'LLL:' ? $GLOBALS['LANG']->sL($val['title']) : $val['title']), $val['path'], $val['icon']);
 			}
 		}
 	}
@@ -86,14 +86,15 @@ class tx_templavoila_handleStaticDataStructures {
 	 * @param	object		The parent object (t3lib_TCEforms / t3lib_transferData depending on context)
 	 * @return	void
 	 */
-	function main_scope1(&$params,&$pObj)    {
-		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures']))	{
+	function main_scope1(&$params,&$pObj) {
+		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'])) {
 			foreach($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'] as $val)	{
-				if ($val['scope']==1)	{
-					$params['items'][]=Array($this->prefix.$val['title'], $val['path'], $val['icon']);
+				if ($val['scope'] == TVDS_SCOPE_PAGE) {
+					$params['items'][] = Array($this->prefix.$val['title'], $val['path'], $val['icon']);
 				}
 			}
 		}
+
 		tx_templavoila_handleStaticDataStructures::check_permissions($params, $pObj);
 	}
 
@@ -108,7 +109,7 @@ class tx_templavoila_handleStaticDataStructures {
 	function main_scope2(&$params,&$pObj) {
 		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures']))	{
 			foreach($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'] as $val)	{
-				if ($val['scope']==2)	{
+				if ($val['scope'] == TVDS_SCOPE_FCE) {
 					$params['items'][]=Array($this->prefix.$val['title'], $val['path'], $val['icon']);
 				}
 			}

@@ -193,7 +193,7 @@ class tx_templavoila_mod1_clipboard {
 		list ($clipboardElementTableAndUid, $clipboardElementPointerString) = each ($this->t3libClipboardObj->clipData['normal']['el']);
 		$clipboardElementPointer = $this->pObj->apiObj->flexform_getValidPointer ($clipboardElementPointerString);
 
-			// If we have no flexform reference pointing to the element, we create a short flexform pointer pointing to the record directly:
+		// If we have no flexform reference pointing to the element, we create a short flexform pointer pointing to the record directly:
 		list ($clipboardElementTable, $clipboardElementUid) = explode ('|',$clipboardElementTableAndUid);
 		if (!is_array($clipboardElementPointer)) {
 			if ($clipboardElementTable != 'tt_content') return '';
@@ -204,7 +204,7 @@ class tx_templavoila_mod1_clipboard {
 			);
 		}
 
-			// If the destination element is already a sub element of the clipboard element, we mustn't show any paste icon:
+		// If the destination element is already a sub element of the clipboard element, we mustn't show any paste icon:
 		$destinationRecord = $this->pObj->apiObj->flexform_getRecordByPointer($destinationPointer);
 		$clipboardElementRecord = $this->pObj->apiObj->flexform_getRecordByPointer($clipboardElementPointer);
 		$dummyArr = array();
@@ -220,7 +220,7 @@ class tx_templavoila_mod1_clipboard {
 			}
 		}
 
-			// Prepare the ingredients for the different buttons:
+		// Prepare the ingredients for the different buttons:
 		$pasteMode = isset ($this->t3libClipboardObj->clipData['normal']['flexMode']) ? $this->t3libClipboardObj->clipData['normal']['flexMode'] : ($this->t3libClipboardObj->clipData['normal']['mode'] == 'copy' ? 'copy' : 'cut');
 		$pasteAfterIcon  = '<img class="paste"' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/clip_pasteafter.gif', '') . ' border="0" title="'.$LANG->getLL('pasterecord') . '" alt="" />';
 		$pasteSubRefIcon = '<img class="paste"' . t3lib_iconWorks::skinImg('clip_pastesubref.gif', '') . ' border="0" title="' . $LANG->getLL('pastefce_andreferencesubs') . '" alt="" />';
@@ -228,7 +228,7 @@ class tx_templavoila_mod1_clipboard {
 		$sourcePointerString = $this->pObj->apiObj->flexform_getStringFromPointer($clipboardElementPointer);
 		$destinationPointerString = $this->pObj->apiObj->flexform_getStringFromPointer($destinationPointer);
 
-			// FCEs with sub elements have two different paste icons, normal elements only one:
+		// FCEs with sub elements have two different paste icons, normal elements only one:
 		if ($pasteMode == 'copy' && $clipboardElementHasSubElements) {
 			$output  = '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;CB[removeAll]=normal&amp;pasteRecord=copy&amp;source=' . rawurlencode($sourcePointerString).'&amp;destination='.rawurlencode($destinationPointerString).'">'.$pasteAfterIcon.'</a>';
 			$output .= '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;CB[removeAll]=normal&amp;pasteRecord=copyref&amp;source=' . rawurlencode($sourcePointerString).'&amp;destination='.rawurlencode($destinationPointerString).'">'.$pasteSubRefIcon.'</a>';
@@ -280,7 +280,7 @@ class tx_templavoila_mod1_clipboard {
 			$languageIcon = $this->pObj->allAvailableLanguages[$row['sys_language_uid']]['flagIcon'] ? '<img src="' . $this->pObj->allAvailableLanguages[$row['sys_language_uid']]['flagIcon'].'" title="'.$languageLabel.'" alt="'.$languageLabel.'" />' : ($languageLabel && $row['sys_language_uid'] ? '['.$languageLabel.']' : '');
 
 			// Prepare buttons:
-			$recordIcon = '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_iconWorks::getIcon('tt_content', $row), 'width="18" height="16"') . ' border="0" title="[tt_content:' . $row['uid'] . ']" alt="" />';
+			$recordIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_iconWorks::getIcon('tt_content', $row), 'width="18" height="16"') . ' border="0" title="[tt_content:' . $row['uid'] . ']" alt="" />';
 			$recordButton = $this->pObj->doc->wrapClickMenuOnIcon($recordIcon, 'tt_content', $row['uid'], 1, '&callingScriptId=' . rawurlencode($this->pObj->doc->scriptID), 'new,copy,cut,pasteinto,pasteafter,delete');
 
 			$titleBarLeftButtons = $recordButton;

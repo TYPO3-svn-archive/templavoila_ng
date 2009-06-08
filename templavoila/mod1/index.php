@@ -178,6 +178,11 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 	var $apiObj;						// Instance of tx_templavoila_api
 	var $sortableContainers = array();			// Contains the containers for drag and drop
 
+
+
+
+
+
 	/*******************************************
 	 *
 	 * Initialization functions
@@ -285,6 +290,7 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 			// CLEANSE SETTINGS
 		$this->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->MOD_MENU, t3lib_div::_GP('SET'), $this->MCONF['name']);
 	}
+
 
 
 
@@ -701,6 +707,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 		return $output;
 	}
+
 
 
 
@@ -1321,6 +1328,11 @@ table.typo3-dyntabmenu td.disabled:hover {
 		return '';
 	}
 
+
+
+
+
+
 	/*******************************************
 	 *
 	 * Rendering functions for certain elements
@@ -1928,12 +1940,26 @@ table.typo3-dyntabmenu td.disabled:hover {
 		}
 	}
 
+
+
+
+
+
 	/*******************************************
 	 *
 	 * Utility functions (protected)
 	 *
 	 *******************************************/
 
+	/**
+	 * Return a block of warning messages regarding the state of a given
+	 * element.
+	 *
+	 * @param	array		$contentTreeArr: The contentTree-subtree of the element to analyse
+	 * @param	boolean		$shortmessage: Indicator if the message should be short or long
+	 * @return	string		the block of information about the current state, can be empty
+	 * @access protected
+	 */
 	function render_warnings(&$contentTreeArr, $shortmessage = false) {
 		$suffix = ($shortmessage ? '_short' : '');
 		$warnings = '';
@@ -1961,12 +1987,25 @@ table.typo3-dyntabmenu td.disabled:hover {
 		return $warnings;
 	}
 
+
+
+
+
+
 	/*******************************************
 	 *
-	 * Link functions (protected)
+	 * Icon/Link functions (protected)
 	 *
 	 *******************************************/
 
+	/**
+	 * Returns the language-icon of a given element.
+	 *
+	 * @param	array		$el: The element configuration
+	 * @param	integer		$languageUid: The language identifier
+	 * @return	string		image of the flag of the language
+	 * @access protected
+	 */
 	function icon_lang($el, $languageUid) {
 		$languageLabel = htmlspecialchars ($this->allAvailableLanguages[$el['sys_language_uid']]['title']);
 		$languageIcon = $this->allAvailableLanguages[$languageUid]['flagIcon'] ? '<img src="' . $this->allAvailableLanguages[$languageUid]['flagIcon'] . '" title="' . $languageLabel . '" alt="' . $languageLabel . '" />' : ($languageLabel && $languageUid ? '[' . $languageLabel . ']' : '');
@@ -1980,11 +2019,12 @@ table.typo3-dyntabmenu td.disabled:hover {
 	}
 
 	/**
-	 * [Describe function...]
+	 * Returns a block images showing and offering the operations to
+	 * insert new records (new, browse, paste)
 	 *
-	 * @param	[type]		$label: ...
-	 * @param	[type]		$parentPointer: ...
-	 * @return	[type]		...
+	 * @param	array		$el: The element configuration
+	 * @return	string		classed span containing the anchors and images
+	 * @access protected
 	 */
 	function icon_nbp($el) {
 		$controls = '';
@@ -2003,13 +2043,10 @@ table.typo3-dyntabmenu td.disabled:hover {
 	}
 
 	/**
-	 * Returns an HTML link for viewing
+	 * Returns an image in a HTML link for viewing
 	 *
-	 * @param	string		$label: The label (or image)
-	 * @param	string		$table: The table, fx. 'tt_content'
-	 * @param	integer		$uid: The uid of the element to be hidden/unhidden
-	 * @param	boolean		$forced: By default the link is not shown if translatorMode is set, but with this boolean it can be forced anyway.
-	 * @return	string		HTML anchor tag containing the label and the correct link
+	 * @param	array		$el: The element configuration
+	 * @return	string		image inside a HTML anchor tag containing the label and the correct link
 	 * @access protected
 	 */
 	function icon_view($el) {
@@ -2021,12 +2058,13 @@ table.typo3-dyntabmenu td.disabled:hover {
 	}
 
 	/**
-	 * [Describe function...]
+	 * Returns an HTML link for viewing
 	 *
-	 * @param	[type]		$label: ...
-	 * @param	[type]		$table: ...
-	 * @param	[type]		$uid: ...
-	 * @return	[type]		...
+	 * @param	string		$label: The label (or image)
+	 * @param	string		$table: The table, fx. 'tt_content'
+	 * @param	integer		$uid: The uid of the element to be hidden/unhidden
+	 * @return	string		HTML anchor tag containing the label and the correct link
+	 * @access protected
 	 */
 	function link_view($label, $table, $uid) {
 
@@ -2036,13 +2074,10 @@ table.typo3-dyntabmenu td.disabled:hover {
 	}
 
 	/**
-	 * Returns an HTML link for hiding
+	 * Returns an image in a HTML link for hiding
 	 *
-	 * @param	string		$label: The label (or image)
-	 * @param	string		$table: The table, fx. 'tt_content'
-	 * @param	integer		$uid: The uid of the element to be hidden/unhidden
-	 * @param	boolean		$forced: By default the link is not shown if translatorMode is set, but with this boolean it can be forced anyway.
-	 * @return	string		HTML anchor tag containing the label and the correct link
+	 * @param	array		$el: The element configuration
+	 * @return	string		image inside a HTML anchor tag containing the label and the correct link
 	 * @access protected
 	 */
 	function icon_hide($el) {
@@ -2063,16 +2098,17 @@ table.typo3-dyntabmenu td.disabled:hover {
 	}
 
 	/**
-	 * [Describe function...]
+	 * Returns an HTML link for hiding
 	 *
-	 * @param	[type]		$label: ...
-	 * @param	[type]		$table: ...
-	 * @param	[type]		$uid: ...
-	 * @param	[type]		$hidden: ...
-	 * @param	[type]		$forced: ...
-	 * @return	[type]		...
+	 * @param	string		$label: The label (or image)
+	 * @param	string		$table: The table, fx. 'tt_content'
+	 * @param	integer		$uid: The uid of the element to be hidden/unhidden
+	 * @param	integer		$hidden: The hidden state of the element
+	 * @param	boolean		$forced: By default the link is not shown if translatorMode is set, but with this boolean it can be forced anyway.
+	 * @return	string		HTML anchor tag containing the label and the correct link
+	 * @access protected
 	 */
-	function link_hide($label, $table, $uid, $hidden, $forced=FALSE) {
+	function link_hide($label, $table, $uid, $hidden, $forced = FALSE) {
 		if ($label) {
 			if (($table == 'pages' && ($this->calcPerms &  2) ||
 			     $table != 'pages' && ($this->calcPerms & 16)) &&
@@ -2102,13 +2138,10 @@ table.typo3-dyntabmenu td.disabled:hover {
 	}
 
 	/**
-	 * Returns an HTML link for editing
+	 * Returns an image in a HTML link for editing
 	 *
-	 * @param	string		$label: The label (or image)
-	 * @param	string		$table: The table, fx. 'tt_content'
-	 * @param	integer		$uid: The uid of the element to be edited
-	 * @param	boolean		$forced: By default the link is not shown if translatorMode is set, but with this boolean it can be forced anyway.
-	 * @return	string		HTML anchor tag containing the label and the correct link
+	 * @param	array		$el: The element configuration
+	 * @return	string		image inside a HTML anchor tag containing the label and the correct link
 	 * @access protected
 	 */
 	function icon_edit($el) {
@@ -2123,15 +2156,16 @@ table.typo3-dyntabmenu td.disabled:hover {
 	}
 
 	/**
-	 * [Describe function...]
+	 * Returns an HTML link for editing
 	 *
-	 * @param	[type]		$label: ...
-	 * @param	[type]		$table: ...
-	 * @param	[type]		$uid: ...
-	 * @param	[type]		$forced: ...
-	 * @return	[type]		...
+	 * @param	string		$label: The label (or image)
+	 * @param	string		$table: The table, fx. 'tt_content'
+	 * @param	integer		$uid: The uid of the element to be edited
+	 * @param	boolean		$forced: By default the link is not shown if translatorMode is set, but with this boolean it can be forced anyway.
+	 * @return	string		HTML anchor tag containing the label and the correct link
+	 * @access protected
 	 */
-	function link_edit($label, $table, $uid, $forced=FALSE)	{
+	function link_edit($label, $table, $uid, $forced = FALSE) {
 		if ($label) {
 			if (($table == 'pages' && ($this->calcPerms & 2) ||
 			     $table != 'pages' && ($this->calcPerms & 16)) &&
@@ -2151,11 +2185,10 @@ table.typo3-dyntabmenu td.disabled:hover {
 	}
 
 	/**
-	 * Returns an HTML link for browsing an existing record
+	 * Returns an image in a HTML link for browsing an existing record
 	 *
-	 * @param	string		$label: The label (or image)
 	 * @param	array		$parentPointer: Flexform pointer defining the parent element of the new record
-	 * @return	string		HTML anchor tag containing the label and the correct link
+	 * @return	string		image inside a HTML anchor tag containing the label and the correct link
 	 * @access protected
 	 */
 	function icon_browse($parentPointer) {
@@ -2186,11 +2219,10 @@ table.typo3-dyntabmenu td.disabled:hover {
 	}
 
 	/**
-	 * Returns an HTML link for creating a new record
+	 * Returns an image in a HTML link for creating a new record
 	 *
-	 * @param	string		$label: The label (or image)
 	 * @param	array		$parentPointer: Flexform pointer defining the parent element of the new record
-	 * @return	string		HTML anchor tag containing the label and the correct link
+	 * @return	string		image inside a HTML anchor tag containing the label and the correct link
 	 * @access protected
 	 */
 	function icon_new($parentPointer) {
@@ -2203,11 +2235,12 @@ table.typo3-dyntabmenu td.disabled:hover {
 	}
 
 	/**
-	 * [Describe function...]
+	 * Returns an HTML link for creating a new record
 	 *
-	 * @param	[type]		$label: ...
-	 * @param	[type]		$parentPointer: ...
-	 * @return	[type]		...
+	 * @param	string		$label: The label (or image)
+	 * @param	array		$parentPointer: Flexform pointer defining the parent element of the new record
+	 * @return	string		HTML anchor tag containing the label and the correct link
+	 * @access protected
 	 */
 	function link_new($label, $parentPointer) {
 		$parameters =
@@ -2218,13 +2251,11 @@ table.typo3-dyntabmenu td.disabled:hover {
 	}
 
 	/**
-	 * Returns an HTML link for unlinking a content element. Unlinking means that the record still exists but
-	 * is not connected to any other content element or page.
+	 * Returns an image in a HTML link for unlinking a content element. Unlinking means that the record still
+	 * exists but is not connected to any other content element or page.
 	 *
-	 * @param	string		$label: The label
 	 * @param	array		$unlinkPointer: Flexform pointer pointing to the element to be unlinked
-	 * @param	boolean		$realDelete: If set, the record is not just unlinked but deleted!
-	 * @return	string		HTML anchor tag containing the label and the unlink-link
+	 * @return	string		image inside a HTML anchor tag containing the label and the unlink-link
 	 * @access protected
 	 */
 	function icon_unlink($unlinkPointer) {
@@ -2238,12 +2269,13 @@ table.typo3-dyntabmenu td.disabled:hover {
 	}
 
 	/**
-	 * [Describe function...]
+	 * Returns an HTML link for unlinking a content element. Unlinking means that the record still exists but
+	 * is not connected to any other content element or page.
 	 *
-	 * @param	[type]		$label: ...
-	 * @param	[type]		$unlinkPointer: ...
-	 * @param	[type]		$realDelete: ...
-	 * @return	[type]		...
+	 * @param	string		$label: The label
+	 * @param	array		$unlinkPointer: Flexform pointer pointing to the element to be unlinked
+	 * @return	string		HTML anchor tag containing the label and the unlink-link
+	 * @access protected
 	 */
 	function link_unlink($label, $unlinkPointer) {
 
@@ -2258,13 +2290,10 @@ table.typo3-dyntabmenu td.disabled:hover {
 	}
 
 	/**
-	 * Returns an HTML link for unlinking a content element. Unlinking means that the record still exists but
-	 * is not connected to any other content element or page.
+	 * Returns an image in a HTML link for deleting a content element.
 	 *
-	 * @param	string		$label: The label
 	 * @param	array		$unlinkPointer: Flexform pointer pointing to the element to be unlinked
-	 * @param	boolean		$realDelete: If set, the record is not just unlinked but deleted!
-	 * @return	string		HTML anchor tag containing the label and the unlink-link
+	 * @return	string		image inside a HTML anchor tag containing the label and the unlink-link
 	 * @access protected
 	 */
 	function icon_delete($unlinkPointer) {
@@ -2275,12 +2304,12 @@ table.typo3-dyntabmenu td.disabled:hover {
 	}
 
 	/**
-	 * [Describe function...]
+	 * Returns an HTML link for deleting a content element.
 	 *
-	 * @param	[type]		$label: ...
-	 * @param	[type]		$unlinkPointer: ...
-	 * @param	[type]		$realDelete: ...
-	 * @return	[type]		...
+	 * @param	string		$label: The label
+	 * @param	array		$unlinkPointer: Flexform pointer pointing to the element to be unlinked
+	 * @return	string		HTML anchor tag containing the label and the unlink-link
+	 * @access protected
 	 */
 	function link_delete($label, $unlinkPointer) {
 
@@ -2291,11 +2320,11 @@ table.typo3-dyntabmenu td.disabled:hover {
 	}
 
 	/**
-	 * Returns an HTML link for making a reference content element local to the page (copying it).
+	 * Returns an image in a HTML link for making a reference content element local to the page (copying it).
 	 *
-	 * @param	string		$label: The label
 	 * @param	array		$makeLocalPointer: Flexform pointer pointing to the element which shall be copied
-	 * @return	string		HTML anchor tag containing the label and the unlink-link
+	 * @param	string		$realDup: Indicated if the element isn't possibly allready from the current page
+	 * @return	string		image inside a HTML anchor tag containing the label and the unlink-link
 	 * @access protected
 	 */
 	function icon_makeLocal($makeLocalPointer, $realDup = 0) {
@@ -2311,11 +2340,12 @@ table.typo3-dyntabmenu td.disabled:hover {
 	}
 
 	/**
-	 * [Describe function...]
+	 * Returns an HTML link for making a reference content element local to the page (copying it).
 	 *
-	 * @param	[type]		$label: ...
-	 * @param	[type]		$makeLocalPointer: ...
-	 * @return	[type]		...
+	 * @param	string		$label: The label
+	 * @param	array		$makeLocalPointer: Flexform pointer pointing to the element which shall be copied
+	 * @return	string		HTML anchor tag containing the label and the unlink-link
+	 * @access protected
 	 */
 	function link_makeLocal($label, $makeLocalPointer) {
 
@@ -2323,11 +2353,11 @@ table.typo3-dyntabmenu td.disabled:hover {
 	}
 
 	/**
-	 * [Describe function...]
+	 * Returns an checkbox for jamming of inheritance of the given element
 	 *
-	 * @param	[type]		$label: ...
-	 * @param	[type]		$parentPointer: ...
-	 * @return	[type]		...
+	 * @param	array		$parentPointer: Flexform pointer defining the element to be jammed
+	 * @return	string		HTML anchor tag containing the label and the correct link
+	 * @access protected
 	 */
 	function cbox_jamm($parentPointer) {
 		$parentPointer['vLang'] = '_JAMM';
@@ -2337,11 +2367,11 @@ table.typo3-dyntabmenu td.disabled:hover {
 	}
 
 	/**
-	 * [Describe function...]
+	 * Returns an checkbox for unjamming of inheritance of the given element
 	 *
-	 * @param	[type]		$label: ...
-	 * @param	[type]		$parentPointer: ...
-	 * @return	[type]		...
+	 * @param	array		$parentPointer: Flexform pointer defining the element to be unjammed
+	 * @return	string		HTML anchor tag containing the label and the correct link
+	 * @access protected
 	 */
 	function cbox_unjamm($parentPointer) {
 		$parentPointer['vLang'] = '_JAMM';
@@ -2351,11 +2381,11 @@ table.typo3-dyntabmenu td.disabled:hover {
 	}
 
 	/**
-	 * [Describe function...]
+	 * Returns an checkbox for jamming/unjamming of inheritance of the given element
 	 *
-	 * @param	[type]		$label: ...
-	 * @param	[type]		$parentPointer: ...
-	 * @return	[type]		...
+	 * @param	array		$parentPointer: Flexform pointer defining the element to be jammed/unjammed
+	 * @return	string		HTML anchor tag containing the label and the correct link
+	 * @access protected
 	 */
 	function cbox_jammswitch($parentPointer) {
 		$parentPointer['vLang'] = '_JAMM';
@@ -2389,11 +2419,12 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 
 
-	/*************************************************
+
+	/*******************************************
 	 *
 	 * Processing and structure functions (protected)
 	 *
-	 *************************************************/
+	 *******************************************/
 
 	function sanitizeID($tvid) {
 		return
