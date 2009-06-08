@@ -591,7 +591,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 					if ($this->canEditPage) {
 						// Edit icon only if page can be modified by user
-						$content .= '<br /><br /><strong>'.$this->icon_edit(array('table'=>'pages','uid'=>$this->id)).'</strong>';
+						$content .= '<br /><br /><strong>' . $this->icon_edit(array('table' => 'pages', 'uid' => $this->id)) . '</strong>';
 					}
 
 					// Do not output editing code for special doctypes!
@@ -1025,6 +1025,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 									$GLOBALS['LANG']->sL($fieldContent['meta']['title'], 1) . '
 								</div>
 								<div style="float: right;" class="nobr">' .
+									($this->canEditPage ?
 									($fieldData['inheritance'] ? '
 									<label>
 										<span>jamm inheritance</span>
@@ -1032,6 +1033,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 									</label>
 									' : '') .
 									$this->icon_unlink($groupElementPointer) . '
+									' : '') . '
 								</div>
 							</th>';
 						$footerCells[] = '
@@ -1265,7 +1267,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 									foreach ($sectionData[$sectionFieldKey]['el'] as $containerFieldKey => $containerData) {
 										if ($containerFieldKey[0] != '_') {
 											$cellContent .=
-												'<dt style="width: 25%; float: left; clear: left;"><strong>' . $containerFieldKey.'</strong></dt> ' .
+												'<dt style="width: 25%; float: left; clear: left;"><strong>' . $containerFieldKey . '</strong></dt> ' .
 												'<dd style="margin-left: 25%;">'.
 												(trim($containerData[$vKey]) != ''
 												?	$this->link_edit(htmlspecialchars(t3lib_div::fixed_lgd_cs(strip_tags($containerData[$vKey]), 200)), $table, $uid) . ' &nbsp;'
@@ -1369,14 +1371,14 @@ table.typo3-dyntabmenu td.disabled:hover {
 				case 'text':		//	Text
 				case 'table':		//	Table
 				case 'mailform':	//	Form
-					$output = $this->link_edit('<strong>'.$GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content','bodytext'), 1) . '</strong> ' . htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['bodytext'])), 2000)), 'tt_content', $row['uid']);
+					$output = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content','bodytext'), 1) . '</strong> ' . htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['bodytext'])), 2000)), 'tt_content', $row['uid']);
 					break;
 				case 'image':		//	Image
-					$output = $this->link_edit('<strong>'.$GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content','image'), 1) . '</strong><br /> ', 'tt_content', $row['uid']).t3lib_BEfunc::thumbCode ($row, 'tt_content', 'image', $this->doc->backPath);
+					$output = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content','image'), 1) . '</strong><br /> ', 'tt_content', $row['uid']).t3lib_BEfunc::thumbCode ($row, 'tt_content', 'image', $this->doc->backPath);
 					break;
 				case 'textpic':		//	Text w/image
 				case 'splash':		//	Textbox
-					$thumbnail = '<strong>'.$GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'image'), 1) . '</strong><br />';
+					$thumbnail = '<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'image'), 1) . '</strong><br />';
 					$thumbnail .= t3lib_BEfunc::thumbCode($row, 'tt_content', 'image', $this->doc->backPath);
 					$text = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'bodytext'), 1) . '</strong> ' . htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['bodytext'])), 2000)), 'tt_content', $row['uid']);
 					$output='<table><tr><td valign="top">' . $text . '</td><td valign="top">' . $thumbnail . '</td></tr></table>';
@@ -2169,16 +2171,16 @@ table.typo3-dyntabmenu td.disabled:hover {
 		if ($label) {
 			if (($table == 'pages' && ($this->calcPerms & 2) ||
 			     $table != 'pages' && ($this->calcPerms & 16)) &&
-				(!$this->translatorMode || $forced))	{
-					if ($table == "pages" && $this->currentLanguageUid) {
-						return '<a href="' . $this->baseScript . $this->link_getParameters() . '&amp;editPageLanguageOverlay=' . $this->currentLanguageUid . '">' . $label . '</a>';
-					} else {
-						$onClick = t3lib_BEfunc::editOnClick('&edit[' . $table . '][' . $uid . ']=edit', $this->doc->backPath);
-						return '<a href="#" onclick="' . htmlspecialchars($onClick) . '">' . $label . '</a>';
-					}
+			    (!$this->translatorMode || $forced)) {
+				if ($table == "pages" && $this->currentLanguageUid) {
+					return '<a href="' . $this->baseScript . $this->link_getParameters() . '&amp;editPageLanguageOverlay=' . $this->currentLanguageUid . '">' . $label . '</a>';
 				} else {
-					return $label;
+					$onClick = t3lib_BEfunc::editOnClick('&edit[' . $table . '][' . $uid . ']=edit', $this->doc->backPath);
+					return '<a href="#" onclick="' . htmlspecialchars($onClick) . '">' . $label . '</a>';
 				}
+			} else {
+				return $label;
+			}
 		}
 
 		return '';
@@ -3414,13 +3416,15 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 					'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/zoom.gif') . ' title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.showPage', 1) . '" hspace="3" alt="" />' .
 					'</a>';
 
-			if ($this->CALC_PERMS & 2) {
+			if ($this->CALC_PERMS & 8) {
 				// Create new page wizard
 				$params = 'id=' . $this->id . '&pagesOnly=1';
 				$buttons['new'] = '<a href="' . $this->doc->backPath . 'db_new.php?' . $params . '&returnUrl=' . rawurlencode($this->baseScript . $this->link_getParameters()) . '">' .
 					'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/new_page.gif', 'width="13" height="12"') . ' title="' . htmlspecialchars($GLOBALS['LANG']->getLL('clickForWizard')) . '" alt="" />' .
 					'</a>';
+			}
 
+			if ($this->CALC_PERMS & 2) {
 				// Edit page properties
 				$params = '&edit[pages][' . $this->id . ']=edit';
 				$buttons['edit_page'] = '<a href="#" onclick="' . htmlspecialchars(t3lib_BEfunc::editOnClick($params, $BACK_PATH)) . '">' .
@@ -3428,7 +3432,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 					'</a>';
 
 				// Unhide
-				if ($this->pageinfo['hidden'])	{
+				if ($this->pageinfo['hidden']) {
 					$params = '&data[pages][' . $this->pageinfo['uid'] . '][hidden]=0';
 					$buttons['hide_unhide'] = '<a href="#" onclick="' . htmlspecialchars('return jumpToUrl(\'' . $GLOBALS['SOBE']->doc->issueCommand($params, -1) . '\');') . '">' .
 									'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/button_unhide.gif') . ' title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:unHidePage', 1) . '" alt="" />' .
@@ -3462,7 +3466,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 		}
 
 		// Shortcut
-		if ($BE_USER->mayMakeShortcut())	{
+		if ($BE_USER->mayMakeShortcut()) {
 			$buttons['shortcut'] = $this->doc->makeShortcutIcon('id, edit_record, pointer, new_unique_uid, search_field, search_levels, showLimit', implode(',', array_keys($this->MOD_MENU)), $this->MCONF['name']);
 		}
 
