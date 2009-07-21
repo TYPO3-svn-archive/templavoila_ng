@@ -1126,21 +1126,27 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 			'shortcut' => '',
 		);
 
-			// If access to Web>List for user, then link to that module.
+		// If access to Web>List for user, then link to that module.
 		if ($BE_USER->check('modules','web_list') && $this->pageinfo['uid']) {
 			$href = $BACK_PATH . 'db_list.php?id=' . $this->pageinfo['uid'] . '&returnUrl=' . rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI'));
 			$buttons['record_list'] = '<a href="' . htmlspecialchars($href) . '">' .
 					'<img src="' . t3lib_iconWorks::skinImg($BACK_PATH, 'MOD:web_list/list.gif','width="16" height="16"', 1) . '" title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.showList', 1) . '" alt="" />' .
 					'</a>';
 		}
-			// Back
+
+		// Back (first global, then local, then specialized
+		if ($this->id) {
+			$buttons['back'] = '<a href="' . htmlspecialchars($this->mod2Script) . '">' .
+				'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/goback.gif') . ' class="c-inputButton" title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.goBack', 1) . '" alt="" />' .
+				'</a>';
+		}
 		if ($this->R_URI) {
 			$buttons['back'] = '<a href="' . htmlspecialchars($this->R_URI) . '" class="typo3-goBack">' .
 				'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/goback.gif') . ' alt="" />' .
 				'</a>';
 		}
 
-			// CSH
+		// CSH
 		$buttons['csh'] = t3lib_BEfunc::cshItem('_MOD_web_tv', '', $GLOBALS['BACK_PATH']);
 
 			// View page
@@ -1148,7 +1154,7 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 	//			'<img' . t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/zoom.gif') . ' title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.showPage', 1) . '" hspace="3" alt="" />' .
 	//			'</a>';
 
-			// Shortcut
+		// Shortcut
 		if ($BE_USER->mayMakeShortcut())	{
 			$buttons['shortcut'] = $this->doc->makeShortcutIcon('id, edit_record, pointer, new_unique_uid, search_field, search_levels, showLimit', implode(',', array_keys($this->MOD_MENU)), $this->MCONF['name']);
 		}

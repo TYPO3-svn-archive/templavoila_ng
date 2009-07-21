@@ -462,7 +462,13 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 				setHighlight(' . intval($this->id) . ');
 			');
 
-			/* Prototype /Scriptaculous */
+//			/* Prototype / ExtJS */
+//			$this->doc->loadPrototype();
+//			$this->doc->loadExtJS(true, true, 'prototype');
+//
+//			$this->doc->JScode .= '<script src="' . t3lib_extMgm::extRelPath($this->extKey) . 'res/page-dd.js" type="text/javascript"></script>';
+
+			/* Prototype / Scriptaculous */
 			$this->doc->JScode .= '<script src="' . $this->doc->backPath . 'contrib/prototype/prototype.js" type="text/javascript"></script>';
 
 			/* Drag'N'Drop bug:
@@ -627,6 +633,28 @@ table.typo3-dyntabmenu td.disabled:hover {
 						Sortable.create(sortable_containers[s], sortable_parameters);
 					}
 				});
+
+//				Ext.onReady(function() {
+//					sortable_clipboard = \'' . $this->sanitizeID('tt_content' . SEPARATOR_PARMS) . '\';
+//					sortable_removeHidden = ' . ($this->MOD_SETTINGS['tt_content_showHidden'] ? 'false' : 'true') . ';
+//					sortable_baseLink = \'' . $this->baseScript . $this->link_getParameters() . '\';
+//					sortable_containers = [
+//						"' . implode('",
+//						"', $this->sortableContainers) . '"
+//					];
+//
+//					for (var s = 0; s < sortable_containers.length; s++) {
+//						var co = Ext.get(sortable_containers[s]);
+//						var ch = co.first(\'.sortableItem\');
+//
+//						while (ch) {
+//							ch.initDD(\'tv\');
+//							ch = ch.next(\'.sortableItem\');
+//						}
+//
+//						co.dd = new Ext.dd.DropZone(sortable_containers[s], { groups: \'tv\' });
+//					}
+//				});
 
 				</script>';
 			}
@@ -3282,7 +3310,13 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 			$this->doc->form = '<form action="' . htmlspecialchars($this->baseScript . $this->link_getParameters()) . '" method="post" autocomplete="off">' .
 				'<input type="hidden" id="browser[communication]" name="browser[communication]" />';
 
-			/* Prototype /Scriptaculous */
+//			/* Prototype / ExtJS */
+//			$this->doc->loadPrototype();
+//			$this->doc->loadExtJS(true, true, 'prototype');
+//
+//			$this->doc->JScode .= '<script src="' . $this->doc->backPath . t3lib_extMgm::extRelPath($this->extKey) . 'res/page-dd.js" type="text/javascript"></script>';
+
+			/* Prototype / Scriptaculous */
 			$this->doc->JScode .= '<script src="' . $this->doc->backPath . 'contrib/prototype/prototype.js" type="text/javascript"></script>';
 
 			/* Drag'N'Drop bug:
@@ -3295,7 +3329,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 			$this->doc->JScode .= '<script src="' . $this->doc->backPath . t3lib_extMgm::extRelPath($this->extKey) . 'res/page-dnd.js" type="text/javascript"></script>';
 
 			$vContent = $this->doc->getVersionSelector($this->id, 1);
-			if ($vContent)	{
+			if ($vContent) {
 				$this->content .= $this->doc->section('', $vContent);
 			}
 
