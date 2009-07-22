@@ -67,6 +67,8 @@ class tx_templavoila_wizards_page {
 	var $doc;		// A reference to the doc object of the parent object.
 	var $extKey;		// A reference to extension key of the parent object.
 
+	var $choices;		// how much free choices apart from the default one are available
+
 
 	/**
 	 * Initializes the wizards object. The calling class must make sure that the right locallang files are already loaded.
@@ -81,6 +83,8 @@ class tx_templavoila_wizards_page {
 		$this->doc =& $this->pObj->doc;
 		$this->extKey =& $this->pObj->extKey;
 		$this->apiObj =& $this->pObj->apiObj;
+
+		$this->choices = 0;
 	}
 
 
@@ -219,6 +223,14 @@ class tx_templavoila_wizards_page {
 		$content .= '<input type="hidden" name="doCreate" value="1" />';
 		$content .= '<input type="hidden" name="cmd" value="crPage" />';
 
+		if (!$this->choices) {
+			$content .= '
+			<script>
+				document.getElementsByTagName(\'form\')[0].submit();
+			</script>
+			';
+		}
+
 		return $content;
 	}
 
@@ -239,81 +251,91 @@ class tx_templavoila_wizards_page {
 	 * @param	string		$templateType: The template type, 'tmplobj' or 't3d'
 	 * @return	string		HTML output containing a table with the template selector
 	 */
-	function renderTemplateSelector ($positionPid, $templateType='tmplobj') {
-		global $TYPO3_DB;
-
-		$storageFolderPID = $this->apiObj->getStorageFolderPid($positionPid);
+	function renderTemplateSelector($positionPid, $templateType = 'tmplobj') {
 		$tmplHTML = array();
 
 		switch ($templateType) {
 			case 'tmplobj':
+				$storageFolderPID = $this->apiObj->getStorageFolderPid($positionPid);
+
 				// Create the "Default template" entry
-				$previewIconFilename = $GLOBALS['BACK_PATH'] . '../' . t3lib_extMgm::siteRelPath($this->extKey) . 'res/default_previewicon.gif';
-				$previewIcon = '<input type="image" class="c-inputButton" name="i0" value="0" src="' . $previewIconFilename . '" title="" />';
+				$previewIconSrcDef = t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'res/default_previewicon.gif', '');
+
+				$previewIcon = '<input' . $previewIconSrcDef . ' type="image" class="c-inputButton" name="i0" value="0" title="" />';
 				$description = htmlspecialchars($GLOBALS['LANG']->getLL('template_descriptiondefault'));
-				$tmplHTML [] = '<table style="float:left; width: 100%;" valign="top"><tr><td colspan="2" nowrap="nowrap">
+				$tmplHTML[] = '<table style="float:left; width: 100%;" valign="top"><tr><td colspan="2" nowrap="nowrap">
 					<h3 class="bgColor3-20">' . htmlspecialchars($GLOBALS['LANG']->getLL('template_titledefault')) . '</h3></td></tr>
 					<tr><td valign="top">' . $previewIcon . '</td><td width="120" valign="top"><p>' . $description . '</p></td></tr></table>';
 
 				$tTO = 'tx_templavoila_tmplobj';
 				$tDS = 'tx_templavoila_datastructure';
-				$where = $tTO . '.parent=0 AND ' . $tTO . '.pid=' .
+				$where = $tTO . '.parent=0 AND ' .
+					 $tTO . '.pid=' .
 						intval($storageFolderPID) . ' AND ' . $tDS . '.scope=' . TVDS_SCOPE_PAGE .
-						$this->buildRecordWhere($tTO) . $this->buildRecordWhere($tDS) .
-						t3lib_befunc::deleteClause ($tTO).t3lib_befunc::deleteClause ($tDS).
-						t3lib_BEfunc::versioningPlaceholderClause($tTO).t3lib_BEfunc::versioningPlaceholderClause($tDS);
+						$this->buildRecordWhere($tTO) .
+						$this->buildRecordWhere($tDS) .
+						t3lib_befunc::deleteClause($tTO) .
+						t3lib_befunc::deleteClause($tDS).
+						t3lib_BEfunc::versioningPlaceholderClause($tTO) .
+						t3lib_BEfunc::versioningPlaceholderClause($tDS);
 
-				$res = $TYPO3_DB->exec_SELECTquery (
+				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 					$tTO . '.*',
-					$tTO . ' LEFT JOIN ' . $tDS . ' ON ' . $tTO . '.datastructure = ' . $tDS . '.uid',
+					$tTO . ' LEFT JOIN ' . $tDS . ' ON ' .
+					$tTO . '.datastructure = ' . $tDS . '.uid',
 					$where
 				);
 
-				while (false !== ($row = $TYPO3_DB->sql_fetch_assoc($res)))	{
+				while (false !== ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+					// we got active choices
+					$this->choices++;
+
 					// Check if preview icon exists, otherwise use default icon:
-					$tmpFilename = 'uploads/tx_templavoila/'.$row['previewicon'];
-					$previewIconFilename = (@is_file(PATH_site.$tmpFilename)) ? ($GLOBALS['BACK_PATH'] . '../' . $tmpFilename) : ($GLOBALS['BACK_PATH'] . '../' . t3lib_extMgm::siteRelPath($this->extKey) . 'res/default_previewicon.gif');
+					$tmpFilename = 'uploads/tx_templavoila/' . $row['previewicon'];
+					$previewIconSrc = (@is_file(PATH_site . $tmpFilename) ? ' src="' . $GLOBALS['BACK_PATH'] . '../' . $tmpFilename . '"' : $previewIconSrcDef);
 
 					// Note: we cannot use value of image input element because MSIE replaces this value with mouse coordinates! Thus on click we set value to a hidden field. See http://bugs.typo3.org/view.php?id=3376
-					$previewIcon = '<input type="image" class="c-inputButton" name="i' .$row['uid'] . '" onclick="document.getElementById(\'data_tx_templavoila_to\').value='.$row['uid'].'" src="'.$previewIconFilename.'" title="" />';
-					$description = $row['description'] ? htmlspecialchars($row['description']) : $GLOBALS['LANG']->getLL ('template_nodescriptionavailable');
-					$tmplHTML [] = '<table style="width: 100%;" valign="top"><tr><td colspan="2" nowrap="nowrap"><h3 class="bgColor3-20">'.htmlspecialchars($row['title']).'</h3></td></tr>'.
-						'<tr><td valign="top">'.$previewIcon.'</td><td width="120" valign="top"><p>'.$description.'</p></td></tr></table>';
+					$previewIcon = '<input' . $previewIconSrc . ' type="image" class="c-inputButton" name="i' . $row['uid'] . '" onclick="document.getElementById(\'data_tx_templavoila_to\').value=' . $row['uid'] . '" title="" />';
+					$description = $row['description'] ? htmlspecialchars($row['description']) : $GLOBALS['LANG']->getLL('template_nodescriptionavailable');
+					$tmplHTML[] = '<table style="width: 100%;" valign="top"><tr><td colspan="2" nowrap="nowrap"><h3 class="bgColor3-20">' . htmlspecialchars($row['title']) . '</h3></td></tr>'.
+						'<tr><td valign="top">' . $previewIcon . '</td><td width="120" valign="top"><p>' . $description . '</p></td></tr></table>';
 				}
 
 				$tmplHTML[] = '<input type="hidden" id="data_tx_templavoila_to" name="data[tx_templavoila_to]" value="0" />';
 				break;
 
 			case 't3d':
-				if (t3lib_extMgm::isLoaded('impexp'))	{
-
+				if (t3lib_extMgm::isLoaded('impexp')) {
 					// Read template files from a certain folder. I suggest this is configurable in some way. But here it is hardcoded for initial tests.
-					$templateFolder = PATH_site.$GLOBALS['TYPO3_CONF_VARS']['BE']['fileadminDir'].'/export/templates/';
-					$files = t3lib_div::getFilesInDir($templateFolder,'t3d,xml',1,1);
+					$templateFolder = PATH_site . $GLOBALS['TYPO3_CONF_VARS']['BE']['fileadminDir'] . '/export/templates/';
+					$files = t3lib_div::getFilesInDir($templateFolder, 't3d,xml', 1, 1);
 
 					// Traverse the files found:
-					foreach($files as $absPath)	{
+					foreach ($files as $absPath) {
 						// Initialize the import object:
 						$import = $this->getImportObject();
-						if ($import->loadFile($absPath))	{
+						if ($import->loadFile($absPath)) {
 							// This means there are pages in the file, we like that...:
 							if (is_array($import->dat['header']['pagetree'])) {
+								// we got active choices
+								$this->choices++;
+
 								// Page tree:
 								reset($import->dat['header']['pagetree']);
 								$pageTree = current($import->dat['header']['pagetree']);
 
 								// Thumbnail icon:
-								if (is_array($import->dat['header']['thumbnail']))	{
+								if (is_array($import->dat['header']['thumbnail'])) {
 									$pI = pathinfo($import->dat['header']['thumbnail']['filename']);
-									if (t3lib_div::inList('gif,jpg,png,jpeg',strtolower($pI['extension'])))	{
+									if (t3lib_div::inList('gif,jpg,png,jpeg', strtolower($pI['extension']))) {
 										// Construct filename and write it:
-										$fileName = PATH_site . 'typo3temp/importthumb_'.t3lib_div::shortMD5($absPath).'.'.$pI['extension'];
+										$fileName = PATH_site . 'typo3temp/importthumb_' . t3lib_div::shortMD5($absPath) . '.' . $pI['extension'];
 										t3lib_div::writeFile($fileName, $import->dat['header']['thumbnail']['content']);
 
 										// Check that the image really is an image and not a malicious PHP script...
 										if (getimagesize($fileName)) {
 											// Create icon tag:
-											$iconTag = '<img src="'.$this->doc->backPath.'../'.substr($fileName,strlen(PATH_site)).'" '.$import->dat['header']['thumbnail']['imgInfo'][3].' vspace="5" style="border: solid black 1px;" alt="" />';
+											$iconTag = '<img src="' . $this->doc->backPath . '../' . substr($fileName, strlen(PATH_site)) . '" ' . $import->dat['header']['thumbnail']['imgInfo'][3] . ' vspace="5" style="border: solid black 1px;" alt="" />';
 										} else {
 											t3lib_div::unlink_tempfile($fileName);
 											$iconTag = '';
@@ -321,14 +343,14 @@ class tx_templavoila_wizards_page {
 									}
 								}
 
-								$aTagB = '<a href="'.htmlspecialchars(t3lib_div::linkThisScript(array('templateFile' => $absPath))).'">';
+								$aTagB = '<a href="' . htmlspecialchars(t3lib_div::linkThisScript(array('templateFile' => $absPath))) . '">';
 								$aTagE = '</a>';
-								$tmplHTML [] = '<table style="float:left; width: 100%;" valign="top"><tr><td colspan="2" nowrap="nowrap">
-					<h3 class="bgColor3-20">'.$aTagB.htmlspecialchars($import->dat['header']['meta']['title'] ? $import->dat['header']['meta']['title'] : basename($absPath)).$aTagE.'</h3></td></tr>
-					<tr><td valign="top">'.$aTagB.$iconTag.$aTagE.'</td><td valign="top"><p>'.htmlspecialchars($import->dat['header']['meta']['description']).'</p>
-						<em>Levels: '.(count($pageTree)>1 ? 'Deep structure' : 'Single page').'<br/>
-						File: '.basename($absPath).'</em></td></tr></table>';
 
+								$tmplHTML [] = '<table style="float:left; width: 100%;" valign="top"><tr><td colspan="2" nowrap="nowrap">
+					<h3 class="bgColor3-20">' . $aTagB . htmlspecialchars($import->dat['header']['meta']['title'] ? $import->dat['header']['meta']['title'] : basename($absPath)) . $aTagE . '</h3></td></tr>
+					<tr><td valign="top">' . $aTagB . $iconTag . $aTagE . '</td><td valign="top"><p>' . htmlspecialchars($import->dat['header']['meta']['description']) . '</p>
+						<em>Levels: ' . (count($pageTree) > 1 ? 'Deep structure' : 'Single page').'<br/>
+						File: ' . basename($absPath) . '</em></td></tr></table>';
 							}
 						}
 					}
@@ -362,7 +384,7 @@ class tx_templavoila_wizards_page {
 	 * @param	integer		$positionPid: location within the page tree (parent id)
 	 * @return	integer		uid of the new page record
 	 */
-	function createPage($pageArray,$positionPid)	{
+	function createPage($pageArray, $positionPid) {
 		$dataArr = array();
 		$dataArr['pages']['NEW'] = $pageArray;
 		$dataArr['pages']['NEW']['pid'] = $positionPid;
@@ -381,7 +403,7 @@ class tx_templavoila_wizards_page {
 
 		// set default TCA values specific for the user
 		$TCAdefaultOverride = $GLOBALS['BE_USER']->getTSConfigProp('TCAdefaults');
-		if (is_array($TCAdefaultOverride))	{
+		if (is_array($TCAdefaultOverride)) {
 			$tce->setDefaultsFromUserTS($TCAdefaultOverride);
 		}
 

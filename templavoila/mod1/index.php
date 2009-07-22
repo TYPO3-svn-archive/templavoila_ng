@@ -2108,7 +2108,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @access protected
 	 */
 	function icon_view($el) {
-		$viewPageIcon = '<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/zoom.gif', 'width="12" height="12"') . ' title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:labels.showPage', 1) . '" alt="" />';
+		$viewPageIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/zoom.gif', 'width="12" height="12"') . ' title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:labels.showPage', 1) . '" alt="" />';
 
 		$label = $viewPageIcon;
 
@@ -2141,11 +2141,11 @@ table.typo3-dyntabmenu td.disabled:hover {
 	function icon_hide($el) {
 
 		$hideIcon = ($el['table'] == 'pages'
-		?	'<img' . t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/button_hide.gif',  '') . ' border="0" title="' . htmlspecialchars($GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:hidePage'  )) . '" alt="" />'
-		:	'<img' . t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/button_hide.gif',  '') . ' border="0" title="' . htmlspecialchars($GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:hide'      )) . '" alt="" />');
+		?	'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/button_hide.gif',  '') . ' border="0" title="' . htmlspecialchars($GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:hidePage'  )) . '" alt="" />'
+		:	'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/button_hide.gif',  '') . ' border="0" title="' . htmlspecialchars($GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:hide'      )) . '" alt="" />');
 		$unhideIcon = ($el['table'] == 'pages'
-		?	'<img' . t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/button_unhide.gif','') . ' border="0" title="' . htmlspecialchars($GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:unHidePage')) . '" alt="" />'
-		:	'<img' . t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/button_unhide.gif','') . ' border="0" title="' . htmlspecialchars($GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:unHide'    )) . '" alt="" />');
+		?	'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/button_unhide.gif','') . ' border="0" title="' . htmlspecialchars($GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:unHidePage')) . '" alt="" />'
+		:	'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/button_unhide.gif','') . ' border="0" title="' . htmlspecialchars($GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:unHide'    )) . '" alt="" />');
 
 		if ($el['isHidden'])
 			$label = $unhideIcon;

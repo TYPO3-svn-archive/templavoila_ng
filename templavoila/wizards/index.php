@@ -559,7 +559,7 @@ class tx_templavoila_wizard_integral extends tx_templavoila_wizard {
 		}
 
 		// Shortcut
-		if ($BE_USER->mayMakeShortcut())	{
+		if ($BE_USER->mayMakeShortcut()) {
 			$buttons['shortcut'] = $this->doc->makeShortcutIcon('id, edit_record, pointer, new_unique_uid, search_field, search_levels, showLimit', implode(',', array_keys($this->MOD_MENU)), $this->MCONF['name']);
 		}
 
