@@ -22,6 +22,7 @@
 			<label index="page_settings_all">Show hidden elements</label>
 
 			<label index="warning_elementusedmorethanonce">This element has been used %s times on this page! ID:%s</label>
+			<label index="warning_elementusedelsewheretoo">This element has been used %s times on other pages %s! Take care with editing, hiding and deleting!</label>
 			<label index="warning_containerSeparate">WARNING: This container element has localization without inheritance enabled (langChildren = 0). This is most likely a misconfiguration since the localization features of TemplaVoila does not support localized container fields in the native interface! Please inform the system administrator!</label>
 			<label index="warning_containerInheritance">This container element has localization enabled but with inheritance (langChildren = 1). This situation might produce confusing displays in TemplaVoila and you are encouraged to disable localization of this container element completely by setting langDisable = 1. Please inform the system administrator!</label>
 			<label index="warning_containerSeparate_short">L10N mode: Separate!</label>
@@ -65,6 +66,8 @@
 			<label index="multipleLanguages">Multiple languages</label>
 			<label index="languageDisabled">Language disabled</label>
 			<label index="viewsubelements">View sub elements</label>
+			<label index="jamming">jam inheritance</label>
+			<label index="statistics">(assigned %s element(s) of %s possible)</label>
 			<label index="gobacktooverview">Go back to whole page view</label>
 			<label index="createnewrecord">Create new element</label>
 			<label index="editrecord">Edit element</label>
@@ -93,7 +96,7 @@
 			<label index="defaultLanguage">Default language</label>
 			<label index="createcopyfortranslation">Create a copy for translation</label>
 			<label index="inititemno_elementsNotBeingUsed">Elements not being used in this language or sheet</label>
-			<label index="rendernonusedelements_deleteall">Delete all records above marked with delete-icon</label>
+			<label index="rendernonusedelements_deleteall">Delete all unused records from this page</label>
 			<label index="renderreferencecount_delete">Delete!</label>
 
 			<label index="sidebar_advancedfunctions_labelshowhidden">Show hidden elements</label>
@@ -145,6 +148,7 @@
 			<label index="page_settings_all">Versteckte Elemente anzeigen</label>
 
 			<label index="warning_elementusedmorethanonce">Dieses Element wird auf der aktuellen Seite %s mal verwendet! ID:%s</label>
+			<label index="warning_elementusedelsewheretoo">Dieses Element wird auch %s mal auf anderen Seiten %s verwendet! Achtung beim editieren, verstecken und löschen!</label>
 			<label index="warning_containerSeparate">ACHTUNG: Für dieses Container Element wurde Lokalisierung ohne Vererbung aktiviert (langChildren = 0). Dabei handelt es sich vermutlich um eine Fehlkonfiguration, weil die Standard Oberfläche von TemplaVoila die Darstellung von lokalisierten Container Feldern nicht unterstützt! Bitte informieren Sie den Entwickler dieser Website.</label>
 			<label index="warning_containerInheritance">Für dieses Container Element wurde Lokalisierung mit Vererbung aktiviert (langChildren = 1). Diese Konfiguration kann zu verwirrenden Darstellungen in TemplaVoila führen und es wird empfohlen, die Lokalisierung für dieses Container Element komplett auszuschalten, indem Sie langDisable auf &quot;1&quot; setzen. Bitte informieren Sie den Entwickler dieser Website.</label>
 			<label index="warning_containerSeparate_short">Übersetzungsmodus: Separat</label>
@@ -187,6 +191,8 @@
 			<label index="multipleLanguages">Mehrere Sprachen</label>
 			<label index="languageDisabled">Sprache deaktiviert</label>
 			<label index="viewsubelements">Unter-Elemente anzeigen</label>
+			<label index="jamming">Vererbung sperren</label>
+			<label index="statistics">(<span>%d</span> benutzte(s) Element(e) von <span>%d</span> möglichen)</label>
 			<label index="gobacktooverview">Zurück zur Ansicht der ganzen Seite</label>
 			<label index="createnewrecord">Neues Element anlegen</label>
 			<label index="editrecord">Element bearbeiten</label>
@@ -214,7 +220,7 @@
 			<label index="defaultLanguage">Standard Sprache</label>
 			<label index="createcopyfortranslation">Erstelle eine Kopie für Übersetzung</label>
 			<label index="inititemno_elementsNotBeingUsed">Elemente, die in diesem Blatt oder Sprache nicht verwendet werden</label>
-			<label index="rendernonusedelements_deleteall">Lösche alle obigen Datensätze, die mit einem Löschen-Symbol gekennzeichnet sind</label>
+			<label index="rendernonusedelements_deleteall">Lösche alle auf dieser Seite unbenutzten Datensätze</label>
 			<label index="renderreferencecount_delete">Löschen!</label>
 
 			<label index="sidebar_advancedfunctions_labelshowhidden">Zeige verborgene Elemente</label>

@@ -1056,7 +1056,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 									($this->canEditPage ?
 									($fieldData['inheritance'] ? '
 									<label>
-										<span>jamm inheritance</span>
+										<span>' . $GLOBALS['LANG']->getLL('jamming') . '</span>
 										<input type="checkbox" ' . ($fieldData['isJammed'] ? 'checked="checked" ' : '') . $this->cbox_jammswitch($groupElementPointer) . ' />
 									</label>
 									' : '') .
@@ -1065,8 +1065,8 @@ table.typo3-dyntabmenu td.disabled:hover {
 								</div>
 							</th>';
 						$footerCells[] = '
-							<td valign="top" width="###WIDTH###" style="background-color: ' . $this->doc->bgColor4 . ';" align="center" class="' . $stateClass . '">
-								(assigned <span>' . count($fieldContent['el']) . '</span> element(s) of <span>' . $fieldData['TCEforms']['config']['maxitems'] . '</span> possible)
+							<td valign="top" width="###WIDTH###" style="background-color: ' . $this->doc->bgColor4 . ';" align="center" class="' . $stateClass . '">' .
+								sprintf($GLOBALS['LANG']->getLL('statistics'), '<span>' . count($fieldContent['el']) . '</span>', '<span>' . $fieldData['TCEforms']['config']['maxitems'] . '</span>') . '
 							</td>';
 						$cells[] = '
 							<td valign="top" width="###WIDTH###" style="border: 1px dashed #000; padding: 5px 5px 5px 5px;" id="' . $cellId . '" class="' . $stateClass . '">' .
@@ -1858,7 +1858,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 		// Define l/v keys for current language:
 		$langChildren = intval($contentTreeArr['ds_meta']['langChildren']);
-		$langDisable = intval($contentTreeArr['ds_meta']['langDisable']);
+		$langDisable  = intval($contentTreeArr['ds_meta']['langDisable' ]);
 		$lKeys = $langDisable ? array('lDEF') : ($langChildren ? array('lDEF') : $this->translatedLanguagesArr_isoCodes['all_lKeys']);
 		$vKeys = $langDisable ? array('vDEF') : ($langChildren ? $this->translatedLanguagesArr_isoCodes['all_vKeys'] : array('vDEF'));
 
@@ -1982,6 +1982,34 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 *******************************************/
 
 	/**
+	 * Render a reference count in form of an HTML table for the content
+	 * element specified by $uid.
+	 *
+	 * @param	integer		$uid: Element record Uid
+	 * @return	string		HTML-table
+	 * @access	protected
+	 */
+	function checkReferenceCount($uid) {
+		$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+			'*',
+			'sys_refindex',
+			'ref_table=' . $GLOBALS['TYPO3_DB']->fullQuoteStr('tt_content', 'sys_refindex') .
+				' AND ref_uid=' . intval($uid) .
+				' AND deleted=0'
+		);
+
+		// Compile information for title tag:
+		$infoData = array();
+		if (is_array($rows)) {
+			foreach($rows as $row)	{
+				$infoData[] = $row['tablename'] . SEPARATOR_PARMS . $row['recuid'] . SEPARATOR_PARMS . $row['field'];
+			}
+		}
+
+		return $infoData;
+	}
+
+	/**
 	 * Return a block of warning messages regarding the state of a given
 	 * element.
 	 *
@@ -1993,8 +2021,13 @@ table.typo3-dyntabmenu td.disabled:hover {
 	function render_warnings(&$contentTreeArr, $shortmessage = false) {
 		$suffix = ($shortmessage ? '_short' : '');
 		$warnings = '';
-		if ($this->global_tt_content_elementRegister[$contentTreeArr['el']['uid']] > 1 && ($this->rootElementLangParadigm != 'free')) {
+
+		if (($this->global_tt_content_elementRegister[$contentTreeArr['el']['uid']] > 1) && ($this->rootElementLangParadigm != 'free')) {
 			$warnings .= '<div>' . $this->doc->icons(2) . ' <em>' . htmlspecialchars(sprintf($GLOBALS['LANG']->getLL('warning_elementusedmorethanonce', ''), $this->global_tt_content_elementRegister[$contentTreeArr['el']['uid']], $contentTreeArr['el']['uid'])) . '</em></div>';
+		}
+
+		if (($contentTreeArr['el']['table'] === 'tt_content') && ($ia = $this->checkReferenceCount($contentTreeArr['el']['uid'])) && (count($ia) > 1)) {
+			$warnings .= '<div>' . $this->doc->icons(2) . ' <em>' . sprintf(htmlspecialchars($GLOBALS['LANG']->getLL('warning_elementusedelsewheretoo', '')), count($ia), $this->link_warn('<img src="gfx/magnifier.png" class="absmiddle" />', $contentTreeArr['el']['uid'], $ia)) . '</em></div>';
 		}
 
 		// Displaying warning for container content (in default sheet - a limitation) elements if localization is enabled:
@@ -2016,11 +2049,6 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 		return $warnings;
 	}
-
-
-
-
-
 
 	/*******************************************
 	 *
@@ -2259,9 +2287,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 		$newIcon = '<img class="new"' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/new_el.gif', '') . ' border="0" title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:newRecordGeneral') . '" alt="" />';
 
-		$label = $newIcon;
-
-		return $this->link_new($label, $parentPointer);
+		return $this->link_new($newIcon, $parentPointer);
 	}
 
 	/**
@@ -2291,9 +2317,9 @@ table.typo3-dyntabmenu td.disabled:hover {
 	function icon_unlink($unlinkPointer) {
 
 		if (!$unlinkPointer['position'])
-			$unlinkIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'res/link_delete.png', '') . ' title="' . $GLOBALS['LANG']->getLL('unlinkRecord'    ) . '" border="0" alt="" />';
-		else
 			$unlinkIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'res/link_delete.png', '') . ' title="' . $GLOBALS['LANG']->getLL('unlinkRecordsAll') . '" border="0" alt="" />';
+		else
+			$unlinkIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'res/link_delete.png', '') . ' title="' . $GLOBALS['LANG']->getLL('unlinkRecord'    ) . '" border="0" alt="" />';
 
 		return $this->link_unlink($unlinkIcon, $unlinkPointer);
 	}
@@ -2350,6 +2376,33 @@ table.typo3-dyntabmenu td.disabled:hover {
 	}
 
 	/**
+	 * Returns an image in a HTML link for warn about a content element.
+	 *
+	 * @param	array		$unlinkPointer: Flexform pointer pointing to the element to be unlinked
+	 * @return	string		image inside a HTML anchor tag containing the label and the unlink-link
+	 * @access protected
+	 */
+	function icon_warn($uid, $infoData) {
+
+		$warningIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_warning2.gif', '') . 'class="absmiddle" title="' . htmlspecialchars('Ref: ' . count($infoData)) . '" border="0" alt="" />';
+
+		return $this->link_warn($warningIcon, $uid, $infoData);
+	}
+
+	/**
+	 * Returns an HTML link for warn about a content element.
+	 *
+	 * @param	string		$label: The label
+	 * @param	array		$unlinkPointer: Flexform pointer pointing to the element to be unlinked
+	 * @return	string		HTML anchor tag containing the label and the unlink-link
+	 * @access protected
+	 */
+	function link_warn($label, $uid, $infoData) {
+
+		return '<a href="#" onclick="' . htmlspecialchars('top.launchView(\'tt_content\', \'' . $uid . '\'); return false;') . '" title="' . htmlspecialchars(t3lib_div::fixed_lgd_cs(implode(' / ', $infoData), 100)) . '">' . $label . '</a>';
+	}
+
+	/**
 	 * Returns an image in a HTML link for making a reference content element local to the page (copying it).
 	 *
 	 * @param	array		$makeLocalPointer: Flexform pointer pointing to the element which shall be copied
@@ -2361,10 +2414,8 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 		$dupIcon = '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'mod1/makelocalcopy.gif', '') . ' title="' . $GLOBALS['LANG']->getLL('makeLocal') . '" border="0" alt="" />';
 
-		$label = $dupIcon;
-
 		if ($realDup)
-			return $this->link_makeLocal($label, $makeLocalPointer);
+			return $this->link_makeLocal($dupIcon, $makeLocalPointer);
 		else
 			return '';
 	}
