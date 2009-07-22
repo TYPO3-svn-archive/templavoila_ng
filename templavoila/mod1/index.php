@@ -2002,7 +2002,8 @@ table.typo3-dyntabmenu td.disabled:hover {
 		$infoData = array();
 		if (is_array($rows)) {
 			foreach($rows as $row)	{
-				$infoData[] = $row['tablename'] . SEPARATOR_PARMS . $row['recuid'] . SEPARATOR_PARMS . $row['field'];
+				if ($row['tablename'] == 'pages')
+					$infoData[] = $row['tablename'] . SEPARATOR_PARMS . $row['recuid'] . SEPARATOR_PARMS . $row['field'];
 			}
 		}
 
