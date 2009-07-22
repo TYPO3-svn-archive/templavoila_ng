@@ -3186,10 +3186,10 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 			';
 
 			// Add optionsmenu
-			$this->doc->loadJavascriptLib(t3lib_extMgm::extRelPath($this->extKey)."res/optionsmenu.js");
+			$this->doc->loadJavascriptLib(t3lib_extMgm::extRelPath($this->extKey) . "res/optionsmenu.js");
 
 			// Add custom styles
-			$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath($this->extKey)."mod1/styles.css";
+			$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath($this->extKey) . "mod1/styles.css";
 
 			// JavaScript
 			$this->doc->JScode = $this->doc->wrapScriptTags('
@@ -3357,7 +3357,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 				'CONTENT'   => $this->content,
 
 				'PAGEPATH'  => $this->getPagePath($this->pageinfo),
-				'PAGEINFO'  => $this->getPageInfo($this->pageinfo)
+				'PAGEINFO'  => 'x' . $this->getPageInfo($this->pageinfo)
 			);
 
 			// Build the <body> for the module
@@ -3367,13 +3367,57 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 			$this->content  = $this->doc->insertStylesAndJS($this->content);
 		} else {
 			// If no access
-			$this->doc = t3lib_div::makeInstance('mediumDoc');
+			$this->doc = t3lib_div::makeInstance('template');
 			$this->doc->backPath = $BACK_PATH;
+			$this->doc->setModuleTemplate('templates/page.html');
+			$this->doc->docType = 'xhtml_trans';
+			$this->doc->tableLayout = Array (
+				'0' => Array (
+					'0' => Array('<td valign="top"><b>','</b></td>'),
+					"defCol" => Array('<td><img src="'.$this->doc->backPath.'clear.gif" width="10" height="1" alt="" /></td><td valign="top"><b>','</b></td>')
+				),
+				"defRow" => Array (
+					"0" => Array('<td valign="top">','</td>'),
+					"defCol" => Array('<td><img src="'.$this->doc->backPath.'clear.gif" width="10" height="1" alt="" /></td><td valign="top">','</td>')
+				)
+			);
+
+			// Add custom styles
+			$this->doc->inDocStylesArray[] = '
+				/* stylesheet.css (line 189) */
+				body#ext-templavoila-mod1-index-php {
+					height: 100%;
+					margin: 0pt;
+					overflow: hidden;
+					padding: 0pt;
+				}
+
+				/* Drag N Drop */
+				table {position:relative;}
+				.sortableHandle {cursor:move;}
+			';
+
+			// Add optionsmenu
+			$this->doc->loadJavascriptLib(t3lib_extMgm::extRelPath($this->extKey) . "res/optionsmenu.js");
+
+			// Add custom styles
+			$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath($this->extKey) . "mod1/styles.css";
+
+			// Setting up the buttons and markers for docheader
+			$docHeaderButtons = $this->getButtons();
+			$markers = array(
+				'CSH'       => $docHeaderButtons['csh'],
+				'FUNC_MENU' => $this->getFuncMenuNoHSC($this->id, 'SET[page]', $this->MOD_SETTINGS['page'], $this->MOD_MENU['page'],'',t3lib_div::implodeArrayForUrl('',$_GET,'',1,1)),
+				'OPTS_MENU' => $this->getOptsMenuNoHSC(),
+
+				'CONTENT'   => '',
+
+				'PAGEPATH'  => '',
+				'PAGEINFO'  => ''
+			);
 
 			$this->content  = $this->doc->startPage($GLOBALS['LANG']->getLL('title'));
-			$this->content .= $this->doc->header($GLOBALS['LANG']->getLL('title'));
-			$this->content .= $this->doc->spacer(5);
-			$this->content .= $this->doc->spacer(10);
+			$this->content .= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $markers);
 			$this->content .= $this->doc->endPage();
 			$this->content  = $this->doc->insertStylesAndJS($this->content);
 		}
