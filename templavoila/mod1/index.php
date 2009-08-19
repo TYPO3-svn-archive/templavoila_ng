@@ -218,7 +218,8 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 
 		// If no translations exist for this page, set the current language to default (as there won't be a language selector)
 		$this->translatedLanguagesArr = $this->getAvailableLanguages($this->id);
-		if (count($this->translatedLanguagesArr) == 1) {	// Only default language exists
+		if (count($this->translatedLanguagesArr) == 1) {
+			// Only default language exists
 			$this->currentLanguageKey = 'DEF';
 		}
 
@@ -254,9 +255,9 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 	function menuConfig()	{
 		global $TYPO3_CONF_VARS;
 
-			// Prepare array of sys_language uids for available translations:
-		$this->translatedLanguagesArr = $this->getAvailableLanguages($this->id);
+		// Prepare array of sys_language uids for available translations:
 		$translatedLanguagesUids = array();
+		$this->translatedLanguagesArr = $this->getAvailableLanguages($this->id);
 		foreach ($this->translatedLanguagesArr as $languageRecord) {
 			$translatedLanguagesUids[$languageRecord['uid']] = $languageRecord['title'];
 		}
@@ -272,7 +273,7 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 			'recordsView_start' => ''
 		);
 
-			// Hook: menuConfig_preProcessModMenu
+		// Hook: menuConfig_preProcessModMenu
 		$menuHooks = $this->hooks_prepareObjectsArray('menuConfigClass');
 		foreach ($menuHooks as $hookObj) {
 			if (method_exists ($hookObj, 'menuConfig_preProcessModMenu')) {
@@ -280,14 +281,14 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 			}
 		}
 
-			// page/be_user TSconfig settings and blinding of menu-items
+		// page/be_user TSconfig settings and blinding of menu-items
 		$this->modTSconfig = t3lib_BEfunc::getModTSconfig($this->id,'mod.'.$this->MCONF['name']);
 		$this->MOD_MENU['view'] = t3lib_BEfunc::unsetMenuItems($this->modTSconfig['properties'],$this->MOD_MENU['view'],'menu.function');
 
 		if (!isset($this->modTSconfig['properties']['sideBarEnable'])) $this->modTSconfig['properties']['sideBarEnable'] = 1;
 		$this->modSharedTSconfig = t3lib_BEfunc::getModTSconfig($this->id, 'mod.SHARED');
 
-			// CLEANSE SETTINGS
+		// CLEANSE SETTINGS
 		$this->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->MOD_MENU, t3lib_div::_GP('SET'), $this->MCONF['name']);
 	}
 
@@ -316,8 +317,8 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 			return;
 		}
 
-			// Access check! The page will show only if there is a valid page and if this page may be viewed by the user
-		if (is_array($this->altRoot))	{
+		// Access check! The page will show only if there is a valid page and if this page may be viewed by the user
+		if (is_array($this->altRoot)) {
 			$access = true;
 		} else {
 			$pageInfoArr = t3lib_BEfunc::readPageAccess($this->id, $this->perms_clause);
@@ -384,17 +385,19 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 				}
 
 				function setHighlight(id) {	//
-				//	if (top.fsMod.recentIds["web"] == id)
-				//		return;
+					if (top.fsMod.recentIds["web"] == id)
+						return;
 
 					top.fsMod.recentIds["web"] = id;
-					top.fsMod.navFrameHighlightedID["web"] = "pages" + id + "_" + top.fsMod.currentBank;	// For highlighting
+				//	top.fsMod.navFrameHighlightedID["web"] = "pages" + id + "_" + top.fsMod.currentBank;	// For highlighting
 
-					if (top.content &&
-					    top.content.nav_frame &&
-					    top.content.nav_frame.refresh_nav) {
-						top.content.nav_frame.refresh_nav();
-					}
+					top.content.nav_frame.Tree.highlightActiveItem("web", "pages" + id + "_" + top.fsMod.currentBank);
+
+				//	if (top.content &&
+				//	    top.content.nav_frame &&
+				//	    top.content.nav_frame.refresh_nav) {
+				//		top.content.nav_frame.refresh_nav();
+				//	}
 				}
 
 				function editRecords(table, idList, addParams, CBflag) {	//
@@ -3264,17 +3267,19 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 				}
 
 				function setHighlight(id) {	//
-				//	if (top.fsMod.recentIds["web"] == id)
-				//		return;
+					if (top.fsMod.recentIds["web"] == id)
+						return;
 
 					top.fsMod.recentIds["web"] = id;
-					top.fsMod.navFrameHighlightedID["web"] = "pages" + id + "_" + top.fsMod.currentBank;	// For highlighting
+				//	top.fsMod.navFrameHighlightedID["web"] = "pages" + id + "_" + top.fsMod.currentBank;	// For highlighting
 
-					if (top.content &&
-					    top.content.nav_frame &&
-					    top.content.nav_frame.refresh_nav) {
-						top.content.nav_frame.refresh_nav();
-					}
+					top.content.nav_frame.Tree.highlightActiveItem("web", "pages" + id + "_" + top.fsMod.currentBank);
+
+				//	if (top.content &&
+				//	    top.content.nav_frame &&
+				//	    top.content.nav_frame.refresh_nav) {
+				//		top.content.nav_frame.refresh_nav();
+				//	}
 				}
 
 				function editRecords(table, idList, addParams, CBflag) {
