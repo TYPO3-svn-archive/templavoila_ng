@@ -1624,7 +1624,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 						$menuItems[] = '<input type="submit" name="_clear"       value="' . $GLOBALS['LANG']->getLL('actionClearDS') . '" title="' . $GLOBALS['LANG']->getLL('actiontitleClearDS') . '" />';
 					//	$menuItems[] = '<input type="submit" name="_preview"     value="' . $GLOBALS['LANG']->getLL('actionPreview') . '" title="' . $GLOBALS['LANG']->getLL('actiontitlePreview') . '" />';
 						$menuItems[] = '<input type="submit" name="_saveScreen"  value="' . $GLOBALS['LANG']->getLL('actionSaveas' ) . '" title="' . $GLOBALS['LANG']->getLL('actiontitleSaveas' ) . '" />'; if ($this->changedDS) {
-						$menuItems[] = '<input type="submit" name="_reload_from" value="' . $GLOBALS['LANG']->getLL('actionRevert' ) . '" title="' . $GLOBALS['LANG']->getLL('actiontitleRevert' ) . '" />'; }
+						$menuItems[] = '<input type="submit" name="_reload_from" value="' . $GLOBALS['LANG']->getLL('actionRevert' ) . '" title="' . $GLOBALS['LANG']->getLL('actiontitleRevertS') . '" />'; }
 						$menuItems[] = '<input type="submit" name="_loadScreen"  value="' . $GLOBALS['LANG']->getLL('actionLoad'   ) . '" title="' . $GLOBALS['LANG']->getLL('actiontitleLoad'   ) . '" />';
 						$menuItems[] = '<input type="submit" name="_DO_NOTHING"  value="' . $GLOBALS['LANG']->getLL('actionRefresh') . '" title="' . $GLOBALS['LANG']->getLL('actiontitleRefresh') . '" />';
 					} else {
@@ -2473,16 +2473,18 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			if (!$singleView) {
 				// Make either "Preview" button (body) or "Set" button (header)
 				$menuItems[] = '<input type="submit" name="_clear"             value="' . $GLOBALS['LANG']->getLL('actionClearTO') . '" title="' . $GLOBALS['LANG']->getLL('actiontitleClearTO') . '" />'; if ($headerPart) {	// Header:
-				$menuItems[] = '<input type="submit" name="_save_data_mapping" value="' . $GLOBALS['LANG']->getLL('actionSet'    ) . '" title="' . $GLOBALS['LANG']->getLL('actiontitleSet'    ) . '" />';	} else {		// Body:
+				$menuItems[] = '<input type="submit" name="_save_data_mapping" value="' . $GLOBALS['LANG']->getLL('actionSet'    ) . '" title="' . $GLOBALS['LANG']->getLL('actiontitleSet'    ) . '" />'; } else {		// Body:
 				$menuItems[] = '<input type="submit" name="_preview"           value="' . $GLOBALS['LANG']->getLL('actionPreview') . '" title="' . $GLOBALS['LANG']->getLL('actiontitlePreview') . '" />'; }
-				$menuItems[] = '<input type="submit" name="_save_to"           value="' . $GLOBALS['LANG']->getLL('actionSave'   ) . '" title="' . $GLOBALS['LANG']->getLL('actiontitleSave'   ) . '" />'; if ($this->returnUrl) {
+				$menuItems[] = '<input type="submit" name="_save_to"           value="' . $GLOBALS['LANG']->getLL('actionSave'   ) . '" title="' . $GLOBALS['LANG']->getLL('actiontitleSave'   ) . '" />';   if ($this->returnUrl) {
 				$menuItems[] = '<input type="submit" name="_save_to_return"    value="' . $GLOBALS['LANG']->getLL('actionSaveret') . '" title="' . $GLOBALS['LANG']->getLL('actiontitleSaveret') . '" />'; } if ($this->changedTO) { // If a difference is detected...:
-				$menuItems[] = '<input type="submit" name="_reload_from"       value="Revert"          title="' . sprintf('Reverting %s mapping data to original data in the Template Object.', $headerPart ? 'HEAD' : 'BODY') . '" />';
-
-				$msg[] = 'The current mapping information is different from the mapping information in the Template Object'; }
+				$menuItems[] = '<input type="submit" name="_reload_from"       value="' . $GLOBALS['LANG']->getLL('actionRevert' ) . '" title="' . sprintf($GLOBALS['LANG']->getLL('actiontitleRevertM'), $headerPart ? 'HEAD' : 'BODY') . '" />'; }
 			} else {
 				$menuItems[] = '<input type="submit" name="_save_data_mapping" value="' . $GLOBALS['LANG']->getLL('actionApply'  ) . '" title="' . $GLOBALS['LANG']->getLL('actiontitleApply'  ) . '" />';
 			}
+
+
+			if ($this->changedTO)
+				$msg[] = $GLOBALS['LANG']->getLL('msgMappingDiff');
 
 			$content = '
 
@@ -2870,7 +2872,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					if (($value['type'] != 'array') &&
 					    ($value['type'] != 'section')) {
 						$rowCells['hideUI'] = '<input
-							type="checkbox" ' . ($currentMappingInfo[$key]['HID_EL'] ? ' checked="checked"' : '') . ' value="1" onclick="this.nextSibling.value = (!this.value ? \'1\' : \'0\');" /><input
+							type="checkbox" ' . ($currentMappingInfo[$key]['HID_EL'] ? ' checked="checked"' : '') . ' value="1" onclick="this.nextSibling.value = (this.checked ? \'1\' : \'0\');" /><input
 							type="hidden" name="dataMappingForm' . $formPrefix . '[' . $key . '][HID_EL]" value="' . ($currentMappingInfo[$key]['HID_EL']) . '" />';
 					}
 					else {
@@ -2949,8 +2951,8 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 									if (($value['type'] == 'attr' && $pI['modifier'] == 'ATTR') || ($value['type'] != 'attr' && $pI['modifier'] != 'ATTR')) {
 										if (
 												(!$this->markupObj->tags[$lastLevel['el']]['single'] || $pI['modifier'] != 'INNER') &&
-												(!is_array($mapDat) || ($pI['modifier'] != 'ATTR' && isset($mapDat[strtolower($pI['modifier'] ? $pI['modifier'] : 'outer')])) || ($pI['modifier'] == 'ATTR' && (isset($mapDat['attr']['*']) || isset($mapDat['attr'][$pI['modifier_value']]))))
-
+												(!is_array($mapDat) || ($pI['modifier'] != 'ATTR' && isset($mapDat[strtolower($pI['modifier'] ? $pI['modifier'] : 'outer')])) ||
+														       ($pI['modifier'] == 'ATTR' && (isset($mapDat['attr']['*']) || isset($mapDat['attr'][$pI['modifier_value']]))))
 											) {
 
 											if($k == $currentMappingInfo[$key]['MAP_EL']) {
@@ -2985,7 +2987,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 									<strong>Click a tag-icon in the window below to map this element.</strong><br />
 									<input type="submit" value="Cancel" name="_" onclick="document.location=\'' . $this->linkThisScript() . '\';return false;" />';
 							}
-						} elseif (!$rowCells['cmdLinks'] && $mapOK && $value['type'] != 'no_map') {
+						} elseif (!$rowCells['cmdLinks'] && $mapOK && ($value['type'] != 'no_map')) {
 							$rowCells['cmdLinks'] = '
 									<input type="submit" value="Map" name="_" onclick="document.location=\'' . $this->linkThisScript(array('mapElPath' => $formPrefix . '[' . $key . ']', 'htmlPath' => $path, 'mappingToTags' => $value['tx_templavoila']['tags'])) . '\';return false;" />';
 						}
@@ -3039,13 +3041,14 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 								<td nowrap="nowrap" valign="center">' . $rowCells['title'] . '</td>
 								' . ($this->editDataStruct ? '
 								<td nowrap="nowrap">' . $key . '</td>' : '
-								<td align="center">' . $rowCells['hideUI'] . '</td>
+								' . ($mappingMode ? '
+								<td align="center">' . $rowCells['hideUI'] . '</td>' : '') . '
 								<td>' . $rowCells['description'] . '</td>') . '
 								<td align="center">' . $rowCells['tagRules'] . '</td>
 								' . ($mappingMode ? '
-								<td align="center">' . $rowCells['htmlPath'] . '</td>' : '').'
-								' . ($BE_USER->check('tables_modify', 'tx_templavoila_tmplobj') ? '
-								<td align="center">' . $rowCells['cmdLinks'] . '</td>' : '').'
+								<td align="center">' . $rowCells['htmlPath'] . '</td>' : '') . '
+								' . ($BE_USER->check('tables_modify', 'tx_templavoila_tmplobj') && $rowCells['cmdLinks'] ? '
+								<td align="center">' . $rowCells['cmdLinks'] . '</td>' : '') . '
 								' . $editAddCol . '
 							</tr>';
 					}
