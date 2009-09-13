@@ -282,7 +282,7 @@ $tempColumns = array (
 );
 t3lib_extMgm::addTCAcolumns('pages', $tempColumns, 1);
 if ($_EXTCONF['enable.']['selectDataSource']) {
-	t3lib_extMgm::addToAllTCAtypes('pages', 'tx_templavoila_ds;;;;1-1-1,tx_templavoila_to,tx_templavoila_nextds;;;;1-1-1,tx_templavoila_next_to,tx_templavoila_flex;;;;1-1-1', array('1'));
+	t3lib_extMgm::addToAllTCAtypes('pages', 'tx_templavoila_ds;;;;1-1-1,tx_templavoila_to,tx_templavoila_nextds;;;;1-1-1,tx_templavoila_next_to,tx_templavoila_flex;;;;1-1-1', '1');
 
 	if ($TCA['pages']['ctrl']['requestUpdate'] != '') {
 		$TCA['pages']['ctrl']['requestUpdate'] .= ',';
@@ -290,7 +290,7 @@ if ($_EXTCONF['enable.']['selectDataSource']) {
 
 	$TCA['pages']['ctrl']['requestUpdate'] .= 'tx_templavoila_ds,tx_templavoila_next_ds';
 } else {
-	t3lib_extMgm::addToAllTCAtypes('pages', 'tx_templavoila_to;;;;1-1-1,tx_templavoila_next_to;;;;1-1-1,tx_templavoila_flex;;;;1-1-1', array('1'));
+	t3lib_extMgm::addToAllTCAtypes('pages', 'tx_templavoila_to;;;;1-1-1,tx_templavoila_next_to;;;;1-1-1,tx_templavoila_flex;;;;1-1-1', '1');
 
 	unset($TCA['pages']['columns']['tx_templavoila_to']['displayCond']);
 	unset($TCA['pages']['columns']['tx_templavoila_next_to']['displayCond']);
