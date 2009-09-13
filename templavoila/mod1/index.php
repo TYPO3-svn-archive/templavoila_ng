@@ -603,7 +603,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 				if ($result !== FALSE) {
 					$content .= $result;
 
-					if ($this->canEditPage) {
+					if (!$singleView && $this->canEditPage) {
 						// Edit icon only if page can be modified by user
 						$content .= '<br /><br /><strong>' . $this->icon_edit(array('table' => 'pages', 'uid' => $this->id)) . '</strong>';
 					}
