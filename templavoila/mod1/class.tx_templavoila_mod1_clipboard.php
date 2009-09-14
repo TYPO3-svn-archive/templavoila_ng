@@ -357,7 +357,7 @@ class tx_templavoila_mod1_clipboard {
 			$cellFragment .= '<span class="sortablePaste">' . $this->element_getPasteButtons($subElementPointer) . '</span>';
 			if ($this->pObj->apiObj) {
 				/* id-strings must not contain double-colons because of the selectors-api */
-				$cellId = $this->pObj->sanitizeID($this->pObj->apiObj->flexform_getStringFromPointer($subElementPointer));
+				$cellId = tvID_to_jsID($this->pObj->apiObj->flexform_getStringFromPointer($subElementPointer));
 				$cellRel = $cellId;
 
 				$cellFragment = '<div class="sortableItem" id="' . $cellId . '" rel="' . $cellRel . '">' . $cellFragment . '</div>';
@@ -389,7 +389,7 @@ class tx_templavoila_mod1_clipboard {
 
 		if ($this->pObj->apiObj) {
 			/* id-strings must not contain double-colons because of the selectors-api */
-			$cellId = $this->pObj->sanitizeID($this->pObj->apiObj->flexform_getStringFromPointer($groupElementPointer));
+			$cellId = tvID_to_jsID($this->pObj->apiObj->flexform_getStringFromPointer($groupElementPointer));
 
 			$this->pObj->sortableContainers[] = $cellId;
 		}
