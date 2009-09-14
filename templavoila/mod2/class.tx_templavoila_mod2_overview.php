@@ -178,7 +178,10 @@ class tx_templavoila_mod2_overview {
 			for ($l =      0; $l < count($ladd) - 1; $l++) {
 			for ($m = $l + 1; $m < count($ladd)    ; $m++) {
 				if (strpos($ladd[$m]['path'], $ladd[$l]['path']) === 0) {
-					$ladd[$l]['num'] = 1 + $ladd[$l]['num'];
+					$frag = str_replace($ladd[$l]['path'], '', $ladd[$m]['path']);
+					$frag = explode('/', $frag);
+
+					$ladd[$l]['num'] = count($frag) - 1 + $ladd[$l]['num'];
 				}
 
 			}
@@ -203,7 +206,14 @@ class tx_templavoila_mod2_overview {
 			$ladd = array_values($ladd);
 
 			for ($l = 0; $l < count($ladd); $l++) {
-				$list[-$l] = $ladd[$l];
+				$c = 0;
+				foreach ($list as $pid => &$stat) {
+					if ($stat['path'] == $ladd[$l]['path'])
+						$c++;
+				}
+
+				if (!$c)
+					$list[-$l] = $ladd[$l];
 			}
 			/* get all common paths ------------------------------------------------- */
 
