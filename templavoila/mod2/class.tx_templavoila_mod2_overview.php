@@ -155,21 +155,85 @@ class tx_templavoila_mod2_overview {
 				}
 			}
 
+			/* get all common paths ------------------------------------------------- */
+			$ladd = array();
+			foreach ($list as $pid => &$stat) {
+				$tree = explode('/', $stat['path']);
+				$bcrm = '/';
+				foreach ($tree as $frag) {
+					if ($frag) {
+						$bcrm .= $frag . '/';
+						$ladd[] = array('path' => $bcrm);
+					}
+				}
+			}
+			$ladd = array_unique($ladd);
+
 			function cmp($a, $b) {
 				return strcmp($a['path'], $b['path']);
 			}
 
+			usort($ladd, cmp);
+
+			for ($l =      0; $l < count($ladd) - 1; $l++) {
+			for ($m = $l + 1; $m < count($ladd)    ; $m++) {
+				if (strpos($ladd[$m]['path'], $ladd[$l]['path']) === 0) {
+					$ladd[$l]['num'] = 1 + $ladd[$l]['num'];
+				}
+
+			}
+			}
+			$ladd = array_values($ladd);
+
+			for ($l = count($ladd) - 1; $l > 0; $l--) {
+				if ($ladd[$l]['num'] <= 1)
+					unset($ladd[$l]);
+			}
+			$ladd = array_values($ladd);
+
+			for ($l =      0; $l < count($ladd) - 1; $l++) {
+			for ($m = $l + 1; $m < count($ladd)    ; $m++) {
+				if (strpos($ladd[$m]['path'], $ladd[$l]['path']) === 0) {
+					if ($ladd[$l]['num'] == 1 + $ladd[$m]['num'])
+						unset($ladd[$l]);
+				}
+
+			}
+			}
+			$ladd = array_values($ladd);
+
+			for ($l = 0; $l < count($ladd); $l++) {
+				$list[-$l] = $ladd[$l];
+			}
+			/* get all common paths ------------------------------------------------- */
+
 			uasort($list, cmp);
 
-			$i = 0;
-			foreach($list as $pid => &$stat) {
+			$i = 0; $indent = array();
+			foreach ($list as $pid => &$stat) {
 				if (($path = $stat['path'])) {
+					$in = 0;
+					foreach ($indent as $ip) {
+						if (strpos($path, $ip) === 0)
+							$in++;
+						else
+							break;
+					}
+
+					if ($in > 0)
+						$path = str_replace($indent[$in - 1], '.../', $path);
+
 					$tRows[] = '
 						<tr class="' . ($i++ % 2 == 0 ? 'bgColor4' : 'bgColor6') . '">
-							<td><a href="' . $this->pObj->baseScript . 'id=' . $pid . '" onclick="setHighlight(' . $pid . ');">' . htmlspecialchars($path) . '</a></td>
+							<td style="padding-left: ' . ($in * 10) . 'px">' . (($pid > 0)
+							? '<a href="' . $this->pObj->baseScript . 'id=' . $pid . '" onclick="setHighlight(' . $pid . ');">' . htmlspecialchars($path) . '</a>'
+							: htmlspecialchars($path)) . '
+							</td>
 							<td align="center">' . $stat['DS'] . '</td>
 							<td align="center">' . $stat['TO'] . '</td>
 						</tr>';
+
+					$indent[$in] = $stat['path'];
 				}
 			}
 

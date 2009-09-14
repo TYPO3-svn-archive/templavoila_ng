@@ -885,7 +885,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 			$cObj->start($dataRecord, '_NO_TABLE');
 
 			// For each DS element:
-			foreach($DSelements as $key => $dsConf) {
+			foreach ($DSelements as $key => $dsConf) {
 				// Array/Section:
 				if ($DSelements[$key]['type'] == 'array') {
 					/* no DS-childs: bail out
@@ -901,7 +901,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 								if (is_array($el)) {
 						//			$theKey = key($el);
 						//			if (is_array($dataValues[$key]['el'][$ik][$theKey]['el'])) {
-						//				$this->processDataValues_traverse($dataValues[$key]['el'][$ik][$theKey]['el'], $DSelements[$key]['el'][$theKey]['el'], $TOelements[$key]['el'][$theKey]['el'], $valueKey, $xpath.$key.'/el/'.$theKey.'/el/');
+						//				$this->processDataValues_traverse($dataValues[$key]['el'][$ik][$theKey]['el'], $DSelements[$key]['el'][$theKey]['el'], $TOelements[$key]['el'][$theKey]['el'], $valueKey, $xpath . $key . SEPARATOR_XPATH . 'el' . SEPARATOR_XPATH . $theKey . SEPARATOR_XPATH . 'el' . SEPARATOR_XPATH);
                                                 //
 						//					// If what was an array is returned as a non-array (eg. string "__REMOVE") then unset the whole thing:
 						//				if (!is_array($dataValues[$key]['el'][$ik][$theKey]['el'])) {
@@ -909,20 +909,20 @@ class tx_templavoila_pi1 extends tslib_pibase {
 						//				}
 						//			}
 
-									$this->processDataValues_traverse($dataValues[$key]['el'][$ik], $DSelements[$key]['el'], $TOelements[$key]['el'], $valueKey, $xpath . $key . '/el/');
+									$this->processDataValues_traverse($dataValues[$key]['el'][$ik], $DSelements[$key]['el'], $TOelements[$key]['el'], $valueKey, $xpath . $key . SEPARATOR_XPATH . 'el' . SEPARATOR_XPATH);
 
-									$GLOBALS['TSFE']->register['tx_templavoila_pi1.parentRec.' . str_replace('ROOT/el/', '', $xpath . $key . '/position')] = $ik;
+									$GLOBALS['TSFE']->register['tx_templavoila_pi1.parentRec.' . str_replace('ROOT' . SEPARATOR_XPATH . 'el' . SEPARATOR_XPATH, '', $xpath . $key . SEPARATOR_XPATH . 'position')] = $ik;
 								}
 							}
 
 							$dataValues[$key][$valueKey] = '###GROUP###';
 						} else {
-							$this->processDataValues_traverse($dataValues[$key]['el'], $DSelements[$key]['el'], $TOelements[$key]['el'], $valueKey, $xpath . $key . '/el/');
+							$this->processDataValues_traverse($dataValues[$key]['el'], $DSelements[$key]['el'], $TOelements[$key]['el'], $valueKey, $xpath . $key . SEPARATOR_XPATH . 'el' . SEPARATOR_XPATH);
 
 							$dataValues[$key][$valueKey] = '###GROUP###';
 
 							$cObj->setCurrentVal($dataValues[$key][$valueKey]);
-							$GLOBALS['TSFE']->register['tx_templavoila_pi1.parentRec.' . str_replace('ROOT/el/', '', $xpath . $key)] = $dataValues[$key][$valueKey];
+							$GLOBALS['TSFE']->register['tx_templavoila_pi1.parentRec.' . str_replace('ROOT' . SEPARATOR_XPATH . 'el' . SEPARATOR_XPATH, '', $xpath . $key)] = $dataValues[$key][$valueKey];
 
 							// Various local quick-processing options:
 							$pOptions = $LP[$key]['proc'];
@@ -954,7 +954,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 					}
 
 					$cObj->setCurrentVal($dataValues[$key][$valueKey]);
-					$GLOBALS['TSFE']->register['tx_templavoila_pi1.parentRec.' . str_replace('ROOT/el/', '', $xpath . $key)] = $dataValues[$key][$valueKey];
+					$GLOBALS['TSFE']->register['tx_templavoila_pi1.parentRec.' . str_replace('ROOT' . SEPARATOR_XPATH . 'el' . SEPARATOR_XPATH, '', $xpath . $key)] = $dataValues[$key][$valueKey];
 
 					// Render localized labels for 'select' elements:
 					if ($DSelements[$key]['TCEforms']['config']['type'] == 'select') {

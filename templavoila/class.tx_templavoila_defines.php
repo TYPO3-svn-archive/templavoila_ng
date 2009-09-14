@@ -32,6 +32,25 @@ define('SEPARATOR_XPATH', 		'/');
 define('SEPARATOR_PARMS', 		':');
 define('SEPARATOR_PARMG', 		'|');	// parameter-groups
 
+/* this is the 'CSS-selector' encoding of content-elements */
+define('SEPARATOR_XPATH_JS', 		'§');
+define('SEPARATOR_PARMS_JS', 		'°');
+define('SEPARATOR_PARMG_JS', 		'|');	// parameter-groups
+
+function tvID_to_jsID($tvid) {
+	return
+		str_replace(SEPARATOR_PARMG, SEPARATOR_PARMG_JS,
+		str_replace(SEPARATOR_PARMS, SEPARATOR_PARMS_JS,
+		str_replace(SEPARATOR_XPATH, SEPARATOR_XPATH_JS, $tvid)));
+}
+
+function jsID_to_tvID($jsid) {
+	return
+		str_replace(SEPARATOR_PARMG_JS, SEPARATOR_PARMG,
+		str_replace(SEPARATOR_PARMS_JS, SEPARATOR_PARMS,
+		str_replace(SEPARATOR_XPATH_JS, SEPARATOR_XPATH, $jsid)));
+}
+
 /* scope-definitions of the TV-datastructure */
 define('TVDS_SCOPE_OTHER',		0);
 define('TVDS_SCOPE_PAGE',		1);

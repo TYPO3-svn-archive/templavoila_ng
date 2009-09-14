@@ -624,7 +624,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 				<script type="text/javascript" language="javascript">
 
 				Event.observe(window, \'load\', function() {
-					sortable_clipboard = \'' . $this->sanitizeID('tt_content' . SEPARATOR_PARMS) . '\';
+					sortable_clipboard = \'' . tvID_to_jsID('tt_content' . SEPARATOR_PARMS) . '\';
 					sortable_removeHidden = ' . ($this->MOD_SETTINGS['tt_content_showHidden'] ? 'false' : 'true') . ';
 					sortable_baseLink = \'' . $this->baseScript . $this->link_getParameters() . '\';
 					sortable_containers = [
@@ -643,7 +643,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 				});
 
 //				Ext.onReady(function() {
-//					sortable_clipboard = \'' . $this->sanitizeID('tt_content' . SEPARATOR_PARMS) . '\';
+//					sortable_clipboard = \'' . tvID_to_jsID('tt_content' . SEPARATOR_PARMS) . '\';
 //					sortable_removeHidden = ' . ($this->MOD_SETTINGS['tt_content_showHidden'] ? 'false' : 'true') . ';
 //					sortable_baseLink = \'' . $this->baseScript . $this->link_getParameters() . '\';
 //					sortable_containers = [
@@ -1033,7 +1033,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 					);
 
 					/* id-strings must not contain double-colons because of the selectors-api */
-					$cellId = $this->sanitizeID($this->apiObj->flexform_getStringFromPointer($groupElementPointer));
+					$cellId = tvID_to_jsID($this->apiObj->flexform_getStringFromPointer($groupElementPointer));
 					$this->sortableContainers[] = $cellId;
 
 					if ($flagRenderBeLayout == TRUE) {
@@ -1177,12 +1177,12 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 			// Create flexform pointer pointing to "before the first sub element":
 			$subElementPointer = array (
-				'table' => $elementContentTreeArr['el']['table'],
-				'uid'   => $elementContentTreeArr['el']['uid'],
-				'sheet' => $sheet,
-				'sLang' => $lKey,
-				'field' => $fieldID,
-				'vLang' => $vKey,
+				'table'    => $elementContentTreeArr['el']['table'],
+				'uid'      => $elementContentTreeArr['el']['uid'],
+				'sheet'    => $sheet,
+				'sLang'    => $lKey,
+				'field'    => $fieldID,
+				'vLang'    => $vKey,
 				'position' => 0
 			);
 
@@ -1192,7 +1192,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 			// -----------------------------------------------------------------------------
 			// Render the list of elements (and possibly call itself recursively if needed):
 			if (is_array($fieldContent['el_list'])) {
-				foreach($fieldContent['el_list'] as $position => $subElementKey) {
+				foreach ($fieldContent['el_list'] as $position => $subElementKey) {
 					$subElementArr = $fieldContent['el'][$subElementKey];
 
 					if ((!$subElementArr['el']['isHidden'] || $this->MOD_SETTINGS['tt_content_showHidden']) && $this->displayElement($subElementArr)) {
@@ -1218,8 +1218,8 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 						if ($this->canEditContent) {
 							/* id-strings must not contain double-colons because of the selectors-api */
-							$cellId = $this->sanitizeID($this->apiObj->flexform_getStringFromPointer($subElementPointer));
-							$cellRel = $this->sanitizeID('tt_content' . SEPARATOR_PARMS . $subElementArr['el']['uid']);
+							$cellId = tvID_to_jsID($this->apiObj->flexform_getStringFromPointer($subElementPointer));
+							$cellRel = tvID_to_jsID('tt_content' . SEPARATOR_PARMS . $subElementArr['el']['uid']);
 
 							$cellFragment = '<div class="sortableItem" id="' . $cellId . '" rel="' . $cellRel . '">' . $cellFragment . '</div>';
 						}
@@ -1232,8 +1232,8 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 						if ($this->canEditContent) {
 							/* id-strings must not contain double-colons because of the selectors-api */
-							$cellId = $this->sanitizeID($this->apiObj->flexform_getStringFromPointer($subElementPointer));
-							$cellRel = $this->sanitizeID('tt_content' . SEPARATOR_PARMS . $subElementArr['el']['uid']);
+							$cellId = tvID_to_jsID($this->apiObj->flexform_getStringFromPointer($subElementPointer));
+							$cellRel = tvID_to_jsID('tt_content' . SEPARATOR_PARMS . $subElementArr['el']['uid']);
 
 							$cellFragment = '<div class="sortableItem" id="' . $cellId . '" rel="' . $cellRel . '"></div>';
 						}
@@ -1403,7 +1403,6 @@ table.typo3-dyntabmenu td.disabled:hover {
 			$tceforms->setTSconfig($table, $row),
 			$field
 		);
-
 
 		$selItems = $tceforms->addItems(
 			$selItems,
@@ -1908,14 +1907,14 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 		// Create entry for this element:
 		$entries[] = array(
-			'indentLevel' => $indentLevel,
-			'icon' => $titleBarLeftButtons,
-			'title' => ($elementBelongsToCurrentPage ? '' : '<em>') . htmlspecialchars($contentTreeArr['el']['title']) . ($elementBelongsToCurrentPage ? '' : '</em>'),
-			'warnings' => $warnings,
-			'controls' => $titleBarRightButtons . $controls,
-			'table' => $contentTreeArr['el']['table'],
-			'uid' =>  $contentTreeArr['el']['uid'],
-			'flag' => $languageIcon,
+			'indentLevel'  => $indentLevel,
+			'icon'         => $titleBarLeftButtons,
+			'title'        => ($elementBelongsToCurrentPage ? '' : '<em>') . htmlspecialchars($contentTreeArr['el']['title']) . ($elementBelongsToCurrentPage ? '' : '</em>'),
+			'warnings'     => $warnings,
+			'controls'     => $titleBarRightButtons . $controls,
+			'table'        => $contentTreeArr['el']['table'],
+			'uid'          =>  $contentTreeArr['el']['uid'],
+			'flag'         => $languageIcon,
 			'isNewVersion' => $contentTreeArr['el']['_ORIG_uid'] ? TRUE : FALSE,
 			'elementTitlebarStyle' => (!$elementBelongsToCurrentPage ? 'background-color: ' . $this->doc->bgColor6 : '')
 		);
@@ -1953,20 +1952,18 @@ table.typo3-dyntabmenu td.disabled:hover {
 		$vKeys = $langDisable ? array('vDEF') : ($langChildren ? $this->translatedLanguagesArr_isoCodes['all_vKeys'] : array('vDEF'));
 
 		// Traverse container fields:
-		foreach($lKeys as $lKey) {
-
+		foreach ($lKeys as $lKey) {
 			// Traverse fields:
 			if (is_array($contentTreeArr['sub'][$sheet][$lKey])) {
 				foreach($contentTreeArr['sub'][$sheet][$lKey] as $fieldID => $fieldValuesContent) {
 					foreach($vKeys as $vKey) {
-
-						if (is_array($fieldValuesContent[$vKey]))	{
+						if (is_array($fieldValuesContent[$vKey])) {
 							$fieldContent = $fieldValuesContent[$vKey];
 
 							// Create flexform pointer pointing to "before the first sub element":
 							$subElementPointer = array (
 								'table' => $contentTreeArr['el']['table'],
-								'uid' => $contentTreeArr['el']['uid'],
+								'uid'   => $contentTreeArr['el']['uid'],
 								'sheet' => $sheet,
 								'sLang' => $lKey,
 								'field' => $fieldID,
@@ -2426,7 +2423,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 */
 	function link_unlink($label, $unlinkPointer) {
 
-		$unlinkPointerString = rawurlencode($this->sanitizeID($this->apiObj->flexform_getStringFromPointer($unlinkPointer)));
+		$unlinkPointerString = rawurlencode(tvID_to_jsID($this->apiObj->flexform_getStringFromPointer($unlinkPointer)));
 
 		if (!$unlinkPointer['position'])
 			return '<a href="javascript:' . htmlspecialchars('if (confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('unlinkRecordsAllMsg')) . '))') . ' sortable_unlinkRecordsAll(\'' . $unlinkPointerString . '\');" class="onoff">' . $label . '</a>';
@@ -2460,7 +2457,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 */
 	function link_delete($label, $unlinkPointer) {
 
-		$unlinkPointerString = rawurlencode($this->sanitizeID($this->apiObj->flexform_getStringFromPointer($unlinkPointer)));
+		$unlinkPointerString = rawurlencode(tvID_to_jsID($this->apiObj->flexform_getStringFromPointer($unlinkPointer)));
 
 		return '<a href="javascript:' . htmlspecialchars('if (confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('deleteRecordMsg')) . '))') . ' sortable_deleteRecord(\'' . $unlinkPointerString . '\');">' . $label . '</a>';
 //		return '<a href="' . $this->baseScript.$this->link_getParameters() . '&amp;deleteRecord=' . $unlinkPointerString . '" onclick="' . htmlspecialchars('return confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('deleteRecordMsg')) . ');') . '">' . $label . '</a>';
@@ -2598,18 +2595,6 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 *
 	 *******************************************/
 
-	function sanitizeID($tvid) {
-		return
-			str_replace(SEPARATOR_PARMS, '°',
-			str_replace(SEPARATOR_XPATH, '§', $tvid));
-	}
-
-	function revertID($jsid) {
-		return
-			str_replace('°', SEPARATOR_PARMS,
-			str_replace('§', SEPARATOR_XPATH, $jsid));
-	}
-
 	/**
 	 * Checks various GET / POST parameters for submitted commands and handles them accordingly.
 	 * All commands will trigger a redirect by sending a location header after they work is done.
@@ -2649,7 +2634,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 						if (($newUid = $commandParameters) >= 0) {
 							/* revert selector-api valid flex-string to original one */
-							$destinationPointer = $this->apiObj->flexform_getPointerFromString($this->revertID($commandParameters));
+							$destinationPointer = $this->apiObj->flexform_getPointerFromString(jsID_to_tvID($commandParameters));
 
 							// Create new record and open it for editing
 							$newUid = $this->apiObj->insertElement($destinationPointer, $newRow);
@@ -2668,28 +2653,28 @@ table.typo3-dyntabmenu td.disabled:hover {
 						break;
 					case 'unlinkRecord':
 						/* revert selector-api valid flex-string to original one */
-						$unlinkDestinationPointer = $this->apiObj->flexform_getPointerFromString($this->revertID($commandParameters));
+						$unlinkDestinationPointer = $this->apiObj->flexform_getPointerFromString(jsID_to_tvID($commandParameters));
 
 						$this->apiObj->unlinkElement($unlinkDestinationPointer);
 						break;
 
 					case 'deleteRecord':
 						/* revert selector-api valid flex-string to original one */
-						$deleteDestinationPointer = $this->apiObj->flexform_getPointerFromString($this->revertID($commandParameters));
+						$deleteDestinationPointer = $this->apiObj->flexform_getPointerFromString(jsID_to_tvID($commandParameters));
 
 						$this->apiObj->deleteElement($deleteDestinationPointer);
 						break;
 
 					case 'pasteRecord':
 						/* revert selector-api valid flex-string to original one */
-						$sourcePointer = $this->apiObj->flexform_getPointerFromString($this->revertID(t3lib_div::_GP('source')));
-						$destinationPointer = $this->apiObj->flexform_getPointerFromString($this->revertID(t3lib_div::_GP('destination')));
+						$sourcePointer = $this->apiObj->flexform_getPointerFromString(jsID_to_tvID(t3lib_div::_GP('source')));
+						$destinationPointer = $this->apiObj->flexform_getPointerFromString(jsID_to_tvID(t3lib_div::_GP('destination')));
 
 						switch ($commandParameters) {
 							case 'copy' :	$this->apiObj->copyElement($sourcePointer, $destinationPointer); break;
 							case 'copyref':	$this->apiObj->copyElement($sourcePointer, $destinationPointer, FALSE); break;
 							case 'cut':	$this->apiObj->moveElement($sourcePointer, $destinationPointer); break;
-							case 'ref':	list(,$uid) = explode(SEPARATOR_PARMS, $this->revertID(t3lib_div::_GP('source')));
+							case 'ref':	list(,$uid) = explode(SEPARATOR_PARMS, jsID_to_tvID(t3lib_div::_GP('source')));
 									$this->apiObj->referenceElementByUid($uid, $destinationPointer);
 							break;
 						}
@@ -2701,7 +2686,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 					case 'makeLocalRecord':
 						/* revert selector-api valid flex-string to original one */
-						$sourcePointer = $this->revertID($this->apiObj->flexform_getPointerFromString($commandParameters));
+						$sourcePointer = jsID_to_tvID($this->apiObj->flexform_getPointerFromString($commandParameters));
 
 						$this->apiObj->copyElement($sourcePointer, $sourcePointer);
 						$this->apiObj->unlinkElement($sourcePointer);
@@ -2709,7 +2694,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 					case 'localizeElement':
 						/* revert selector-api valid flex-string to original one */
-						$sourcePointer = $this->revertID($this->apiObj->flexform_getPointerFromString(t3lib_div::_GP('source')));
+						$sourcePointer = jsID_to_tvID($this->apiObj->flexform_getPointerFromString(t3lib_div::_GP('source')));
 
 						$this->apiObj->localizeElement ($sourcePointer, $commandParameters);
 						break;
@@ -2804,26 +2789,26 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 					case 'ajaxUnlinkRecord':
 						/* revert selector-api valid flex-string to original one */
-						$unlinkDestinationPointer = $this->apiObj->flexform_getPointerFromString($this->revertID($commandParameters));
+						$unlinkDestinationPointer = $this->apiObj->flexform_getPointerFromString(jsID_to_tvID($commandParameters));
 
 						$this->apiObj->unlinkElement($unlinkDestinationPointer);
 						exit;
 
 					case 'ajaxDeleteRecord':
 						/* revert selector-api valid flex-string to original one */
-						$deleteDestinationPointer = $this->apiObj->flexform_getPointerFromString($this->revertID($commandParameters));
+						$deleteDestinationPointer = $this->apiObj->flexform_getPointerFromString(jsID_to_tvID($commandParameters));
 
 						$this->apiObj->deleteElement($deleteDestinationPointer);
 						exit;
 
 					case 'ajaxPasteRecord':
 						/* revert selector-api valid flex-string to original one */
-						$sourcePointer = $this->apiObj->flexform_getPointerFromString($this->revertID(t3lib_div::_GP('source')));
-						$destinationPointer = $this->apiObj->flexform_getPointerFromString($this->revertID(t3lib_div::_GP('destination')));
+						$sourcePointer = $this->apiObj->flexform_getPointerFromString(jsID_to_tvID(t3lib_div::_GP('source')));
+						$destinationPointer = $this->apiObj->flexform_getPointerFromString(jsID_to_tvID(t3lib_div::_GP('destination')));
 
 						switch ($commandParameters) {
 							case 'cut': $this->apiObj->moveElement($sourcePointer, $destinationPointer); break;
-							case 'ref': list(,$uid) = explode(SEPARATOR_PARMS, $this->revertID(t3lib_div::_GP('source')));
+							case 'ref': list(,$uid) = explode(SEPARATOR_PARMS, jsID_to_tvID(t3lib_div::_GP('source')));
 								    $this->apiObj->referenceElementByUid($uid, $destinationPointer); break;
 						}
 
@@ -2834,7 +2819,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 					case 'ajaxJammField':
 						/* revert selector-api valid flex-string to original one */
-						$jammPointer = $this->apiObj->flexform_getPointerFromString($this->revertID($commandParameters));
+						$jammPointer = $this->apiObj->flexform_getPointerFromString(jsID_to_tvID($commandParameters));
 
 						{
 							$jammPointer['vLang'] = '_JAMM';
@@ -2870,7 +2855,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 					case 'ajaxUnjammField':
 						/* revert selector-api valid flex-string to original one */
-						$unjammPointer = $this->apiObj->flexform_getPointerFromString($this->revertID($commandParameters));
+						$unjammPointer = $this->apiObj->flexform_getPointerFromString(jsID_to_tvID($commandParameters));
 
 						{
 							$unjammPointer['vLang'] = '_JAMM';

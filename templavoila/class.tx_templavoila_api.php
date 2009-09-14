@@ -170,7 +170,7 @@ class tx_templavoila_api {
 	function api_getFFvalue($T3FlexForm_array, $fieldName, $sheet='sDEF', $lang='lDEF', $value='vDEF') {
 		$sheetArray = is_array($T3FlexForm_array) ? $T3FlexForm_array['data'][$sheet][$lang] : '';
 		if (is_array($sheetArray)) {
-			return $this->api_getFFvalueFromSheetArray($sheetArray,explode(SEPARATOR_XPATH,$fieldName),$value);
+			return $this->api_getFFvalueFromSheetArray($sheetArray, explode(SEPARATOR_XPATH,$fieldName), $value);
 		}
 	}
 
@@ -958,9 +958,10 @@ class tx_templavoila_api {
 	 */
 	function flexform_getStringFromPointer ($flexformPointer) {
 
-		if (!is_array ($flexformPointer)) return FALSE;
+		if (!is_array($flexformPointer))
+			return FALSE;
 
-		if (isset ($flexformPointer['sheet'])) {
+		if (isset($flexformPointer['sheet'])) {
 			$flexformPointerString = implode(SEPARATOR_PARMS, array(
 				$flexformPointer['table'],
 				$flexformPointer['uid'  ],
@@ -971,11 +972,11 @@ class tx_templavoila_api {
 				$flexformPointer['position'])
 			);
 
-			if (isset ($flexformPointer['targetCheckUid'])) {
-				$flexformPointerString .= SEPARATOR_PARMG.'tt_content'.SEPARATOR_PARMS.$flexformPointer['targetCheckUid'];
+			if (isset($flexformPointer['targetCheckUid'])) {
+				$flexformPointerString .= SEPARATOR_PARMG . 'tt_content' . SEPARATOR_PARMS . $flexformPointer['targetCheckUid'];
 			}
 		} else {
-			$flexformPointerString = $flexformPointer['table'].SEPARATOR_PARMS.$flexformPointer['uid'];
+			$flexformPointerString = $flexformPointer['table'] . SEPARATOR_PARMS.$flexformPointer['uid'];
 		}
 
 		return $flexformPointerString;
@@ -1654,14 +1655,16 @@ class tx_templavoila_api {
 			$tree['ds_meta'] = $rawDataStructureArr['meta'];
 			$flexformContentArr = t3lib_div::xml2array($row['tx_templavoila_flex']);
 
-			if (is_array ($currentTemplateObject))
+			if (is_array($currentTemplateObject))
 				$templateMappingArr = unserialize($currentTemplateObject['templatemapping']);
 			if (!is_array($flexformContentArr))
 				$flexformContentArr = array();
-
+//echo '<pre>';
+//print_r($templateMappingArr);
+//echo '</pre>';
 			// Respect the currently selected language, for both concepts - with langChildren enabled and disabled:
 			$langChildren = intval($tree['ds_meta']['langChildren']);
-			$langDisable = intval($tree['ds_meta']['langDisable']);
+			$langDisable  = intval($tree['ds_meta']['langDisable']);
 
 			$lKeys = $langDisable ? array('lDEF') : ($langChildren ? array('lDEF') : $this->allSystemWebsiteLanguages['all_lKeys']);
 			$vKeys = $langDisable ? array('vDEF') : ($langChildren ? $this->allSystemWebsiteLanguages['all_vKeys'] : array('vDEF'));
@@ -1854,6 +1857,7 @@ class tx_templavoila_api {
 				}
 			}
 		}
+
 		return t3lib_beFunc::getRecordWSOL('tx_templavoila_tmplobj', $templateObjectUid);
 	}
 

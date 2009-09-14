@@ -14,6 +14,10 @@
 			<label index="createnewpage_defaultlayoutsubmitlabel">Create page with default layout</label>
 			<label index="createnewpage_templateobject_createemptypage">Create an empty page based on this template:</label>
 			<label index="createnewpage_templateobject_createpagewithdefaultcontent">Create a page with default content based on this template:</label>
+			<label index="createnewpage_stat_level">Levels: </label>
+			<label index="createnewpage_stat_single">Single page</label>
+			<label index="createnewpage_stat_multi">Deep structure</label>
+			<label index="createnewpage_stat_file">File: </label>
 		</languageKey>
 		<languageKey index="dk" type="array">
 			<label index="createnewpage_title">Opret ny side</label>
