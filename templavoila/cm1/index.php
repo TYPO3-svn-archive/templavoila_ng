@@ -736,7 +736,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		// Find the file:
 		$theFile = t3lib_div::getFileAbsFileName($theFile, 1);
 		if ($theFile && @is_file($theFile)) {
-			ereg("(.*)\.([^\.]*$)", $theFile, $reg);
+			preg_match_all('/(.*)\.([^\.]*$)/', $theFile, $reg);
 			$alttext = $reg[2];
 
 			$icon = t3lib_BEfunc::getFileIcon($reg[2]);
@@ -825,7 +825,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		// Find the file:
 		$theFile = t3lib_div::getFileAbsFileName($theFile, 1);
 		if ($theFile && @is_file($theFile)) {
-			ereg("(.*)\.([^\.]*$)", $theFile, $reg);
+			preg_match_all('/(.*)\.([^\.]*$)/', $theFile, $reg);
 			$alttext = $reg[2];
 
 			$icon = t3lib_BEfunc::getFileIcon($reg[2]);
@@ -1243,7 +1243,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 				// Get <body> tag:
 				$reg = '';
-				eregi('<body[^>]*>', $fileContent, $reg);
+				preg_match('/<body[^>]*>/i', $fileContent, $reg);
 				$templatemapping['BodyTag_cached'] = $currentMappingInfo_head['addBodyTag'] ? $reg[0] : '';
 			}
 
@@ -2429,7 +2429,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 			// Get <body> tag:
 			$reg = '';
-			eregi('<body[^>]*>', $fileContent, $reg);
+			preg_match('/<body[^>]*>/i', $fileContent, $reg);
 			$templatemapping['BodyTag_cached'] = $currentMappingInfo_head['addBodyTag'] ? $reg[0] : '';
 
 			$TOuid = t3lib_BEfunc::wsMapId('tx_templavoila_tmplobj', $row['uid']);
@@ -2541,7 +2541,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 		// Get <body> tag:
 		$reg = '';
-		eregi('<body[^>]*>', $fileContent, $reg);
+		preg_match('/<body[^>]*>/i', $fileContent, $reg);
 		$html_body = $reg[0];
 
 		// Get <head>...</head> from template:
@@ -2910,7 +2910,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 									'<img' . $tagIcon . ' title="---' . htmlspecialchars(t3lib_div::fixed_lgd_cs($currentMappingInfo[$key]['MAP_EL'], -80)) . '" hspace="3" class="absmiddle" />' .
 									($pI['modifier'] ? $pI['modifier'] . ($pI['modifier_value'] ? ':' . ($pI['modifier'] != 'RANGE' ? $pI['modifier_value'] : '...') : '') : '');
 								$rowCells['htmlPath'] =
-									'<a href="' . $this->linkThisScript(array('htmlPath' => $path . ($path ? '|' : '') . ereg_replace('\/[^ ]*$', '', $currentMappingInfo[$key]['MAP_EL']), 'showPathOnly' => 1)) . '">' . $rowCells['htmlPath'] . '</a>';
+									'<a href="' . $this->linkThisScript(array('htmlPath' => $path . ($path ? '|' : '') . preg_replace('/\/[^ ]*$/', '', $currentMappingInfo[$key]['MAP_EL']), 'showPathOnly' => 1)) . '">' . $rowCells['htmlPath'] . '</a>';
 
 								// CMD links, default content:
 								$rowCells['cmdLinks'] =
@@ -3107,7 +3107,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				$autokey = '';
 				if ($this->DS_cmd == 'add') {
 					if (trim($this->fieldName) != '[' . $GLOBALS['LANG']->getLL('structureFormFieldNew') . ']' && trim($this->fieldName) != 'field_') {
-						$autokey = strtolower(ereg_replace('[^[:alnum:]_]', '', trim($this->fieldName)));
+						$autokey = strtolower(preg_replace('/[^a-z0-9_]/i', '', trim($this->fieldName)));
 
 						if (isset($value['el'][$autokey])) {
 							$autokey .= '_' . substr(md5(microtime()), 0, 2);
@@ -4463,10 +4463,10 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 		// Add icon with clickmenu, etc:
 		if ($this->markupFile)	{
 			// If there IS a real page
-			ereg("(.*)\.([^\.]*$)", $this->markupFile, $reg);
+			preg_match_all('/(.*)\.([^\.]*$)/', $this->markupFile, $reg);
 			$alttext = $reg[2];
 			$icon = t3lib_BEfunc::getFileIcon($reg[2]);
-			$iconImg = '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/fileicons/' . $icon,'width="18" height="16"') . ' title="'.htmlspecialchars($alttext) . '" alt="" />';
+			$iconImg = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/fileicons/' . $icon,'width="18" height="16"') . ' title="'.htmlspecialchars($alttext) . '" alt="" />';
 				// Make Icon:
 			$theIcon = $GLOBALS['SOBE']->doc->wrapClickMenuOnIcon($iconImg, $this->markupFile);
 			$theIcon = $theIcon . '<em>[modified: ' . Date($GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy'], @filemtime($this->markupFile)) . ']</em>';

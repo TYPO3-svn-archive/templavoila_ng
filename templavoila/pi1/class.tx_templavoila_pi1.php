@@ -462,7 +462,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 			if (count($Imap) > 1) {
 				/* find the lowest laying page involved, everything
 				 * between us and that page is involved in inheritance
-				 * and must be recheced if they are changed
+				 * and must be rechecked if they are changed
 				 */
 				$Imax = 0;
 				foreach ($Imap as $idx => $bool)

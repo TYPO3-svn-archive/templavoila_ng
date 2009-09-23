@@ -88,13 +88,13 @@ class tx_templavoila_mod1_sidebar {
 	function init(&$pObj) {
 		global $LANG;
 
-			// Make local reference to some important variables:
+		// Make local reference to some important variables:
 		$this->pObj =& $pObj;
 		$this->doc =& $this->pObj->doc;
 		$this->extKey =& $this->pObj->extKey;
 
-			// Register the locally available sidebar items. Additional items may be added by other extensions.
-		if (t3lib_extMgm::isLoaded('version') && $GLOBALS['BE_USER']->check('modules','txversionM1'))	{
+		// Register the locally available sidebar items. Additional items may be added by other extensions.
+		if (t3lib_extMgm::isLoaded('version') && $GLOBALS['BE_USER']->check('modules', 'web_txversionM1')) {
 			$this->sideBarItems['versioning'] = array (
 				'object' => &$this,
 				'method' => 'renderItem_versioning',
@@ -259,11 +259,12 @@ class tx_templavoila_mod1_sidebar {
 	 * @return	string		HTML output
 	 * @access	private
 	 */
-	function renderItem_headerFields (&$pObj) {
+	function renderItem_headerFields(&$pObj) {
 		global $LANG, $TCA;
 
 		$output = '';
-		if ($pObj->rootElementTable != 'pages') return '';
+		if ($pObj->rootElementTable != 'pages')
+			return '';
 
 		t3lib_div::loadTCA('pages');
 		$conf = $TCA['pages']['columns']['tx_templavoila_flex']['config'];
@@ -287,6 +288,7 @@ class tx_templavoila_mod1_sidebar {
 						'value' => t3lib_BEfunc::getProcessedValue('pages', $field, $pObj->rootElementRecord[$field],200)
 					);
 				}
+
 				if (count($headerFields)) {
 					foreach ($headerFields as $headerFieldArr) {
 						if ($headerFieldArr['table'] == 'pages') {
@@ -300,6 +302,7 @@ class tx_templavoila_mod1_sidebar {
 							';
 						}
 					}
+
 					$output = '
 						<table border="0" cellpadding="0" cellspacing="1" width="100%" class="lrPadding">
 							<tr>
@@ -338,52 +341,52 @@ class tx_templavoila_mod1_sidebar {
 	function renderItem_advancedFunctions(&$pObj) {
 		global $LANG;
 
-		$tableRows = array ('
+		$tableRows = array('
 			<tr class="bgColor4-20">
 				<th colspan="2">&nbsp;</th>
 			</tr>
 		');
 
-			// Render checkbox for showing hidden elements:
+		// Render checkbox for showing hidden elements:
 		$tableRows[] = '
 			<tr class="bgColor4">
 				<td width="1%" nowrap="nowrap">
 					'. t3lib_BEfunc::cshItem('_MOD_web_txtemplavoilaM1', 'advancedfunctions_showhiddenelements', $this->doc->backPath) .'
-					'.$LANG->getLL('sidebar_advancedfunctions_labelshowhidden', 1).':
+					'. $LANG->getLL('sidebar_advancedfunctions_labelshowhidden', 1).':
 				</td>
-				<td>'.t3lib_BEfunc::getFuncCheck($pObj->id,'SET[tt_content_showHidden]',$pObj->MOD_SETTINGS['tt_content_showHidden'],'','').'</td>
+				<td>'. t3lib_BEfunc::getFuncCheck($pObj->id,'SET[tt_content_showHidden]',$pObj->MOD_SETTINGS['tt_content_showHidden'],'','').'</td>
 			</tr>
 		';
 
-			// Render checkbox for showing outline:
+		// Render checkbox for showing outline:
 		if ($GLOBALS['BE_USER']->isAdmin())	{
 			$tableRows[] = '
 				<tr class="bgColor4">
 					<td width="1%" nowrap="nowrap">
 						'. t3lib_BEfunc::cshItem('_MOD_web_txtemplavoilaM1', 'advancedfunctions_showoutline', $this->doc->backPath) .'
-						'.$LANG->getLL('sidebar_advancedfunctions_labelshowoutline', 1).'
+						'. $LANG->getLL('sidebar_advancedfunctions_labelshowoutline', 1).'
 					:</td>
-					<td>'.t3lib_BEfunc::getFuncCheck($pObj->id,'SET[showOutline]',$pObj->MOD_SETTINGS['showOutline'],'','').'</td>
+					<td>'. t3lib_BEfunc::getFuncCheck($pObj->id,'SET[showOutline]',$pObj->MOD_SETTINGS['showOutline'],'','').'</td>
 				</tr>
 			';
 		}
 
-			// Render cache menu:
-		if ($pObj->id>0) {
+		// Render cache menu:
+		if ($pObj->id > 0) {
 			$cacheMenu = $this->doc->clearCacheMenu(intval($pObj->id), FALSE);
 			if ($cacheMenu != '') {
-					// Show cache functions only if they are available to the user
+				// Show cache functions only if they are available to the user
 				$cshItem = t3lib_BEfunc::cshItem('xMOD_csh_corebe', 'TCEforms_cacheSelector', $GLOBALS['BACK_PATH'],'', TRUE);
 				$tableRows[] = '
 					<tr class="bgColor4">
 						<td nowrap="nowrap">'.$cshItem.' '.$LANG->getLL('sidebar_advancedfunctions_labelcachefunctions', 1).':</td>
-						<td>'.$cacheMenu.'</td>
+						<td>' . $cacheMenu . '</td>
 					</tr>
 				';
 			}
 		}
 
-		return (count ($tableRows)) ? '<table border="0" cellpadding="0" cellspacing="1" class="lrPadding" width="100%">'.implode ('', $tableRows).'</table>' : '';
+		return (count($tableRows)) ? '<table border="0" cellpadding="0" cellspacing="1" class="lrPadding" width="100%">'.implode ('', $tableRows).'</table>' : '';
 	}
 
 

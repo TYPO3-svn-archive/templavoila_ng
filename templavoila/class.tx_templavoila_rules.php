@@ -460,20 +460,21 @@ class tx_templavoila_rules {
 	 */
 	function parseRegexIntoArray ($regex, $constants) {
 		$pos = 0;
-		$outArr = array ();
-			// Strip off the not wanted characters. We only support certain functions of regular expressions.
-		$regex = ereg_replace ('[^a-zA-Z0-9\[\]\{\}\*\+\.\-]','',$regex);
+		$outArr = array();
 
-			// Split regular expression into alternative parts divided by '|'. If there is more then one part,
-			// call this function recursively and parse each part separately.
+		// Strip off the not wanted characters. We only support certain functions of regular expressions.
+		$regex = preg_replace('/[^a-zA-Z0-9\[\]\{\}\*\+\.\-]/', '', $regex);
+
+		// Split regular expression into alternative parts divided by '|'. If there is more then one part,
+		// call this function recursively and parse each part separately.
 		$altParts = $this->explodeAlternatives ($regex);
 		if (count($altParts)>1) {
 			foreach ($altParts as $altRegex) {
 				$altArr['alt'][] = $this->parseRegexIntoArray ($altRegex, $constants);
 			}
-			$outArr[]=$altArr;
+			$outArr[] = $altArr;
 		} else {
-				// No other alternatives, just parse it.
+			// No other alternatives, just parse it.
 			while ($pos<strlen ($regex)) {
 				if ($this->isElement ($regex[$pos])) {				// Element (ie. a-z A-Z and '.')
 					$el = $regex[$pos];

@@ -566,7 +566,7 @@ class tx_templavoila_wizards_site {
 
 							// Check if the complete content is an image - then make GMENU!
 						$linkContent = trim($htmlParser->removeFirstAndLastTag($linkTag[1]));
-						if (eregi('^<img[^>]*>$',$linkContent))	{
+						if (preg_match('/^<img[^>]*>$/i', $linkContent)) {
 							$GMENU = TRUE;
 							$attribs = $htmlParser->get_tag_attributes($linkContent,1);
 							$newValue['I-class'] = $attribs[0]['class'];
@@ -582,36 +582,39 @@ class tx_templavoila_wizards_site {
 						}
 
 						$linkTag[1] = '|';
-						$newValue['wrap'] = ereg_replace('['.chr(10).chr(13).']*','',implode('',$linkTag));
+						$newValue['wrap'] = preg_replace('/[' . chr(10) . chr(13) . ']*/', '', implode('', $linkTag));
 
 						$md5Base = $newValue;
 						unset($md5Base['I-width']);
 						unset($md5Base['I-height']);
 						$md5Base = serialize($md5Base);
-						$md5Base = ereg_replace('name=["\'][^"\']*["\']','',$md5Base);
-						$md5Base = ereg_replace('id=["\'][^"\']*["\']','',$md5Base);
-						$md5Base = ereg_replace('[:space:]','',$md5Base);
+						$md5Base = preg_replace('/name=["\'][^"\']*["\']/', '', $md5Base);
+						$md5Base = preg_replace('/id=["\'][^"\']*["\']/', '', $md5Base);
+						$md5Base = preg_replace('/\s/', '', $md5Base);
 						$key = md5($md5Base);
 
-						if (!isset($menuWraps[$key]))	{	// Only if not yet set, set it (so it only gets set once and the first time!)
+						if (!isset($menuWraps[$key]))	{
+							// Only if not yet set, set it (so it only gets set once and the first time!)
 							$menuWraps[$key] = $newValue;
-						} else {	// To prevent from writing values in the "} elseif ($key) {" below, we clear the key:
+						} else {
+							// To prevent from writing values in the "} elseif ($key) {" below, we clear the key:
 							$key = '';
 						}
 					} elseif ($key) {
 
-							// Add this to the previous wrap:
-						$menuWraps[$key]['bulletwrap'].= str_replace('|','&#'.ord('|').';',ereg_replace('['.chr(10).chr(13).']*','',$value));
+						// Add this to the previous wrap:
+						$menuWraps[$key]['bulletwrap'] .= str_replace('|', '&#' . ord('|') . ';', preg_replace('/[' . chr(10) . chr(13) . ']*/', '', $value));
 					}
 				}
 			}
 
-				// Construct TypoScript for the menu:
+			// Construct TypoScript for the menu:
 			reset($menuWraps);
-			if (count($menuWraps)==1)	{
+			if (count($menuWraps) == 1) {
 				$menu_normal = current($menuWraps);
 				$menu_active = next($menuWraps);
-			} else { 	// If more than two, then the first is the active one.
+			} else {
+				// If more than two, then the first is the active one.
 				$menu_active = current($menuWraps);
 				$menu_normal = next($menuWraps);
 			}
@@ -621,10 +624,10 @@ class tx_templavoila_wizards_site {
 			if ($GMENU)	{
 				$typoScript = '
 lib.'.$menuType.' = HMENU
-lib.'.$menuType.'.entryLevel = '.$menuTypeEntryLevel.'
-'.(count($totalWrap) ? 'lib.'.$menuType.'.wrap = '.ereg_replace('['.chr(10).chr(13).']','',implode('|',$totalWrap)) : '').'
+lib.'.$menuType.'.entryLevel = ' . $menuTypeEntryLevel . '
+'.(count($totalWrap) ? 'lib.' . $menuType . '.wrap = ' . preg_replace('/[' . chr(10) . chr(13) . ']/','',implode('|',$totalWrap)) : '').'
 lib.'.$menuType.'.1 = GMENU
-lib.'.$menuType.'.1.NO.wrap = '.$this->makeWrap($menu_normal).
+lib.'.$menuType.'.1.NO.wrap = ' . $this->makeWrap($menu_normal).
 	($menu_normal['I-class'] ? '
 lib.'.$menuType.'.1.NO.imgParams = class="'.htmlspecialchars($menu_normal['I-class']).'" ' : '').'
 lib.'.$menuType.'.1.NO {
@@ -667,7 +670,7 @@ lib.'.$menuType.'.1.ACT {
 				$typoScript = '
 lib.'.$menuType.' = HMENU
 lib.'.$menuType.'.entryLevel = '.$menuTypeEntryLevel.'
-'.(count($totalWrap) ? 'lib.'.$menuType.'.wrap = '.ereg_replace('['.chr(10).chr(13).']','',implode('|',$totalWrap)) : '').'
+'.(count($totalWrap) ? 'lib.' . $menuType . '.wrap = ' . preg_replace('/[' . chr(10) . chr(13) . ']/','',implode('|',$totalWrap)) : '').'
 lib.'.$menuType.'.1 = TMENU
 lib.'.$menuType.'.1.NO {
 	allWrap = '.$this->makeWrap($menu_normal).
@@ -803,14 +806,14 @@ lib.'.$menuType.'.1.ACT {
 	 * @param	array		menuItemSuggestion configuration
 	 * @return	string		Wrap for TypoScript
 	 */
-	function makeWrap($cfg)	{
-		if (!$cfg['bulletwrap'])	{
+	function makeWrap($cfg) {
+		if (!$cfg['bulletwrap']) {
 			$wrap = $cfg['wrap'];
 		} else {
-			$wrap = $cfg['wrap'].'  |*|  '.$cfg['bulletwrap'].$cfg['wrap'];
+			$wrap = $cfg['wrap'] . '  |*|  ' . $cfg['bulletwrap'] . $cfg['wrap'];
 		}
 
-		return ereg_replace('['.chr(10).chr(13).chr(9).']','',$wrap);
+		return preg_replace('/[' . chr(10) . chr(13) . chr(9) . ']/', '', $wrap);
 	}
 
 	/**
@@ -819,8 +822,8 @@ lib.'.$menuType.'.1.ACT {
 	 * @param	string		"Field" from Data structure, either "field_menu" or "field_submenu"
 	 * @return	string
 	 */
-	function getMenuDefaultCode($field)	{
-			// Select template record and extract menu HTML content
+	function getMenuDefaultCode($field) {
+		// Select template record and extract menu HTML content
 		$toRec = t3lib_BEfunc::getRecordWSOL('tx_templavoila_tmplobj',$this->wizardData['templateObjectId']);
 		$tMapping = unserialize($toRec['templatemapping']);
 		return $tMapping['MappingData_cached']['cArray'][$field];

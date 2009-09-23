@@ -536,7 +536,7 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 		$htmlParse = ($this->htmlParse ? $this->htmlParse : t3lib_div::makeInstance('t3lib_parsehtml'));
 		if (is_array($editStruct)) {
 			$testInt = implode('', array_keys($editStruct));
-			$isSection = !ereg('[^0-9]', $testInt);
+			$isSection = !preg_match('/[^0-9]/', $testInt);
 		}
 
 		$out = '';
@@ -587,13 +587,13 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 			$subPaths[$index]=array();
 			$subPaths[$index]['fullpath'] = $path;
 
-				// Get base parts of the page: the PATH and the COMMAND
+			// Get base parts of the page: the PATH and the COMMAND
 			list($thePath,$theCmd) = t3lib_div::trimExplode('/', $path,1);
 
-				// Split the path part into its units: results in an array with path units.
-			$splitParts = split('[[:space:]]+',$thePath);
+			// Split the path part into its units: results in an array with path units.
+			$splitParts = preg_split('/\s+/', $thePath);
 
-				// modifier:
+			// modifier:
 			$modArr = t3lib_div::trimExplode(':', $theCmd,1);
 			if ($modArr[0])	{
 				$subPaths[$index]['modifier']=$modArr[0];
@@ -607,21 +607,21 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 				}
 			}
 
-				// Tag list
+			// Tag list
 			$tagIndex=array();
 			$tagSplitParts = $splitParts;
 			if ($subPaths[$index]['modifier']=='RANGE' && $subPaths[$index]['modifier_value'])	{
 				$tagSplitParts[]=$subPaths[$index]['modifier_value'];
 			}
 			foreach($tagSplitParts as $tagV)	{
-				list($tagName) = split('[^a-zA-Z0-9_-]',$tagV);
+				list($tagName) = preg_split('/[^a-zA-Z0-9_-]/', $tagV);
 				$tagIndex[$tagName]++;
 			}
 			$subPaths[$index]['tagList']=implode(',',array_keys($tagIndex));
 
-				// Setting "path" and "parent"
+			// Setting "path" and "parent"
 			$subPaths[$index]['path'] = implode(' ',$splitParts);	// Cleaning up the path
-			list($elName) = split('[^a-zA-Z0-9_-]',end($splitParts));
+			list($elName) = preg_split('/[^a-zA-Z0-9_-]/', end($splitParts));
 			$subPaths[$index]['el'] = $elName;
 			array_pop($splitParts);	// Removing last item to get parent.
 			$subPaths[$index]['parent'] = implode(' ',$splitParts);	// Cleaning up the path
@@ -1250,7 +1250,7 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 			return str_pad('',$recursion*2,' ',STR_PAD_LEFT).
 				$gnyf.
 				($valueStr ? '<font color="#6666FF"><em>' : '').
-				htmlspecialchars(t3lib_div::fixed_lgd_cs(ereg_replace('[[:space:]]+', ' ', $str), $this->maxLineLengthInSourceMode)).
+				htmlspecialchars(t3lib_div::fixed_lgd_cs(preg_replace('/\s+/', ' ', $str), $this->maxLineLengthInSourceMode)).
 				($valueStr ? '</em></font>' : '').
 				chr(10);
 		}
