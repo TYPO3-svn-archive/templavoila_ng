@@ -137,7 +137,7 @@ var StickyToggle = Class.create({
 		if (event) {
 			Event.stop(event);
 		}
-	},
+	}
 });
 
 var TYPO3BackendTVStickyToggle = new StickyToggle();

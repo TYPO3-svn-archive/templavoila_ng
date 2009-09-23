@@ -208,7 +208,7 @@
 		'.TCEforms.config.itemListStyle' : 'text,css',
 		'.TCEforms.config.show_thumbs' : 'boolean',
 		'.TCEforms.config.softref' : 'text,commalist',
-		'.TCEforms.config.wizards' : 'array',
+		'.TCEforms.config.wizards' : 'array'
 	};
 
 	function xmlarea_guielement_search(elm, ctx) {

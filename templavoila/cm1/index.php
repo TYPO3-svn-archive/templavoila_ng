@@ -736,7 +736,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		// Find the file:
 		$theFile = t3lib_div::getFileAbsFileName($theFile, 1);
 		if ($theFile && @is_file($theFile)) {
-			preg_match_all('/(.*)\.([^\.]*$)/', $theFile, $reg);
+			ereg('(.*)\.([^\.]*$)', $theFile, $reg);
 			$alttext = $reg[2];
 
 			$icon = t3lib_BEfunc::getFileIcon($reg[2]);
@@ -4028,7 +4028,7 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 				return '
 
 					<!-- Function Menu of module -->
-					<select name="' . $elementName . '" onchange="' . /*htmlspecialchars(*/$onChange/*)*/ . '">
+					<select name="' . $elementName . '" onchange="' . /*htmlspecialchars(*/$onChange/*)*/ . '" style="width: 125px;">
 						' . implode('
 						', $options) . '
 					</select>
