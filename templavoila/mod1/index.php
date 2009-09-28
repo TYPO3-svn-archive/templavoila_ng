@@ -784,7 +784,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 				$parts[] = array(
 					'label' => ($contentTreeArr['meta'][$sheetKey]['title']
 						  ? $contentTreeArr['meta'][$sheetKey]['title'] : $sheetKey),
-				#	.' ['.$this->containedElements[$this->containedElementsPointer].']',
+				#	. ' [' . $this->containedElements[$this->containedElementsPointer].']',
 					'description' => $contentTreeArr['meta'][$sheetKey]['description'],
 					'linkTitle' => $contentTreeArr['meta'][$sheetKey]['short'],
 					'content' => $frContent,
@@ -1230,12 +1230,14 @@ table.typo3-dyntabmenu td.disabled:hover {
 						// Modify the flexform pointer so it points to the position of the curren sub element:
 						$subElementPointer['position'] = $position;
 
+						$cellFragment = '';
+
 						if ($this->canEditContent) {
 							/* id-strings must not contain double-colons because of the selectors-api */
 							$cellId = tvID_to_jsID($this->apiObj->flexform_getStringFromPointer($subElementPointer));
 							$cellRel = tvID_to_jsID('tt_content' . SEPARATOR_PARMS . $subElementArr['el']['uid']);
 
-							$cellFragment = '<div class="sortableItem" id="' . $cellId . '" rel="' . $cellRel . '"></div>';
+							$cellFragment = '<div class="sortableItem" id="' . $cellId . '" rel="' . $cellRel . '">' . $cellFragment . '</div>';
 						}
 
 						$cellContent .= $cellFragment;
