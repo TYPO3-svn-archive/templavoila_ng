@@ -2688,7 +2688,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 					case 'makeLocalRecord':
 						/* revert selector-api valid flex-string to original one */
-						$sourcePointer = jsID_to_tvID($this->apiObj->flexform_getPointerFromString($commandParameters));
+						$sourcePointer = $this->apiObj->flexform_getPointerFromString(jsID_to_tvID($commandParameters));
 
 						$this->apiObj->copyElement($sourcePointer, $sourcePointer);
 						$this->apiObj->unlinkElement($sourcePointer);
@@ -2696,7 +2696,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 					case 'localizeElement':
 						/* revert selector-api valid flex-string to original one */
-						$sourcePointer = jsID_to_tvID($this->apiObj->flexform_getPointerFromString(t3lib_div::_GP('source')));
+						$sourcePointer = $this->apiObj->flexform_getPointerFromString(jsID_to_tvID(t3lib_div::_GP('source')));
 
 						$this->apiObj->localizeElement ($sourcePointer, $commandParameters);
 						break;
