@@ -1486,7 +1486,10 @@ table.typo3-dyntabmenu td.disabled:hover {
 					$output = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'bodytext'), 1) . '</strong> <div style="overflow: hidden">' . htmlspecialchars(t3lib_div::fixed_lgd_cs(trim($row['bodytext']), 2000)), 'tt_content', $row['uid']) . '</div>';
 					break;
 				case 'header': 		//	Header
-					$output = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'header'), 1) . '</strong> ' . htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['header'])), 2000)), 'tt_content', $row['uid']);
+					$output =
+					//	$this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'header'), 1) . '</strong> ' . htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['header'])), 2000)), 'tt_content', $row['uid']) .
+					//	'<br />' .
+						$this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'subheader'), 1) . '</strong> ' . htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['subheader'])), 2000)), 'tt_content', $row['uid']);
 					break;
 				case 'shortcut':	//	Insert records
 					break;
@@ -2502,7 +2505,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 */
 	function icon_makeLocal($makeLocalPointer, $realDup = 0) {
 
-		$dupIcon = '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'mod1/makelocalcopy.gif', '') . ' title="' . $GLOBALS['LANG']->getLL('makeLocal') . '" border="0" alt="" />';
+		$dupIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'mod1/makelocalcopy.gif', '') . ' title="' . $GLOBALS['LANG']->getLL('makeLocal') . '" border="0" alt="" />';
 
 		if ($realDup)
 			return $this->link_makeLocal($dupIcon, $makeLocalPointer);
@@ -2519,8 +2522,9 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @access protected
 	 */
 	function link_makeLocal($label, $makeLocalPointer) {
+		$makeLocalString = $this->apiObj->flexform_getStringFromPointer($makeLocalPointer);
 
-		return '<a href="' . $this->baseScript . $this->link_getParameters() . '&amp;makeLocalRecord=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($makeLocalPointer)) . '" onclick="' . htmlspecialchars('return confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('makeLocalMsg')) . ');') . '">' . $label . '</a>';
+		return '<a href="' . $this->baseScript . $this->link_getParameters() . '&amp;makeLocalRecord=' . rawurlencode($makeLocalString) . '#' . tvID_to_jsID($makeLocalString) . '" onclick="' . htmlspecialchars('return confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('makeLocalMsg')) . ');') . '">' . $label . '</a>';
 	}
 
 	/**

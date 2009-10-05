@@ -160,10 +160,11 @@ class tx_templavoila_mod1_clipboard {
 		$removeElement = '&amp;CB[removeAll]=normal';
 		$setElement    = '&amp;CB[el][' . rawurlencode('tt_content|' . $elementRecord['uid']) . ']=' . rawurlencode($this->pObj->apiObj->flexform_getStringFromPointer($elementPointer));
 		$setElementRef = '&amp;CB[el][' . rawurlencode('tt_content|' . $elementRecord['uid']) . ']=1';
+		$setElementID  = tvID_to_jsID($this->pObj->apiObj->flexform_getStringFromPointer($elementPointer));
 
-		$linkCopy = '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;CB[setCopyMode]=1&amp;CB[setFlexMode]=copy' . ($clipActive_copy ? $removeElement : $setElement   ) . '">' . $copyIcon . '</a>';
-		$linkCut  = '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;CB[setCopyMode]=0&amp;CB[setFlexMode]=cut'  . ($clipActive_cut  ? $removeElement : $setElement   ) . '">' . $cutIcon  . '</a>';
-		$linkRef  = '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;CB[setCopyMode]=1&amp;CB[setFlexMode]=ref'  . ($clipActive_ref  ? $removeElement : $setElementRef) . '">' . $refIcon  . '</a>';
+		$linkCopy = '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;CB[setCopyMode]=1&amp;CB[setFlexMode]=copy' . ($clipActive_copy ? $removeElement : $setElement   ) . '#' . $setElementID . '">' . $copyIcon . '</a>';
+		$linkCut  = '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;CB[setCopyMode]=0&amp;CB[setFlexMode]=cut'  . ($clipActive_cut  ? $removeElement : $setElement   ) . '#' . $setElementID . '">' . $cutIcon  . '</a>';
+		$linkRef  = '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;CB[setCopyMode]=1&amp;CB[setFlexMode]=ref'  . ($clipActive_ref  ? $removeElement : $setElementRef) . '#' . $setElementID . '">' . $refIcon  . '</a>';
 
 		$output =
 			(t3lib_div::inList($listOfButtons, 'copy') ? $linkCopy : '').
@@ -229,10 +230,10 @@ class tx_templavoila_mod1_clipboard {
 
 		// FCEs with sub elements have two different paste icons, normal elements only one:
 		if ($pasteMode == 'copy' && $clipboardElementHasSubElements) {
-			$output  = '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;CB[removeAll]=normal&amp;pasteRecord=copy&amp;source=' . rawurlencode($sourcePointerString).'&amp;destination='.rawurlencode($destinationPointerString).'">'.$pasteAfterIcon.'</a>';
-			$output .= '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;CB[removeAll]=normal&amp;pasteRecord=copyref&amp;source=' . rawurlencode($sourcePointerString).'&amp;destination='.rawurlencode($destinationPointerString).'">'.$pasteSubRefIcon.'</a>';
+			$output  = '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;CB[removeAll]=normal&amp;pasteRecord=copy&amp;source=' . rawurlencode($sourcePointerString) . '&amp;destination=' . rawurlencode($destinationPointerString) . '#' . tvID_to_jsID($destinationPointerString) . '">' . $pasteAfterIcon . '</a>';
+			$output .= '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;CB[removeAll]=normal&amp;pasteRecord=copyref&amp;source=' . rawurlencode($sourcePointerString) . '&amp;destination=' . rawurlencode($destinationPointerString) . '#' . tvID_to_jsID($destinationPointerString) . '">' . $pasteSubRefIcon.'</a>';
 		} else {
-			$output  = '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;CB[removeAll]=normal&amp;pasteRecord=' . $pasteMode . '&amp;source='.rawurlencode($sourcePointerString).'&amp;destination='.rawurlencode($destinationPointerString).'">'.$pasteAfterIcon.'</a>';
+			$output  = '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;CB[removeAll]=normal&amp;pasteRecord=' . $pasteMode . '&amp;source=' . rawurlencode($sourcePointerString) . '&amp;destination=' . rawurlencode($destinationPointerString) . '#' . tvID_to_jsID($destinationPointerString) . '">' . $pasteAfterIcon . '</a>';
 		}
 
 		return $output;
