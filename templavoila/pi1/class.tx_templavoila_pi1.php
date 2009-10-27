@@ -489,7 +489,9 @@ class tx_templavoila_pi1 extends tslib_pibase {
 			 * clearing all pages which are tagged with that page-uid, this page will be cleared too
 			 */
 			if (count($Itags) > 0) {
-				$GLOBALS['TSFE']->addCacheTags(array_keys($Itags));
+				/* <= TYPO3 4.2.0 */
+				if (function_exists($GLOBALS['TSFE']->addCacheTags))
+					$GLOBALS['TSFE']->addCacheTags(array_keys($Itags));
 			}
 		}
 
@@ -635,8 +637,18 @@ class tx_templavoila_pi1 extends tslib_pibase {
 						//	}
 						} else {
 							$DVa = array();
-							foreach ($DVarray as $idx => &$DV)
-								$DVa[$idx] = &$DV[$key]['el'];
+							foreach ($DVarray as $idx => $DV) {
+								/* reference to zero would produce aliasing
+								 * "$idx=1 not set" would actually alias the next
+								 * higher array that existed "$idx=2" for example
+								 *
+								 * so we have to have a distinct element here
+								 */
+								if (!$DVarray[$idx][$key]['el'])
+									$DVarray[$idx][$key]['el'] = array();
+
+								$DVa[$idx] = &$DVarray[$idx][$key]['el'];
+							}
 
 							$this->mergeDataValues_traverse($srcPointer, $sheet, $lKey, $DVa, $DS[$key]['el'], $Imap, $Itags);
 						}

@@ -1112,7 +1112,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 		$output = '';
 
 		// Compile the content area for the current element (basically what was put together above):
-		if (count($headerCells) || count($cells)) {
+		if (count($headerCells) || count($footerCells) || count($cells)) {
 			$output = str_replace('###WIDTH###', round(100 / count($cells)) . '%', '
 				<table border="0" cellpadding="0" cellspacing="0" width="100%" class="tv-container">
 				<thead>
@@ -1133,7 +1133,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 				</table>
 			');
 
-			$headerCells = array(); $cells = array();
+			$headerCells = array(); $footerCells = array(); $cells = array();
 		}
 
 		return $output;

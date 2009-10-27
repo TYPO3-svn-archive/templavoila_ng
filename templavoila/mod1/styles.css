@@ -10,12 +10,12 @@ div.typo3-clipCtrl {
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 table.tv-container div.sortableItem > span > a,
 table.tv-container div.sortableItem >        a {
-	display: inline;
+	display: inline !important;
 }
 
 table.tv-clipboard div.sortableItem > span > a,
 table.tv-clipboard div.sortableItem >        a {
-	display: none;
+	display: none !important;
 }
 
 table.tv-container div.sortableButtons > a.onoff {

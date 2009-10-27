@@ -736,10 +736,10 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		// Find the file:
 		$theFile = t3lib_div::getFileAbsFileName($theFile, 1);
 		if ($theFile && @is_file($theFile)) {
-			ereg('(.*)\.([^\.]*$)', $theFile, $reg);
-			$alttext = $reg[2];
+			preg_match_all('/(.*)\\.([^\\.]*$)/',  $theFile, $reg);
+			$alttext = '' . $reg[2][0];
 
-			$icon = t3lib_BEfunc::getFileIcon($reg[2]);
+			$icon = t3lib_BEfunc::getFileIcon($alttext);
 			$icon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/fileicons/' . $icon, 'width="18" height="16"') . ' align="top" title="' . htmlspecialchars($alttext) . '" alt="" />';
 
 			$relFilePath = substr($theFile,strlen(PATH_site));
@@ -825,10 +825,10 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		// Find the file:
 		$theFile = t3lib_div::getFileAbsFileName($theFile, 1);
 		if ($theFile && @is_file($theFile)) {
-			preg_match_all('/(.*)\.([^\.]*$)/', $theFile, $reg);
-			$alttext = $reg[2];
+			preg_match_all('/(.*)\\.([^\\.]*$)/',  $theFile, $reg);
+			$alttext = '' . $reg[2][0];
 
-			$icon = t3lib_BEfunc::getFileIcon($reg[2]);
+			$icon = t3lib_BEfunc::getFileIcon($alttext);
 			$icon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/fileicons/' . $icon, 'width="18" height="16"') . ' align="top" title="' . htmlspecialchars($alttext) . '" alt="" />';
 
 			$relFilePath = substr($theFile,strlen(PATH_site));
@@ -2923,6 +2923,10 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 								$rowCells['htmlPath'] =
 									'<img' . t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/icon_warning.gif','width="18" height="16"') . ' border="0" alt="" title="No content found!" class="absmiddle" />' .
 									htmlspecialchars($currentMappingInfo[$key]['MAP_EL']);
+
+								// CMD links, default content:
+								$rowCells['cmdLinks'] =
+									'&mdash;';
 							}
 						} else {
 							// For non-mapped cases, just output a no-break-space:
@@ -2987,7 +2991,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 									<strong>Click a tag-icon in the window below to map this element.</strong><br />
 									<input type="submit" value="Cancel" name="_" onclick="document.location=\'' . $this->linkThisScript() . '\';return false;" />';
 							}
-						} elseif (!$rowCells['cmdLinks'] && $mapOK && ($value['type'] != 'no_map')) {
+						} elseif ((!$rowCells['cmdLinks'] || ($rowCells['cmdLinks'] == '&mdash;')) && $mapOK && ($value['type'] != 'no_map')) {
 							$rowCells['cmdLinks'] = '
 									<input type="submit" value="Map" name="_" onclick="document.location=\'' . $this->linkThisScript(array('mapElPath' => $formPrefix . '[' . $key . ']', 'htmlPath' => $path, 'mappingToTags' => $value['tx_templavoila']['tags'])) . '\';return false;" />';
 						}
@@ -4463,9 +4467,10 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 		// Add icon with clickmenu, etc:
 		if ($this->markupFile)	{
 			// If there IS a real page
-			preg_match_all('/(.*)\.([^\.]*$)/', $this->markupFile, $reg);
-			$alttext = $reg[2];
-			$icon = t3lib_BEfunc::getFileIcon($reg[2]);
+			preg_match_all('/(.*)\\.([^\\.]*$)/',  $this->markupFile, $reg);
+			$alttext = '' . $reg[2][0];
+
+			$icon = t3lib_BEfunc::getFileIcon($alttext);
 			$iconImg = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/fileicons/' . $icon,'width="18" height="16"') . ' title="'.htmlspecialchars($alttext) . '" alt="" />';
 				// Make Icon:
 			$theIcon = $GLOBALS['SOBE']->doc->wrapClickMenuOnIcon($iconImg, $this->markupFile);
