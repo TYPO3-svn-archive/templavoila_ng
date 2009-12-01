@@ -8,6 +8,20 @@ div.typo3-clipCtrl {
 }
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+table.tv-clipboard {
+	border: 1px solid black;
+	margin-bottom: 5px;
+
+	background: #E6E9EB;
+}
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+table.tv-container {
+	border-spacing: 8px;
+
+	background: #E6E9EB;
+}
+
 table.tv-container div.sortableItem > span > a,
 table.tv-container div.sortableItem >        a {
 	display: inline !important;
@@ -44,6 +58,7 @@ table.tv-container img.paste {
 table.tv-container tfoot td.full  { color: #F00000; }
 table.tv-container tfoot td.used  { /*color: #101010;*/ }
 table.tv-container tfoot td.empty { color: #000000; }
+table.tv-container tbody td       { background: #EFEFF4; }
 
 table.tv-container td.full  span.sortableControls { display: none; }
 table.tv-container td.used  span.sortableControls { }
