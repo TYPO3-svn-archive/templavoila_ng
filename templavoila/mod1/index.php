@@ -696,7 +696,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 		// Create a back button if neccessary:
 		if (is_array($this->altRoot)) {
-			$output .= '<div style="text-align:right; width:100%; margin-bottom:5px;"><a href="' . $this->baseScript . 'id=' . $this->id . '"><img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/goback.gif', '') . ' title="' . htmlspecialchars($GLOBALS['LANG']->getLL ('goback')).'" alt="" /></a></div>';
+			$output .= '<div style="text-align:right; width:100%; margin-bottom:5px;"><a href="' . $this->baseScript . 'id=' . $this->id . '"><img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/goback.gif', '') . ' title="' . htmlspecialchars($GLOBALS['LANG']->getLL ('goback')).'" alt="" /></a></div>';
 		}
 
 		// Add the localization module if localization is enabled:
@@ -2693,16 +2693,21 @@ table.typo3-dyntabmenu td.disabled:hover {
 					case 'makeLocalRecord':
 						/* revert selector-api valid flex-string to original one */
 						$sourcePointer = $this->apiObj->flexform_getPointerFromString(jsID_to_tvID($commandParameters));
+						$destinationPointer = $sourcePointer;
 
-						$this->apiObj->copyElement($sourcePointer, $sourcePointer);
+						$sourceElement = $this->apiObj->flexform_getRecordByPointer($sourcePointer);
+						$tempPointer = array('table' => 'tt_content', 'uid' => $sourceElement['uid']);
+						$destinationPointer['position'] = $destinationPointer['position'] - 1;
+
 						$this->apiObj->unlinkElement($sourcePointer);
+						$this->apiObj->copyElement($tempPointer, $destinationPointer);
 						break;
 
 					case 'localizeElement':
 						/* revert selector-api valid flex-string to original one */
 						$sourcePointer = $this->apiObj->flexform_getPointerFromString(jsID_to_tvID(t3lib_div::_GP('source')));
 
-						$this->apiObj->localizeElement ($sourcePointer, $commandParameters);
+						$this->apiObj->localizeElement($sourcePointer, $commandParameters);
 						break;
 
 					case 'createNewPageTranslation':

@@ -44,17 +44,17 @@
  *  234:     function api_setFFvalueToSheetArray(&$sheetArray,$fieldNameArr,$value,$assignment)
  *
  *              SECTION: Element manipulation functions (public)
- *  274:     function insertElement ($destinationPointer, $elementRow)
+ *  274:     function insertElement($destinationPointer, $elementRow)
  *  305:     function insertElement_createRecord ($destinationPointer, $row)
  *  372:     function insertElement_setElementReferences ($destinationPointer, $uid)
- *  394:     function moveElement ($sourcePointer, $destinationPointer)
+ *  394:     function moveElement($sourcePointer, $destinationPointer)
  *  409:     function moveElement_setElementReferences($sourcePointer, $destinationPointer)
  *  425:     function copyElement($sourcePointer, $destinationPointer, $copySubElements = TRUE)
  *  443:     function localizeElement($sourcePointer, $languageKey)
- *  479:     function referenceElement ($sourcePointer, $destinationPointer)
- *  496:     function referenceElementByUid ($uid, $destinationPointer)
- *  512:     function unlinkElement ($sourcePointer)
- *  525:     function deleteElement ($sourcePointer)
+ *  479:     function referenceElement($sourcePointer, $destinationPointer)
+ *  496:     function referenceElementByUid($uid, $destinationPointer)
+ *  512:     function unlinkElement($sourcePointer)
+ *  525:     function deleteElement($sourcePointer)
  *
  *              SECTION: Processing functions (protected)
  *  550:     function process($mode, $sourcePointer, $destinationPointer = NULL, $onlyHandleReferences = FALSE)
@@ -440,7 +440,7 @@ class tx_templavoila_api {
 	 */
 	function copyElement($sourcePointer, $destinationPointer, $copySubElements = TRUE) {
 		if ($this->debug)
-			t3lib_div::devLog ('API: copyElement()', 'templavoila', 0, array('sourcePointer' => $sourcePointer, 'destinationPointer' => $destinationPointer, 'copySubElements' => $copySubElements));
+			t3lib_div::devLog('API: copyElement()', 'templavoila', 0, array('sourcePointer' => $sourcePointer, 'destinationPointer' => $destinationPointer, 'copySubElements' => $copySubElements));
 
 		return $this->process($copySubElements ? 'copyrecursively' : 'copy', $sourcePointer, $destinationPointer);
 	}
@@ -578,10 +578,10 @@ class tx_templavoila_api {
 	function process($mode, $sourcePointer, $destinationPointer = NULL, $onlyHandleReferences = FALSE) {
 
 		// Check and get all information about the source position:
-		if (!$sourcePointer = $this->flexform_getValidPointer ($sourcePointer))
+		if (!$sourcePointer = $this->flexform_getValidPointer($sourcePointer))
 			return FALSE;
 
-		$sourceParentRecord = t3lib_BEfunc::getRecordWSOL($sourcePointer['table'], $sourcePointer['uid'],'uid,pid,tx_templavoila_flex');
+		$sourceParentRecord = t3lib_BEfunc::getRecordWSOL($sourcePointer['table'], $sourcePointer['uid'], 'uid,pid,tx_templavoila_flex');
 		if (!is_array($sourceParentRecord)) {
 			if ($this->debug)
 				t3lib_div::devLog ('process: Parent record of the element specified by source pointer does not exist!', 2, $sourcePointer);
@@ -602,21 +602,21 @@ class tx_templavoila_api {
 					t3lib_div::devLog ('process: Parent record of the element specified by destination pointer does not exist!', 2, $destinationPointer);
 
 				return FALSE;
-			} else if ($destinationParentRecord['pid'] < 0 && ($destinationPointer['table']!='pages' || $destinationParentRecord['t3ver_swapmode']<0))	{
+			} else if ($destinationParentRecord['pid'] < 0 && ($destinationPointer['table'] != 'pages' || $destinationParentRecord['t3ver_swapmode']<0))	{
 				if ($this->debug)
 					t3lib_div::devLog ('process: The destination pointer must always point to a live record, not an offline version!', 2, $destinationPointer);
 
 				return FALSE;
 			}
 
-			$destinationReferencesArr = $this->flexform_getElementReferencesFromXML ($destinationParentRecord['tx_templavoila_flex'], $destinationPointer);
+			$destinationReferencesArr = $this->flexform_getElementReferencesFromXML($destinationParentRecord['tx_templavoila_flex'], $destinationPointer);
 		}
 
 		// Get information about the element to be processed:
 		if (isset($sourcePointer['sheet'])) {
-			$sourceElementRecord = t3lib_BEfunc::getRecordWSOL('tt_content', $sourceReferencesArr[$sourcePointer['position']],'*');
+			$sourceElementRecord = t3lib_BEfunc::getRecordWSOL('tt_content', $sourceReferencesArr[$sourcePointer['position']], '*');
 		} else {
-			$sourceElementRecord = t3lib_BEfunc::getRecordWSOL('tt_content', $sourcePointer['uid'],'*');
+			$sourceElementRecord = t3lib_BEfunc::getRecordWSOL('tt_content', $sourcePointer['uid'], '*');
 		}
 
 		switch ($mode) {
@@ -732,9 +732,9 @@ class tx_templavoila_api {
 		$tce->process_cmdmap();
 		$newElementUid = $tce->copyMappingArray_merged['tt_content'][$sourceElementUid];
 		if (!$flagWasSet)
-			$this->setTCEmainRunningFlag (FALSE);
+			$this->setTCEmainRunningFlag(FALSE);
 
-		$newDestinationReferencesArr = $this->flexform_insertElementReferenceIntoList ($destinationReferencesArr, $destinationPointer['position'], $newElementUid);
+		$newDestinationReferencesArr = $this->flexform_insertElementReferenceIntoList($destinationReferencesArr, $destinationPointer['position'], $newElementUid);
 		$this->flexform_storeElementReferencesListInRecord($newDestinationReferencesArr, $destinationPointer);
 
 		return $newElementUid;
@@ -790,9 +790,9 @@ class tx_templavoila_api {
 	 * @return	mixed		The UID of the newly created copy or FALSE if an error occurred.
 	 * @access protected
 	 */
-	function process_localize ($sourceElementUid, $destinationPointer, $destinationReferencesArr) {
+	function process_localize($sourceElementUid, $destinationPointer, $destinationReferencesArr) {
 
-			// Determine language record UID of the language we localize to:
+		// Determine language record UID of the language we localize to:
 		$staticLanguageRows = t3lib_BEfunc::getRecordsByField('static_languages', 'lg_iso_2', $destinationPointer['_languageKey']);
 		if (is_array($staticLanguageRows) && isset($staticLanguageRows[0]['uid'])) {
 			$languageRecords = t3lib_BEfunc::getRecordsByField('sys_language', 'static_lang_isocode', $staticLanguageRows[0]['uid']);
@@ -804,12 +804,12 @@ class tx_templavoila_api {
 			return FALSE;
 		}
 
-			// Initialize TCEmain and create configuration for localizing the specified record
+		// Initialize TCEmain and create configuration for localizing the specified record
 		$tce = t3lib_div::makeInstance('t3lib_TCEmain');
 		$cmdArray = array();
 		$cmdArray['tt_content'][$sourceElementUid]['localize'] = $destinationLanguageUid;
 
-			// Execute the copy process and finally insert the reference for the element to the destination:
+		// Execute the copy process and finally insert the reference for the element to the destination:
 		$flagWasSet = $this->getTCEmainRunningFlag();
 		$this->setTCEmainRunningFlag (TRUE);
 		$tce->start(array(),$cmdArray);
@@ -832,7 +832,7 @@ class tx_templavoila_api {
 	 * @return	boolean		TRUE if the operation was successful or FALSE if an error occurred.
 	 * @access protected
 	 */
-	function process_reference ($destinationPointer, $destinationReferencesArr, $elementUid) {
+	function process_reference($destinationPointer, $destinationReferencesArr, $elementUid) {
 
 		$newDestinationReferencesArr = $this->flexform_insertElementReferenceIntoList ($destinationReferencesArr, $destinationPointer['position'], $elementUid);
 		$this->flexform_storeElementReferencesListInRecord($newDestinationReferencesArr, $destinationPointer);
@@ -848,7 +848,7 @@ class tx_templavoila_api {
 	 * @return	boolean		TRUE if the operation was successful, otherwise FALSE
 	 * @access protected
 	 */
-	function process_unlink ($sourcePointer, $sourceReferencesArr) {
+	function process_unlink($sourcePointer, $sourceReferencesArr) {
 
 		$newSourceReferencesArr = $this->flexform_removeElementReferenceFromList ($sourceReferencesArr, $sourcePointer['position']);
 		$this->flexform_storeElementReferencesListInRecord($newSourceReferencesArr, $sourcePointer);
@@ -865,7 +865,7 @@ class tx_templavoila_api {
 	 * @return	boolean		TRUE if the operation was successful, otherwise FALSE
 	 * @access protected
 	 */
-	function process_delete ($sourcePointer, $sourceReferencesArr, $elementUid) {
+	function process_delete($sourcePointer, $sourceReferencesArr, $elementUid) {
 
 		if (!$this->process_unlink ($sourcePointer, $sourceReferencesArr)) return FALSE;
 
@@ -908,29 +908,29 @@ class tx_templavoila_api {
 	 * @return	mixed		The valid flexform pointer array or FALSE if it was not valid
 	 * @access public
 	 */
-	function flexform_getValidPointer ($flexformPointer) {
+	function flexform_getValidPointer($flexformPointer) {
 
 		if (is_string($flexformPointer))
-			$flexformPointer = $this->flexform_getPointerFromString ($flexformPointer);
+			$flexformPointer = $this->flexform_getPointerFromString($flexformPointer);
 
-		if (!t3lib_div::inList($this->rootTable.',tt_content',$flexformPointer['table'])) {
-			if ($this->debug) t3lib_div::devLog ('flexform_getValidPointer: Table "'.$flexformPointer['table'].'" is not in the list of allowed tables!', 'TemplaVoila API', 2, $this->rootTable.',tt_content');
+		if (!t3lib_div::inList($this->rootTable . ',tt_content', $flexformPointer['table'])) {
+			if ($this->debug) t3lib_div::devLog ('flexform_getValidPointer: Table "' . $flexformPointer['table'] . '" is not in the list of allowed tables!', 'TemplaVoila API', 2, $this->rootTable.',tt_content');
 			return FALSE;
 		}
 
-		if (!$destinationRecord = t3lib_BEfunc::getRecordWSOL($flexformPointer['table'], $flexformPointer['uid'],'uid,pid,tx_templavoila_flex'.($flexformPointer['table'] == 'page' ? ',t3ver_swapmode':''))) {
+		if (!$destinationRecord = t3lib_BEfunc::getRecordWSOL($flexformPointer['table'], $flexformPointer['uid'], 'uid,pid,tx_templavoila_flex'.($flexformPointer['table'] == 'page' ? ',t3ver_swapmode':''))) {
 			if ($this->debug) t3lib_div::devLog ('flexform_getValidPointer: Pointer destination record not found!', 'TemplaVoila API', 2, $flexformPointer);
 			return FALSE;
 		}
 
 		if ($flexformPointer['position'] > 0) {
-			$elementReferencesArr = $this->flexform_getElementReferencesFromXML ($destinationRecord['tx_templavoila_flex'], $flexformPointer);
+			$elementReferencesArr = $this->flexform_getElementReferencesFromXML($destinationRecord['tx_templavoila_flex'], $flexformPointer);
 			if (!isset ($elementReferencesArr[$flexformPointer['position']]) && $flexformPointer['position'] != -1) {
-				if ($this->debug) t3lib_div::devLog ('flexform_getValidPointer: The position in the specified flexform pointer does not exist!', 'TemplaVoila API', 2, $flexformPointer);
+				if ($this->debug) t3lib_div::devLog('flexform_getValidPointer: The position in the specified flexform pointer does not exist!', 'TemplaVoila API', 2, $flexformPointer);
 				return FALSE;
 			}
 			if (isset ($flexformPointer['targetCheckUid']) && $elementReferencesArr[$flexformPointer['position']] != $flexformPointer['targetCheckUid']) {
-				if ($this->debug) t3lib_div::devLog ('flexform_getValidPointer: The target record uid does not match the targetCheckUid!', 'TemplaVoila API', 2, array ($flexformPointer, $elementReferencesArr));
+				if ($this->debug) t3lib_div::devLog('flexform_getValidPointer: The target record uid does not match the targetCheckUid!', 'TemplaVoila API', 2, array ($flexformPointer, $elementReferencesArr));
 				return FALSE;
 			}
 		}
@@ -948,14 +948,14 @@ class tx_templavoila_api {
 	 * @return	array		A flexform pointer array which can be used with the functions in tx_templavoila_api
 	 * @access public
 	 */
-	function flexform_getPointerFromString ($flexformPointerString) {
+	function flexform_getPointerFromString($flexformPointerString) {
 
-		$tmpArr = explode (SEPARATOR_PARMG, $flexformPointerString);
-		$locationString= $tmpArr[0];
+		$tmpArr = explode(SEPARATOR_PARMG, $flexformPointerString);
+		$locationString = $tmpArr[0];
 		$targetCheckString = $tmpArr[1];
 
-		$locationArr = explode (SEPARATOR_PARMS, $locationString);
-		$targetCheckArr = explode (SEPARATOR_PARMS, $targetCheckString);
+		$locationArr = explode(SEPARATOR_PARMS, $locationString);
+		$targetCheckArr = explode(SEPARATOR_PARMS, $targetCheckString);
 
 		if (count($targetCheckArr) == 2) {
 			$flexformPointer = array (
@@ -987,7 +987,7 @@ class tx_templavoila_api {
 	 * @return	mixed		A string of the format "table:uid:sheet:sLang:field:vLang:position". The string might additionally contain "/table:uid" which is used to check the target record of the pointer. If an error occurs: FALSE
 	 * @access public
 	 */
-	function flexform_getStringFromPointer ($flexformPointer) {
+	function flexform_getStringFromPointer($flexformPointer) {
 
 		if (!is_array($flexformPointer))
 			return FALSE;
@@ -1023,7 +1023,7 @@ class tx_templavoila_api {
 	 * @return	mixed		The record row or FALSE if not successful
 	 * @access public
 	 */
-	function flexform_getRecordByPointer ($flexformPointer) {
+	function flexform_getRecordByPointer($flexformPointer) {
 
 		if (is_string($flexformPointer)) $flexformPointer = $this->flexform_getPointerFromString ($flexformPointer);
 
@@ -1047,7 +1047,7 @@ class tx_templavoila_api {
 	 * @return	array		Array of flexform pointers
 	 * @access public
 	 */
-	function flexform_getPointersByRecord ($elementUid, $pageUid) {
+	function flexform_getPointersByRecord($elementUid, $pageUid) {
 	    $dummyArr = array();
 		$flexformPointersArr = $this->flexform_getFlexformPointersToSubElementsRecursively('pages', $pageUid, $dummyArr);
 
@@ -1073,19 +1073,19 @@ class tx_templavoila_api {
 	 * @return	mixed		Numerical array tt_content uids or FALSE if an error occurred (eg. flexformXML was no valid XML)
 	 * @access public
 	 */
-	function flexform_getElementReferencesFromXML($flexformXML, $flexformPointer)	{
+	function flexform_getElementReferencesFromXML($flexformXML, $flexformPointer) {
 
-			// Getting value of the field containing the relations:
+		// Getting value of the field containing the relations:
 		$flexformXMLArr = t3lib_div::xml2array($flexformXML);
 		if (!is_array ($flexformXMLArr) && strlen($flexformXML) > 0) {
-			if ($this->debug) t3lib_div::devLog ('flexform_getReferencesToElementsFromXML: flexformXML seems to be no valid XML. Parser error message: '.$flexformXMLArr, 'TemplaVoila API', 2, $flexformXML);
+			if ($this->debug) t3lib_div::devLog('flexform_getReferencesToElementsFromXML: flexformXML seems to be no valid XML. Parser error message: ' . $flexformXMLArr, 'TemplaVoila API', 2, $flexformXML);
 			return FALSE;
 		}
 
-		$listOfUIDs = $this->api_getFFvalue($flexformXMLArr,$flexformPointer['field'],$flexformPointer['sheet'],$flexformPointer['sLang'],$flexformPointer['vLang']);
+		$listOfUIDs = $this->api_getFFvalue($flexformXMLArr,$flexformPointer['field'], $flexformPointer['sheet'], $flexformPointer['sLang'], $flexformPointer['vLang']);
 		$arrayOfUIDs = t3lib_div::intExplode(',', $listOfUIDs);
 
-			// Getting the relation uids out and use only tt_content records which are not deleted:
+		// Getting the relation uids out and use only tt_content records which are not deleted:
 		$dbAnalysis = t3lib_div::makeInstance('t3lib_loadDBGroup');
 		$dbAnalysis->start($listOfUIDs, 'tt_content');
 		$dbAnalysis->getFromDB();
@@ -1098,6 +1098,7 @@ class tx_templavoila_api {
 				$counter++;
 			}
 		}
+
 		return $elementReferencesArr;
 	}
 
@@ -1111,7 +1112,7 @@ class tx_templavoila_api {
 	 * @return	array		Array of record UIDs
 	 * @access public
 	 */
-	function flexform_getListOfSubElementUidsRecursively ($table, $uid, &$recordUids, $recursionDepth=0) {
+	function flexform_getListOfSubElementUidsRecursively($table, $uid, &$recordUids, $recursionDepth=0) {
 
 		if (!is_array($recordUids)) $recordUids = array();
 		$parentRecord = t3lib_BEfunc::getRecordWSOL($table, $uid, 'uid,pid,tx_templavoila_ds,tx_templavoila_flex'.($table=='pages' ? ',t3ver_swapmode' : ''));
@@ -1147,6 +1148,7 @@ class tx_templavoila_api {
 				}
 			}
 		}
+
 		return $recordUids;
 	}
 
@@ -1270,7 +1272,7 @@ class tx_templavoila_api {
 	 * @access protected
 	 * @see		flexform_getElementReferencesFromXML(), flexform_insertElementReferenceIntoList()
 	 */
-	function flexform_removeElementReferenceFromList($currentReferencesArr, $position)	{
+	function flexform_removeElementReferenceFromList($currentReferencesArr, $position) {
 
 		unset($currentReferencesArr[$position]);
 
@@ -1343,11 +1345,12 @@ class tx_templavoila_api {
 		$fieldNameOfFirstCEField = NULL;
 
 		$pageRow = t3lib_BEfunc::getRecordWSOL('pages', $contextPageUid);
-		if (!is_array ($pageRow)) return FALSE;
+		if (!is_array ($pageRow))
+			return FALSE;
 
 		$dataStructureArr = $this->ds_getExpandedDataStructure ('pages', $pageRow);
 
-			// Traverse the data structure and search for oldStyleColumnNumber configurations:
+		// Traverse the data structure and search for oldStyleColumnNumber configurations:
 		if (is_array ($dataStructureArr)) {
 			foreach ($dataStructureArr as $sheetDataStructureArr) {
 				if (is_array ($sheetDataStructureArr['ROOT']['el'])) {
@@ -1359,6 +1362,7 @@ class tx_templavoila_api {
 									$columnsAndFieldNamesArr[$columnNumber] = $fieldName;
 								}
 							}
+
 							if ($fieldConfiguration['tx_templavoila']['eType'] == 'ce' && !isset ($fieldNameOfFirstCEField)) {
 								$fieldNameOfFirstCEField = $fieldName;
 							}
@@ -1368,7 +1372,7 @@ class tx_templavoila_api {
 			}
 		}
 
-			// Let's see what we have found:
+		// Let's see what we have found:
 		if (isset ($columnsAndFieldNamesArr[$columnPosition])) {
 			$foundFieldName = $columnsAndFieldNamesArr[$columnPosition];
 		} elseif (isset ($columnsAndFieldNamesArr[0])) {
@@ -1393,12 +1397,12 @@ class tx_templavoila_api {
 	 * @return	integer		The column number as used in the "colpos" field in tt_content
 	 * @access public
 	 */
-	function ds_getColumnPositionByFieldName ($contextPageUid, $fieldName) {
+	function ds_getColumnPositionByFieldName($contextPageUid, $fieldName) {
 		$pageRow = t3lib_BEfunc::getRecordWSOL('pages', $contextPageUid);
 		if (is_array($pageRow)) {
 			$dataStructureArr = $this->ds_getExpandedDataStructure ('pages', $pageRow);
 
-				// Traverse the data structure and search for oldStyleColumnNumber configurations:
+			// Traverse the data structure and search for oldStyleColumnNumber configurations:
 			if (is_array ($dataStructureArr)) {
 				foreach ($dataStructureArr as $sheetDataStructureArr) {
 					if (is_array ($sheetDataStructureArr['ROOT']['el'])) {
