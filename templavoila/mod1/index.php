@@ -265,6 +265,8 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 
 		$this->MOD_MENU = array(
 			'tt_content_showHidden' => 1,
+			'tt_content_extendedView' => 1,
+			'tt_content_extendedClipboard' => 0,
 			'showOutline' => 1,
 			'language' => $translatedLanguagesUids,
 			'clip_parentPos' => '',
@@ -616,7 +618,10 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 		if ($render_editPageScreen) {
 			// Render "edit current page" (important to do before calling ->sideBarObj->render() - otherwise the translation tab is not rendered!
-			$content .= $this->render_editPageScreen($singleView);
+			$content .=
+				'<div class="' . ($this->MOD_SETTINGS['tt_content_extendedView'] ? 'tv-exview' : 'tv-stdview') . '">' .
+					$this->render_editPageScreen($singleView) .
+				'</div>';
 
 			// Create sortables
 			if (is_array($this->sortableContainers)) {
@@ -1065,7 +1070,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 									<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/i/tt_content.gif', 'width="11" height="12"') . ' title="Container for content elements" class="absmiddle" />' .
 									$GLOBALS['LANG']->sL($fieldContent['meta']['title'], 1) . '
 								</div>
-								<div style="float: right;" class="nobr">' .
+								<div style="float: right;" class="nobr extraOptions">' .
 									($this->canEditPage ?
 									($fieldData['inheritance'] ? '
 									<label>
@@ -1354,7 +1359,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 					// Render for everything else:
 					$cellContent .=
 						'<strong>' . $TCEformsLabel . '</strong><br /> ' .
-						$this->link_edit($edit2 . '&nbsp;' . htmlspecialchars(t3lib_div::fixed_lgd_cs(strip_tags($fieldValue), 200)), $table, $uid) . '<br />';
+						$this->link_edit('<span class="inlineEdit">' . $edit2 . '&nbsp;</span>' . htmlspecialchars(t3lib_div::fixed_lgd_cs(strip_tags($fieldValue), 200)), $table, $uid) . '<br />';
 				} else if ($fieldData['templavoila']['eType'] == 'TypoScriptObject') {
 					// Render for everything else:
 					$cellContent .=
@@ -3224,8 +3229,33 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 		{
 			$link = $this->baseScript . $this->link_getParameters() . '&SET[tt_content_showHidden]=###';
 
+			$entries = array();
 			$entries[] = '<li class="mradio' . (!$this->MOD_SETTINGS['tt_content_showHidden'] ? ' selected' : '') . '" name="tt_content_showHidden"><a href="' . str_replace('###', '', $link).'"'. '>' . $GLOBALS['LANG']->getLL('page_settings_hidden', 1) . '</a></li>';
 			$entries[] = '<li class="mradio' . ( $this->MOD_SETTINGS['tt_content_showHidden'] ? ' selected' : '') . '" name="tt_content_showHidden"><a href="' . str_replace('###', '1', $link).'"'.'>' . $GLOBALS['LANG']->getLL('page_settings_all', 1) . '</a></li>';
+
+			$group = '<ul class="group">' . implode(chr(10), $entries) . '</ul>';
+			$options .= '<li class="group">' . $group . '</li>';
+		}
+
+		/* Extended view option-group */
+		{
+			$link = $this->baseScript . $this->link_getParameters() . '&SET[tt_content_extendedView]=###';
+
+			$entries = array();
+			$entries[] = '<li class="mradio' . (!$this->MOD_SETTINGS['tt_content_extendedView'] ? ' selected' : '') . '" name="tt_content_extendedView"><a href="' . str_replace('###', '', $link).'"'. '>' . $GLOBALS['LANG']->getLL('page_settings_exview_off', 1) . '</a></li>';
+			$entries[] = '<li class="mradio' . ( $this->MOD_SETTINGS['tt_content_extendedView'] ? ' selected' : '') . '" name="tt_content_extendedView"><a href="' . str_replace('###', '1', $link).'"'.'>' . $GLOBALS['LANG']->getLL('page_settings_exview_on', 1) . '</a></li>';
+
+			$group = '<ul class="group">' . implode(chr(10), $entries) . '</ul>';
+			$options .= '<li class="group">' . $group . '</li>';
+		}
+
+		/* Extended clipboard option-group */
+		{
+			$link = $this->baseScript . $this->link_getParameters() . '&SET[tt_content_extendedClipboard]=###';
+
+			$entries = array();
+			$entries[] = '<li class="mradio' . (!$this->MOD_SETTINGS['tt_content_extendedClipboard'] ? ' selected' : '') . '" name="tt_content_extendedClipboard"><a href="' . str_replace('###', '', $link).'"'. '>' . $GLOBALS['LANG']->getLL('page_settings_exclip_off', 1) . '</a></li>';
+			$entries[] = '<li class="mradio' . ( $this->MOD_SETTINGS['tt_content_extendedClipboard'] ? ' selected' : '') . '" name="tt_content_extendedClipboard"><a href="' . str_replace('###', '1', $link).'"'.'>' . $GLOBALS['LANG']->getLL('page_settings_exclip_on', 1) . '</a></li>';
 
 			$group = '<ul class="group">' . implode(chr(10), $entries) . '</ul>';
 			$options .= '<li class="group">' . $group . '</li>';

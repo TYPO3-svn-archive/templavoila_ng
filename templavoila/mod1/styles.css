@@ -135,3 +135,11 @@ table.tv-hidden {
 	opacity: 0.5;
 	filter: Alpha(opacity=50);
 }
+
+/* + + + + + + + + + + + + + + + + + + + + + + + + + + + */
+.tv-stdview .inlineEdit,
+.tv-stdview .extraOptions,
+.tv-stdview .sortableButtons,
+.tv-stdview .sortablePaste {
+	display: none;
+}
