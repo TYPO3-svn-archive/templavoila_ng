@@ -61,10 +61,10 @@ require_once (PATH_t3lib . 'class.t3lib_diff.php');
  */
 class tx_templavoila_cm2 extends t3lib_SCbase {
 
-		// External, static:
+	// External, static:
 	var $option_linenumbers = TRUE;		// Showing linenumbers if true.
 
-		// Internal, GPvars:
+	// Internal, GPvars:
 	var $viewTable = array();		// Array with tablename, uid and fieldname
 
 	/**
@@ -92,17 +92,16 @@ class tx_templavoila_cm2 extends t3lib_SCbase {
 		$this->viewTable = t3lib_div::_GP('viewRec');
 		// Selecting record based on table/uid since adding the field might impose a SQL-injection problem; at least the field name would have to be checked first.
 		$record = t3lib_BEfunc::getRecordWSOL($this->viewTable['table'], $this->viewTable['uid']);
-		if (is_array($record))	{
-
+		if (is_array($record)) {
 			// Set current XML data:
 			$currentXML = $record[$this->viewTable['field_flex']];
 
 			// Clean up XML:
 			$cleanXML = '';
-			if ($GLOBALS['BE_USER']->isAdmin())	{
-				if ('tx_templavoila_flex' == $this->viewTable['field_flex'])	{
+			if ($GLOBALS['BE_USER']->isAdmin()) {
+				if ('tx_templavoila_flex' == $this->viewTable['field_flex']) {
 					$flexObj = t3lib_div::makeInstance('t3lib_flexformtools');
-					if ($record['tx_templavoila_flex'])	{
+					if ($record['tx_templavoila_flex']) {
 						$cleanXML = $flexObj->cleanFlexFormXML($this->viewTable['table'],'tx_templavoila_flex',$record);
 
 						// If the clean-button was pressed, save right away:
@@ -124,7 +123,7 @@ class tx_templavoila_cm2 extends t3lib_SCbase {
 				}
 			}
 
-			if (md5($currentXML)!=md5($cleanXML))	{
+			if (md5($currentXML)!=md5($cleanXML)) {
 				// Create diff-result:
 				$t3lib_diff_Obj = t3lib_div::makeInstance('t3lib_diff');
 				$diffres = $t3lib_diff_Obj->makeDiffDisplay($currentXML,$cleanXML);
@@ -199,30 +198,30 @@ class tx_templavoila_cm2 extends t3lib_SCbase {
 		$hlObj = t3lib_div::makeInstance('t3lib_syntaxhl');
 
 		// Check which document type, if applicable:
-		if (strstr(substr($str,0,100),'<T3DataStructure'))	{
+		if (strstr(substr($str,0,100), '<T3DataStructure'))	{
 			$title = 'Syntax highlighting <T3DataStructure> XML:';
 			$formattedContent = $hlObj->highLight_DS($str);
-		} elseif (strstr(substr($str,0,100),'<T3FlexForms'))	{
+		} elseif (strstr(substr($str,0,100), '<T3FlexForms'))	{
 			$title = 'Syntax highlighting <T3FlexForms> XML:';
 			$formattedContent = $hlObj->highLight_FF($str);
 		} else {
 			$title = 'Unknown format:';
-			$formattedContent = '<span style="font-style: italic; color: #666666;">'.htmlspecialchars($str).'</span>';
+			$formattedContent = '<span style="font-style: italic; color: #666666;">' . htmlspecialchars($str) . '</span>';
 		}
 
 		// Check line number display:
 		if ($this->option_linenumbers)	{
-			$lines = explode(chr(10),$formattedContent);
+			$lines = explode(chr(10), $formattedContent);
 			foreach($lines as $k => $v)	{
-				$lines[$k] = '<span style="color: black; font-weight:normal;">'.str_pad($k+1,4,' ',STR_PAD_LEFT).':</span> '.$v;
+				$lines[$k] = '<span style="color: black; font-weight: normal;">' . str_pad($k+1, 4, ' ', STR_PAD_LEFT) . ':</span> ' . $v;
 			}
-			$formattedContent = implode(chr(10),$lines);
+			$formattedContent = implode(chr(10), $lines);
 		}
 
 		// Output:
 		return '
-			<h3>'.htmlspecialchars($title).'</h3>
-			<pre class="ts-hl">'.$formattedContent.'</pre>
+			<h3>' . htmlspecialchars($title) . '</h3>
+			<pre class="ts-hl">' . $formattedContent . '</pre>
 			';
 	}
 }

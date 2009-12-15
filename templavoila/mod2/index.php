@@ -995,7 +995,7 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 			);
 
 			// Add custom styles
-			$this->doc->inDocStylesArray[]='
+			$this->doc->inDocStylesArray[] = '
 				/* stylesheet.css (line 189) */
 				body#ext-templavoila-mod2-index-php {
 					height: 100%;
@@ -1003,6 +1003,9 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 					overflow: hidden;
 					padding: 0pt;
 				}
+
+				/* stylesheet.css (line 2179) */
+				#typo3-mod-php a {display:inline;}
 			';
 
 			// Add optionsmenu

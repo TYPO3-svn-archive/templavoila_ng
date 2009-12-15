@@ -830,7 +830,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 		}
 
 		$titleBarLeftButtons  = $this->translatorMode ? $recordIcon : (count($menuCommands) == 0 ? $recordIcon : $this->doc->wrapClickMenuOnIcon($recordIcon,$contentTreeArr['el']['table'], $contentTreeArr['el']['uid'], 1, '&amp;callingScriptId='.rawurlencode($this->doc->scriptID), implode(',', $menuCommands)));
-		$titleBarLeftButtons .= $this->getRecordStatHookValue($contentTreeArr['el']['table'], $contentTreeArr['el']['uid']);
+		$titleBarLeftButtons .= $this->getRecordStatHookValue($contentTreeArr['el']['table'], $contentTreeArr['el']['uid']) . ' ';
 
 		unset($menuCommands);
 
@@ -840,7 +840,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 				$titleBarLeftButtons .= $this->translatorMode || !$this->canEditPage ? '' :
 					$this->icon_edit($contentTreeArr['el']) .
 					$this->icon_hide($contentTreeArr['el']) .
-					$this->icon_view($contentTreeArr['el']);
+					$this->icon_view($contentTreeArr['el']) . ' ';
 				$titleBarRightButtons = '';
 
 				if ($singleView)
@@ -880,6 +880,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 					$titleBarRightButtons =
 						$this->clipboardObj->element_getSelectButtons($parentPointer, 'copy');
 				}
+
 				break;
 		}
 
@@ -892,7 +893,11 @@ table.typo3-dyntabmenu td.disabled:hover {
 		// Finally assemble the table:
 		$finalContent = '
 			<table cellpadding="0" cellspacing="0" width="100%" class="tv-coe' . ($contentTreeArr['el']['isHidden'] ? ' tv-hidden' : '') . '">
-			<thead>
+			<caption class="' . $contentTreeArr['el']['table'] . '">' .
+			/*	htmlspecialchars($contentTreeArr['el']['title']) */
+				($contentTreeArr['el']['table'] == 'pages' ? 'Page\'s layout-elements' : 'Layout\'s elements') . '
+			</caption>
+			<thead class="' . $contentTreeArr['el']['table'] . '">
 				<tr style="' . $elementTitlebarStyle . ';" class="sortableHandle">
 					<th>
 						<div style="float:  left;" class="nobr">' .
@@ -3318,6 +3323,9 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 					padding: 0pt;
 				}
 
+				/* stylesheet.css (line 2179) */
+				#typo3-mod-php a {display:inline;}
+
 				/* Drag N Drop */
 				table {position:relative;}
 				.sortableHandle {cursor:move;}
@@ -3535,6 +3543,9 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 					overflow: hidden;
 					padding: 0pt;
 				}
+
+				/* stylesheet.css (line 2179) */
+				#typo3-mod-php a {display:inline;}
 
 				/* Drag N Drop */
 				table {position:relative;}

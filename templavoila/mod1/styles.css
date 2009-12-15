@@ -22,6 +22,12 @@ table.tv-container {
 	background: #E6E9EB;
 }
 
+table.tv-container caption {
+	text-align: left;
+	font-size: 16px;
+	margin-bottom: 0.5em;
+}
+
 table.tv-container div.sortableItem > span > a,
 table.tv-container div.sortableItem >        a {
 	display: inline !important;
@@ -68,6 +74,21 @@ table.tv-container td.empty span.sortableControls { }
 table.tv-coe {
 	border: 1px solid black;
 	margin-bottom: 5px;
+}
+
+table.tv-coe caption {
+	display: none;
+}
+
+table.tv-coe caption.pages {
+	text-align: left;
+	font-size: 16px;
+	margin-bottom: 0.5em;
+	display: table-caption;
+}
+
+table.tv-coe thead.pages {
+	display: none;
 }
 
 table.tv-coe tr.sortableHandle > td {

@@ -151,7 +151,17 @@ class tx_templavoila_cm1_display {
 		}
 
 		// Implode content and return it:
-		return implode('', $pp);
+		return '
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+	<title>File Content With Preview</title>
+</head>' .
+implode('', $pp) . '
+</body>
+</html>
+		';
 	}
 
 
@@ -193,25 +203,35 @@ class tx_templavoila_cm1_display {
 #		$markupObj->setTagsFromXML($content);
 
 		$cParts = $markupObj->splitByPath($content, $path);
-		if (is_array($cParts)) {
-			$cParts[0] = $markupObj->passthroughHTMLcontent($cParts[0], $relPathFix, $this->MOD_SETTINGS['displayMode']);
-			$cParts[2] = $markupObj->passthroughHTMLcontent($cParts[2], $relPathFix, $this->MOD_SETTINGS['displayMode']);
-			$cParts[1] = $markupObj->markupHTMLcontent(
-				$cParts[1],
-				$GLOBALS['BACK_PATH'],
-				$relPathFix,
-				$validTags,
-				$this->MOD_SETTINGS['displayMode']
-			);
+		if (!is_array($cParts))
+			return $this->displayFrameError($cParts);
 
-			if (trim($cParts[0])) {
-				$cParts[1] = '<a name="_MARKED_UP_ELEMENT"></a>' . $cParts[1];
-			}
+		$cParts[0] = $markupObj->passthroughHTMLcontent($cParts[0], $relPathFix, $this->MOD_SETTINGS['displayMode']);
+		$cParts[2] = $markupObj->passthroughHTMLcontent($cParts[2], $relPathFix, $this->MOD_SETTINGS['displayMode']);
+		$cParts[1] = $markupObj->markupHTMLcontent(
+			$cParts[1],
+			$GLOBALS['BACK_PATH'],
+			$relPathFix,
+			$validTags,
+			$this->MOD_SETTINGS['displayMode']
+		);
 
-			return implode('', $cParts);
+		if (trim($cParts[0])) {
+			$cParts[1] = '<a name="_MARKED_UP_ELEMENT"></a>' . $cParts[1];
 		}
 
-		return $this->displayFrameError($cParts);
+		return '
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+	<title>File Content With Preview</title>
+	<style>pre img { position: absolute; }</style>
+</head>' .
+implode('', $cParts) . '
+</body>
+</html>
+		';
 	}
 
 

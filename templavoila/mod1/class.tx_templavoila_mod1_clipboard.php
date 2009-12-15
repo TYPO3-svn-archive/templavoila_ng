@@ -194,7 +194,7 @@ class tx_templavoila_mod1_clipboard {
 		$clipboardElementPointer = $this->pObj->apiObj->flexform_getValidPointer($clipboardElementPointerString);
 
 		// If we have no flexform reference pointing to the element, we create a short flexform pointer pointing to the record directly:
-		list ($clipboardElementTable, $clipboardElementUid) = explode('|',$clipboardElementTableAndUid);
+		list ($clipboardElementTable, $clipboardElementUid) = explode('|', $clipboardElementTableAndUid);
 		if (!is_array($clipboardElementPointer)) {
 			if ($clipboardElementTable != 'tt_content') return '';
 
@@ -320,7 +320,10 @@ class tx_templavoila_mod1_clipboard {
 			// Finally assemble the table:
 			$cellFragment = '
 				<table cellpadding="0" cellspacing="0" width="100%" class="tv-coe">
-				<thead>
+				<caption class="tt_content">' .
+					htmlspecialchars($row['header'] ? $row['header'] : 'no') . '
+				</caption>
+				<thead class="tt_content">
 					<tr style="' . $elementTitlebarStyle . ';" class="sortableHandle">
 						<th>
 							<div style="float:  left;" class="nobr">' .
@@ -398,6 +401,9 @@ class tx_templavoila_mod1_clipboard {
 		// Create table and header cell:
 		$output = '
 			<table border="0" cellpadding="0" cellspacing="1" width="100%" class="tv-container tv-clipboard lrPadding" id="clipboard">
+			<caption>' .
+				Clipboard . '
+			</caption>
 			<thead>
 				<tr class="bgColor4-20">
 					<th>
