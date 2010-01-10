@@ -28,18 +28,18 @@
  * NOTE:    This test case assumes that you have installed TemplaVoila (of course ...).
  *          It will create pages, datastructures and template objects with certain titles
  *          (see variables below). All othe elements with the same title will be DELETED!
- * 
+ *
  * WARNING: Never ever run a unit test like this on a live site!
- *         
+ *
  *
  * @author	Robert Lemke <robert@typo3.org>
  */
- 
+
 
 require_once (t3lib_extMgm::extPath('templavoila').'class.tx_templavoila_api.php');
 require_once (PATH_t3lib.'class.t3lib_tcemain.php');
 
-class tx_templavoila_api_testcase extends tx_t3unit_testcase {
+class tx_templavoila_api_testcase extends tx_phpunit_testcase {
 
 	protected $apiObj;
 	protected $testPageTitle = '*** t3unit templavoila testcase page ***';
@@ -50,45 +50,49 @@ class tx_templavoila_api_testcase extends tx_t3unit_testcase {
 	protected $testCEHeader = '*** t3unit templavoila testcase content element ***';
 	protected $testFCEDSTitle = '*** t3unit templavoila testcase FCE template ds ***';
 	protected $testFCETOTitle = '*** t3unit templavoila testcase FCE template to ***';
+	protected $testLanguageTitle = '*** t3unit templavoila testcase language ***';
 	protected $testPageUID;
 	protected $testPageDSUID;
 	protected $testPageTOUID;
-	
+	protected $testSyslangUid;
+
 	protected $workspaceIdAtStart;
-	
-	public function __construct ($name) {
+
+	public function __construct($name = null) {
 		global $TYPO3_DB, $BE_USER;
 
 		parent::__construct ($name);
 		$TYPO3_DB->debugOutput = TRUE;
-		
+
 		$this->apiObj = new tx_templavoila_api;
 		$this->workspaceIdAtStart = $BE_USER->workspace;
-		$BE_USER->setWorkspace(0);	
+		$BE_USER->setWorkspace(0);
 	}
 
 	public function setUp() {
 		global $TYPO3_DB;
-		
-		$TYPO3_DB->exec_DELETEquery ('tt_content', 'header LIKE "'.$this->testCEHeader.'%"');
-		$TYPO3_DB->exec_DELETEquery ('pages', 'title="'.$this->testPageTitle.'"');
-		$TYPO3_DB->exec_DELETEquery ('pages_language_overlay', 'title="'.$this->testPageTitle.'"');
-		$TYPO3_DB->exec_DELETEquery ('tx_templavoila_datastructure', 'title="'.$this->testPageDSTitle.'"');
-		$TYPO3_DB->exec_DELETEquery ('tx_templavoila_tmplobj', 'title="'.$this->testPageTOTitle.'"');
-		$TYPO3_DB->exec_DELETEquery ('sys_template', 'title="'.$this->testTSTemplateTitle.'"');
+
+		$TYPO3_DB->exec_DELETEquery ('tt_content', 'header LIKE \''.$this->testCEHeader.'%\'');
+		$TYPO3_DB->exec_DELETEquery ('pages', 'title=\''.$this->testPageTitle.'\'');
+		$TYPO3_DB->exec_DELETEquery ('pages_language_overlay', 'title=\''.$this->testPageTitle.'\'');
+		$TYPO3_DB->exec_DELETEquery ('tx_templavoila_datastructure', 'title=\''.$this->testPageDSTitle.'\'');
+		$TYPO3_DB->exec_DELETEquery ('tx_templavoila_tmplobj', 'title=\''.$this->testPageTOTitle.'\'');
+		$TYPO3_DB->exec_DELETEquery ('sys_template', 'title=\''.$this->testTSTemplateTitle.'\'');
+		$TYPO3_DB->exec_DELETEquery ('sys_language', 'title=\''.$this->testLanguageTitle.'\'');
 	}
-	
+
 	public function tearDown () {
 		global $BE_USER, $TYPO3_DB;
-return;		
-		$BE_USER->setWorkspace($this->workspaceIdAtStart);	
+return;
+		$BE_USER->setWorkspace($this->workspaceIdAtStart);
 
-		$TYPO3_DB->exec_DELETEquery ('tt_content', 'header LIKE "'.$this->testCEHeader.'%"');
-		$TYPO3_DB->exec_DELETEquery ('pages', 'title="'.$this->testPageTitle.'"');
-		$TYPO3_DB->exec_DELETEquery ('pages_language_overlay', 'title="'.$this->testPageTitle.'"');
-		$TYPO3_DB->exec_DELETEquery ('tx_templavoila_datastructure', 'title="'.$this->testPageDSTitle.'"');
-		$TYPO3_DB->exec_DELETEquery ('tx_templavoila_tmplobj', 'title="'.$this->testPageTOTitle.'"');
-		$TYPO3_DB->exec_DELETEquery ('sys_template', 'title="'.$this->testTSTemplateTitle.'"');
+		$TYPO3_DB->exec_DELETEquery ('tt_content', 'header LIKE \''.$this->testCEHeader.'%\'');
+		$TYPO3_DB->exec_DELETEquery ('pages', 'title=\''.$this->testPageTitle.'\'');
+		$TYPO3_DB->exec_DELETEquery ('pages_language_overlay', 'title=\''.$this->testPageTitle.'\'');
+		$TYPO3_DB->exec_DELETEquery ('tx_templavoila_datastructure', 'title=\''.$this->testPageDSTitle.'\'');
+		$TYPO3_DB->exec_DELETEquery ('tx_templavoila_tmplobj', 'title=\''.$this->testPageTOTitle.'\'');
+		$TYPO3_DB->exec_DELETEquery ('sys_template', 'title=\''.$this->testTSTemplateTitle.'\'');
+		$TYPO3_DB->exec_DELETEquery ('sys_language', 'title=\''.$this->testLanguageTitle.'\'');
 	}
 
 
@@ -108,7 +112,8 @@ return;
 
 		$this->fixture_createTestPage ();
 		$this->fixture_createTestPageDSTO();
-		
+		$this->fixture_createTestSysLanguage();
+
 			// Prepare the new content element:
 		$row = $this->fixture_getContentElementRow_TEXT();
 		$row['pid'] = $this->testPageUID;
@@ -122,20 +127,20 @@ return;
 			'vLang' => 'vDEF',
 			'position' => '0'
 		);
-				
+
 			// run insertElement():
 		$elementUid = $this->apiObj->insertElement ($destinationPointer, $row);
 		self::assertTrue ($elementUid !== FALSE, 'Inserting a new element was not successful, insertElement() returned FALSE');
-		
+
 		 	// Check if the new record really exists:
 		$fields = implode (',', array_keys ($row)) . ',uid';
 		$fetchedRow = t3lib_beFunc::getRecordRaw ('tt_content', 'uid='.$elementUid, $fields);
 
-		$recordsAreTheSame = count (array_intersect_assoc ($row, $fetchedRow)) == count ($row);		
+		$recordsAreTheSame = count (array_intersect_assoc ($row, $fetchedRow)) == count ($row);
 		self::assertTrue ($recordsAreTheSame, 'The element created by insertElement() contains not the same data like the fixture');
-		 
+
 		 	// Check if the new record has been inserted correctly into the references list in table "pages":
-		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$this->testPageUID, 'tx_templavoila_flex');		
+		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$this->testPageUID, 'tx_templavoila_flex');
 		$flexform = simplexml_load_string ($testPageRecord['tx_templavoila_flex']);
 		$xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_content']/value[@index='vDEF']");
 		self::assertEquals ((string)$xpathResArr[0], (string)$elementUid, 'The reference from the test page to the element created by insertElement() is not as expected!');
@@ -156,18 +161,18 @@ return;
 			'position' => '0'		// Before first element
 		);
 		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$this->testPageUID, 'tx_templavoila_flex');
-				
+
 			// run insertElement():
 		$secondElementUid = $this->apiObj->insertElement ($destinationPointer, $row);
 		self::assertTrue ($secondElementUid !== FALSE, 'Inserting the second element was not successful, insertElement() returned FALSE');
-		
+
 		 	// Check if the new record really exists:
 		$fields = implode (',', array_keys ($row)) . ',uid';
 		$fetchedRow = t3lib_beFunc::getRecordRaw ('tt_content', 'uid='.$secondElementUid, $fields);
 
-		$recordsAreTheSame = count (array_intersect_assoc ($row, $fetchedRow)) == count ($row);		
+		$recordsAreTheSame = count (array_intersect_assoc ($row, $fetchedRow)) == count ($row);
 		self::assertTrue ($recordsAreTheSame, 'The element created by insertElement() contains not the same data like the fixture');
-		 
+
 		 	// Check if the new record has been inserted correctly before the first one:
 		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$this->testPageUID, 'tx_templavoila_flex');
 
@@ -191,7 +196,7 @@ return;
 			'position' => '1',		// After first element
 			'targetCheckUid' => $secondElementUid
 		);
-				
+
 			// run insertElement():
 		$thirdElementUid = $this->apiObj->insertElement ($destinationPointer, $row);
 		self::assertTrue ($thirdElementUid !== FALSE, 'Inserting the third element was not successful, insertElement() returned FALSE');
@@ -200,11 +205,11 @@ return;
 		$fields = implode (',', array_keys ($row)) . ',uid';
 		$fetchedRow = t3lib_beFunc::getRecordRaw ('tt_content', 'uid='.$thirdElementUid, $fields);
 
-		$recordsAreTheSame = count (array_intersect_assoc ($row, $fetchedRow)) == count ($row);		
+		$recordsAreTheSame = count (array_intersect_assoc ($row, $fetchedRow)) == count ($row);
 		self::assertTrue ($recordsAreTheSame, 'The element created by insertElement() contains not the same data like the fixture');
-		 
+
 		 	// Check if the new record has been inserted correctly behind the second one:
-		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$this->testPageUID, 'tx_templavoila_flex');		
+		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$this->testPageUID, 'tx_templavoila_flex');
 		$flexform = simplexml_load_string ($testPageRecord['tx_templavoila_flex']);
 		$xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_content']/value[@index='vDEF']");
 		self::assertEquals ((string)$xpathResArr[0], $secondElementUid.','.$thirdElementUid.','.$elementUid, '(Third element) The reference list the elements created by insertElement() is not as expected!');
@@ -214,10 +219,11 @@ return;
 		global $TYPO3_DB, $BE_USER;
 
 		$BE_USER->setWorkspace (-1);
-		
+
 		$this->fixture_createTestPage ();
 		$this->fixture_createTestPageDSTO();
-		
+		$this->fixture_createTestSysLanguage();
+
 			// Prepare the new content element:
 		$row = $this->fixture_getContentElementRow_TEXT();
 		$row['pid'] = $this->testPageUID;
@@ -231,16 +237,16 @@ return;
 			'vLang' => 'vDEF',
 			'position' => '0'
 		);
-				
+
 			// run insertElement():
 		$elementUid = $this->apiObj->insertElement ($destinationPointer, $row);
 		self::assertTrue ($elementUid !== FALSE, 'Inserting a new element was not successful, insertElement() returned FALSE');
-		
+
 		 	// Check if the new record really exists:
 		$fields = implode (',', array_keys ($row)) . ',uid';
 		$fetchedRow = t3lib_beFunc::getRecordWSOL ('tt_content', $elementUid, $fields);
 
-		$recordsAreTheSame = 
+		$recordsAreTheSame =
 			$row['CType'] == $fetchedRow['CType'] &&
 			$row['header'] == $fetchedRow['header'] &&
 			$row['bodytext'] == $fetchedRow['bodytext'] &&
@@ -248,11 +254,11 @@ return;
 			-1 == $fetchedRow['_ORIG_pid']
 		;
 		self::assertTrue ($recordsAreTheSame, 'The element created by insertElement() contains not the same data like the fixture');
-		 
+
 		 	// Check if the new record has been inserted correctly into the references list in table "pages":
 		$testPageRecord = t3lib_beFunc::getRecordWSOL ('pages', $this->testPageUID, 'tx_templavoila_flex,uid,pid,t3ver_swapmode');
 		$flexform = simplexml_load_string ($testPageRecord['tx_templavoila_flex']);
-		$xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_content']/value[@index='vDEF']");		
+		$xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_content']/value[@index='vDEF']");
 		self::assertEquals ((string)$xpathResArr[0], (string)$elementUid, 'The reference from the test page to the element created by insertElement() is not as expected!');
 
 
@@ -270,15 +276,15 @@ return;
 			'vLang' => 'vDEF',
 			'position' => '0'		// Before first element
 		);
-				
+
 			// run insertElement():
 		$secondElementUid = $this->apiObj->insertElement ($destinationPointer, $row);
 		self::assertTrue ($secondElementUid !== FALSE, 'Inserting the second element was not successful, insertElement() returned FALSE');
-		
+
 		 	// Check if the new record really exists:
 		$fields = implode (',', array_keys ($row)) . ',uid';
 		$fetchedRow = t3lib_beFunc::getRecordWSOL('tt_content', $secondElementUid, $fields);
-		$recordsAreTheSame = 
+		$recordsAreTheSame =
 			$row['CType'] == $fetchedRow['CType'] &&
 			$row['header'] == $fetchedRow['header'] &&
 			$row['bodytext'] == $fetchedRow['bodytext'] &&
@@ -286,10 +292,10 @@ return;
 			-1 == $fetchedRow['_ORIG_pid']
 		;
 		self::assertTrue ($recordsAreTheSame, 'The element created by insertElement() contains not the same data like the fixture');
-		 
+
 		 	// Check if the new record has been inserted correctly before the first one:
 		$testPageRecord = t3lib_beFunc::getRecordWSOL('pages', $this->testPageUID, 'tx_templavoila_flex,uid,pid,t3ver_swapmode');
-		$flexform = simplexml_load_string ($testPageRecord['tx_templavoila_flex']);		
+		$flexform = simplexml_load_string ($testPageRecord['tx_templavoila_flex']);
 		$xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_content']/value[@index='vDEF']");
 		self::assertEquals ((string)$xpathResArr[0], $secondElementUid.','.$elementUid, 'The reference list the elements created by insertElement() is not as expected!');
 
@@ -309,7 +315,7 @@ return;
 			'position' => '1',		// After first element
 			'targetCheckUid' => $secondElementUid
 		);
-				
+
 			// run insertElement():
 		$thirdElementUid = $this->apiObj->insertElement ($destinationPointer, $row);
 		self::assertTrue ($thirdElementUid !== FALSE, 'Inserting the third element was not successful, insertElement() returned FALSE');
@@ -318,7 +324,7 @@ return;
 		$fields = implode (',', array_keys ($row)) . ',uid';
 		$fetchedRow = t3lib_beFunc::getRecordWSOL('tt_content', $thirdElementUid, $fields);
 
-		$recordsAreTheSame = 
+		$recordsAreTheSame =
 			$row['CType'] == $fetchedRow['CType'] &&
 			$row['header'] == $fetchedRow['header'] &&
 			$row['bodytext'] == $fetchedRow['bodytext'] &&
@@ -326,14 +332,14 @@ return;
 			-1 == $fetchedRow['_ORIG_pid']
 		;
 		self::assertTrue ($recordsAreTheSame, 'The element created by insertElement() contains not the same data like the fixture');
-		 
+
 		 	// Check if the new record has been inserted correctly behind the second one:
-		$testPageRecord = t3lib_beFunc::getRecordWSOL ('pages', $this->testPageUID, 'tx_templavoila_flex,uid,pid,t3ver_swapmode');		
+		$testPageRecord = t3lib_beFunc::getRecordWSOL ('pages', $this->testPageUID, 'tx_templavoila_flex,uid,pid,t3ver_swapmode');
 		$flexform = simplexml_load_string ($testPageRecord['tx_templavoila_flex']);
 		$xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_content']/value[@index='vDEF']");
 		self::assertEquals ((string)$xpathResArr[0], $secondElementUid.','.$thirdElementUid.','.$elementUid, '(Third element) The reference list the elements created by insertElement() is not as expected!');
-		
-		$BE_USER->setWorkspace(0);		
+
+		$BE_USER->setWorkspace(0);
 	}
 
 
@@ -344,7 +350,7 @@ return;
 
 		$this->fixture_createTestPage ();
 		$this->fixture_createTestPageDSTO();
-		
+
 			// Prepare the new content element:
 		$row = $this->fixture_getContentElementRow_TEXT();
 		$row['pid'] = $this->testPageUID;
@@ -358,7 +364,7 @@ return;
 			'vLang' => 'vDEF',
 			'position' => '1'
 		);
-				
+
 			// Try to insert the element with invalid parent table:
 		$elementUid = $this->apiObj->insertElement ($destinationPointer, $row);
 		self::assertFalse ($elementUid, 'Trying to insert a content element into invalid table did not return FALSE!');
@@ -374,7 +380,7 @@ return;
 
 		$this->fixture_createTestPage ();
 		$this->fixture_createTestPageDSTO();
-		
+
 			// Create 3 new content elements:
 		$elementUids = array();
 		for ($i=0; $i<3; $i++) {
@@ -393,11 +399,11 @@ return;
 		}
 
 		 	// Check if the sorting field has been set correctly:
-		$elementRecords[1] = t3lib_beFunc::getRecordRaw ('tt_content', 'uid='.$elementUids[1], 'uid,sorting');		
-		$elementRecords[2] = t3lib_beFunc::getRecordRaw ('tt_content', 'uid='.$elementUids[2], 'uid,sorting');		
+		$elementRecords[1] = t3lib_beFunc::getRecordRaw ('tt_content', 'uid='.$elementUids[1], 'uid,sorting');
+		$elementRecords[2] = t3lib_beFunc::getRecordRaw ('tt_content', 'uid='.$elementUids[2], 'uid,sorting');
 		$elementRecords[3] = t3lib_beFunc::getRecordRaw ('tt_content', 'uid='.$elementUids[3], 'uid,sorting');
-		
-		$orderIsCorrect = $elementRecords[1]['sorting'] < $elementRecords[2]['sorting'] && $elementRecords[2]['sorting'] < $elementRecords[3]['sorting']; 
+
+		$orderIsCorrect = $elementRecords[1]['sorting'] < $elementRecords[2]['sorting'] && $elementRecords[2]['sorting'] < $elementRecords[3]['sorting'];
 		self::assertTrue ($orderIsCorrect, 'The sorting field has not been set correctly after inserting three CEs with insertElement()!');
 
 			// Insert yet another element after the first:
@@ -416,15 +422,15 @@ return;
 		$elementUids[4] = $this->apiObj->insertElement ($destinationPointer, $row);
 
 		 	// Check if the sorting field has been set correctly:
-		$elementRecords[1] = t3lib_beFunc::getRecordRaw ('tt_content', 'uid='.$elementUids[1], 'uid,sorting');		
-		$elementRecords[2] = t3lib_beFunc::getRecordRaw ('tt_content', 'uid='.$elementUids[2], 'uid,sorting');		
+		$elementRecords[1] = t3lib_beFunc::getRecordRaw ('tt_content', 'uid='.$elementUids[1], 'uid,sorting');
+		$elementRecords[2] = t3lib_beFunc::getRecordRaw ('tt_content', 'uid='.$elementUids[2], 'uid,sorting');
 		$elementRecords[3] = t3lib_beFunc::getRecordRaw ('tt_content', 'uid='.$elementUids[3], 'uid,sorting');
 		$elementRecords[4] = t3lib_beFunc::getRecordRaw ('tt_content', 'uid='.$elementUids[4], 'uid,sorting');
 
-		$orderIsCorrect = 
-			$elementRecords[1]['sorting'] < $elementRecords[4]['sorting'] && 
-			$elementRecords[4]['sorting'] < $elementRecords[2]['sorting'] && 
-			$elementRecords[2]['sorting'] < $elementRecords[3]['sorting']; 
+		$orderIsCorrect =
+			$elementRecords[1]['sorting'] < $elementRecords[4]['sorting'] &&
+			$elementRecords[4]['sorting'] < $elementRecords[2]['sorting'] &&
+			$elementRecords[2]['sorting'] < $elementRecords[3]['sorting'];
 		self::assertTrue ($orderIsCorrect, 'The sorting field has not been set correctly after inserting a forth CE after the first with insertElement()!');
 	}
 
@@ -466,16 +472,16 @@ return;
 			'vLang' => 'vDEF',
 			'position' => 0
 		);
-		$elementUids[2] = $this->apiObj->insertElement ($destinationPointer, $row);	
-		
+		$elementUids[2] = $this->apiObj->insertElement ($destinationPointer, $row);
+
 		$elementRecords[1]= t3lib_beFunc::getRecordRaw ('tt_content', 'uid='.$elementUids[1], 'uid,sorting,colpos');
 		$elementRecords[2]= t3lib_beFunc::getRecordRaw ('tt_content', 'uid='.$elementUids[2], 'uid,sorting,colpos');
-			
+
 		self::assertTrue($elementRecords[1]['colpos'] == 0 && $elementRecords[2]['colpos'] == 1, 'The column position stored in the "colpos" field is not correct after inserting two content elements!');
 	}
 
 	/**
-	 * Checks a special situation while inserting CEs if elements have been deleted 
+	 * Checks a special situation while inserting CEs if elements have been deleted
 	 * before. See bug #3042
 	 */
 	public function test_insertElement_bug3042_part1() {
@@ -488,7 +494,7 @@ return;
 
 		$this->fixture_createTestPage ();
 		$this->fixture_createTestPageDSTO();
-		
+
 			// Create 3 new content elements:
 		$elementUids = array();
 		for ($i=0; $i<3; $i++) {
@@ -503,14 +509,14 @@ return;
 				'vLang' => 'vDEF',
 				'position' => $i
 			);
-			
-			$elementUids[($i+1)] = $this->apiObj->insertElement ($destinationPointer, $row);			
+
+			$elementUids[($i+1)] = $this->apiObj->insertElement ($destinationPointer, $row);
 		}
 
 			// Delete the second content element by calling TCEmain instead of using the TemplaVoila API.
 			// We pass the UID of the CE with the content (overlayed UID), not the UID of the placeholder
 			// record because that exposes the bug.
-								
+
 		$tce = t3lib_div::makeInstance('t3lib_TCEmain');
 		$tce->stripslashes_values=0;
 
@@ -541,14 +547,14 @@ return;
 		self::assertTrue ($elementUids[4] !== FALSE, 'Bug 3042 part one - Inserting a new element was not successful, insertElement() returned FALSE');
 
 			// Check if the new record has been inserted correctly behind the second one:
-		$testPageRecord = t3lib_beFunc::getRecordWSOL ('pages', $this->testPageUID, 'tx_templavoila_flex,uid,pid,t3ver_swapmode');		
+		$testPageRecord = t3lib_beFunc::getRecordWSOL ('pages', $this->testPageUID, 'tx_templavoila_flex,uid,pid,t3ver_swapmode');
 		$flexform = simplexml_load_string ($testPageRecord['tx_templavoila_flex']);
 		$xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_content']/value[@index='vDEF']");
 		self::assertEquals ((string)$xpathResArr[0], $elementUids[1].','.$elementUids[3].','.$elementUids[4], 'insertElement_bug3042 - The pages reference list of the elements I created and deleted is not as expected!');
 	}
 
 	/**
-	 * Checks a special situation while inserting CEs if elements have been deleted 
+	 * Checks a special situation while inserting CEs if elements have been deleted
 	 * before. See bug #3042
 	 */
 	public function test_insertElement_bug3042_part2() {
@@ -561,7 +567,7 @@ return;
 
 		$this->fixture_createTestPage ();
 		$this->fixture_createTestPageDSTO();
-		
+
 			// Create 3 new content elements:
 		$elementUids = array();
 		for ($i=0; $i<3; $i++) {
@@ -576,8 +582,8 @@ return;
 				'vLang' => 'vDEF',
 				'position' => $i
 			);
-			
-			$elementUids[($i+1)] = $this->apiObj->insertElement ($destinationPointer, $row);			
+
+			$elementUids[($i+1)] = $this->apiObj->insertElement ($destinationPointer, $row);
 		}
 
 			//Mark the second content element as deleted directly in the database so TemplaVoila has no
@@ -586,7 +592,7 @@ return;
 		$TYPO3_DB->exec_UPDATEquery (
 			'tt_content',
 			'uid='.intval($elementUids[2]),
-			array('deleted' => 1)			
+			array('deleted' => 1)
 		);
 
 			// Now insert an element after the second:
@@ -605,12 +611,12 @@ return;
 		self::assertTrue ($elementUids[4] !== FALSE, 'Bug 3042 Part two - Inserting a new element was not successful, insertElement() returned FALSE');
 
 			// Check if the new record has been inserted correctly behind the second one:
-		$testPageRecord = t3lib_beFunc::getRecordWSOL ('pages', $this->testPageUID, 'tx_templavoila_flex,uid,pid,t3ver_swapmode');		
+		$testPageRecord = t3lib_beFunc::getRecordWSOL ('pages', $this->testPageUID, 'tx_templavoila_flex,uid,pid,t3ver_swapmode');
 		$flexform = simplexml_load_string ($testPageRecord['tx_templavoila_flex']);
 		$xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_content']/value[@index='vDEF']");
 		self::assertEquals ((string)$xpathResArr[0], $elementUids[1].','.$elementUids[3].','.$elementUids[4], 'insertElement_bug3042 - The pages reference list of the elements I created and deleted is not as expected!');
 	}
-	
+
 
 
 
@@ -656,7 +662,7 @@ return;
 			'vLang' => 'vDEF',
 			'position' => 1
 		);
-		
+
 		$destinationPointer = array(
 			'table' => 'pages',
 			'uid'   => $this->testPageUID,
@@ -667,12 +673,12 @@ return;
 			'position' => 3
 		);
 
-			// Move the element within the same page with valid source and destination pointer:		
+			// Move the element within the same page with valid source and destination pointer:
 		$result = $this->apiObj->moveElement ($sourcePointer, $destinationPointer);
 		self::assertTrue ($result, 'moveElement() did not return TRUE!');
-		
+
 		 	// Check if the first element has been moved correctly behind the third one:
-		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$this->testPageUID, 'tx_templavoila_flex');		
+		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$this->testPageUID, 'tx_templavoila_flex');
 		$flexform = simplexml_load_string ($testPageRecord['tx_templavoila_flex']);
 		$xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_content']/value[@index='vDEF']");
 		self::assertEquals ((string)$xpathResArr[0], $elementUids[2].','.$elementUids[3].','.$elementUids[1], 'The reference list is not as expected after moving the first element after the third with moveElement()!');
@@ -687,7 +693,7 @@ return;
 			'vLang' => 'vDEF',
 			'position' => 3
 		);
-		
+
 		$destinationPointer = array(
 			'table' => 'pages',
 			'uid'   => $this->testPageUID,
@@ -698,12 +704,12 @@ return;
 			'position' => 1
 		);
 
-			// Move the element within the same page with valid source and destination pointer:		
+			// Move the element within the same page with valid source and destination pointer:
 		$result = $this->apiObj->moveElement ($sourcePointer, $destinationPointer);
 		self::assertTrue ($result, 'moveElement() did not return TRUE!');
-		
+
 		 	// Check if the first element has been moved correctly behind the third one:
-		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$this->testPageUID, 'tx_templavoila_flex');		
+		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$this->testPageUID, 'tx_templavoila_flex');
 		$flexform = simplexml_load_string ($testPageRecord['tx_templavoila_flex']);
 		$xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_content']/value[@index='vDEF']");
 		self::assertEquals ((string)$xpathResArr[0], $elementUids[2].','.$elementUids[1].','.$elementUids[3], 'The reference list is not as expected after moving the third element after the first with moveElement()!');
@@ -711,9 +717,9 @@ return;
 			// Try to move the element with invalid source pointer:
 		$sourcePointer['position'] = 9999;
 		$result = $this->apiObj->moveElement ($sourcePointer, $destinationPointer);
-		self::assertFalse ($result, 'moveElement() did not return FALSE although we tried to move an element specified by an invalid source pointer!');		
+		self::assertFalse ($result, 'moveElement() did not return FALSE although we tried to move an element specified by an invalid source pointer!');
 	}
-	
+
 	public function test_moveElement_onSamePageWithinFCE() {
 		global $TYPO3_DB, $BE_USER;
 
@@ -723,7 +729,7 @@ return;
 		$this->fixture_createTestPageDSTO();
 
 		$this->fixture_createTestFCEDSTO('2col');
-		
+
 			// Create a 2-column FCE:
 		$row = $this->fixture_getContentElementRow_FCE($this->testFCEDSUID, $this->testFCETOUID);
 		$destinationPointer = array(
@@ -752,7 +758,7 @@ return;
 				'position' => $i
 			);
 			$elementUidsLeft[($i+1)] = $this->apiObj->insertElement ($destinationPointer, $row);
-			
+
 			$row['bodytext'] = 'move test element right #'.$i;
 			$destinationPointer = array(
 				'table' => 'tt_content',
@@ -776,7 +782,7 @@ return;
 			'vLang' => 'vDEF',
 			'position' => 1
 		);
-		
+
 		$destinationPointer = array(
 			'table' => 'tt_content',
 			'uid'   => $FCEUid,
@@ -787,12 +793,12 @@ return;
 			'position' => 3
 		);
 
-			// Move the element within the same FCE with valid source and destination pointer:		
+			// Move the element within the same FCE with valid source and destination pointer:
 		$result = $this->apiObj->moveElement ($sourcePointer, $destinationPointer);
 		self::assertTrue ($result, 'moveElement() did not return TRUE!');
-		
+
 		 	// Check if the first element has been moved correctly behind the third one:
-		$testFCERecord = t3lib_beFunc::getRecordRaw ('tt_content', 'uid='.$FCEUid, 'tx_templavoila_flex');		
+		$testFCERecord = t3lib_beFunc::getRecordRaw ('tt_content', 'uid='.$FCEUid, 'tx_templavoila_flex');
 		$flexform = simplexml_load_string ($testFCERecord['tx_templavoila_flex']);
 		$xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_rightcolumn']/value[@index='vDEF']");
 		self::assertEquals ((string)$xpathResArr[0], $elementUidsRight[2].','.$elementUidsRight[3].','.$elementUidsRight[1], 'The reference list is not as expected after moving the first element after the third with moveElement()!');
@@ -807,7 +813,7 @@ return;
 			'vLang' => 'vDEF',
 			'position' => 3
 		);
-		
+
 		$destinationPointer = array(
 			'table' => 'tt_content',
 			'uid'   => $FCEUid,
@@ -818,12 +824,12 @@ return;
 			'position' => 1
 		);
 
-			// Move the element within the same FCE with valid source and destination pointer from one column to another:		
+			// Move the element within the same FCE with valid source and destination pointer from one column to another:
 		$result = $this->apiObj->moveElement ($sourcePointer, $destinationPointer);
 		self::assertTrue ($result, 'moveElement() did not return TRUE!');
-		
+
 		 	// Check if the first element has been moved correctly behind the first one in the other column:
-		$testFCERecord = t3lib_beFunc::getRecordRaw ('tt_content', 'uid='.$FCEUid, 'tx_templavoila_flex');		
+		$testFCERecord = t3lib_beFunc::getRecordRaw ('tt_content', 'uid='.$FCEUid, 'tx_templavoila_flex');
 		$flexform = simplexml_load_string ($testFCERecord['tx_templavoila_flex']);
 
 		$xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_rightcolumn']/value[@index='vDEF']");
@@ -831,7 +837,7 @@ return;
 		$xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_leftcolumn']/value[@index='vDEF']");
 		self::assertEquals ((string)$xpathResArr[0], $elementUidsLeft[1].','.$elementUidsRight[1].','.$elementUidsLeft[2].','.$elementUidsLeft[3], 'The reference list in the left column is not as expected after moving the third element of the second column to after the first in the first column with moveElement()!');
 	}
-	
+
 	public function test_moveElement_onSamePage_workspaces() {
 		global $TYPO3_DB, $BE_USER;
 
@@ -867,7 +873,7 @@ return;
 			'vLang' => 'vDEF',
 			'position' => 1
 		);
-		
+
 		$destinationPointer = array(
 			'table' => 'pages',
 			'uid'   => $this->testPageUID,
@@ -878,12 +884,12 @@ return;
 			'position' => 3
 		);
 
-			// Move the element within the same page with valid source and destination pointer:		
+			// Move the element within the same page with valid source and destination pointer:
 		$result = $this->apiObj->moveElement ($sourcePointer, $destinationPointer);
 		self::assertTrue ($result, 'moveElement() did not return TRUE!');
-		
+
 		 	// Check if the first element has been moved correctly behind the third one:
-		$testPageRecord = t3lib_beFunc::getRecordWSOL ('pages', $this->testPageUID, 'uid,pid,tx_templavoila_flex,t3ver_swapmode');		
+		$testPageRecord = t3lib_beFunc::getRecordWSOL ('pages', $this->testPageUID, 'uid,pid,tx_templavoila_flex,t3ver_swapmode');
 		$flexform = simplexml_load_string ($testPageRecord['tx_templavoila_flex']);
 		$xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_content']/value[@index='vDEF']");
 		self::assertEquals ((string)$xpathResArr[0], $elementUids[2].','.$elementUids[3].','.$elementUids[1], 'The reference list is not as expected after moving the first element after the third with moveElement()!');
@@ -898,7 +904,7 @@ return;
 			'vLang' => 'vDEF',
 			'position' => 3
 		);
-		
+
 		$destinationPointer = array(
 			'table' => 'pages',
 			'uid'   => $this->testPageUID,
@@ -909,12 +915,12 @@ return;
 			'position' => 1
 		);
 
-			// Move the element within the same page with valid source and destination pointer:		
+			// Move the element within the same page with valid source and destination pointer:
 		$result = $this->apiObj->moveElement ($sourcePointer, $destinationPointer);
 		self::assertTrue ($result, 'moveElement() did not return TRUE!');
-		
+
 		 	// Check if the first element has been moved correctly behind the third one:
-		$testPageRecord = t3lib_beFunc::getRecordWSOL('pages', $this->testPageUID, 'uid,pid,tx_templavoila_flex,t3ver_swapmode');		
+		$testPageRecord = t3lib_beFunc::getRecordWSOL('pages', $this->testPageUID, 'uid,pid,tx_templavoila_flex,t3ver_swapmode');
 		$flexform = simplexml_load_string ($testPageRecord['tx_templavoila_flex']);
 		$xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_content']/value[@index='vDEF']");
 		self::assertEquals ((string)$xpathResArr[0], $elementUids[2].','.$elementUids[1].','.$elementUids[3], 'The reference list is not as expected after moving the third element after the first with moveElement()!');
@@ -923,7 +929,7 @@ return;
 		$sourcePointer['position'] = 9999;
 		$result = $this->apiObj->moveElement ($sourcePointer, $destinationPointer);
 		self::assertFalse ($result, 'moveElement() did not return FALSE although we tried to move an element specified by an invalid source pointer!');
-		
+
 	}
 
 
@@ -935,7 +941,7 @@ return;
 		$this->fixture_createTestPage ();
 		$this->fixture_createTestPageDSTO();
 
-			// Create a second test page:		
+			// Create a second test page:
 		$pageRow = array ('title' => $this->testPageTitle);
 		$targetTestPageUID = $this->fixture_createPage ($pageRow, $this->testPageUID);
 
@@ -979,7 +985,7 @@ return;
 			'vLang' => 'vDEF',
 			'position' => 2
 		);
-		
+
 		$destinationPointer = array(
 			'table' => 'pages',
 			'uid'   => $targetTestPageUID,
@@ -991,19 +997,19 @@ return;
 			'targetCheckUid' => $targetPageElementUids[1]
 		);
 
-			// Move the element:		
+			// Move the element:
 		$result = $this->apiObj->moveElement ($sourcePointer, $destinationPointer);
 		self::assertTrue ($result, 'moveElement() did not return TRUE!');
-		
+
 		 	// Check if the element has been referenced correctly on the destination page:
-		$targetTestPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$targetTestPageUID, 'tx_templavoila_flex,pid');		
+		$targetTestPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$targetTestPageUID, 'tx_templavoila_flex,pid');
 		$flexform = simplexml_load_string ($targetTestPageRecord['tx_templavoila_flex']);
-		$expectedReferences = $targetPageElementUids[1].','.$sourcePageElementUids[2].','.$targetPageElementUids[2].','.$targetPageElementUids[3];	
+		$expectedReferences = $targetPageElementUids[1].','.$sourcePageElementUids[2].','.$targetPageElementUids[2].','.$targetPageElementUids[3];
 		$xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_content']/value[@index='vDEF']");
 		self::assertEquals ((string)$xpathResArr[0], $expectedReferences, 'The reference list is not as expected after moving the element from one page to another with moveElement()!');
 
 		 	// Check if the element has the correct PID:
-		$elementRecord = t3lib_beFunc::getRecordRaw ('tt_content', 'uid='.$sourcePageElementUids[2], 'pid');		
+		$elementRecord = t3lib_beFunc::getRecordRaw ('tt_content', 'uid='.$sourcePageElementUids[2], 'pid');
 		self::assertEquals ($targetTestPageUID, (integer)$elementRecord['pid'], 'The PID of the moved element has not been set to the new page uid!');
 	}
 
@@ -1015,7 +1021,7 @@ return;
 		$this->fixture_createTestPage ();
 		$this->fixture_createTestPageDSTO();
 
-			// Create a second test page:		
+			// Create a second test page:
 		$pageRow = array ('title' => $this->testPageTitle);
 		$targetTestPageUID = $this->fixture_createPage ($pageRow, $this->testPageUID);
 
@@ -1059,7 +1065,7 @@ return;
 			'vLang' => 'vDEF',
 			'position' => 2
 		);
-		
+
 		$destinationPointer = array(
 			'table' => 'pages',
 			'uid'   => $targetTestPageUID,
@@ -1071,19 +1077,19 @@ return;
 			'targetCheckUid' => $targetPageElementUids[1]
 		);
 
-			// Move the element:		
+			// Move the element:
 		$result = $this->apiObj->moveElement ($sourcePointer, $destinationPointer);
 		self::assertTrue ($result, 'moveElement() did not return TRUE!');
-		
+
 		 	// Check if the element has been referenced correctly on the destination page:
-		$targetTestPageRecord = t3lib_beFunc::getRecordWSOL('pages', $targetTestPageUID, 'uid,pid,tx_templavoila_flex,t3ver_swapmode');		
+		$targetTestPageRecord = t3lib_beFunc::getRecordWSOL('pages', $targetTestPageUID, 'uid,pid,tx_templavoila_flex,t3ver_swapmode');
 		$flexform = simplexml_load_string ($targetTestPageRecord['tx_templavoila_flex']);
-		$expectedReferences = $targetPageElementUids[1].','.$sourcePageElementUids[2].','.$targetPageElementUids[2].','.$targetPageElementUids[3];	
+		$expectedReferences = $targetPageElementUids[1].','.$sourcePageElementUids[2].','.$targetPageElementUids[2].','.$targetPageElementUids[3];
 		$xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_content']/value[@index='vDEF']");
 		self::assertEquals ((string)$xpathResArr[0], $expectedReferences, 'The reference list is not as expected after moving the element from one page to another with moveElement()!');
 
 		 	// Check if the element has the correct PID:
-		$elementRecord = t3lib_beFunc::getRecordWSOL('tt_content', $sourcePageElementUids[2], 'uid,pid');		
+		$elementRecord = t3lib_beFunc::getRecordWSOL('tt_content', $sourcePageElementUids[2], 'uid,pid');
 		self::assertEquals ($targetTestPageUID, (integer)$elementRecord['pid'], 'The PID of the moved element has not been set to the new page uid!');
 	}
 
@@ -1106,7 +1112,7 @@ return;
 
 		$this->fixture_createTestPage ();
 		$this->fixture_createTestPageDSTO();
-		
+
 			// Create new content elements:
 		$elementUids = array();
 		for ($i=0; $i<3; $i++) {
@@ -1134,7 +1140,7 @@ return;
 			'vLang' => 'vDEF',
 			'position' => 2
 		);
-		
+
 		$destinationPointer = array(
 			'table' => 'pages',
 			'uid'   => $this->testPageUID,
@@ -1145,13 +1151,13 @@ return;
 			'position' => 3
 		);
 
-			// Copy the element within the same page with valid source and destination pointer:		
+			// Copy the element within the same page with valid source and destination pointer:
 		$result = $this->apiObj->copyElement ($sourcePointer, $destinationPointer);
 		self::assertTrue ($result !== FALSE, 'copyElement()returned FALSE!');
-		
+
 		 	// Check if the element has been copied correctly:
 		$elementUids[4] = $result;
-		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$this->testPageUID, 'tx_templavoila_flex');		
+		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$this->testPageUID, 'tx_templavoila_flex');
 		$flexform = simplexml_load_string ($testPageRecord['tx_templavoila_flex']);
 		$xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_content']/value[@index='vDEF']");
 		self::assertEquals ((string)$xpathResArr[0], $elementUids[1].','.$elementUids[2].','.$elementUids[3].','.$elementUids[4], 'The reference list is not as expected after copying the second element after the third with copyElement()!');
@@ -1165,11 +1171,11 @@ return;
 		$this->fixture_createTestPage ();
 		$this->fixture_createTestPageDSTO();
 
-			// Create a second test page:		
+			// Create a second test page:
 		$pageRow = array ('title' => $this->testPageTitle);
 		$targetTestPageUID = $this->fixture_createPage ($pageRow, $this->testPageUID);
 
-		
+
 			// Create 3 new content elements on test page and on target page:
 		$sourcePageElementUids = array();
 		$targetPageElementUids = array();
@@ -1211,7 +1217,7 @@ return;
 			'vLang' => 'vDEF',
 			'position' => 1
 		);
-		
+
 		$destinationPointer = array(
 			'table' => 'pages',
 			'uid'   => $targetTestPageUID,
@@ -1222,13 +1228,13 @@ return;
 			'position' => 2
 		);
 
-			// Copy the element:		
+			// Copy the element:
 		$result = $this->apiObj->copyElement ($sourcePointer, $destinationPointer);
 		self::assertTrue ($result !== FALSE, 'copyElement() to different page returned FALSE!');
-		
+
 		 	// Check if the element has been copied correctly:
 		$newElementUid = $result;
-		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$targetTestPageUID, 'tx_templavoila_flex');		
+		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$targetTestPageUID, 'tx_templavoila_flex');
 		$expectedReferences = $targetPageElementUids[1].','.$targetPageElementUids[2].','.$newElementUid.','.$targetPageElementUids[3];
 		$flexform = simplexml_load_string ($testPageRecord['tx_templavoila_flex']);
 		$xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_content']/value[@index='vDEF']");
@@ -1281,7 +1287,7 @@ return;
 			'vLang' => 'vDEF',
 			'position' => 2
 		);
-		
+
 		$destinationPointer = array(
 			'table' => 'pages',
 			'uid'   => $this->testPageUID,
@@ -1292,12 +1298,12 @@ return;
 			'position' => 3
 		);
 
-			// Reference the element within the same page with valid source and destination pointer:		
+			// Reference the element within the same page with valid source and destination pointer:
 		$result = $this->apiObj->referenceElement ($sourcePointer, $destinationPointer);
 		self::assertTrue ($result !== FALSE, 'referenceElement() did FALSE!');
-		
+
 		 	// Check if the element has been referenced correctly:
-		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$this->testPageUID, 'tx_templavoila_flex');		
+		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$this->testPageUID, 'tx_templavoila_flex');
 		$flexform = simplexml_load_string ($testPageRecord['tx_templavoila_flex']);
 		$xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_content']/value[@index='vDEF']");
 		self::assertEquals ((string)$xpathResArr[0], $elementUids[1].','.$elementUids[2].','.$elementUids[3].','.$elementUids[2], 'The reference list is not as expected after inserting a reference of the second element after the third with referenceElement()!');
@@ -1338,7 +1344,7 @@ return;
 			'vLang' => 'vDEF',
 			'position' => 2
 		);
-		
+
 		$destinationPointer = array(
 			'table' => 'pages',
 			'uid'   => $this->testPageUID,
@@ -1349,12 +1355,12 @@ return;
 			'position' => 3
 		);
 
-			// Reference the element within the same page with valid source and destination pointer:		
+			// Reference the element within the same page with valid source and destination pointer:
 		$result = $this->apiObj->referenceElement ($sourcePointer, $destinationPointer);
 		self::assertTrue ($result !== FALSE, 'referenceElement() did FALSE!');
-		
+
 		 	// Check if the element has been referenced correctly:
-		$testPageRecord = t3lib_beFunc::getRecordWSOL('pages', $this->testPageUID, 'uid,pid,tx_templavoila_flex,t3ver_swapmode');		
+		$testPageRecord = t3lib_beFunc::getRecordWSOL('pages', $this->testPageUID, 'uid,pid,tx_templavoila_flex,t3ver_swapmode');
 		$flexform = simplexml_load_string ($testPageRecord['tx_templavoila_flex']);
 		$xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_content']/value[@index='vDEF']");
 		self::assertEquals ((string)$xpathResArr[0], $elementUids[1].','.$elementUids[2].','.$elementUids[3].','.$elementUids[2], 'The reference list is not as expected after inserting a reference of the second element after the third with referenceElement()!');
@@ -1384,7 +1390,7 @@ return;
 			);
 			$elementUids[($i+1)] = $this->apiObj->insertElement ($destinationPointer, $row);
 		}
-		
+
 		$destinationPointer = array(
 			'table' => 'pages',
 			'uid'   => $this->testPageUID,
@@ -1395,12 +1401,12 @@ return;
 			'position' => 3
 		);
 
-			// Reference the element within the same page with valid source and destination pointer:		
+			// Reference the element within the same page with valid source and destination pointer:
 		$result = $this->apiObj->referenceElementByUid ($elementUids[2], $destinationPointer);
 		self::assertTrue ($result !== FALSE, 'referenceElement() returned FALSE!');
-		
+
 		 	// Check if the element has been referenced correctly:
-		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$this->testPageUID, 'tx_templavoila_flex');		
+		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$this->testPageUID, 'tx_templavoila_flex');
 		$flexform = simplexml_load_string ($testPageRecord['tx_templavoila_flex']);
 		$xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_content']/value[@index='vDEF']");
 		self::assertEquals ((string)$xpathResArr[0], $elementUids[1].','.$elementUids[2].','.$elementUids[3].','.$elementUids[2], 'The reference list is not as expected after inserting a reference of the second element after the third with referenceElementByUid()!');
@@ -1455,9 +1461,9 @@ return;
 
 		$result = $this->apiObj->unlinkElement ($sourcePointer);
 		self::assertTrue ($result !== FALSE, 'unlinkElement() returned FALSE!');
-		
+
 		 	// Check if the element has been un-referenced correctly:
-		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$this->testPageUID, 'tx_templavoila_flex');		
+		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$this->testPageUID, 'tx_templavoila_flex');
 		$flexform = simplexml_load_string ($testPageRecord['tx_templavoila_flex']);
 		$xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_content']/value[@index='vDEF']");
 		self::assertEquals ((string)$xpathResArr[0], $elementUids[1].','.$elementUids[3], 'The reference list is not as expected after unlinking an elemen with unlinkElement()!');
@@ -1512,15 +1518,15 @@ return;
 
 		$result = $this->apiObj->deleteElement ($sourcePointer);
 		self::assertTrue ($result !== FALSE, 'deleteElement() returned FALSE!');
-		
+
 		 	// Check if the element has been un-referenced correctly:
-		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$this->testPageUID, 'tx_templavoila_flex');		
+		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$this->testPageUID, 'tx_templavoila_flex');
 		$flexform = simplexml_load_string ($testPageRecord['tx_templavoila_flex']);
 		$xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_content']/value[@index='vDEF']");
 		self::assertEquals ((string)$xpathResArr[0], $elementUids[1].','.$elementUids[3], 'The reference list is not as expected after deleting an element with deleteElement()!');
 
 		 	// Check if the record really has been deleted:
-		$elementRecord = t3lib_beFunc::getRecordRaw ('tt_content', 'uid='.$elementUids[2], '*');		
+		$elementRecord = t3lib_beFunc::getRecordRaw ('tt_content', 'uid='.$elementUids[2], '*');
 		self::assertEquals ((integer)$elementRecord['deleted'], 1, 'The element record has not been deleted correctly after calling deleteElement()!');
 	}
 
@@ -1564,9 +1570,9 @@ return;
 
 		$result = $this->apiObj->deleteElement ($sourcePointer);
 		self::assertTrue ($result !== FALSE, 'deleteElement() returned FALSE!');
-		
+
 		 	// Check if the element has been un-referenced correctly:
-		$testPageRecord = t3lib_beFunc::getRecordWSOL ('pages', $this->testPageUID, 'uid,pid,tx_templavoila_flex,t3ver_swapmode');		
+		$testPageRecord = t3lib_beFunc::getRecordWSOL ('pages', $this->testPageUID, 'uid,pid,tx_templavoila_flex,t3ver_swapmode');
 		$flexform = simplexml_load_string ($testPageRecord['tx_templavoila_flex']);
 		$xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_content']/value[@index='vDEF']");
 		self::assertEquals ((string)$xpathResArr[0], $elementUids[1].','.$elementUids[3], 'The reference list is not as expected after deleting an element with deleteElement()!');
@@ -1621,11 +1627,11 @@ return;
 			'position' => 2
 		);
 
-			// Fetch the record:		
+			// Fetch the record:
 		$fetchedRow = $this->apiObj->flexform_getRecordByPointer ($flexformPointer);
 		self::assertTrue ($fetchedRow !== FALSE, 'flexform_getRecordByPointer() returned FALSE!');
-		
-		$recordsAreTheSame = count (array_intersect_assoc ($row, $fetchedRow)) == count ($row);		
+
+		$recordsAreTheSame = count (array_intersect_assoc ($row, $fetchedRow)) == count ($row);
 		self::assertTrue ($recordsAreTheSame, 'The record returned by flexform_getRecordByPointer() was not the one we expected!');
 	}
 
@@ -1665,11 +1671,11 @@ return;
 			'position' => 2
 		);
 
-			// Fetch the record:		
+			// Fetch the record:
 		$fetchedRow = $this->apiObj->flexform_getRecordByPointer ($flexformPointer);
 		self::assertTrue ($fetchedRow !== FALSE, 'flexform_getRecordByPointer() returned FALSE!');
-		
-		$recordsAreTheSame = count (array_intersect_assoc ($row, $fetchedRow)) == count ($row);		
+
+		$recordsAreTheSame = count (array_intersect_assoc ($row, $fetchedRow)) == count ($row);
 		self::assertTrue ($recordsAreTheSame, 'The record returned by flexform_getRecordByPointer() was not the one we expected!');
 	}
 
@@ -1711,7 +1717,7 @@ return;
 
 		$BE_USER->setWorkspace (0);
 
-		$this->fixture_createTestPage ();		
+		$this->fixture_createTestPage ();
 		$this->fixture_createTestPageDSTO();
 		$this->fixture_createTestAlternativePageHeader ($this->testPageUID, 'DE');
 
@@ -1742,7 +1748,7 @@ return;
 			'vLang' => 'vDEF',
 			'position' => 2
 		);
-		
+
 		$destinationPointer = array(
 			'table' => 'pages',
 			'uid'   => $this->testPageUID,
@@ -1755,22 +1761,22 @@ return;
 
 		$result = $this->apiObj->localizeElement ($sourcePointer, 'DE');
 		self::assertTrue ($result !== FALSE, 'localizeElement()returned FALSE!');
-		
+
 		 	// Check if the localized element has been referenced correctly:
 		$localizedUid = intval($result);
-		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$this->testPageUID, 'tx_templavoila_flex');		
+		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$this->testPageUID, 'tx_templavoila_flex');
 		$flexform = simplexml_load_string ($testPageRecord['tx_templavoila_flex']);
 		$xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_content']/value[@index='vDE']");
 		self::assertEquals ((string)$xpathResArr[0], (string)$localizedUid, 'The reference list is not as expected after localizing the second element to German!');
 
 		 	// Check if the record has been modified correctly:
 		$localizedRecord = t3lib_beFunc::getRecordRaw ('tt_content', 'uid='.$localizedUid, '*');
-		
+
 		$isOkay = (
 			$localizedRecord['l18n_parent'] == $elementUids[2] &&
-			$localizedRecord['sys_language_uid'] == $this->currentAlternativePageHeaderSysLanguageUid 
+			$localizedRecord['sys_language_uid'] == $this->currentAlternativePageHeaderSysLanguageUid
 		);
-						
+
 		self::assertTrue ($isOkay, 'The localized record has not the expected content!');
 	}
 
@@ -1779,7 +1785,7 @@ return;
 
 		$BE_USER->setWorkspace (1);
 
-		$this->fixture_createTestPage ();		
+		$this->fixture_createTestPage ();
 		$this->fixture_createTestPageDSTO();
 		$this->fixture_createTestAlternativePageHeader ($this->testPageUID, 'DE');
 
@@ -1810,7 +1816,7 @@ return;
 			'vLang' => 'vDEF',
 			'position' => 2
 		);
-		
+
 		$destinationPointer = array(
 			'table' => 'pages',
 			'uid'   => $this->testPageUID,
@@ -1823,22 +1829,22 @@ return;
 
 		$result = $this->apiObj->localizeElement ($sourcePointer, 'DE');
 		self::assertTrue ($result !== FALSE, 'localizeElement()returned FALSE!');
-		
+
 		 	// Check if the localized element has been referenced correctly:
 		$localizedUid = intval($result);
-		$testPageRecord = t3lib_beFunc::getRecordWSOL('pages', $this->testPageUID, 'uid,pid,tx_templavoila_flex,t3ver_swapmode');		
+		$testPageRecord = t3lib_beFunc::getRecordWSOL('pages', $this->testPageUID, 'uid,pid,tx_templavoila_flex,t3ver_swapmode');
 		$flexform = simplexml_load_string ($testPageRecord['tx_templavoila_flex']);
 		$xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_content']/value[@index='vDE']");
 		self::assertEquals ((string)$xpathResArr[0], (string)$localizedUid, 'The reference list is not as expected after localizing the second element to German!');
 
 		 	// Check if the record has been modified correctly:
 		$localizedRecord = t3lib_beFunc::getRecordWSOL('tt_content', $localizedUid, '*');
-		
+
 		$isOkay = (
 			$localizedRecord['l18n_parent'] == $elementUids[2] &&
-			$localizedRecord['sys_language_uid'] == $this->currentAlternativePageHeaderSysLanguageUid 
+			$localizedRecord['sys_language_uid'] == $this->currentAlternativePageHeaderSysLanguageUid
 		);
-						
+
 		self::assertTrue ($isOkay, 'The localized record has not the expected content!');
 	}
 
@@ -1849,7 +1855,7 @@ return;
 	/*********************************************************
 	 *
 	 * TCE MAIN TESTS
-	 * 
+	 *
 	 * These tests emulate and check actions carried
 	 * out by non-TemplaVoila-aware extensions or core modules
 	 * like the list module
@@ -1896,7 +1902,7 @@ return;
 		$tce->process_cmdmap();
 
 		 	// Check if the third element has been moved correctly behind the first:
-		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$this->testPageUID, 'tx_templavoila_flex');		
+		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$this->testPageUID, 'tx_templavoila_flex');
 		$flexform = simplexml_load_string ($testPageRecord['tx_templavoila_flex']);
 		$xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_content']/value[@index='vDEF']");
 		self::assertEquals ((string)$xpathResArr[0], $elementUids[1].','.$elementUids[3].','.$elementUids[2], 'The reference list is not as expected after moving the third element after the first with TCEmain()!');
@@ -1968,17 +1974,17 @@ return;
 		$tce->process_cmdmap();
 
 			 	// Check if the elements are in the right columns in the right order:
-		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$this->testPageUID, 'tx_templavoila_flex');		
+		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$this->testPageUID, 'tx_templavoila_flex');
 		$flexform = simplexml_load_string ($testPageRecord['tx_templavoila_flex']);
-			
+
 		$fieldContent_xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_content']/value[@index='vDEF']");
 		$fieldRightBar_xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_rightbar']/value[@index='vDEF']");
 
-		$everythingIsFine = 
+		$everythingIsFine =
 			(string)$fieldContent_xpathResArr[0] === $elementUids[3].','.$elementUids[1].','.$elementUids[2] &&
 			(string)$fieldRightBar_xpathResArr[0] === $elementUids[4].','.$elementUids[5].','.$elementUids[6]
 		;
-		
+
 		self::assertTrue($everythingIsFine, 'The reference list is not as expected after moving the third element up two times in the left column!');
 
 				// ... and then move the now second element one up again, measured by the sorting field! (also exposes the bug 2154):
@@ -1993,8 +1999,8 @@ return;
 		foreach ($elementsBySortingFieldArr as $index => $row) {
 			if ($elementUids[1]==$row['uid']) $positionOfElement1 = $index;
 		}
-		
-		
+
+
 		$cmdMap = array (
 			'tt_content' => array(
 				$elementUids[1] => array (
@@ -2006,18 +2012,18 @@ return;
 		$tce->process_cmdmap();
 
 			 	// Check again if the elements are in the right columns in the right order:
-		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$this->testPageUID, 'tx_templavoila_flex');		
+		$testPageRecord = t3lib_beFunc::getRecordRaw ('pages', 'uid='.$this->testPageUID, 'tx_templavoila_flex');
 		$flexform = simplexml_load_string ($testPageRecord['tx_templavoila_flex']);
-			
+
 		$fieldContent_xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_content']/value[@index='vDEF']");
 		$fieldRightBar_xpathResArr = $flexform->xpath("//data/sheet[@index='sDEF']/language[@index='lDEF']/field[@index='field_rightbar']/value[@index='vDEF']");
 
-		$everythingIsFine = 
+		$everythingIsFine =
 			(string)$fieldContent_xpathResArr[0] === $elementUids[1].','.$elementUids[3].','.$elementUids[2] &&
 			(string)$fieldRightBar_xpathResArr[0] === $elementUids[4].','.$elementUids[5].','.$elementUids[6]
 		;
-		
-		self::assertTrue($everythingIsFine, 'The reference list is not as expected after moving the second element up and choosing the destination by the sorting field!');		
+
+		self::assertTrue($everythingIsFine, 'The reference list is not as expected after moving the second element up and choosing the destination by the sorting field!');
 }
 
 
@@ -2037,8 +2043,8 @@ return;
 	 */
 	private function fixture_createTestPage() {
 		global $TYPO3_DB;
-		
-			// Create a new test page and save the UID:			
+
+			// Create a new test page and save the UID:
 		$pageRow = array (
 			'title' => $this->testPageTitle
 		);
@@ -2066,11 +2072,11 @@ return;
 		$tce->process_datamap();
 		return $tce->substNEWwithIDs['NEW'];
 	}
-	
+
 	/**
 	 * Creates a TypoScript template from the currently only fixture
 	 * and puts it onto the page specified by $pid.
-	 * 
+	 *
 	 * @param	integer		$pid: Page uid where the TS template should be stored
 	 * @return	void
 	 * @access private
@@ -2096,23 +2102,23 @@ return;
 
 	/**
 	 * Deletes old and creates a new alternative page header for the given page.
-	 * @return	integer		uid of the new alternative page header record 
+	 * @return	integer		uid of the new alternative page header record
 	 */
 	private function fixture_createTestAlternativePageHeader($pid, $languageKey) {
 		global $TYPO3_DB;
-				
+
 		$res = $TYPO3_DB->exec_SELECTquery (
 			'sys_language.uid',
 			'sys_language LEFT JOIN static_languages ON sys_language.static_lang_isocode=static_languages.uid',
-			'static_languages.lg_iso_2='.$TYPO3_DB->fullQuoteStr($languageKey, 'static_languages').' AND sys_language.hidden=0'  
+			'static_languages.lg_iso_2='.$TYPO3_DB->fullQuoteStr($languageKey, 'static_languages').' AND sys_language.hidden=0'
 		);
 
 		if (!$res) return;
 
 		$row = $TYPO3_DB->sql_fetch_assoc ($res);
-		$this->currentAlternativePageHeaderSysLanguageUid = $row['uid'];		
+		$this->currentAlternativePageHeaderSysLanguageUid = $row['uid'];
 
-		$dataArr = array();		
+		$dataArr = array();
 		$dataArr['pages_language_overlay']['NEW'] = array (
 			'pid' => intval($pid),
 			'hidden' => 0,
@@ -2127,18 +2133,18 @@ return;
 		$tce->process_datamap();
 		return $tce->substNEWwithIDs['NEW'];
 
-	} 
+	}
 
 	/**
 	 * Creates a page datastructure and template object for the
 	 * test page.
-	 * 
+	 *
 	 * @param 	string		$type: The fixture name to use for that page template (eg. "onecolumn")
 	 * @return 	array		UID of the DS and UID of the TO
 	 */
 	private function fixture_createTestPageDSTO($type='onecolumn') {
 		global $TYPO3_DB;
-	
+
 			// Create new DS:
 		$row = array (
 			'pid' => $this->testPageUID,
@@ -2151,7 +2157,7 @@ return;
 			'scope' => 1
 		);
 		$res = $TYPO3_DB->exec_INSERTquery ('tx_templavoila_datastructure', $row);
-		$this->testPageDSUID = $TYPO3_DB->sql_insert_id ($res);	
+		$this->testPageDSUID = $TYPO3_DB->sql_insert_id ($res);
 
 			// Create new TO:
 		$filename = t3lib_extMgm::extPath('templavoila').'tests/fixtures/page_template.html';
@@ -2162,7 +2168,7 @@ return;
 			'cruser_id' => 1,
 			'deleted' => 0,
 			'title' => $this->testPageTOTitle,
-			'description' => 'generated by T3Unit testcase', 
+			'description' => 'generated by T3Unit testcase',
 			'datastructure' => $this->testPageDSUID ,
 			'fileref_mtime' => @filemtime ($filename),
 			'fileref_md5' => (is_callable('md5_file') ? md5_file($filename) : ''),
@@ -2170,26 +2176,26 @@ return;
 			'templatemapping' => file_get_contents (t3lib_extMgm::extPath('templavoila').'tests/fixtures/page_templateobject_'.$type.'.dat'),
 		);
 		$res = $TYPO3_DB->exec_INSERTquery ('tx_templavoila_tmplobj', $row);
-		$this->testPageTOUID = $TYPO3_DB->sql_insert_id ($res);	
-		
+		$this->testPageTOUID = $TYPO3_DB->sql_insert_id ($res);
+
 			// Select this DS / TO for the test page and set General Storage Page:
 		$row = array (
 			'tx_templavoila_ds' => $this->testPageDSUID,
 			'tx_templavoila_to' => $this->testPageTOUID,
 			'storage_pid' => $this->testPageUID
-		);	
-		$TYPO3_DB->exec_UPDATEquery ('pages', 'title="'.$this->testPageTitle.'"', $row);
+		);
+		$TYPO3_DB->exec_UPDATEquery ('pages', 'title=\''.$this->testPageTitle.'\'', $row);
 	}
 
 	/**
 	 * Creates a datastructure and template object for a test FCE (2 columns)
-	 * 
-	 * @param	string		$type: The fixture name to use for the FCE (eg. "2col") 
+	 *
+	 * @param	string		$type: The fixture name to use for the FCE (eg. "2col")
 	 * @return 	array		UID of the DS and UID of the TO
 	 */
 	private function fixture_createTestFCEDSTO($type) {
 		global $TYPO3_DB;
-	
+
 			// Create new DS:
 		$row = array (
 			'pid' => $this->testPageUID,
@@ -2202,7 +2208,7 @@ return;
 			'scope' => 2
 		);
 		$res = $TYPO3_DB->exec_INSERTquery ('tx_templavoila_datastructure', $row);
-		$this->testFCEDSUID = $TYPO3_DB->sql_insert_id ($res);	
+		$this->testFCEDSUID = $TYPO3_DB->sql_insert_id ($res);
 
 			// Create new TO:
 		$filename = t3lib_extMgm::extPath('templavoila').'tests/fixtures/fce_'.$type.'_template.html';
@@ -2213,7 +2219,7 @@ return;
 			'cruser_id' => 1,
 			'deleted' => 0,
 			'title' => $this->testFCETOTitle.$type,
-			'description' => 'generated by T3Unit testcase', 
+			'description' => 'generated by T3Unit testcase',
 			'datastructure' => $this->testFCEDSUID ,
 			'fileref_mtime' => @filemtime ($filename),
 			'fileref_md5' => (is_callable('md5_file') ? md5_file($filename) : ''),
@@ -2221,8 +2227,24 @@ return;
 			'templatemapping' => file_get_contents (t3lib_extMgm::extPath('templavoila').'tests/fixtures/fce_'.$type.'_templateobject.dat'),
 		);
 		$res = $TYPO3_DB->exec_INSERTquery ('tx_templavoila_tmplobj', $row);
-		$this->testFCETOUID = $TYPO3_DB->sql_insert_id ($res);			
+		$this->testFCETOUID = $TYPO3_DB->sql_insert_id ($res);
 	}
+
+
+    private function fixture_createTestSysLanguage() {
+		global $TYPO3_DB;
+
+        $row = array(
+			'pid' => 0,
+			'title' => $this->testLanguageTitle,
+			'static_lang_isocode' => 43,
+			'tstamp' => time(),
+			'hidden' => 0
+        );
+		$res = $TYPO3_DB->exec_INSERTquery ('sys_language', $row);
+		$this->testSyslangUid = $TYPO3_DB->sql_insert_id ($res);
+    }
+
 
 
 
