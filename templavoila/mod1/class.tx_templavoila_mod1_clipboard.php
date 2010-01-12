@@ -398,33 +398,28 @@ class tx_templavoila_mod1_clipboard {
 			$this->pObj->sortableContainers[] = $cellId;
 		}
 
-		// Create table and header cell:
 		$output = '
-			<table border="0" cellpadding="0" cellspacing="1" width="100%" class="tv-container tv-clipboard lrPadding" id="clipboard">
-			<caption>' .
-				Clipboard . '
-			</caption>
-			<thead>
-				<tr class="bgColor4-20">
-					<th>
-						<div style="float:  left;" class="nobr">' .
-							$LANG->getLL('inititemno_elementsNotBeingUsed', '1') . ':
-						</div>
-						<div style="float: right;" class="nobr">' .
-							$deleteAll . '
-						</div>
-					</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr class="bgColor4">
-					<td style="padding: 5px; border: 1px dashed #000000;" id="' . $cellId . '">'.
-						implode('', $elements) . '
-					</td>
-				</tr>
-			</tbody>
+			<table border="0" cellpadding="0" cellspacing="0" width="100%" class="tv-container">
+				<thead>
+					<tr class="bgColor4-20">
+						<th>
+							<div style="float:  left;" class="nobr">' .
+								$LANG->getLL('inititemno_elementsNotBeingUsed', '1') . ':
+							</div>
+							<div style="float: right;" class="nobr">' .
+								$deleteAll . '
+							</div>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr class="bgColor4">
+						<td id="' . $cellId . '">'.
+							implode('', $elements) . '
+						</td>
+					</tr>
+				</tbody>
 			</table>
-			<br />
 		';
 
 		return $output;

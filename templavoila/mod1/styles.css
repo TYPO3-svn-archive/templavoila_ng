@@ -15,11 +15,24 @@ table.tv-clipboard {
 	background: #E6E9EB;
 }
 
+table.tv-clipboard caption {
+	text-align: left;
+	font-size: 16px;
+	margin-bottom: 0.5em;
+}
+
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 table.tv-container {
-	border-spacing: 8px;
+/*	border-spacing: 8px;	*/
+	padding: 8px;
 
 	background: #E6E9EB;
+}
+
+table.tv-container > thead > tr > th + th,
+table.tv-container > tbody > tr > td + td,
+table.tv-container > tfoot > tr > td + td {
+	border-left: 8px solid #E6E9EB;
 }
 
 table.tv-container caption {
@@ -57,8 +70,7 @@ table.tv-clipboard table.tv-coe tr.sortableHandle > td + td > a:firstChild {
 table.tv-container img.new,
 table.tv-container img.browse,
 table.tv-container img.paste {
-	margin: 1px;
-	margin-bottom: 5px;
+	margin: 5px 1px 5px 1px;
 }
 
 table.tv-container tfoot td.full  { color: #F00000; }
@@ -73,7 +85,6 @@ table.tv-container td.empty span.sortableControls { }
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 table.tv-coe {
 	border: 1px solid black;
-	margin-bottom: 5px;
 }
 
 table.tv-coe caption {
@@ -87,9 +98,9 @@ table.tv-coe caption.pages {
 	display: table-caption;
 }
 
-table.tv-coe thead.pages {
+/*table.tv-coe thead.pages {
 	display: none;
-}
+}*/
 
 table.tv-coe tr.sortableHandle > td {
 	vertical-align: top;

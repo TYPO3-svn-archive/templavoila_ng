@@ -348,11 +348,20 @@ class tx_templavoila_pi1 extends tslib_pibase {
 			');
 
 		// Initialize rendering type:
-		if ($this->conf['childTemplate'])
+		if ($this->conf['childTemplate']) {
 			$renderType = $this->conf['childTemplate'];
+			if (substr($renderType, 0, 9) == 'USERFUNC:') {
+				$conf = array(
+					'conf' => is_array($this->conf['childTemplate.']) ? $this->conf['childTemplate.'] : array(),
+					'toRecord' => $row
+				);
+
+				$renderType = t3lib_div::callUserFunction(substr($renderType, 9), $conf, $this);
+			}
 		// Default:
-		else
+		} else {
 			$renderType = t3lib_div::_GP('print') ? 'print' : '';
+		}
 
 		// Get Template Object record:
 		$TOrec = $this->markupObj->getTemplateRecord($row['tx_templavoila_to'], $renderType, $GLOBALS['TSFE']->sys_language_uid);
@@ -371,9 +380,15 @@ class tx_templavoila_pi1 extends tslib_pibase {
 			');
 
 		// Get local processing:
-		$TOproc = t3lib_div::xml2array($TOrec['localprocessing']);
-		if (!is_array($TOproc))
-			$TOproc = array();
+		$TOproc = array();
+		if ($TOrec['localprocessing']) {
+			$TOproc = t3lib_div::xml2array($TOrec['localprocessing']);
+			if (!is_array($TOproc))	{
+				// Must be a error!
+				// TODO log to TT the content of $TOproc (it is a error message now)
+				$TOproc = array();
+			}
+		}
 
 		// Processing the data array:
 		if ($GLOBALS['TT']->LR) $GLOBALS['TT']->push('Processing data');

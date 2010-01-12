@@ -67,6 +67,7 @@
 			<label index="pageLocalizationMode_inheritance">Inheritance of values</label>
 			<label index="pageLocalizationParadigm_bound">1:1</label>
 			<label index="pageLocalizationDisplayMode">Display mode</label>
+			<label index="pageLocalizationDisplayMode_defaultLanguage">All languages</label>
 			<label index="pageLocalizationDisplayMode_selectedLanguage">Selected language</label>
 			<label index="pageLocalizationDisplayMode_onlyLocalized">Only localized elements</label>
 
@@ -200,6 +201,7 @@
 			<label index="pageLocalizationMode_inheritance">Vererbung der Werte</label>
 			<label index="pageLocalizationParadigm_bound">1:1</label>
 			<label index="pageLocalizationDisplayMode">Darstellungsmodus</label>
+			<label index="pageLocalizationDisplayMode_defaultLanguage">Alle Sprachen</label>
 			<label index="pageLocalizationDisplayMode_selectedLanguage">Ausgewählte Sprache</label>
 			<label index="pageLocalizationDisplayMode_onlyLocalized">Nur übersetzte Elemente</label>
 

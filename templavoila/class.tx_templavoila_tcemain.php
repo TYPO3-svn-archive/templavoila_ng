@@ -140,15 +140,15 @@ class tx_templavoila_tcemain {
 	function processDatamap_postProcessFieldArray ($status, $table, $id, &$fieldArray, &$reference) {
 		if ($this->debug) t3lib_div::devLog ('processDatamap_postProcessFieldArray', 'templavoila',0,array ($status, $table, $id, $fieldArray));
 
-			// If the references for content element changed at the current page, save that information into the reference table:
+		// If the references for content element changed at the current page, save that information into the reference table:
 		if ($status == 'update' && $table == 'pages' && isset ($fieldArray['tx_templavoila_flex'])) {
 
 			$this->correctSortingAndColposFieldsForPage($fieldArray['tx_templavoila_flex'], $id);
 
-				// If a new data structure has been selected, set a valid template object automatically:
-			if (intval ($fieldArray['tx_templavoila_ds']) || intval($fieldArray['tx_templavoila_next_ds'])) {
+			// If a new data structure has been selected, set a valid template object automatically:
+			if (intval($fieldArray['tx_templavoila_ds']) || intval($fieldArray['tx_templavoila_next_ds'])) {
 
-					// Determine the page uid which ds_getAvailablePageTORecords() can use for finding the storage folder:
+				// Determine the page uid which ds_getAvailablePageTORecords() can use for finding the storage folder:
 				$pid = NULL;
 				if ($status == 'update') {
 					$pid = $id;
@@ -162,14 +162,15 @@ class tx_templavoila_tcemain {
 
 					if (is_array ($templateObjectRecords)) {
 						foreach ($templateObjectRecords as $templateObjectRecord) {
-							if (!isset ($matchingTOUid) && $templateObjectRecord['datastructure'] == $fieldArray['tx_templavoila_ds']) {
+							if (!isset($matchingTOUid) && $templateObjectRecord['datastructure'] == $fieldArray['tx_templavoila_ds']) {
 								$matchingTOUid = $templateObjectRecord['uid'];
 							}
-							if (!isset ($matchingNextTOUid) && $templateObjectRecord['datastructure'] == $fieldArray['tx_templavoila_next_ds']) {
+							if (!isset($matchingNextTOUid) && $templateObjectRecord['datastructure'] == $fieldArray['tx_templavoila_next_ds']) {
 								$matchingNextTOUid = $templateObjectRecord['uid'];
 							}
 						}
-							// Finally set the Template Objects if one was found:
+
+						// Finally set the Template Objects if one was found:
 						if (intval ($fieldArray['tx_templavoila_ds']) && ($fieldArray['tx_templavoila_to'] == 0)) {
 							$fieldArray['tx_templavoila_to'] = $matchingTOUid;
 						}
@@ -185,15 +186,16 @@ class tx_templavoila_tcemain {
 		if ($table == 'tt_content') {
 			if ($status != 'new') {
 				$row = t3lib_beFunc::getRecord($table, $id);
-			}
-			else {
+			} else {
 				$row = &$fieldArray;
 			}
+
 			if ($row['CType'] == 'templavoila_pi1') {
 				$params = array(
 					'table' => $table,
 					'row' => $row,
 				);
+
 				$ref = null;
 				if (!t3lib_div::callUserFunction('EXT:templavoila/class.tx_templavoila_access.php:&tx_templavoila_access->recordEditAccessInternals', $params, $ref)) {
 					$reference->newlog(sprintf($GLOBALS['LANG']->getLL($status != 'new' ? 'access_noModifyAccess' : 'access_noCrateAccess'), $table, $id), 1);
@@ -216,23 +218,27 @@ class tx_templavoila_tcemain {
 	 * @access public
 	 */
 	function processDatamap_afterDatabaseOperations ($status, $table, $id, $fieldArray, &$reference) {
-
 		if ($this->debug) t3lib_div::devLog ('processDatamap_afterDatabaseOperations ', 'templavoila',0,array ($status, $table,$id,$fieldArray));
-		if ($GLOBALS ['TYPO3_CONF_VARS']['SC_OPTIONS']['tx_templavoila_api']['apiIsRunningTCEmain']) return;
-		if ($table != 'tt_content') return;
+
+		if ($GLOBALS ['TYPO3_CONF_VARS']['SC_OPTIONS']['tx_templavoila_api']['apiIsRunningTCEmain'])
+			return;
+		if ($table != 'tt_content')
+			return;
 
 		$templaVoilaAPI = t3lib_div::makeInstance('tx_templavoila_api');
 
 		switch ($status) {
 			case 'new' :
 				if (!isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tx_templavoila_tcemain']['doNotInsertElementRefsToPage'])) {
-					if (isset ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tx_templavoila_tcemain']['preProcessFieldArrays'][$id])) {
+					t3lib_BEfunc::fixVersioningPid($table, $fieldArray);
+
+					if (isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tx_templavoila_tcemain']['preProcessFieldArrays'][$id])) {
 						$positionReferenceUid = $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tx_templavoila_tcemain']['preProcessFieldArrays'][$id]['pid'];
 						if ($positionReferenceUid < 0) {
 							$neighbourFlexformPointersArr = $templaVoilaAPI->flexform_getPointersByRecord (abs($positionReferenceUid ), $fieldArray['pid']);
 							$neighbourFlexformPointer = $neighbourFlexformPointersArr[0];
 
-							if (is_array ($neighbourFlexformPointer)) {
+							if (is_array($neighbourFlexformPointer)) {
 								$destinationFlexformPointer = $neighbourFlexformPointer;
 							}
 						}
@@ -269,13 +275,14 @@ class tx_templavoila_tcemain {
 							}
 						}
 					}
+
 					if (is_array ($destinationFlexformPointer)) {
 						$templaVoilaAPI->insertElement_setElementReferences ($destinationFlexformPointer, $reference->substNEWwithIDs[$id]);
 					}
 				}
-			break;
-
+				break;
 		}
+
 		unset ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tx_templavoila_tcemain']['preProcessFieldArrays']);
 	}
 
@@ -292,17 +299,19 @@ class tx_templavoila_tcemain {
 	 * @todo	"delete" should search for all references to the element.
 	 */
 	function processCmdmap_preProcess (&$command, $table, $id, $value, &$reference) {
-
 		if ($this->debug) t3lib_div::devLog('processCmdmap_preProcess', 'templavoila', 0, array ($command, $table, $id, $value));
-		if ($GLOBALS ['TYPO3_CONF_VARS']['SC_OPTIONS']['tx_templavoila_api']['apiIsRunningTCEmain']) return;
+
+		if ($GLOBALS ['TYPO3_CONF_VARS']['SC_OPTIONS']['tx_templavoila_api']['apiIsRunningTCEmain'])
+			return;
+
 		if (isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tx_templavoila_tcemain']['doNotInsertElementRefsToPage'])) {
 			$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tx_templavoila_tcemain']['doNotInsertElementRefsToPage']++;
-		}
-		else {
+		} else {
 			$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tx_templavoila_tcemain']['doNotInsertElementRefsToPage'] = 1;
 		}
 
-		if ($table != 'tt_content') return;
+		if ($table != 'tt_content')
+			return;
 
 		$templaVoilaAPI = t3lib_div::makeInstance('tx_templavoila_api');
 
@@ -314,12 +323,12 @@ class tx_templavoila_tcemain {
 					'table' => $table,
 					'row' => $record,
 				);
+
 				$ref = null;
 				if (!t3lib_div::callUserFunction('EXT:templavoila/class.tx_templavoila_access.php:&tx_templavoila_access->recordEditAccessInternals', $params, $ref)) {
 					$reference->newlog(sprintf($GLOBALS['LANG']->getLL($status != 'new' ? 'access_noModifyAccess' : 'access_noCrateAccess'), $table, $id), 1);
 					$command = '';	// Do not delete! A hack but there is no other way to prevent deletion...
-				}
-				else {
+				} else {
 					// Access ok
 					if (intval($record['t3ver_oid']) > 0) {
 						$record = t3lib_BEfunc::getRecord('tt_content', intval($record['t3ver_oid']));
@@ -330,6 +339,7 @@ class tx_templavoila_tcemain {
 
 					$templaVoilaAPI->unlinkElement($sourceFlexformPointer);
 				}
+
 				break;
 		}
 
@@ -348,11 +358,11 @@ class tx_templavoila_tcemain {
 	 * @access public
 	 */
 	function processCmdmap_postProcess($command, $table, $id, $value, &$reference) {
-
 		if ($this->debug) t3lib_div::devLog ('processCmdmap_postProcess', 'templavoila', 0, array ($command, $table, $id, $value));
 
 		if (isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tx_templavoila_tcemain']['doNotInsertElementRefsToPage'])) {
 			$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tx_templavoila_tcemain']['doNotInsertElementRefsToPage']--;
+
 			if ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tx_templavoila_tcemain']['doNotInsertElementRefsToPage'] == 0) {
 				unset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tx_templavoila_tcemain']['doNotInsertElementRefsToPage']);
 			}
@@ -377,8 +387,11 @@ class tx_templavoila_tcemain {
 		global $TCA;
 
 		if ($this->debug) t3lib_div::devLog ('moveRecord_firstElementPostProcess', 'templavoila', 0, array ($table, $uid, $destPid, $sourceRecordBeforeMove, $updateFields));
-		if ($GLOBALS ['TYPO3_CONF_VARS']['SC_OPTIONS']['tx_templavoila_api']['apiIsRunningTCEmain']) return;
-		if ($table != 'tt_content') return;
+
+		if ($GLOBALS ['TYPO3_CONF_VARS']['SC_OPTIONS']['tx_templavoila_api']['apiIsRunningTCEmain'])
+			return;
+		if ($table != 'tt_content')
+			return;
 
 		$templaVoilaAPI = t3lib_div::makeInstance('tx_templavoila_api');
 
@@ -396,6 +409,7 @@ class tx_templavoila_tcemain {
 				'vLang' => 'vDEF',
 				'position' => 0
 			);
+
 			$templaVoilaAPI->moveElement_setElementReferences ($sourceFlexformPointer, $destinationFlexformPointer);
 		}
 	}
@@ -415,10 +429,12 @@ class tx_templavoila_tcemain {
 	 * @access public
 	 */
 	function moveRecord_afterAnotherElementPostProcess ($table, $uid, $destPid, $origDestPid, $sourceRecordBeforeMove, $updateFields, &$reference) {
-
 		if ($this->debug) t3lib_div::devLog ('moveRecord_afterAnotherElementPostProcess', 'templavoila', 0, array ($table, $uid, $destPid, $origDestPid, $sourceRecordBeforeMove, $updateFields));
-		if ($GLOBALS ['TYPO3_CONF_VARS']['SC_OPTIONS']['tx_templavoila_api']['apiIsRunningTCEmain']) return;
-		if ($table != 'tt_content') return;
+
+		if ($GLOBALS ['TYPO3_CONF_VARS']['SC_OPTIONS']['tx_templavoila_api']['apiIsRunningTCEmain'])
+			return;
+		if ($table != 'tt_content')
+			return;
 
 		$templaVoilaAPI = t3lib_div::makeInstance('tx_templavoila_api');
 
@@ -428,9 +444,9 @@ class tx_templavoila_tcemain {
 		$neighbourFlexformPointersArr = $templaVoilaAPI->flexform_getPointersByRecord (abs($origDestPid), $destPid);
 		$neighbourFlexformPointer = $neighbourFlexformPointersArr[0];
 
-			// One-line-fix for frontend editing (see Bug #2154).
-			// NOTE: This fix leads to unwanted behaviour in one special and unrealistic situation: If you move the second
-			// element to after the first element, it will move to the very first position instead of staying where it is.
+		// One-line-fix for frontend editing (see Bug #2154).
+		// NOTE: This fix leads to unwanted behaviour in one special and unrealistic situation: If you move the second
+		// element to after the first element, it will move to the very first position instead of staying where it is.
 		if ($neighbourFlexformPointer['position'] == 1 && $sourceFlexformPointer['position'] == 2) $neighbourFlexformPointer['position'] = 0;
 
 		$templaVoilaAPI->moveElement_setElementReferences ($sourceFlexformPointer, $neighbourFlexformPointer);
@@ -452,10 +468,10 @@ class tx_templavoila_tcemain {
 		$templaVoilaAPI = t3lib_div::makeInstance('tx_templavoila_api');
 		/* @var $templaVoilaAPI tx_templavoila_api */
 
-			// Getting value of the field containing the relations:
+		// Getting value of the field containing the relations:
 		$xmlContentArr = t3lib_div::xml2array($flexformXML);
 
-			// And extract all content element uids and their context from the XML structure:
+		// And extract all content element uids and their context from the XML structure:
 		if (is_array ($xmlContentArr['data'])) {
 			foreach ($xmlContentArr['data'] as $currentSheet => $subArr) {
 				if (is_array ($subArr)) {
@@ -500,9 +516,10 @@ class tx_templavoila_tcemain {
 				);
 				$TYPO3_DB->exec_UPDATEquery (
 					'tt_content',
-					'uid='.intval($elementArr['uid']),
+					'uid=' . intval($elementArr['uid']),
 					$updateFields
 				);
+
 				$sortNumber += 100;
 			}
 		}
