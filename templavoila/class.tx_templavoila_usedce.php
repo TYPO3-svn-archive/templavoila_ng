@@ -61,15 +61,14 @@ class tx_templavoila_usedce {
 	 * @param	integer		UID of page in processing
 	 * @return	void
 	 */
-	function init($page_uid)	{
-
-			// Initialize TemplaVoila API class:
+	function init($page_uid) {
+		// Initialize TemplaVoila API class:
 		$apiClassName = t3lib_div::makeInstanceClassName('tx_templavoila_api');
-		$apiObj = new $apiClassName ('pages');
+		$apiObj = new $apiClassName('pages');
 
-			// Fetch the content structure of page:
-		$contentTreeData = $apiObj->getContentTree('pages', t3lib_BEfunc::getRecordRaw('pages','uid='.intval($page_uid)));
-		if ($contentTreeData['tree']['ds_is_found'])	{
+		// Fetch the content structure of page:
+		$contentTreeData = $apiObj->getContentTree('pages', t3lib_BEfunc::getRecordRaw('pages', 'uid=' . intval($page_uid)));
+		if ($contentTreeData['tree']['ds_is_found']) {
 			$this->usedUids = array_keys($contentTreeData['contentElementUsage']);
 			$this->usedUids[] = 0;
 		}
@@ -78,8 +77,9 @@ class tx_templavoila_usedce {
 	/**
 	 * Returns TRUE if either table is NOT tt_content OR (in case it is tt_content) if the uid is in the built page.
 	 */
-	function filter($table, $uid)	{
-		if ($table!='tt_content' || in_array($uid,$this->usedUids))	return TRUE;
+	function filter($table, $uid) {
+		if ($table != 'tt_content' || in_array($uid, $this->usedUids))
+			return TRUE;
 	}
 }
 

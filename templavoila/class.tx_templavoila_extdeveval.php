@@ -197,7 +197,7 @@ class tx_templavoila_extdeveval {
 	 * @param	array		Data Structure XML
 	 * @return	string		Type keyword
 	 */
-	function DSlanguageMode($DSstring)	{
+	function DSlanguageMode($DSstring) {
 
 		$DScontent = t3lib_div::xml2array($DSstring);
 		$DScontent = array('meta' => $DScontent['meta']);
@@ -220,7 +220,7 @@ class tx_templavoila_extdeveval {
 	 * @param	string		Data Structure id (either uid or string pointing to XML file)
 	 * @return	string		HTML
 	 */
-	function renderConversionView($dsIdForConversion)	{
+	function renderConversionView($dsIdForConversion) {
 		global $TCA;
 
 		$output = '';

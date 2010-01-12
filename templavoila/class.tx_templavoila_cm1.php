@@ -79,15 +79,16 @@ class tx_templavoila_cm1 {
 			// Adding link for Mapping tool:
 			if (@is_file($table)) {
 				if ($BE_USER->isAdmin()) {
-				//	if (function_exists('finfo_open')) {
-				//		$fi = finfo_open(FILEINFO_MIME);
-				//		$enabled = (@finfo_file($fi, $table) == 'text/html');
-				//		finfo_close($fi);
-				//	}
-				//	else {
+					if (function_exists('finfo_file')) {
+						$finfoMode = defined('FILEINFO_MIME_TYPE') ? FILEINFO_MIME_TYPE : FILEINFO_MIME;
+						$fi = finfo_open($finfoMode);
+						$enabled = (substr(@finfo_file($fi, $table), 0, 9) == 'text/html');
+						finfo_close($fi);
+					}
+					else {
 						$pi = @pathinfo($table);
 						$enabled = preg_match('/(html?|tmpl)/', $pi['extension']);
-				//	}
+					}
 
 					if ($enabled) {
 					//	$url = t3lib_extMgm::extRelPath('templavoila') . 'cm1/index.php?' .

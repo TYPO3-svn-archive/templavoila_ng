@@ -24,7 +24,18 @@ $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['newContentWiz']['templavoila'] = 'mod
 t3lib_extMgm::addUserTSConfig('
 	options.overridePageModule = web_txtemplavoilaM1
 
+	# free, bound
+#	mod.web_txtemplavoilaM1.translationParadigm
+
+	# left, toprows, toptabs
 	mod.web_txtemplavoilaM1.sideBarEnable = 1
+	mod.web_txtemplavoilaM1.sideBarPosition = toptabs
+
+	mod.web_txtemplavoilaM1.disableAdvancedControls = 0
+	mod.web_txtemplavoilaM1.disableHideIcon = 0
+	mod.web_txtemplavoilaM1.disableDeleteIcon = 0
+	mod.web_txtemplavoilaM1.disableContainerElementLocalizationWarning = 0
+	mod.web_txtemplavoilaM1.disableContainerElementLocalizationWarning_warningOnly = 0
 ');
 
 // Adding Page Template Selector Fields to root line:

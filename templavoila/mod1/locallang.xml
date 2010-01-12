@@ -87,12 +87,16 @@
 			<label index="copyrecord">Copy element</label>
 			<label index="cutrecord">Cut element</label>
 			<label index="createreference">Create reference</label>
+			<label index="hideRecord">Hide element</label>
+			<label index="hideRecordMsg">Do you really want to hide this element?</label>
+			<label index="hideRecordWithReferencesMsg">This element is also referenced on other pages. Do you really want to hide this element?</label>
 			<label index="unlinkRecord">Unlink element</label>
 			<label index="unlinkRecordMsg">Unlink element?</label>
 			<label index="unlinkRecordsAll">Unlink all elements</label>
 			<label index="unlinkRecordsAllMsg">Unlink all elements?</label>
 			<label index="deleteRecord">Delete element (!)</label>
 			<label index="deleteRecordMsg">Do you really want to delete this element?</label>
+			<label index="deleteRecordWithReferencesMsg">This element is also referenced on other pages. Do you really want to delete this element?</label>
 			<label index="pagerelatedinformation">Page related information</label>
 			<label index="advancedfunctions">Advanced functions</label>
 			<label index="localization">Translations</label>

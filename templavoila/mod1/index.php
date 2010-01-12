@@ -48,7 +48,7 @@
  *  571:     function printContent()
  *
  *              SECTION: Rendering functions
- *  591:     function renderModuleContent($singleView=false)
+ *  591:     function renderModuleContent($singleView=FALSE)
  *  665:     function render_editPageScreen($singleView)
  *
  *              SECTION: Framework rendering functions
@@ -92,7 +92,7 @@
  * 2399:     function clearCache()
  *
  *              SECTION: Miscelleaneous helper functions (protected)
- * 2427:     function getAvailableLanguages($id=0, $onlyIsoCoded=true, $setDefault=true, $setMulti=false)
+ * 2427:     function getAvailableLanguages($id=0, $onlyIsoCoded=true, $setDefault=true, $setMulti=FALSE)
  * 2501:     function hooks_prepareObjectsArray ($hookName)
  * 2518:     function alternativeLanguagesDefined()
  * 2528:     function displayElement($subElementArr)
@@ -366,7 +366,7 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 
 				function jumpToUrl(URL)	{ //
 					document.location = URL;
-					return false;
+					return FALSE;
 				}
 
 
@@ -374,18 +374,18 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 
 				function jumpToUrl(URL)	{	//
 					window.location.href = URL;
-					return false;
+					return FALSE;
 				}
 
 				function jumpExt(URL, anchor) {	//
 					var anc = anchor?anchor:"";
 					window.location.href = URL + (T3_THIS_LOCATION ? "&returnUrl=" + T3_THIS_LOCATION : "") + anc;
-					return false;
+					return FALSE;
 				}
 
 				function jumpSelf(URL) {	//
 					window.location.href = URL + (T3_RETURN_URL ? "&returnUrl=" + T3_RETURN_URL : "");
-					return false;
+					return FALSE;
 				}
 
 				function setHighlight(id) {	//
@@ -521,7 +521,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 			$this->content .= $this->doc->startPage($GLOBALS['LANG']->getLL('title'));
 
 			// Rendering module content
-			$content = $this->renderModuleContent(false);
+			$content = $this->renderModuleContent(FALSE);
 
 			// Hook for adding new sidebars or removing existing
 			$sideBarHooks = $this->hooks_prepareObjectsArray('sideBarClass');
@@ -585,7 +585,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @param	[type]		$singleView: ...
 	 * @return	void
 	 */
-	function renderModuleContent($singleView = false) {
+	function renderModuleContent($singleView = FALSE) {
 		$content = '';
 
 		$this->handleIncomingCommands();
@@ -612,7 +612,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 					}
 
 					// Do not output editing code for special doctypes!
-					$render_editPageScreen = false;
+					$render_editPageScreen = FALSE;
 				}
 			}
 		}
@@ -631,7 +631,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 				Event.observe(window, \'load\', function() {
 					sortable_clipboard = \'' . tvID_to_jsID('tt_content' . SEPARATOR_PARMS) . '\';
-					sortable_removeHidden = ' . ($this->MOD_SETTINGS['tt_content_showHidden'] ? 'false' : 'true') . ';
+					sortable_removeHidden = ' . ($this->MOD_SETTINGS['tt_content_showHidden'] ? 'FALSE' : 'true') . ';
 					sortable_baseLink = \'' . $this->baseScript . $this->link_getParameters() . '\';
 					sortable_containers = [
 						"' . implode('",
@@ -650,7 +650,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 //				Ext.onReady(function() {
 //					sortable_clipboard = \'' . tvID_to_jsID('tt_content' . SEPARATOR_PARMS) . '\';
-//					sortable_removeHidden = ' . ($this->MOD_SETTINGS['tt_content_showHidden'] ? 'false' : 'true') . ';
+//					sortable_removeHidden = ' . ($this->MOD_SETTINGS['tt_content_showHidden'] ? 'FALSE' : 'true') . ';
 //					sortable_baseLink = \'' . $this->baseScript . $this->link_getParameters() . '\';
 //					sortable_containers = [
 //						"' . implode('",
@@ -822,6 +822,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 		global $TYPO3_CONF_VARS;
 
 		$elementBelongsToCurrentPage = ($contentTreeArr['el']['table'] == 'pages') || ($contentTreeArr['el']['pid'] == $this->rootElementUid_pidForContent);
+		$elementIsAlsoUsedElsewhere = ($contentTreeArr['el']['table'] == 'tt_content') && ($ia = $this->checkReferenceCount($contentTreeArr['el']['uid'])) && (count($ia) > 1);
 
 		// Prepare the record icon including a content sensitive menu link wrapped around it:
 		$recordIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, $contentTreeArr['el']['icon'], 'width="18" height="16"') . ' border="0" title="' . htmlspecialchars('[' . $contentTreeArr['el']['table'] . ':' . $contentTreeArr['el']['uid'] . ']') . '" alt="" />';
@@ -870,10 +871,9 @@ table.typo3-dyntabmenu td.disabled:hover {
 					$linkEdit = ($elementBelongsToCurrentPage ?
 						$this->icon_edit($contentTreeArr['el']) : '');
 					$linkUnlink =
-						$this->icon_unlink($parentPointer) .
-						($elementBelongsToCurrentPage ?
-						$this->icon_hide($contentTreeArr['el']) .
-						$this->icon_delete($parentPointer) : '');
+						$this->icon_unlink($parentPointer) . ($elementBelongsToCurrentPage ?
+						$this->icon_hide($contentTreeArr['el'], $elementIsAlsoUsedElsewhere) .
+						$this->icon_delete($parentPointer, $elementIsAlsoUsedElsewhere) : '');
 
 					$titleBarRightButtons =
 						$linkEdit .
@@ -894,7 +894,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 		$languageIcon = $this->icon_lang($contentTreeArr['el'], $languageUid);
 
 		// Create warning messages if neccessary:
-		$warnings = $this->render_warnings($contentTreeArr, false);
+		$warnings = $this->render_warnings($contentTreeArr, FALSE);
 
 		// Finally assemble the table:
 		$finalContent = '
@@ -1677,10 +1677,10 @@ table.typo3-dyntabmenu td.disabled:hover {
 								// Copy for language:
 								if ($this->rootElementLangParadigm == 'free') {
 									$sourcePointerString = $this->apiObj->flexform_getStringFromPointer($parentPointer);
-									$onClick = "document.location='".$this->baseScript . $this->link_getParameters() . '&source=' . rawurlencode($sourcePointerString) . '&localizeElement=' . $sLInfo['ISOcode'] . "'; return false;";
+									$onClick = "document.location='".$this->baseScript . $this->link_getParameters() . '&source=' . rawurlencode($sourcePointerString) . '&localizeElement=' . $sLInfo['ISOcode'] . "'; return FALSE;";
 								} else {
 									$params='&cmd[tt_content][' . $contentTreeArr['el']['uid'] . '][localize]=' . $sys_language_uid;
-									$onClick = "document.location='" . $GLOBALS['SOBE']->doc->issueCommand($params) . "'; return false;";
+									$onClick = "document.location='" . $GLOBALS['SOBE']->doc->issueCommand($params) . "'; return FALSE;";
 								}
 
 								$linkLabel = $GLOBALS['LANG']->getLL('createcopyfortranslation', 1) . ' (' . htmlspecialchars($sLInfo['title']) . ')';
@@ -1876,7 +1876,8 @@ table.typo3-dyntabmenu td.disabled:hover {
 		global  $TYPO3_CONF_VARS;
 
 		// Get record of element:
-		$elementBelongsToCurrentPage = $contentTreeArr['el']['table'] == 'pages' || $contentTreeArr['el']['pid'] == $this->rootElementUid_pidForContent;
+		$elementBelongsToCurrentPage = ($contentTreeArr['el']['table'] == 'pages') || ($contentTreeArr['el']['pid'] == $this->rootElementUid_pidForContent);
+		$elementIsAlsoUsedElsewhere = ($contentTreeArr['el']['table'] == 'tt_content') && ($ia = $this->checkReferenceCount($contentTreeArr['el']['uid'])) && (count($ia) > 1);
 
 		// Prepare the record icon including a context sensitive menu link wrapped around it:
 		$recordIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, $contentTreeArr['el']['icon'], 'width="18" height="16"') . ' border="0" title="' . htmlspecialchars('[' . $contentTreeArr['el']['table'] . ':' . $contentTreeArr['el']['uid'] . ']') . '" alt="" />';
@@ -1907,10 +1908,9 @@ table.typo3-dyntabmenu td.disabled:hover {
 					$linkEdit = ($elementBelongsToCurrentPage ?
 						$this->icon_edit($contentTreeArr['el']) : '');
 					$linkUnlink =
-						$this->icon_unlink($parentPointer) .
-						($elementBelongsToCurrentPage ?
-						$this->icon_hide($contentTreeArr['el']) .
-						$this->icon_delete($parentPointer) : '');
+						$this->icon_unlink($parentPointer) . ($elementBelongsToCurrentPage ?
+						$this->icon_hide($contentTreeArr['el'], $elementIsAlsoUsedElsewhere) .
+						$this->icon_delete($parentPointer, $elementIsAlsoUsedElsewhere) : '');
 
 					$titleBarRightButtons =
 						$linkEdit .
@@ -2133,7 +2133,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @return	string		the block of information about the current state, can be empty
 	 * @access protected
 	 */
-	function render_warnings(&$contentTreeArr, $shortmessage = false) {
+	function render_warnings(&$contentTreeArr, $shortmessage = FALSE) {
 		$suffix = ($shortmessage ? '_short' : '');
 		$warnings = '';
 
@@ -2253,7 +2253,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @return	string		image inside a HTML anchor tag containing the label and the correct link
 	 * @access protected
 	 */
-	function icon_hide($el) {
+	function icon_hide($el, $isReferenced = FALSE) {
 
 		$hideIcon = ($el['table'] == 'pages'
 		?	'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/button_hide.gif',  '') . ' border="0" title="' . htmlspecialchars($GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:hidePage'  )) . '" alt="" />'
@@ -2267,7 +2267,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 		else
 			$label = $hideIcon;
 
-		return $this->link_hide($label, $el['table'], $el['uid'], $el['isHidden']);
+		return $this->link_hide($label, $el['table'], $el['uid'], $el['isHidden'], $isReferenced);
 	}
 
 	/**
@@ -2281,26 +2281,33 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @return	string		HTML anchor tag containing the label and the correct link
 	 * @access protected
 	 */
-	function link_hide($label, $table, $uid, $hidden, $forced = FALSE) {
+	function link_hide($label, $table, $uid, $hidden, $isReferenced = FALSE, $forced = FALSE) {
 		if ($label) {
 			if (($table == 'pages' && ($this->calcPerms &  2) ||
 			     $table != 'pages' && ($this->calcPerms & 16)) &&
 				(!$this->translatorMode || $forced))	{
 					if ($table == "pages" && $this->currentLanguageUid) {
 						$params = '&data[' . $table . '][' . $uid . '][hidden]=' . (1 - $hidden);
+
 					//	return '<a href="#" onclick="' . htmlspecialchars('return jumpToUrl(\'' . $GLOBALS['SOBE']->doc->issueCommand($params, -1) . '\');') . '">' . $label . '</a>';
 					} else {
 						$params = '&data[' . $table . '][' . $uid . '][hidden]=' . (1 - $hidden);
-					//	return '<a href="#" onclick="' . htmlspecialchars('return jumpToUrl(\'' . $GLOBALS['SOBE']->doc->issueCommand($params, -1) . '\');') . '">' . $label . '</a>';
+
+						if ($isReferenced)
+							$link = '<a href="#" onclick="' . htmlspecialchars('if (confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('hideRecord' . ($isReferenced ? 'WithReferences' : '') . 'Msg')) . '))') . ' eval(this.getAttribute(\'rel\'));"';
+						else
+							$link = '<a href="#" onclick="eval(this.getAttribute(\'rel\'));"';
 
 						/* the commands are independent of the position,
 						 * so sortable doesn't need to update these and we
 						 * can safely use '#'
 						 */
 						if ($hidden)
-							return '<a href="#" onclick="eval(this.getAttribute(\'rel\'));" rel="sortable_unhideRecord(this, \'' . $GLOBALS['SOBE']->doc->issueCommand($params, -1) . '\');">' . $label . '</a>';
+							$link .= ' rel="sortable_unhideRecord(this, \'' . $GLOBALS['SOBE']->doc->issueCommand($params, -1) . '\');">' . $label . '</a>';
 						else
-							return '<a href="#" onclick="eval(this.getAttribute(\'rel\'));" rel="sortable_hideRecord  (this, \'' . $GLOBALS['SOBE']->doc->issueCommand($params, -1) . '\');">' . $label . '</a>';
+							$link .= ' rel="sortable_hideRecord  (this, \'' . $GLOBALS['SOBE']->doc->issueCommand($params, -1) . '\');">' . $label . '</a>';
+
+						return $link;
 					}
 				} else {
 					return $label;
@@ -2386,7 +2393,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 		$browser =
 			'browserPos = this;' .
 			'setFormValueOpenBrowser(\'db\',\'browser[communication]|||tt_content\');' .
-			'return false;';
+			'return FALSE;';
 
 		return '<a href="#" ' . ($p == $b ? 'id="browserPos"' : '') . ' rel="' . $this->baseScript . $parameters . '#browserPos" onclick="' . $browser . '">' . $label . '</a>';
 	}
@@ -2467,11 +2474,11 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @return	string		image inside a HTML anchor tag containing the label and the unlink-link
 	 * @access protected
 	 */
-	function icon_delete($unlinkPointer) {
+	function icon_delete($deletePointer, $isReferenced = FALSE) {
 
 		$deleteIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/garbage.gif', '') . ' title="' . $GLOBALS['LANG']->getLL('deleteRecord') . '" border="0" alt="" />';
 
-		return $this->link_delete($deleteIcon, $unlinkPointer);
+		return $this->link_delete($deleteIcon, $deletePointer, $isReferenced);
 	}
 
 	/**
@@ -2482,12 +2489,12 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @return	string		HTML anchor tag containing the label and the unlink-link
 	 * @access protected
 	 */
-	function link_delete($label, $unlinkPointer) {
+	function link_delete($label, $deletePointer, $isReferenced = FALSE) {
 
-		$unlinkPointerString = rawurlencode(tvID_to_jsID($this->apiObj->flexform_getStringFromPointer($unlinkPointer)));
+		$deletePointerString = rawurlencode(tvID_to_jsID($this->apiObj->flexform_getStringFromPointer($deletePointer)));
 
-		return '<a href="javascript:' . htmlspecialchars('if (confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('deleteRecordMsg')) . '))') . ' sortable_deleteRecord(\'' . $unlinkPointerString . '\');">' . $label . '</a>';
-//		return '<a href="' . $this->baseScript.$this->link_getParameters() . '&amp;deleteRecord=' . $unlinkPointerString . '" onclick="' . htmlspecialchars('return confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('deleteRecordMsg')) . ');') . '">' . $label . '</a>';
+		return '<a href="javascript:' . htmlspecialchars('if (confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('deleteRecord' . ($isReferenced ? 'WithReferences' : '') . 'Msg')) . '))') . ' sortable_deleteRecord(\'' . $deletePointerString . '\');">' . $label . '</a>';
+//		return '<a href="' . $this->baseScript.$this->link_getParameters() . '&amp;deleteRecord=' . $deletePointerString . '" onclick="' . htmlspecialchars('return confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('deleteRecordMsg')) . ');') . '">' . $label . '</a>';
 	}
 
 	/**
@@ -2514,7 +2521,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 */
 	function link_warn($label, $uid, $infoData) {
 
-		return '<a href="#" onclick="' . htmlspecialchars('top.launchView(\'tt_content\', \'' . $uid . '\'); return false;') . '" title="' . htmlspecialchars(t3lib_div::fixed_lgd_cs(implode(' / ', $infoData), 100)) . '">' . $label . '</a>';
+		return '<a href="#" onclick="' . htmlspecialchars('top.launchView(\'tt_content\', \'' . $uid . '\'); return FALSE;') . '" title="' . htmlspecialchars(t3lib_div::fixed_lgd_cs(implode(' / ', $infoData), 100)) . '">' . $label . '</a>';
 	}
 
 	/**
@@ -2960,10 +2967,10 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @return	array
 	 * @access protected
 	 */
-	function getAvailableLanguages($id=0, $onlyIsoCoded=true, $setDefault=true, $setMulti=false)	{
+	function getAvailableLanguages($id=0, $onlyIsoCoded = true, $setDefault = true, $setMulti = FALSE) {
 		global $TYPO3_DB, $BE_USER, $TCA, $BACK_PATH;
 
-		t3lib_div::loadTCA ('sys_language');
+		t3lib_div::loadTCA('sys_language');
 		$flagAbsPath = t3lib_div::getFileAbsFileName($TCA['sys_language']['columns']['flag']['config']['fileFolder']);
 		$flagIconPath = $BACK_PATH . '../' . substr($flagAbsPath, strlen(PATH_site));
 
@@ -2977,7 +2984,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 				'pages_language_overlay.hidden as PLO_hidden,' .
 				'pages_language_overlay.title as PLO_title',
 				'pages_language_overlay,sys_language',
-				'pages_language_overlay.sys_language_uid=sys_language.uid AND pages_language_overlay.pid='.intval($id).' AND '.$excludeHidden,
+				'pages_language_overlay.sys_language_uid=sys_language.uid AND pages_language_overlay.pid=' . intval($id).' AND '.$excludeHidden,
 				'',
 				'sys_language.title'
 			);
@@ -3001,29 +3008,37 @@ table.typo3-dyntabmenu td.disabled:hover {
 		}
 
 		if ($setMulti) {
-			$output[-1]=array(
+			$output[-1] = array(
 				'uid' => -1,
 				'title' => $GLOBALS['LANG']->getLL ('multipleLanguages'),
 				'ISOcode' => 'DEF',
-				'flagIcon' => $flagIconPath.'multi-language.gif',
+				'flagIcon' => $flagIconPath . 'multi-language.gif',
 			);
 		}
 
-		while(TRUE == ($row = $TYPO3_DB->sql_fetch_assoc($res)))	{
+		while(TRUE == ($row = $TYPO3_DB->sql_fetch_assoc($res))) {
 			t3lib_BEfunc::workspaceOL('sys_language', $row);
 			$output[$row['uid']]=$row;
 
-			if ($row['static_lang_isocode'])	{
+			if ($row['static_lang_isocode']) {
 				$staticLangRow = t3lib_BEfunc::getRecord('static_languages',$row['static_lang_isocode'],'lg_iso_2');
 				if ($staticLangRow['lg_iso_2']) {
 					$output[$row['uid']]['ISOcode'] = $staticLangRow['lg_iso_2'];
 				}
 			}
+
 			if (strlen($row['flag'])) {
 				$output[$row['uid']]['flagIcon'] = @is_file($flagAbsPath.$row['flag']) ? $flagIconPath.$row['flag'] : '';
 			}
 
-			if ($onlyIsoCoded && !$output[$row['uid']]['ISOcode']) unset($output[$row['uid']]);
+			if ($onlyIsoCoded && !$output[$row['uid']]['ISOcode'])
+				unset($output[$row['uid']]);
+
+			$disableLanguages = t3lib_div::trimExplode(',', $this->modSharedTSconfig['properties']['disableLanguages'], 1);
+			foreach ($disableLanguages as $language) {
+				// $language is the uid of a sys_language
+				unset($output[$language]);
+			}
 		}
 
 		return $output;
@@ -3404,11 +3419,11 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 				function jumpExt(URL,anchor) {	//
 					var anc = anchor ? anchor : "";
 					window.location.href = URL + (T3_THIS_LOCATION ? "&returnUrl=" + T3_THIS_LOCATION : "") + anc;
-					return false;
+					return FALSE;
 				}
 				function jumpSelf(URL) {	//
 					window.location.href = URL + (T3_RETURN_URL ? "&returnUrl=" + T3_RETURN_URL : "");
-					return false;
+					return FALSE;
 				}
 
 				function setHighlight(id) {	//

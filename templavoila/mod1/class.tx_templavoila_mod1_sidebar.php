@@ -65,17 +65,17 @@
  */
 class tx_templavoila_mod1_sidebar {
 
-		// References to the page module object
-	var $pObj;										// A pointer to the parent object, that is the templavoila page module script. Set by calling the method init() of this class.
-	var $doc;										// A reference to the doc object of the parent object.
-	var $extKey;									// A reference to extension key of the parent object.
+	// References to the page module object
+	var $pObj;				// A pointer to the parent object, that is the templavoila page module script. Set by calling the method init() of this class.
+	var $doc;				// A reference to the doc object of the parent object.
+	var $extKey;				// A reference to extension key of the parent object.
 
-		// Public variables
-	var $position = 'toptabs';						// The visual position of the navigation bar. Possible values: toptabs, toprows, left
+	// Public variables
+	var $position = 'toptabs';		// The visual position of the navigation bar. Possible values: toptabs, toprows, left
 
-		// Local variables
-	var $sideBarWidth = 180;						// More or less a constant: The side bar's total width in position "left"
-	var $sideBarItems = array ();					// Contains menuitems for the dynamic sidebar (associative array indexed by item key)
+	// Local variables
+	var $sideBarWidth = 180;		// More or less a constant: The side bar's total width in position "left"
+	var $sideBarItems = array ();		// Contains menuitems for the dynamic sidebar (associative array indexed by item key)
 
 	/**
 	 * Initializes the side bar object. The calling class must make sure that the right locallang files are already loaded.

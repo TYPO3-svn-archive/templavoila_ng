@@ -490,34 +490,39 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 	 */
 	function mergeSampleDataIntoTemplateStructure($dataStruct,$currentMappingInfo,$firstLevelImplodeToken='',$sampleOrder='')	{
 
-		foreach($currentMappingInfo['cArray'] as $key => $val)	{
-			if (!t3lib_div::testInt($key) && $dataStruct[$key])	{
-				if ($dataStruct[$key]['type']=='array')	{
+		foreach ($currentMappingInfo['cArray'] as $key => $val) {
+			if (!t3lib_div::testInt($key) && $dataStruct[$key]) {
+				if ($dataStruct[$key]['type'] == 'array') {
 					if (is_array($currentMappingInfo['sub'][$key]))	{
-						$currentMappingInfo['cArray'][$key]=$this->mergeSampleDataIntoTemplateStructure($dataStruct[$key]['el'],$currentMappingInfo['sub'][$key],'',
-							($dataStruct[$key]['section'] ?
-							 	(is_array($dataStruct[$key]['tx_templavoila']['sample_order']) ? $dataStruct[$key]['tx_templavoila']['sample_order'] : array_keys($dataStruct[$key]['el'])) :
-							 	'')
-							 );
+						$currentMappingInfo['cArray'][$key] = $this->mergeSampleDataIntoTemplateStructure($dataStruct[$key]['el'], $currentMappingInfo['sub'][$key], '',
+						($dataStruct[$key]['section']
+							? (is_array($dataStruct[$key]['tx_templavoila']['sample_order'])
+								? $dataStruct[$key]['tx_templavoila']['sample_order']
+								: array_keys($dataStruct[$key]['el']))
+							: '')
+						);
 					}
 				} else {
-					if (is_array($dataStruct[$key]['tx_templavoila']['sample_data']))	{
-						$point = rand(0,count($dataStruct[$key]['tx_templavoila']['sample_data'])-1);
+					if (is_array($dataStruct[$key]['tx_templavoila']['sample_data'])) {
+						$point = rand(0, count($dataStruct[$key]['tx_templavoila']['sample_data']) - 1);
 						$sample = $dataStruct[$key]['tx_templavoila']['sample_data'][$point];
-					} else $sample='[SAMPLE DATA]';
-					$currentMappingInfo['cArray'][$key]=$sample;
+					} else
+						$sample='[SAMPLE DATA]';
+
+					$currentMappingInfo['cArray'][$key] = $sample;
 				}
 			}
 		}
 
-		if (is_array($sampleOrder))	{
-			$out='';
-			foreach($sampleOrder as $pointer)	{
+		if (is_array($sampleOrder)) {
+			$out = '';
+			foreach ($sampleOrder as $pointer) {
 				$out.=$currentMappingInfo['cArray'][$pointer];
 			}
 		} else {
-			$out = implode($firstLevelImplodeToken,$currentMappingInfo['cArray']);
+			$out = implode($firstLevelImplodeToken, $currentMappingInfo['cArray']);
 		}
+
 		return $out;
 
 	}
@@ -534,14 +539,15 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 	function mergeFormDataIntoTemplateStructure($editStruct, $currentMappingInfo, $firstLevelImplodeToken = '', $valueKey = 'vDEF') {
 		$isSection = 0;
 		$htmlParse = ($this->htmlParse ? $this->htmlParse : t3lib_div::makeInstance('t3lib_parsehtml'));
-		if (is_array($editStruct)) {
+
+		if (is_array($editStruct) && count($editStruct)) {
 			$testInt = implode('', array_keys($editStruct));
 			$isSection = !preg_match('/[^0-9]/', $testInt);
 		}
 
 		$out = '';
 		if ($isSection)	{
-			foreach($editStruct as $section) {
+			foreach ($editStruct as $section) {
 				if (is_array($section))	{
 					$secKey = key($section);
 					$secDat = $section[$secKey];
@@ -552,7 +558,7 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 			}
 		} else {
 			if (is_array($currentMappingInfo['cArray'])) {
-				foreach($currentMappingInfo['cArray'] as $key => $val) {
+				foreach ($currentMappingInfo['cArray'] as $key => $val) {
 					if (!t3lib_div::testInt($key)) {
 						if (is_array($editStruct[$key]['el']) && $currentMappingInfo['sub'][$key]) {
 							$rcs = $this->mergeFormDataIntoTemplateStructure($editStruct[$key]['el'],$currentMappingInfo['sub'][$key],'',$valueKey);
