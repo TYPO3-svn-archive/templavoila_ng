@@ -75,6 +75,8 @@
 			<label index="center_details_loc1">Structure is localized</label>
 			<label index="center_details_locc0">Children of the structure aren't localized</label>
 			<label index="center_details_locc1">Children of the structure are localized</label>
+			<label index="center_details_preview0">Previews enabled</label>
+			<label index="center_details_preview1">Previews disabled</label>
 			<label index="center_details_sheet0">Default sheet-selector</label>
 			<label index="center_details_sheet1">Custom sheet-selector</label>
 			<label index="center_details_integer0">The entered/computed value won't be cast to an integer</label>

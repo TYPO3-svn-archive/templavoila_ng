@@ -118,6 +118,11 @@ class tx_templavoila_mod2_xml {
 ? '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_ok2.gif',        'width="18" height="16"') . ' alt="" class="absmiddle" /> ' . $GLOBALS['LANG']->getLL('center_details_locc1')
 : '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_fatalerror.gif', 'width="18" height="16"') . ' alt="" class="absmiddle" /> ' . $GLOBALS['LANG']->getLL('center_details_locc0')
 					) . '</li>';
+					if (isset($def['disableDataPreview'])) $conf .= '<li>' .
+						(($def['disableDataPreview'] != '')
+? '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_ok2.gif',        'width="18" height="16"') . ' alt="" class="absmiddle" /> ' . $GLOBALS['LANG']->getLL('center_details_preview1')
+: '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_fatalerror.gif', 'width="18" height="16"') . ' alt="" class="absmiddle" /> ' . $GLOBALS['LANG']->getLL('center_details_preview0')
+					) . '</li>';
 					if (isset($def['sheetSelector'])) $conf .= '<li>' .
 						(($def['sheetSelector'] != '')
 ? '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_ok2.gif',        'width="18" height="16"') . ' alt="" class="absmiddle" /> ' . $GLOBALS['LANG']->getLL('center_details_sheet1') . ' [<em>' . $def['sheetSelector'] . '</em>]'

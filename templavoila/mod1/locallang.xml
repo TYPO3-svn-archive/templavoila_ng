@@ -20,10 +20,15 @@
 			<label index="page_settings">Options</label>
 			<label index="page_settings_hidden">Hide hidden elements</label>
 			<label index="page_settings_all">Show hidden elements</label>
+			<label index="page_settings_preview_off">Previews off</label>
+			<label index="page_settings_preview_on">Previews on</label>
 			<label index="page_settings_exview_off">Standard view</label>
 			<label index="page_settings_exview_on">Extended view</label>
 			<label index="page_settings_exclip_off">Hide clipboard</label>
 			<label index="page_settings_exclip_on">Show clipboard</label>
+
+			<label index="page_layout">Page's layout elements</label>
+			<label index="fce_layout">Layout's elements</label>
 
 			<label index="warning_elementusedmorethanonce">This element has been used %s times on this page! ID:%s</label>
 			<label index="warning_elementusedelsewheretoo">This element has been used %s times on other pages %s! Take care with editing, hiding and deleting!</label>

@@ -265,6 +265,7 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 
 		$this->MOD_MENU = array(
 			'tt_content_showHidden' => 1,
+			'tt_content_hidePreviews' => 0,
 			'tt_content_extendedView' => 1,
 			'tt_content_extendedClipboard' => 0,
 			'showOutline' => 1,
@@ -900,7 +901,10 @@ table.typo3-dyntabmenu td.disabled:hover {
 			<table cellpadding="0" cellspacing="0" width="100%" class="tv-coe' . ($contentTreeArr['el']['isHidden'] ? ' tv-hidden' : '') . '">
 			<caption class="' . $contentTreeArr['el']['table'] . '">' .
 			/*	htmlspecialchars($contentTreeArr['el']['title']) */
-				($contentTreeArr['el']['table'] == 'pages' ? 'Page\'s layout-elements' : 'Layout\'s elements') . '
+				($contentTreeArr['el']['table'] == 'pages'
+					? $GLOBALS['LANG']->getLL('page_layout')
+					: $GLOBALS['LANG']->getLL('fce_layout')
+				) . '
 			</caption>
 			<thead class="' . $contentTreeArr['el']['table'] . '">
 				<tr style="' . $elementTitlebarStyle . ';" class="sortableHandle">
@@ -929,7 +933,9 @@ table.typo3-dyntabmenu td.disabled:hover {
 						(is_array($contentTreeArr['previewData']['fullRow'])
 						&&	  $contentTreeArr['el']['table'] == 'tt_content'
 						&&	  $contentTreeArr['el']['CType'] != 'templavoila_pi1'
-						?	$this->render_previewContent($contentTreeArr['previewData']['fullRow'])
+						? (intval($contentTreeArr['ds_meta']['disableDataPreview']) || $this->MOD_SETTINGS['tt_content_hidePreviews'])
+						?	''
+						:	$this->render_previewContent($contentTreeArr['previewData']['fullRow']))
 						:	$this->render_framework_singleSheet_traverse($singleView, $contentTreeArr, $languageKey, $sheet)
 						) .	$this->render_localizationInfoTable($contentTreeArr, $parentPointer, $parentDsMeta) . '
 					</td>
@@ -1050,16 +1056,16 @@ table.typo3-dyntabmenu td.disabled:hover {
 						// Add cell content to registers:
 						$beTemplateCell = '
 							<table width="100%" class="beTemplateCell">
-							<tbody>
-							<tr>
-								<td valign="top" style="background-color: ' . $this->doc->bgColor4 . '; padding-top:0; padding-bottom: 0;" class="' . $stateClass . '">' . $GLOBALS['LANG']->sL($fieldContent['meta']['title'], 1) . '</td>
-							</tr>
-							</tbody>
 							<tfoot>
 							<tr>
 								<td valign="top" style="padding: 5px;" id="' . $cellId . '" class="' . $stateClass . '">' . $cellContent . '</td>
 							</tr>
 							</tfoot>
+							<tbody>
+							<tr>
+								<td valign="top" style="background-color: ' . $this->doc->bgColor4 . '; padding-top:0; padding-bottom: 0;" class="' . $stateClass . '">' . $GLOBALS['LANG']->sL($fieldContent['meta']['title'], 1) . '</td>
+							</tr>
+							</tbody>
 							</table>';
 						$beTemplate = str_replace('###' . $fieldID . '###', $beTemplateCell, $beTemplate);
 					} else {
@@ -1274,6 +1280,10 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 */
 	function render_framework_previewData($elementContentTreeArr, $languageKey, $sheet, $fieldID) {
 
+		// no preview wanted
+		if (intval($elementContentTreeArr['ds_meta']['disableDataPreview']) || $this->MOD_SETTINGS['tt_content_hidePreviews']))
+			return '';
+
 		// Define l/v keys for current language:
 		$langChildren = intval($elementContentTreeArr['ds_meta']['langChildren']);
 		$langDisable  = intval($elementContentTreeArr['ds_meta']['langDisable']);
@@ -1281,6 +1291,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 		$lKey = $langDisable ? 'lDEF' : ($langChildren ? 'lDEF' : 'l' . $languageKey);
 		$vKey = $langDisable ? 'vDEF' : ($langChildren ? 'v' . $languageKey : 'vDEF');
 
+		// no preview available
 		if (!is_array($elementContentTreeArr['previewData']['sheets'][$sheet]))
 			return '';
 
@@ -1627,12 +1638,13 @@ table.typo3-dyntabmenu td.disabled:hover {
 							if (!$this->translatorMode) {
 								$recordIcon_l10n = $this->doc->wrapClickMenuOnIcon($recordIcon_l10n, 'tt_content', $localizedRecordInfo['uid'], 1, '&amp;callingScriptId=' . rawurlencode($this->doc->scriptID), 'new,copy,cut,pasteinto,pasteafter');
 							}
+
 							$l10nInfo =
 								$this->getRecordStatHookValue('tt_content', $localizedRecordInfo['row']['uid']) .
 								$recordIcon_l10n .
 								htmlspecialchars(t3lib_div::fixed_lgd_cs(strip_tags(t3lib_BEfunc::getRecordTitle('tt_content', $localizedRecordInfo['row'])), 50));
-
-							$l10nInfo.= '<br />' . $localizedRecordInfo['content'];
+							$l10nInfo .=
+								'<br />' . $localizedRecordInfo['content'];
 
 							list($flagLink_begin, $flagLink_end) = explode('|*|', $this->link_edit('|*|', 'tt_content', $localizedRecordInfo['uid'], TRUE));
 							if ($this->translatorMode) {
@@ -1640,7 +1652,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 							}
 
 							// Wrap workspace notification colors:
-							if ($olrow['_ORIG_uid'])	{
+							if ($olrow['_ORIG_uid']) {
 								$l10nInfo = '<div class="ver-element">' . $l10nInfo . '</div>';
 							}
 
@@ -1674,10 +1686,10 @@ table.typo3-dyntabmenu td.disabled:hover {
 								$linkLabel = $GLOBALS['LANG']->getLL('createcopyfortranslation', 1) . ' (' . htmlspecialchars($sLInfo['title']) . ')';
 								$localizeIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/clip_copy.gif', 'width="12" height="12"') . ' class="bottom" title="' . $linkLabel . '" alt="" />';
 
-								$l10nInfo = '<a href="#" onclick="' . htmlspecialchars($onClick) . '">' . $localizeIcon . '</a>';
+								$l10nInfo  =      '<a href="#" onclick="' . htmlspecialchars($onClick) . '">' . $localizeIcon . '</a>';
 								$l10nInfo .= ' <em><a href="#" onclick="' . htmlspecialchars($onClick) . '">'.$linkLabel . '</a></em>';
 								$flagLink_begin = '<a href="#" onclick="' . htmlspecialchars($onClick) . '">';
-								$flagLink_end = '</a>';
+								$flagLink_end  = '</a>';
 
 								$this->global_localization_status[$sys_language_uid][] = array(
 									'status' => 'localize',
@@ -3232,6 +3244,18 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 			$entries = array();
 			$entries[] = '<li class="mradio' . (!$this->MOD_SETTINGS['tt_content_showHidden'] ? ' selected' : '') . '" name="tt_content_showHidden"><a href="' . str_replace('###', '', $link).'"'. '>' . $GLOBALS['LANG']->getLL('page_settings_hidden', 1) . '</a></li>';
 			$entries[] = '<li class="mradio' . ( $this->MOD_SETTINGS['tt_content_showHidden'] ? ' selected' : '') . '" name="tt_content_showHidden"><a href="' . str_replace('###', '1', $link).'"'.'>' . $GLOBALS['LANG']->getLL('page_settings_all', 1) . '</a></li>';
+
+			$group = '<ul class="group">' . implode(chr(10), $entries) . '</ul>';
+			$options .= '<li class="group">' . $group . '</li>';
+		}
+
+		/* Previews view option-group */
+		{
+			$link = $this->baseScript . $this->link_getParameters() . '&SET[tt_content_hidePreviews]=###';
+
+			$entries = array();
+			$entries[] = '<li class="mradio' . (!$this->MOD_SETTINGS['tt_content_hidePreviews'] ? ' selected' : '') . '" name="tt_content_hidePreviews"><a href="' . str_replace('###', '1', $link).'"'. '>' . $GLOBALS['LANG']->getLL('page_settings_preview_off', 1) . '</a></li>';
+			$entries[] = '<li class="mradio' . ( $this->MOD_SETTINGS['tt_content_hidePreviews'] ? ' selected' : '') . '" name="tt_content_hidePreviews"><a href="' . str_replace('###', '', $link).'"'.'>' . $GLOBALS['LANG']->getLL('page_settings_preview_on', 1) . '</a></li>';
 
 			$group = '<ul class="group">' . implode(chr(10), $entries) . '</ul>';
 			$options .= '<li class="group">' . $group . '</li>';
