@@ -269,7 +269,8 @@ class tx_templavoila_pi1 extends tslib_pibase {
 
 		// First prepare user defined objects (if any) for hooks which extend this function:
 		$hookObjectsArr = array();
-		if (is_array ($TYPO3_CONF_VARS['EXTCONF']['templavoila']['pi1']['renderElementClass'])) {
+
+		if (is_array($TYPO3_CONF_VARS['EXTCONF']['templavoila']['pi1']['renderElementClass'])) {
 			foreach ($TYPO3_CONF_VARS['EXTCONF']['templavoila']['pi1']['renderElementClass'] as $classRef) {
 				$hookObjectsArr[] = &t3lib_div::getUserObj($classRef);
 			}
@@ -277,7 +278,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 
 		// Hook: renderElement_preProcessRow
 		foreach ($hookObjectsArr as $hookObj) {
-			if (method_exists ($hookObj, 'renderElement_preProcessRow')) {
+			if (method_exists($hookObj, 'renderElement_preProcessRow')) {
 				$hookObj->renderElement_preProcessRow($row, $table, $this);
 			}
 		}
@@ -297,103 +298,123 @@ class tx_templavoila_pi1 extends tslib_pibase {
 		}
 
 		// If a Data Structure was found:
-		if (is_array($DS)) {
-			// Sheet Selector:
-			if ($DS['meta']['sheetSelector']) {
-				// <meta><sheetSelector> could be something like "EXT:user_extension/class.user_extension_selectsheet.php:&amp;user_extension_selectsheet"
-				$sheetSelector = &t3lib_div::getUserObj($DS['meta']['sheetSelector']);
-				$renderSheet = $sheetSelector->selectSheet();
-			} else {
-				$renderSheet = 'sDEF';
-			}
-
-			// Initialize:
-			$langChildren = $DS['meta']['langChildren'] ? 1 : 0;
-			$langDisabled = $DS['meta']['langDisable' ] ? 1 : 0;
-			$lKey = ($GLOBALS['TSFE']->sys_language_isocode && !$langDisabled && !$langChildren) ? 'l' . $GLOBALS['TSFE']->sys_language_isocode : 'lDEF';
-			$vKey = ($GLOBALS['TSFE']->sys_language_isocode && !$langDisabled &&  $langChildren) ? 'v' . $GLOBALS['TSFE']->sys_language_isocode : 'vDEF';
-
-			list($dataStruct, $sheet, $singleSheet) = t3lib_div::resolveSheetDefInDS($DS, $renderSheet);
-
-			// Apply data inheritance:
-			if ($table == 'pages')
-				$dataValues = $this->mergeDataValues($srcPointer, $sheet, $lKey, $DS);
-			else {
-				$data = t3lib_div::xml2array($row['tx_templavoila_flex']);
-
-				// Data from FlexForm field(s):
-				$dataValues = is_array($data['data']) ? $data['data'][$sheet][$lKey] : '';
-				if (!is_array($dataValues))
-					$dataValues = array();
-			}
-
-			// Init mark up object.
-			$this->markupObj = t3lib_div::makeInstance('tx_templavoila_htmlmarkup');
-			$this->markupObj->htmlParse = t3lib_div::makeInstance('t3lib_parsehtml');
-
-			// Get template record:
-			if ($row['tx_templavoila_to']) {
-
-				// Initialize rendering type:
-				if ($this->conf['childTemplate'])
-					$renderType = $this->conf['childTemplate'];
-				// Default:
-				else
-					$renderType = t3lib_div::_GP('print') ? 'print' : '';
-
-				// Get Template Object record:
-				$TOrec = $this->markupObj->getTemplateRecord($row['tx_templavoila_to'], $renderType, $GLOBALS['TSFE']->sys_language_uid);
-				if (is_array($TOrec)) {
-
-					// Get mapping information from Template Record:
-					$TO = unserialize($TOrec['templatemapping']);
-					if (is_array($TO)) {
-
-						// Get local processing:
-						$TOproc = t3lib_div::xml2array($TOrec['localprocessing']);
-						if (!is_array($TOproc))
-							$TOproc = array();
-
-						// Processing the data array:
-						if ($GLOBALS['TT']->LR) $GLOBALS['TT']->push('Processing data');
-							$TOlocalProc = $singleSheet ? $TOproc['ROOT']['el'] : $TOproc['sheets'][$sheet]['ROOT']['el'];
-							$this->processDataValues($dataValues, $dataStruct['ROOT']['el'], $TOlocalProc, $vKey);
-						if ($GLOBALS['TT']->LR) $GLOBALS['TT']->pull();
-
-						// Merge the processed data into the cached template structure:
-						if ($GLOBALS['TT']->LR) $GLOBALS['TT']->push('Merge data and TO');
-							// Getting the cached mapping data out (if sheets, then default to "sDEF" if no mapping exists for the specified sheet!)
-							$mappingDataBody = $singleSheet ? $TO['MappingData_cached'] : (is_array($TO['MappingData_cached']['sub'][$sheet]) ? $TO['MappingData_cached']['sub'][$sheet] : $TO['MappingData_cached']['sub']['sDEF']);
-							$content = $this->markupObj->mergeFormDataIntoTemplateStructure($dataValues, $mappingDataBody, '', $vKey);
-							$this->markupObj->setHeaderBodyParts($TO['MappingInfo_head'], $TO['MappingData_head_cached'], $TO['BodyTag_cached']);
-						if ($GLOBALS['TT']->LR) $GLOBALS['TT']->pull();
-
-						// Edit icon (frontend editing):
-						$eIconf = array('styleAttribute' => 'position: absolute;');
-						if ($table == 'pages')	$eIconf['beforeLastTag'] = -1;	// For "pages", set icon in top, not after.
-						$content = $this->pi_getEditIcon($content, 'tx_templavoila_flex', 'Edit element', $row, $table, $eIconf);
-
-						// Visual identification aids:
-						if ($GLOBALS['TSFE']->fePreview && $GLOBALS['TSFE']->beUserLogin && !$GLOBALS['TSFE']->workspacePreview && !$this->conf['disableExplosivePreview']) {
-							$content = $this->visualID($content, $srcPointer, $DSrec, $TOrec, $row, $table);
-						}
-					} else {
-						$content = $this->formatError('Template Object could not be unserialized successfully.
-							Are you sure you saved mapping information into Template Object with UID "' . $row['tx_templavoila_to'] . '"?');
-					}
-				} else {
-					$content = $this->formatError('Couldn\'t find Template Object with UID "' . $row['tx_templavoila_to'] . '".
-						Please make sure a Template Object is accessible.');
-				}
-			} else {
-				$content = $this->formatError('You haven\'t selected a Template Object yet for table/uid "' . $table . '/' . $row['uid'] . '".
-					Without a Template Object TemplaVoila cannot map the XML content into HTML.
-					Please select a Template Object now.');
-			}
-		} else {
-			$content = $this->formatError('
+		if (!is_array($DS))
+			return $this->formatError('
 				Couldn\'t find a Data Structure set for table/row "' . $table . ':' . $row['uid'] . '".
-				Please select a Data Structure and Template Object first.');
+				Please select a Data Structure and Template Object first.
+			');
+
+		// Sheet Selector:
+		if ($DS['meta']['sheetSelector']) {
+			// <meta><sheetSelector> could be something like "EXT:user_extension/class.user_extension_selectsheet.php:&amp;user_extension_selectsheet"
+			$sheetSelector = &t3lib_div::getUserObj($DS['meta']['sheetSelector']);
+			$renderSheet = $sheetSelector->selectSheet();
+		} else {
+			$renderSheet = 'sDEF';
+		}
+
+		// Initialize:
+		$langChildren = $DS['meta']['langChildren'] ? 1 : 0;
+		$langDisabled = $DS['meta']['langDisable' ] ? 1 : 0;
+		$lKey = ($GLOBALS['TSFE']->sys_language_isocode && !$langDisabled && !$langChildren) ? 'l' . $GLOBALS['TSFE']->sys_language_isocode : 'lDEF';
+		$vKey = ($GLOBALS['TSFE']->sys_language_isocode && !$langDisabled &&  $langChildren) ? 'v' . $GLOBALS['TSFE']->sys_language_isocode : 'vDEF';
+
+		list($dataStruct, $sheet, $singleSheet) = t3lib_div::resolveSheetDefInDS($DS, $renderSheet);
+
+		$data = t3lib_div::xml2array($row['tx_templavoila_flex']);
+
+		// Data from FlexForm field(s):
+		$dataValues = is_array($data['data']) ? $data['data'][$sheet][$lKey] : '';
+		if (!is_array($dataValues))
+			$dataValues = array();
+
+		// Data which is not filled with inherited values
+		$localDataValues = $dataValues;
+
+		// Apply data inheritance:
+		if ($table == 'pages')
+			$dataValues = $this->mergeDataValues($srcPointer, $sheet, $lKey, $DS);
+
+		// Init mark up object.
+		$this->markupObj = t3lib_div::makeInstance('tx_templavoila_htmlmarkup');
+		$this->markupObj->htmlParse = t3lib_div::makeInstance('t3lib_parsehtml');
+
+		// Get template record:
+		if (!$row['tx_templavoila_to'])
+			return $this->formatError('
+				You haven\'t selected a Template Object yet for table/uid "' . $table . '/' . $row['uid'] . '".
+				Without a Template Object TemplaVoila cannot map the XML content into HTML.
+				Please select a Template Object now.
+			');
+
+		// Initialize rendering type:
+		if ($this->conf['childTemplate'])
+			$renderType = $this->conf['childTemplate'];
+		// Default:
+		else
+			$renderType = t3lib_div::_GP('print') ? 'print' : '';
+
+		// Get Template Object record:
+		$TOrec = $this->markupObj->getTemplateRecord($row['tx_templavoila_to'], $renderType, $GLOBALS['TSFE']->sys_language_uid);
+		if (!is_array($TOrec))
+			return $this->formatError('
+				Couldn\'t find Template Object with UID "' . $row['tx_templavoila_to'] . '".
+				Please make sure a Template Object is accessible.
+			');
+
+		// Get mapping information from Template Record:
+		$TO = unserialize($TOrec['templatemapping']);
+		if (!is_array($TO))
+			return $this->formatError('
+				Template Object could not be unserialized successfully.
+				Are you sure you saved mapping information into Template Object with UID "' . $row['tx_templavoila_to'] . '"?
+			');
+
+		// Get local processing:
+		$TOproc = t3lib_div::xml2array($TOrec['localprocessing']);
+		if (!is_array($TOproc))
+			$TOproc = array();
+
+		// Processing the data array:
+		if ($GLOBALS['TT']->LR) $GLOBALS['TT']->push('Processing data');
+			$TOlocalProc = $singleSheet ? $TOproc['ROOT']['el'] : $TOproc['sheets'][$sheet]['ROOT']['el'];
+			$this->processDataValues($dataValues, $dataStruct['ROOT']['el'], $TOlocalProc, $vKey);
+		if ($GLOBALS['TT']->LR) $GLOBALS['TT']->pull();
+
+		// Hook: renderElement_postProcessDataValues
+		foreach ($hookObjectsArr as $hookObj) {
+			if (method_exists($hookObj, 'renderElement_postProcessDataValues')) {
+				$flexformData = array(
+					'table' => $table,
+					'row'   => $row,
+					'sheet' => $renderSheet,
+					'sLang' => $lKey,
+					'vLang' => $vKey
+				);
+
+				$hookObj->renderElement_postProcessDataValues($DS, $dataValues, $localDataValues, $flexformData);
+			}
+		}
+
+		// Merge the processed data into the cached template structure:
+		if ($GLOBALS['TT']->LR) $GLOBALS['TT']->push('Merge data and TO');
+			// Getting the cached mapping data out (if sheets, then default to "sDEF" if no mapping exists for the specified sheet!)
+			$mappingDataBody = $singleSheet ? $TO['MappingData_cached'] : (is_array($TO['MappingData_cached']['sub'][$sheet]) ? $TO['MappingData_cached']['sub'][$sheet] : $TO['MappingData_cached']['sub']['sDEF']);
+			$content = $this->markupObj->mergeFormDataIntoTemplateStructure($dataValues, $mappingDataBody, '', $vKey);
+			$this->markupObj->setHeaderBodyParts($TO['MappingInfo_head'], $TO['MappingData_head_cached'], $TO['BodyTag_cached']);
+		if ($GLOBALS['TT']->LR) $GLOBALS['TT']->pull();
+
+		// Edit icon (frontend editing):
+		$eIconf = array('styleAttribute' => 'position: absolute;');
+		// For "pages", set icon in top, not after.
+		if ($table == 'pages')
+			$eIconf['beforeLastTag'] = -1;
+
+		$content = $this->pi_getEditIcon($content, 'tx_templavoila_flex', 'Edit element', $row, $table, $eIconf);
+
+		// Visual identification aids:
+		if ($GLOBALS['TSFE']->fePreview && $GLOBALS['TSFE']->beUserLogin && !$GLOBALS['TSFE']->workspacePreview && !$this->conf['disableExplosivePreview']) {
+			$content = $this->visualID($content, $srcPointer, $DSrec, $TOrec, $row, $table);
 		}
 
 		return $content;

@@ -58,7 +58,7 @@ $GLOBALS['LANG']->includeLLFile('EXT:lang/locallang_mod_web_list.xml');
  */
 class tx_templavoila_mod1_recordlist extends localRecordList {
 
-	var	$pObj;
+	var $pObj;
 
 	/**
 	 * Prepares object to run.
@@ -68,10 +68,15 @@ class tx_templavoila_mod1_recordlist extends localRecordList {
 	 */
 	function start(&$pObj) {
 		$this->pObj = &$pObj;
-		$GLOBALS['SOBE']->MOD_SETTINGS['bigControlPanel'] = 1;	// enable extended view
-		return parent::start($this->pObj->rootElementUid_pidForContent,
-						'',//$this->pObj->MOD_SETTINGS['recordsView_table'],
-						intval($this->pObj->MOD_SETTINGS['recordsView_start']));
+
+		// enable extended view
+		$GLOBALS['SOBE']->MOD_SETTINGS['bigControlPanel'] = 1;
+
+		return parent::start(
+			$this->pObj->rootElementUid_pidForContent,
+			'',	//$this->pObj->MOD_SETTINGS['recordsView_table'],
+			intval($this->pObj->MOD_SETTINGS['recordsView_start'])
+		);
 	}
 
 	/**
@@ -82,22 +87,24 @@ class tx_templavoila_mod1_recordlist extends localRecordList {
 	 * @param	string		Table name
 	 * @return	string
 	 */
-	function fwd_rwd_HTML($type,$pointer,$table='')	{
+	function fwd_rwd_HTML($type, $pointer, $table = '') {
 		$content = '';
-		switch($type)	{
+
+		switch($type) {
 			case 'fwd':
 				$href = $this->returnUrl . '&SET[recordsView_start]='.($pointer-$this->iLimit).'&SET[recordsView_table]='.$table;
 				$content = '<a href="'.htmlspecialchars($href).'">'.
 						'<img'.t3lib_iconWorks::skinImg($this->backPath,'gfx/pilup.gif','width="14" height="14"').' alt="" />'.
 						'</a> <i>[1 - '.$pointer.']</i>';
-			break;
+				break;
 			case 'rwd':
 				$href = $this->returnUrl . '&SET[recordsView_start]='.$pointer.'&SET[recordsView_table]='.$table;
 				$content = '<a href="'.htmlspecialchars($href).'">'.
 						'<img'.t3lib_iconWorks::skinImg($this->backPath,'gfx/pildown.gif','width="14" height="14"').' alt="" />'.
 						'</a> <i>['.($pointer+1).' - '.$this->totalItems.']</i>';
-			break;
+				break;
 		}
+
 		return $content;
 	}
 }

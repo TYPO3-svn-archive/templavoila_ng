@@ -57,11 +57,11 @@ require_once('class.tx_templavoila_mod1_recordlist.php');
  */
 class tx_templavoila_mod1_records {
 
-	var	$pObj;	// Reference to parent module
-	var	$tables;
+	var $pObj;	// Reference to parent module
+	var $tables;
 	var $calcPerms;
 
-	var	$dblist;
+	var $dblist;
 
 	/**
 	 * Initializes sidebar object. Checks if there any tables to display and
@@ -98,7 +98,7 @@ class tx_templavoila_mod1_records {
 	 * @access protected
 	 */
 	function sidebar_renderRecords() {
-		$content = '<table border="0" cellpadding="0" cellspacing="1" class="lrPadding" width="100%">';
+		$content  = '<table border="0" cellpadding="0" cellspacing="1" class="lrPadding" width="100%">';
 		$content .= '<tr class="bgColor4-20"><th colspan="2">&nbsp;</th></tr>';
 
 		// Render table selector
@@ -115,11 +115,12 @@ class tx_templavoila_mod1_records {
 	 * @return	string		Genrated content
 	 */
 	function renderTableSelector() {
-		$content = '<tr class="bgColor4"><td width="1%" nowrap="nowrap">';
+		$link = '\'' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&SET[recordsView_start]=0&SET[recordsView_table]=\'+this.options[this.selectedIndex].value';
+
+		$content  = '<tr class="bgColor4"><td width="1%" nowrap="nowrap">';
 		$content .= $GLOBALS['LANG']->getLL('displayRecordsFrom');
 		$content .= '</td><td>';
 
-		$link = '\'index.php?'.$this->pObj->link_getParameters().'&SET[recordsView_start]=0&SET[recordsView_table]=\'+this.options[this.selectedIndex].value';
 		$content .= '<select onchange="document.location.href=' . $link . '">';
 		$content .= '<option value=""' . ($this->pObj->MOD_SETTINGS['recordsView_table'] == '' ? ' selected="selected"' : '') . '></options>';
 		foreach ($this->tables as $table) {
@@ -127,11 +128,14 @@ class tx_templavoila_mod1_records {
 			t3lib_div::loadTCA($table);
 			if ($this->canDisplayTable($table)) {
 				$title = $GLOBALS['LANG']->sl($GLOBALS['TCA'][$table]['ctrl']['title']);
-				$content .= '<option value="' . $t . '"' .
-							($this->pObj->MOD_SETTINGS['recordsView_table'] == $table ? ' selected="selected"' : '') .
-							'>' . $title . ' (' . $t . ')' . '</option>';
+
+				$content .=
+				'<option value="' . $t . '"' . ($this->pObj->MOD_SETTINGS['recordsView_table'] == $table ? ' selected="selected"' : '') . '>' .
+					$title . ' (' . $t . ')' .
+				'</option>';
 			}
 		}
+
 		$content .= '</select>';
 
 		if (!in_array($this->pObj->MOD_SETTINGS['recordsView_table'], $this->tables)) {
@@ -149,13 +153,15 @@ class tx_templavoila_mod1_records {
 	 * @return	void
 	 */
 	function renderRecords() {
-		$table = $this->pObj->MOD_SETTINGS['recordsView_table'];
 		$content = '';
-		if ($table) {
+
+		if (($table = $this->pObj->MOD_SETTINGS['recordsView_table'])) {
 			$this->initDbList($table);
 			$this->dblist->generateList();
+
 			$content = '<tr class="bgColor4"><td colspan="2" style="padding: 0 0 3px 3px">' . $this->dblist->HTMLcode . '</td></tr>';
 		}
+
 		return $content;
 	}
 
@@ -182,7 +188,7 @@ class tx_templavoila_mod1_records {
 		$this->dblist->backPath = $this->pObj->doc->backPath;
 		$this->dblist->calcPerms = $this->calcPerms;
 		$this->dblist->thumbs = $GLOBALS['BE_USER']->uc['thumbnailsByDefault'];
-		$this->dblist->returnUrl = 'index.php?' . $this->pObj->link_getParameters();
+		$this->dblist->returnUrl = $this->pObj->baseScript . $this->pObj->link_getParameters();
 		$this->dblist->allFields = true;
 		$this->dblist->localizationView = true;
 		$this->dblist->showClipboard = false;

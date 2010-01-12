@@ -133,6 +133,7 @@ $tempColumns = array(
 	'tx_templavoila_ds' => Array (
 		'exclude' => 1,
 		'label' => 'LLL:EXT:templavoila/locallang_db.xml:tt_content.tx_templavoila_ds',
+//		'displayCond' => 'FIELD:CType:=:' . $_EXTKEY . '_pi1',
 		'config' => Array (
 			'type' => 'select',
 			'items' => Array (
@@ -297,7 +298,7 @@ if ($_EXTCONF['enable.']['selectDataSource']) {
 }
 
 // Configure the referencing wizard to be used in the web_func module:
-if (TYPO3_MODE=='BE')	{
+if (TYPO3_MODE == 'BE') {
 	t3lib_extMgm::insertModuleFunction(
 		'web_func',
 		'tx_templavoila_referenceElementsWizard',

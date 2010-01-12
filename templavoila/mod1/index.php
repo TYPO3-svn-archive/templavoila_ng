@@ -196,7 +196,7 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 	 * @return	void
 	 * @access public
 	 */
-	function init()    {
+	function init() {
 		parent::init();
 
 		$this->mod1Script = t3lib_extMgm::extRelPath('templavoila') . $this->mod1Script;
@@ -289,7 +289,9 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 		$this->modTSconfig = t3lib_BEfunc::getModTSconfig($this->id,'mod.'.$this->MCONF['name']);
 		$this->MOD_MENU['view'] = t3lib_BEfunc::unsetMenuItems($this->modTSconfig['properties'],$this->MOD_MENU['view'],'menu.function');
 
-		if (!isset($this->modTSconfig['properties']['sideBarEnable'])) $this->modTSconfig['properties']['sideBarEnable'] = 1;
+		if (!isset($this->modTSconfig['properties']['sideBarEnable']))
+			$this->modTSconfig['properties']['sideBarEnable'] = 1;
+
 		$this->modSharedTSconfig = t3lib_BEfunc::getModTSconfig($this->id, 'mod.SHARED');
 
 		// CLEANSE SETTINGS
@@ -355,7 +357,7 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 			$this->doc->docType= 'xhtml_trans';
 			$this->doc->backPath = $BACK_PATH;
 			$this->doc->divClass = '';
-			$this->doc->form = '<form action="'.htmlspecialchars($this->baseScript . $this->link_getParameters()) . '" method="post" autocomplete="off">' .
+			$this->doc->form = '<form action="' . htmlspecialchars($this->baseScript . $this->link_getParameters()) . '" method="post" autocomplete="off">' .
 				'<input type="hidden" id="browser[communication]" name="browser[communication]" />';
 
 			// Add custom styles
@@ -533,7 +535,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 			// Show the "edit current page" screen along with the sidebar
 			$shortCut = ($BE_USER->mayMakeShortcut() ? '<br /><br />' . $this->doc->makeShortcutIcon('id,altRoot', implode(',', array_keys($this->MOD_MENU)), $this->MCONF['name']) : '');
-			if ($this->sideBarObj->position == 'left' && $this->modTSconfig['properties']['sideBarEnable']) {
+			if (($this->sideBarObj->position == 'left') && $this->modTSconfig['properties']['sideBarEnable']) {
 				$this->content .= '
 					<table cellspacing="0" cellpadding="0" style="width: 100%; height: 550px; padding: 0; margin: 0;">
 						<tr>
@@ -1677,7 +1679,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 								// Copy for language:
 								if ($this->rootElementLangParadigm == 'free') {
 									$sourcePointerString = $this->apiObj->flexform_getStringFromPointer($parentPointer);
-									$onClick = "document.location='".$this->baseScript . $this->link_getParameters() . '&source=' . rawurlencode($sourcePointerString) . '&localizeElement=' . $sLInfo['ISOcode'] . "'; return FALSE;";
+									$onClick = "document.location='" . $this->baseScript . $this->link_getParameters() . '&source=' . rawurlencode($sourcePointerString) . '&localizeElement=' . $sLInfo['ISOcode'] . "'; return FALSE;";
 								} else {
 									$params='&cmd[tt_content][' . $contentTreeArr['el']['uid'] . '][localize]=' . $sys_language_uid;
 									$onClick = "document.location='" . $GLOBALS['SOBE']->doc->issueCommand($params) . "'; return FALSE;";
@@ -2147,7 +2149,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 		// Displaying warning for container content (in default sheet - a limitation) elements if localization is enabled:
 		$isContainerEl = count($contentTreeArr['sub']['sDEF']);
-		if (!$this->modTSconfig['properties']['disableContainerElementLocalizationWarning'] &&
+		if (!intval($this->modTSconfig['properties']['disableContainerElementLocalizationWarning']) &&
 		    ($this->rootElementLangParadigm != 'free') &&
 		    $isContainerEl &&
 		    ($contentTreeArr['el']['table'] === 'tt_content') &&
@@ -2254,6 +2256,8 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @access protected
 	 */
 	function icon_hide($el, $isReferenced = FALSE) {
+		if (intval($this->modTSconfig['properties']['disableHideIcon']))
+			return '';
 
 		$hideIcon = ($el['table'] == 'pages'
 		?	'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/button_hide.gif',  '') . ' border="0" title="' . htmlspecialchars($GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:hidePage'  )) . '" alt="" />'
@@ -2421,6 +2425,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @access protected
 	 */
 	function link_new($label, $parentPointer) {
+
 		$parameters =
 			$this->link_getParameters() .
 			'&amp;parentRecord=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '&amp;returnUrl=' . rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI'));
@@ -2475,6 +2480,8 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @access protected
 	 */
 	function icon_delete($deletePointer, $isReferenced = FALSE) {
+		if (intval($this->modTSconfig['properties']['disableDeleteIcon']))
+			return '';
 
 		$deleteIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/garbage.gif', '') . ' title="' . $GLOBALS['LANG']->getLL('deleteRecord') . '" border="0" alt="" />';
 
@@ -2494,7 +2501,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 		$deletePointerString = rawurlencode(tvID_to_jsID($this->apiObj->flexform_getStringFromPointer($deletePointer)));
 
 		return '<a href="javascript:' . htmlspecialchars('if (confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('deleteRecord' . ($isReferenced ? 'WithReferences' : '') . 'Msg')) . '))') . ' sortable_deleteRecord(\'' . $deletePointerString . '\');">' . $label . '</a>';
-//		return '<a href="' . $this->baseScript.$this->link_getParameters() . '&amp;deleteRecord=' . $deletePointerString . '" onclick="' . htmlspecialchars('return confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('deleteRecordMsg')) . ');') . '">' . $label . '</a>';
+//		return '<a href="' . $this->baseScript . $this->link_getParameters() . '&amp;deleteRecord=' . $deletePointerString . '" onclick="' . htmlspecialchars('return confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('deleteRecordMsg')) . ');') . '">' . $label . '</a>';
 	}
 
 	/**
@@ -2741,7 +2748,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 					case 'createNewPageTranslation':
 						// Create parameters and finally run the classic page module for creating a new page translation
-						$params = '&edit[pages_language_overlay][' . intval (t3lib_div::_GP('pid')) . ']=new&overrideVals[pages_language_overlay][sys_language_uid]=' . intval($commandParameters);
+						$params = '&edit[pages_language_overlay][' . intval(t3lib_div::_GP('pid')) . ']=new&overrideVals[pages_language_overlay][sys_language_uid]=' . intval($commandParameters);
 
 						if (t3lib_div::_GP('returnUrl'))
 							$returnUrl = '&returnUrl=' . rawurlencode(t3lib_div::_GP('returnUrl'));
@@ -3755,7 +3762,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 			}
 
 			// Cache
-			if (1 /*!$this->modTSconfig['properties']['disableAdvanced']*/) {
+			if (!intval($this->modTSconfig['properties']['disableAdvancedControls'])) {
 				$buttons['cache'] = '<a href="' . $this->baseScript . $this->link_getParameters() . '&clearCache=1">' .
 								'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/clear_cache.gif') . ' title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.clear_cache', 1) . '" alt="" />' .
 								'</a>';

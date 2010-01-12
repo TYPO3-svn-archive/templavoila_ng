@@ -54,9 +54,9 @@
  */
 class tx_templavoila_mod1_clipboard {
 
-		// References to the page module object
-	var $pObj;										// A pointer to the parent object, that is the templavoila page module script. Set by calling the method init() of this class.
-	var $doc;										// A reference to the doc object of the parent object.
+	// References to the page module object
+	var $pObj;			// A pointer to the parent object, that is the templavoila page module script. Set by calling the method init() of this class.
+	var $doc;			// A reference to the doc object of the parent object.
 
 	/**
 	 * Initializes the clipboard object. The calling class must make sure that the right locallang files are already loaded.

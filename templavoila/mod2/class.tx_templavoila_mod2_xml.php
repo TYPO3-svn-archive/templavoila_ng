@@ -237,11 +237,11 @@ class tx_templavoila_mod2_xml {
 
 						$tsstats = '';
 						if (isset($tv['TypoScript_constants']))
-							$tsstats .= '<li>' . count($tv['TypoScript_constants']) . ' TS-constants defined for use in the &lt;TypoScript&gt;-entry</li>';
+							$tsstats .= '<li>' . count($tv['TypoScript_constants']) . ' Constants defined for use in the &lt;TypoScript&gt;-entry</li>';
 						if (isset($tv['TypoScript']))
-							$tsstats .= '<li>' . (1 + strlen($tv['TypoScript']) - strlen(str_replace("\n", "", $tv['TypoScript']))) . ' lines of TS-code inside the &lt;TypoScript&gt;-entry</li>';
+							$tsstats .= '<li>' . (1 + strlen($tv['TypoScript']) - strlen(str_replace("\n", "", $tv['TypoScript']))) . ' lines of code inside the &lt;TypoScript&gt;-entry</li>';
 						if (isset($tv['TypoScriptObjPath']))
-							$tsstats .= '<li>will utilize the TS-structure <em>' . $tv['TypoScriptObjPath'] . '</em> defined inside the &lt;TypoScriptObjPath&gt;-entry</li>';
+							$tsstats .= '<li>will utilize the structure <em>' . $tv['TypoScriptObjPath'] . '</em> defined inside the &lt;TypoScriptObjPath&gt;-entry</li>';
 
 						$HTML .= '<dl class="DS-infos">';
 						$HTML .= '<dt>Preset used for the element:</dt>';
