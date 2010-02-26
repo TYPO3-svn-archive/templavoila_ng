@@ -79,6 +79,8 @@
 			<label index="center_details_preview1">Previews disabled</label>
 			<label index="center_details_sheet0">Default sheet-selector</label>
 			<label index="center_details_sheet1">Custom sheet-selector</label>
+			<label index="center_details_edit0">Enter edit-mode after creating new elements</label>
+			<label index="center_details_edit1">Skip edit-mode for newly created elements</label>
 			<label index="center_details_integer0">The entered/computed value won't be cast to an integer</label>
 			<label index="center_details_integer1">The entered/computed value will be cast to an integer</label>
 			<label index="center_details_hsc0">The entered/computed value won't be passed to htmlentities()</label>

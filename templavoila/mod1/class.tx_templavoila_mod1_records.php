@@ -98,15 +98,20 @@ class tx_templavoila_mod1_records {
 	 * @access protected
 	 */
 	function sidebar_renderRecords() {
-		$content  = '<table border="0" cellpadding="0" cellspacing="1" class="lrPadding" width="100%">';
-		$content .= '<tr class="bgColor4-20"><th colspan="2">&nbsp;</th></tr>';
-
 		// Render table selector
-		$content .= $this->renderTableSelector();
-		$content .= $this->renderRecords();
-		$content .= '</table>';
-
-		return $content;
+		return '
+			<table border="0" cellpadding="0" cellspacing="1" class="lrPadding" width="100%">
+			<thead>
+				<tr class="bgColor4-20">
+					<th colspan="3">&nbsp;</th>
+				</tr>' .
+				$this->renderTableSelector() . '
+			</thead>
+			<tbody>' .
+				$this->renderRecords() . '
+			</tbody>
+			</table>
+		';
 	}
 
 	/**
@@ -117,33 +122,37 @@ class tx_templavoila_mod1_records {
 	function renderTableSelector() {
 		$link = '\'' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&SET[recordsView_start]=0&SET[recordsView_table]=\'+this.options[this.selectedIndex].value';
 
-		$content  = '<tr class="bgColor4"><td width="1%" nowrap="nowrap">';
-		$content .= $GLOBALS['LANG']->getLL('displayRecordsFrom');
-		$content .= '</td><td>';
+		$content  = '
+			<tr class="bgColor4">
+				<td width="20">&nbsp;</td>
+				<td width="200">' . $GLOBALS['LANG']->getLL('displayRecordsFrom') . '</td>
+				<td>
+					<select onchange="document.location.href=' . $link . '">
+						<option value=""' . ($this->pObj->MOD_SETTINGS['recordsView_table'] == '' ? ' selected="selected"' : '') . '></options>';
 
-		$content .= '<select onchange="document.location.href=' . $link . '">';
-		$content .= '<option value=""' . ($this->pObj->MOD_SETTINGS['recordsView_table'] == '' ? ' selected="selected"' : '') . '></options>';
 		foreach ($this->tables as $table) {
 			$t = htmlspecialchars($table);
 			t3lib_div::loadTCA($table);
 			if ($this->canDisplayTable($table)) {
 				$title = $GLOBALS['LANG']->sl($GLOBALS['TCA'][$table]['ctrl']['title']);
 
-				$content .=
-				'<option value="' . $t . '"' . ($this->pObj->MOD_SETTINGS['recordsView_table'] == $table ? ' selected="selected"' : '') . '>' .
-					$title . ' (' . $t . ')' .
-				'</option>';
+				$content .= '
+						<option value="' . $t . '"' . ($this->pObj->MOD_SETTINGS['recordsView_table'] == $table ? ' selected="selected"' : '') . '>' .
+							$title . ' (' . $t . ')' . '
+						</option>';
 			}
 		}
 
-		$content .= '</select>';
+		$content .= '
+					</select>
+				</td>
+			</tr>';
 
 		if (!in_array($this->pObj->MOD_SETTINGS['recordsView_table'], $this->tables)) {
 			unset($this->pObj->MOD_SETTINGS['recordsView_table']);
 			unset($this->pObj->MOD_SETTINGS['recordsView_start']);
 		}
 
-		//$content .= '</td></tr><tr class="bgColor4"><td colspan="2">&nbsp;</td></tr>';
 		return $content;
 	}
 
@@ -159,7 +168,10 @@ class tx_templavoila_mod1_records {
 			$this->initDbList($table);
 			$this->dblist->generateList();
 
-			$content = '<tr class="bgColor4"><td colspan="2" style="padding: 0 0 3px 3px">' . $this->dblist->HTMLcode . '</td></tr>';
+			$content = '
+				<tr class="bgColor4">
+					<td colspan="3" style="padding: 0 0 3px 3px">' . $this->dblist->HTMLcode . '</td>
+				</tr>';
 		}
 
 		return $content;

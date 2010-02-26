@@ -325,9 +325,15 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 
 		// Access check! The page will show only if there is a valid page and if this page may be viewed by the user
 		if (is_array($this->altRoot)) {
+			// The page will show only if there is a valid page and if this page may be viewed by the user
+			$altr = t3lib_BEfunc::getRecordWSOL($this->altRoot['table'], $this->altRoot['uid'], 'pid');
+			$pageInfoArr = t3lib_BEfunc::readPageAccess($altr['pid'], $this->perms_clause);
+
 			$access = true;
 		} else {
+			// The page will show only if there is a valid page and if this page may be viewed by the user
 			$pageInfoArr = t3lib_BEfunc::readPageAccess($this->id, $this->perms_clause);
+
 			$access = (intval($pageInfoArr['uid'] > 0));
 		}
 
@@ -345,7 +351,15 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 			$this->rootElementTable = is_array($this->altRoot) ? $this->altRoot['table'] : 'pages';
 			$this->rootElementUid = is_array($this->altRoot) ? $this->altRoot['uid'] : $this->id;
 			$this->rootElementRecord = t3lib_BEfunc::getRecordWSOL($this->rootElementTable, $this->rootElementUid, '*');
-			$this->rootElementUid_pidForContent = $this->rootElementRecord['t3ver_swapmode'] == 0 && $this->rootElementRecord['_ORIG_uid'] ? $this->rootElementRecord['_ORIG_uid'] : $this->rootElementRecord['uid'];
+
+			// If pages use current UID, otherwhise you must use the PID to define the Page ID
+			if (($this->rootElementRecord['t3ver_swapmode'] == 0) && ($this->rootElementRecord['_ORIG_uid'])) {
+				$this->rootElementUid_pidForContent = $this->rootElementRecord['_ORIG_uid'];
+			} else if ($this->rootElementTable == 'pages') {
+				$this->rootElementUid_pidForContent = $this->rootElementRecord['uid'];
+			} else {
+				$this->rootElementUid_pidForContent = $this->rootElementRecord['pid'];
+			}
 
 			// Check if we have to update the pagetree:
 			if (t3lib_div::_GP('updatePageTree')) {
@@ -2444,7 +2458,6 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @access protected
 	 */
 	function icon_unlink($unlinkPointer) {
-
 		if (!$unlinkPointer['position'])
 			$unlinkIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'res/link_delete.png', '') . ' title="' . $GLOBALS['LANG']->getLL('unlinkRecordsAll') . '" border="0" alt="" />';
 		else
@@ -2463,15 +2476,12 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @access protected
 	 */
 	function link_unlink($label, $unlinkPointer) {
-
 		$unlinkPointerString = rawurlencode(tvID_to_jsID($this->apiObj->flexform_getStringFromPointer($unlinkPointer)));
 
 		if (!$unlinkPointer['position'])
 			return '<a href="javascript:' . htmlspecialchars('if (confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('unlinkRecordsAllMsg')) . '))') . ' sortable_unlinkRecordsAll(\'' . $unlinkPointerString . '\');" class="onoff">' . $label . '</a>';
 		else
 			return '<a href="javascript:' . htmlspecialchars('if (confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('unlinkRecordMsg'    )) . '))') . ' sortable_unlinkRecord    (\'' . $unlinkPointerString . '\');" class="onoff">' . $label . '</a>';
-
-//			return '<a href="' . $this->baseScript . $this->link_getParameters() . '&amp;unlinkRecord=' . $unlinkPointerString . '" onclick="' . htmlspecialchars('return confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('unlinkRecordMsg')) . ');') . '">' . $label . '</a>';
 	}
 
 	/**
@@ -2482,7 +2492,10 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @access protected
 	 */
 	function icon_delete($deletePointer, $isReferenced = FALSE) {
-		if (intval($this->modTSconfig['properties']['disableDeleteIcon']))
+		/* disabling turn on */
+		if ( intval($this->modTSconfig['properties']['disableDeleteIcon']))
+		/* exception to disabling pass-through */
+		if (!intval($this->modTSconfig['properties']['enableDeleteIconForLocalElements']) || $isReferenced)
 			return '';
 
 		$deleteIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/garbage.gif', '') . ' title="' . $GLOBALS['LANG']->getLL('deleteRecord') . '" border="0" alt="" />';
@@ -2499,11 +2512,9 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @access protected
 	 */
 	function link_delete($label, $deletePointer, $isReferenced = FALSE) {
-
 		$deletePointerString = rawurlencode(tvID_to_jsID($this->apiObj->flexform_getStringFromPointer($deletePointer)));
 
 		return '<a href="javascript:' . htmlspecialchars('if (confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('deleteRecord' . ($isReferenced ? 'WithReferences' : '') . 'Msg')) . '))') . ' sortable_deleteRecord(\'' . $deletePointerString . '\');">' . $label . '</a>';
-//		return '<a href="' . $this->baseScript . $this->link_getParameters() . '&amp;deleteRecord=' . $deletePointerString . '" onclick="' . htmlspecialchars('return confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('deleteRecordMsg')) . ');') . '">' . $label . '</a>';
 	}
 
 	/**
@@ -2676,6 +2687,11 @@ table.typo3-dyntabmenu td.disabled:hover {
 						$defVals = t3lib_div::_GP('defVals');
 						$newRow = is_array($defVals['tt_content']) ? $defVals['tt_content'] : array();
 
+						if (t3lib_div::_GP('returnUrl'))
+							$returnUrl = t3lib_div::_GP('returnUrl');
+						else
+							$returnUrl = $this->mod1Script . $this->link_getParameters();
+
 						if (($newUid = $commandParameters) >= 0) {
 							/* revert selector-api valid flex-string to original one */
 							$destinationPointer = $this->apiObj->flexform_getPointerFromString(jsID_to_tvID($commandParameters));
@@ -2683,18 +2699,21 @@ table.typo3-dyntabmenu td.disabled:hover {
 							// Create new record and open it for editing
 							$newUid = $this->apiObj->insertElement($destinationPointer, $newRow);
 							$params = 'edit[tt_content][' .  $newUid . ']=edit';
+							// Don't enter edit-mode
+							if (intval($this->getMetaValue($newRow['tx_templavoila_ds'], $newRow['tx_templavoila_to'], 'noEditOnCreation', 0)) == 1) {
+								$redirectLocation = $returnUrl;
+							}
 						} else {
 							// Create a new elements via standard-means if not to be inserted into a flexform
 							$params = 'edit[tt_content][' . -$newUid . ']=new' . t3lib_div::implodeArrayForUrl('defVals', $defVals);
 						}
 
-						if (t3lib_div::_GP('returnUrl'))
-							$returnUrl = '&returnUrl=' . rawurlencode(t3lib_div::_GP('returnUrl'));
-						else
-							$returnUrl = '&returnUrl=' . rawurlencode($this->mod1Script . $this->link_getParameters());
+						if (($redirectLocation != $returnUrl)) {
+							$redirectLocation = $GLOBALS['BACK_PATH'] . 'alt_doc.php?' . $params . '&returnUrl=' . rawurlencode($returnUrl);
+						}
 
-						$redirectLocation = $GLOBALS['BACK_PATH'] . 'alt_doc.php?' . $params . $returnUrl;
 						break;
+
 					case 'unlinkRecord':
 						/* revert selector-api valid flex-string to original one */
 						$unlinkDestinationPointer = $this->apiObj->flexform_getPointerFromString(jsID_to_tvID($commandParameters));
@@ -2942,7 +2961,6 @@ table.typo3-dyntabmenu td.disabled:hover {
 		}
 	}
 
-
 	/**
 	 * Clears page cache for the current id, $this->id
 	 *
@@ -2954,11 +2972,6 @@ table.typo3-dyntabmenu td.disabled:hover {
 		$tce->start(Array(),Array());
 		$tce->clear_cacheCmd($this->id);
 	}
-
-
-
-
-
 
 	/***********************************************
 	 *
@@ -3089,13 +3102,13 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @return	boolean		Display or not
 	 */
 	function displayElement($subElementArr)	{
-			// Don't display when "selectedLanguage" is choosen
+		// Don't display when "selectedLanguage" is choosen
 		$displayElement = !$this->MOD_SETTINGS['langDisplayMode'];
-			// Set to true when current language is not an alteranative (in this case display all elements)
+		// Set to true when current language is not an alteranative (in this case display all elements)
 		$displayElement |= ($this->currentLanguageUid<=0);
-			// When language of CE is ALL or default display it.
+		// When language of CE is ALL or default display it.
 		$displayElement |= ($subElementArr['el']['sys_language_uid']<=0);
-			// Display elements which have their language set to the currently displayed language.
+		// Display elements which have their language set to the currently displayed language.
 		$displayElement |= ($this->currentLanguageUid==$subElementArr['el']['sys_language_uid']);
 
 		return $displayElement;
@@ -3128,17 +3141,56 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @param	[type]		$id: ...
 	 * @return	[type]		...
 	 */
-	function getRecordStatHookValue($table,$id)	{
-			// Call stats information hook
-		if (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['GLOBAL']['recStatInfoHooks']))	{
-			$stat='';
-			$_params = array($table,$id);
+	function getRecordStatHookValue($table, $id) {
+		// Call stats information hook
+		if (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['GLOBAL']['recStatInfoHooks'])) {
+			$stat = '';
+			$_params = array($table, $id);
 			foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['GLOBAL']['recStatInfoHooks'] as $_funcRef)	{
-				$stat.=t3lib_div::callUserFunction($_funcRef,$_params,$this);
+				$stat .= t3lib_div::callUserFunction($_funcRef, $_params, $this);
 			}
+
 			return $stat;
 		}
 	}
+
+ 	/**
+	 * Fetches a given meta-attribute from the DS/TO
+	 *
+	 * @param integer $dsUid	uid of the datastructure we want to check
+	 * @param integer $toUid	uid of the tmplobj we want to check
+	 * @param string $metaid	the meta-value to fetch
+	 * @return boolean
+	 */
+	function getMetaValue($dsUid, $toUid, $metaid, $defval = '') {
+		$ret = $defval;
+		$dsMeta =
+		$toMeta = array();
+
+		$ds = t3lib_beFunc::getRecord('tx_templavoila_datastructure', intval($dsUid), 'uid,dataprot');
+		if (is_array($ds)) {
+			$dsXML = t3lib_div::xml2array($ds['dataprot']);
+			if (is_array($dsXML) && array_key_exists('meta', $dsXML)) {
+				$dsMeta = $dsXML['meta'];
+			}
+		}
+
+		$to = t3lib_beFunc::getRecord('tx_templavoila_tmplobj', intval($toUid), 'uid,localprocessing');
+		if (is_array($to)) {
+			$toXML = t3lib_div::xml2array($to['localprocessing']);
+			if (is_array($toXML) && array_key_exists('meta', $toXML)) {
+				$toMeta = $toXML['meta'];
+			}
+		}
+
+		$meta = t3lib_div::array_merge_recursive_overrule($dsMeta, $toMeta);
+		if (is_array($meta) && array_key_exists($metaid, $meta)) {
+			$ret = $metaid;
+		}
+
+		return $ret;
+	}
+
 /*
 	function hasFCEAccess($row) {
 		$params = array(
@@ -3344,10 +3396,15 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 
 		// Access check...
 		if (is_array($this->altRoot)) {
+			// The page will show only if there is a valid page and if this page may be viewed by the user
+			$altr = t3lib_BEfunc::getRecordWSOL($this->altRoot['table'], $this->altRoot['uid'], 'pid');
+			$this->pageinfo = t3lib_BEfunc::readPageAccess($altr['pid'], $this->perms_clause);
+
 			$access = true;
 		} else {
 			// The page will show only if there is a valid page and if this page may be viewed by the user
 			$this->pageinfo = t3lib_BEfunc::readPageAccess($this->id, $this->perms_clause);
+
 			$access = is_array($this->pageinfo) ? 1 : 0;
 		}
 
@@ -3369,7 +3426,15 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 			$this->rootElementTable = is_array($this->altRoot) ? $this->altRoot['table'] : 'pages';
 			$this->rootElementUid = is_array($this->altRoot) ? $this->altRoot['uid'] : $this->id;
 			$this->rootElementRecord = t3lib_BEfunc::getRecordWSOL($this->rootElementTable, $this->rootElementUid, '*');
-			$this->rootElementUid_pidForContent = $this->rootElementRecord['t3ver_swapmode'] == 0 && $this->rootElementRecord['_ORIG_uid'] ? $this->rootElementRecord['_ORIG_uid'] : $this->rootElementRecord['uid'];
+
+			// If pages use current UID, otherwhise you must use the PID to define the Page ID
+			if (($this->rootElementRecord['t3ver_swapmode'] == 0) && ($this->rootElementRecord['_ORIG_uid'])) {
+				$this->rootElementUid_pidForContent = $this->rootElementRecord['_ORIG_uid'];
+			} else if ($this->rootElementTable == 'pages') {
+				$this->rootElementUid_pidForContent = $this->rootElementRecord['uid'];
+			} else {
+				$this->rootElementUid_pidForContent = $this->rootElementRecord['pid'];
+			}
 
 			// Check if we have to update the pagetree:
 			if (t3lib_div::_GP('updatePageTree')) {

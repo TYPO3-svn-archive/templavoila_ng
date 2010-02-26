@@ -89,7 +89,9 @@ class tx_templavoila_mod2_xml {
 
 			foreach ($DStree as $elm => $def) {
 				$HTML .= '<dt>';
-				$HTML .= ($elm == "meta" ? $GLOBALS['LANG']->getLL('center_details_conf') : $def['tx_templavoila']['title']);
+				$HTML .= ($elm == "meta"
+					? $GLOBALS['LANG']->getLL('center_details_conf')
+					: $def['tx_templavoila']['title']);
 				$HTML .= '</dt>';
 				$HTML .= '<dd>';
 
@@ -127,6 +129,11 @@ class tx_templavoila_mod2_xml {
 						(($def['sheetSelector'] != '')
 ? '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_ok2.gif',        'width="18" height="16"') . ' alt="" class="absmiddle" /> ' . $GLOBALS['LANG']->getLL('center_details_sheet1') . ' [<em>' . $def['sheetSelector'] . '</em>]'
 : '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_fatalerror.gif', 'width="18" height="16"') . ' alt="" class="absmiddle" /> ' . $GLOBALS['LANG']->getLL('center_details_sheet0')
+					) . '</li>';
+					if (isset($def['noEditOnCreation'])) $conf .= '<li>' .
+						(($def['noEditOnCreation'] != '')
+? '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_ok2.gif',        'width="18" height="16"') . ' alt="" class="absmiddle" /> ' . $GLOBALS['LANG']->getLL('center_details_edit1') . ' [<em>' . $def['noEditOnCreation'] . '</em>]'
+: '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_fatalerror.gif', 'width="18" height="16"') . ' alt="" class="absmiddle" /> ' . $GLOBALS['LANG']->getLL('center_details_edit0')
 					) . '</li>';
 
 					if ($conf != '')

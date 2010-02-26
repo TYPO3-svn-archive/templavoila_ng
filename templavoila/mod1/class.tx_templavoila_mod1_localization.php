@@ -66,8 +66,6 @@ class tx_templavoila_mod1_localization {
 	 * @access	public
 	 */
 	function init(&$pObj) {
-		global $LANG;
-
 		// Make local reference to some important variables:
 		$this->pObj =& $pObj;
 		$this->doc =& $this->pObj->doc;
@@ -75,7 +73,7 @@ class tx_templavoila_mod1_localization {
 		$this->MOD_SETTINGS =& $this->pObj->MOD_SETTINGS;
 
 		// Add a localization tab to the sidebar:
-		$this->pObj->sideBarObj->addItem('localization', $this, 'sidebar_renderItem', $LANG->getLL('localization', 1), 60, true);
+		$this->pObj->sideBarObj->addItem('localization', $this, 'sidebar_renderItem', $GLOBALS['LANG']->getLL('localization', 1), 60, true);
 	}
 
 	/**
@@ -86,7 +84,7 @@ class tx_templavoila_mod1_localization {
 	 * @access	protected
 	 */
 	function sidebar_renderItem_renderLanguageSelectorbox_pure_actual() {
-		global $LANG, $BE_USER, $BACK_PATH;
+		global $BACK_PATH;
 
 		$availableLanguagesArr = $this->pObj->translatedLanguagesArr;
 		if (count($availableLanguagesArr) <= 1)
@@ -94,7 +92,7 @@ class tx_templavoila_mod1_localization {
 
 		$optionsArr = array ();
 		foreach ($availableLanguagesArr as $languageArr) {
-			if ($languageArr['uid'] <= 0 || $BE_USER->checkLanguageAccess($languageArr['uid'])) {
+			if ($languageArr['uid'] <= 0 || $GLOBALS['BE_USER']->checkLanguageAccess($languageArr['uid'])) {
 				$style = $languageArr['PLO_hidden'] ? 'Filter: alpha(opacity=25); -moz-opacity: 0.25; opacity: 0.25;' : '';
 				$flag = ($languageArr['flagIcon'] != '' ? $languageArr['flagIcon'] : $BACK_PATH . 'gfx/flags/unknown.gif');
 
@@ -117,7 +115,7 @@ class tx_templavoila_mod1_localization {
 	 * @access	protected
 	 */
 	function sidebar_renderItem_renderLanguageEditLinks_pure_actual() {
-		global $LANG, $BE_USER, $BACK_PATH;
+		global $BACK_PATH;
 
 		$availableLanguagesArr = $this->pObj->translatedLanguagesArr;
 		if (count($availableLanguagesArr) <= 1) {
@@ -125,7 +123,7 @@ class tx_templavoila_mod1_localization {
 		}
 
 		foreach ($availableLanguagesArr as $languageArr) {
-			if ($languageArr['uid'] <= 0 || $BE_USER->checkLanguageAccess($languageArr['uid'])) {
+			if ($languageArr['uid'] <= 0 || $GLOBALS['BE_USER']->checkLanguageAccess($languageArr['uid'])) {
 				$style = $languageArr['PLO_hidden'] ? ' style="Filter: alpha(opacity=25); -moz-opacity: 0.25; opacity: 0.25;"' : '';
 				$flag = ($languageArr['flagIcon'] != '' ? $languageArr['flagIcon'] : $BACK_PATH . 'gfx/flags/unknown.gif');
 
@@ -145,7 +143,7 @@ class tx_templavoila_mod1_localization {
 	 * @access	protected
 	 */
 	function sidebar_renderItem_renderLanguageSelectorbox_pure_missing() {
-		global $LANG, $BE_USER, $BACK_PATH;
+		global $BACK_PATH;
 
 		$translatedLanguagesArr = $this->pObj->translatedLanguagesArr;
 		$newLanguagesArr = $this->pObj->getAvailableLanguages(0, true, FALSE);
@@ -154,7 +152,7 @@ class tx_templavoila_mod1_localization {
 
 		$optionsArr = array ('<option value=""></option>');
 		foreach ($newLanguagesArr as $language) {
-			if ($BE_USER->checkLanguageAccess($language['uid']) && !isset($translatedLanguagesArr[$language['uid']])) {
+			if ($GLOBALS['BE_USER']->checkLanguageAccess($language['uid']) && !isset($translatedLanguagesArr[$language['uid']])) {
 				$style = isset ($language['flagIcon']) ? 'background-image: url(' . $language['flagIcon'] . '); background-repeat: no-repeat; padding-top: 0px; padding-left: 22px;' : '';
 				$optionsArr[] = '<option style="' . $style . '" name="createNewPageTranslation" value="' . $language['uid'] . '">' . htmlspecialchars($language['title']) . '</option>';
 				$sstyle = ($this->pObj->MOD_SETTINGS['language'] == $languageArr['uid'] ? $style : $sstyle);
@@ -174,13 +172,13 @@ class tx_templavoila_mod1_localization {
 	 * @access	protected
 	 */
 	function sidebar_renderItem_renderLanguageSelectorbox_pure_mode() {
-		global $LANG, $BE_USER, $BACK_PATH;
+		global $BACK_PATH;
 
 		if ($this->pObj->currentLanguageUid >= 0 && (($this->pObj->rootElementLangMode === 'disable') || ($this->pObj->rootElementLangParadigm === 'bound'))) {
 			$options = array();
-			$options[] = t3lib_div::inList($this->pObj->modTSconfig['properties']['disableDisplayMode'], 'default'         ) ? '' : '<option value=""'.                  ($this->pObj->MOD_SETTINGS['langDisplayMode'] ==  ''                 ? ' selected="selected"' : '') . '>' . $LANG->getLL('pageLocalizationDisplayMode_defaultLanguage') . '</option>';
-			$options[] = t3lib_div::inList($this->pObj->modTSconfig['properties']['disableDisplayMode'], 'selectedLanguage') ? '' : '<option value="selectedLanguage"' . ($this->pObj->MOD_SETTINGS['langDisplayMode'] === 'selectedLanguage' ? ' selected="selected"' : '') . '>' . $LANG->getLL('pageLocalizationDisplayMode_selectedLanguage') . '</option>';
-			$options[] = t3lib_div::inList($this->pObj->modTSconfig['properties']['disableDisplayMode'], 'onlyLocalized'   ) ? '' : '<option value="onlyLocalized"' .    ($this->pObj->MOD_SETTINGS['langDisplayMode'] === 'onlyLocalized'    ? ' selected="selected"' : '') . '>' . $LANG->getLL('pageLocalizationDisplayMode_onlyLocalized') . '</option>';
+			$options[] = t3lib_div::inList($this->pObj->modTSconfig['properties']['disableDisplayMode'], 'default'         ) ? '' : '<option value=""'.                  ($this->pObj->MOD_SETTINGS['langDisplayMode'] ==  ''                 ? ' selected="selected"' : '') . '>' . $GLOBALS['LANG']->getLL('pageLocalizationDisplayMode_defaultLanguage') . '</option>';
+			$options[] = t3lib_div::inList($this->pObj->modTSconfig['properties']['disableDisplayMode'], 'selectedLanguage') ? '' : '<option value="selectedLanguage"' . ($this->pObj->MOD_SETTINGS['langDisplayMode'] === 'selectedLanguage' ? ' selected="selected"' : '') . '>' . $GLOBALS['LANG']->getLL('pageLocalizationDisplayMode_selectedLanguage') . '</option>';
+			$options[] = t3lib_div::inList($this->pObj->modTSconfig['properties']['disableDisplayMode'], 'onlyLocalized'   ) ? '' : '<option value="onlyLocalized"' .    ($this->pObj->MOD_SETTINGS['langDisplayMode'] === 'onlyLocalized'    ? ' selected="selected"' : '') . '>' . $GLOBALS['LANG']->getLL('pageLocalizationDisplayMode_onlyLocalized') . '</option>';
 			$link = '\'' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&SET[langDisplayMode]=\'+this.options[this.selectedIndex].value';
 
 			return '<select onchange="document.location=' . $link . '">' . implode(chr(10), $options) . '</select>';
@@ -190,15 +188,15 @@ class tx_templavoila_mod1_localization {
 	}
 
 	function sidebar_renderItem_renderLanguageSelectorlist_pure_mode() {
-		global $LANG, $BE_USER, $BACK_PATH;
+		global $BACK_PATH;
 
 		if ($this->pObj->currentLanguageUid >= 0 && (($this->pObj->rootElementLangMode === 'disable') || ($this->pObj->rootElementLangParadigm === 'bound'))) {
 			$link = $this->pObj->baseScript . $this->pObj->link_getParameters() . '&SET[langDisplayMode]=###';
 
 			$entries = array();
-			$entries[] = t3lib_div::inList($this->pObj->modTSconfig['properties']['disableDisplayMode'], 'default'         ) ? '' : '<li class="mradio' . ($this->pObj->MOD_SETTINGS['langDisplayMode'] ==  ''                 ? ' selected' : '') . '" name="langDisplayMode"><a href="' . str_replace('###', '', $link) . '"' .                 '>' . $LANG->getLL('pageLocalizationDisplayMode_defaultLanguage') . '</a></li>';
-			$entries[] = t3lib_div::inList($this->pObj->modTSconfig['properties']['disableDisplayMode'], 'selectedLanguage') ? '' : '<li class="mradio' . ($this->pObj->MOD_SETTINGS['langDisplayMode'] === 'selectedLanguage' ? ' selected' : '') . '" name="langDisplayMode"><a href="' . str_replace('###', 'selectedLanguage', $link) . '"' . '>' . $LANG->getLL('pageLocalizationDisplayMode_selectedLanguage') . '</a></li>';
-			$entries[] = t3lib_div::inList($this->pObj->modTSconfig['properties']['disableDisplayMode'], 'onlyLocalized'   ) ? '' : '<li class="mradio' . ($this->pObj->MOD_SETTINGS['langDisplayMode'] === 'onlyLocalized'    ? ' selected' : '') . '" name="langDisplayMode"><a href="' . str_replace('###', 'onlyLocalized', $link) . '"' .    '>' . $LANG->getLL('pageLocalizationDisplayMode_onlyLocalized') . '</a></li>';
+			$entries[] = t3lib_div::inList($this->pObj->modTSconfig['properties']['disableDisplayMode'], 'default'         ) ? '' : '<li class="mradio' . ($this->pObj->MOD_SETTINGS['langDisplayMode'] ==  ''                 ? ' selected' : '') . '" name="langDisplayMode"><a href="' . str_replace('###', '', $link) . '"' .                 '>' . $GLOBALS['LANG']->getLL('pageLocalizationDisplayMode_defaultLanguage') . '</a></li>';
+			$entries[] = t3lib_div::inList($this->pObj->modTSconfig['properties']['disableDisplayMode'], 'selectedLanguage') ? '' : '<li class="mradio' . ($this->pObj->MOD_SETTINGS['langDisplayMode'] === 'selectedLanguage' ? ' selected' : '') . '" name="langDisplayMode"><a href="' . str_replace('###', 'selectedLanguage', $link) . '"' . '>' . $GLOBALS['LANG']->getLL('pageLocalizationDisplayMode_selectedLanguage') . '</a></li>';
+			$entries[] = t3lib_div::inList($this->pObj->modTSconfig['properties']['disableDisplayMode'], 'onlyLocalized'   ) ? '' : '<li class="mradio' . ($this->pObj->MOD_SETTINGS['langDisplayMode'] === 'onlyLocalized'    ? ' selected' : '') . '" name="langDisplayMode"><a href="' . str_replace('###', 'onlyLocalized', $link) . '"' .    '>' . $GLOBALS['LANG']->getLL('pageLocalizationDisplayMode_onlyLocalized') . '</a></li>';
 
 			return '<ul class="group">' . implode(chr(10), $entries) . '</ul>';
 		}
@@ -214,16 +212,20 @@ class tx_templavoila_mod1_localization {
 	 * @access	protected
 	 */
 	function sidebar_renderItem_renderLanguageSelectorbox() {
-		global $LANG, $BE_USER, $BACK_PATH;
+		global $BACK_PATH;
+
+		$output = '';
 
 		if (($aoutput = $this->sidebar_renderItem_renderLanguageSelectorbox_pure_actual())) {
-			$output.= '
+			$output .= '
 				<tr class="bgColor4">
-					<td width="1%" nowrap="nowrap">
-						'. t3lib_BEfunc::cshItem('_MOD_web_txtemplavoilaM1', 'selectlanguageversion', $this->doc->backPath) .'
-						' . $LANG->getLL('selectlanguageversion', 1) . ':
+					<td width="20">' .
+						t3lib_BEfunc::cshItem('_MOD_web_txtemplavoilaM1', 'selectlanguageversion', $this->doc->backPath) .'
 					</td>
-					<td>' .
+					<td width="200" valign="middle">' .
+						$GLOBALS['LANG']->getLL('selectlanguageversion', 1) . ':
+					</td>
+					<td valign="middle">' .
 						$aoutput . '
 					</td>
 				</tr>
@@ -231,13 +233,15 @@ class tx_templavoila_mod1_localization {
 		}
 
 		if (($moutput = $this->sidebar_renderItem_renderLanguageSelectorbox_pure_mode())) {
-			$output.= '
+			$output .= '
 				<tr class="bgColor4">
-					<td width="1%" nowrap="nowrap">
-						'. t3lib_BEfunc::cshItem('_MOD_web_txtemplavoilaM1', 'pagelocalizationdisplaymode', $this->doc->backPath) .'
-						'.$LANG->getLL('pageLocalizationDisplayMode', 1).':
+					<td width="20">' .
+						t3lib_BEfunc::cshItem('_MOD_web_txtemplavoilaM1', 'pagelocalizationdisplaymode', $this->doc->backPath) .'
 					</td>
-					<td>' .
+					<td width="200" valign="middle">' .
+						$GLOBALS['LANG']->getLL('pageLocalizationDisplayMode', 1) . ':
+					</td>
+					<td valign="middle">' .
 						$moutput . '
 					</td>
 				</tr>
@@ -245,15 +249,17 @@ class tx_templavoila_mod1_localization {
 		}
 
 		if ($this->pObj->rootElementLangMode !== 'disable') {
-			$output.= '
+			$output .= '
 				<tr class="bgColor4">
-					<td width="1%" nowrap="nowrap">
-						'. t3lib_BEfunc::cshItem('_MOD_web_txtemplavoilaM1', 'pagelocalizationmode', $this->doc->backPath) .'
-						'.$LANG->getLL('pageLocalizationMode', 1).':
+					<td width="20">' .
+						t3lib_BEfunc::cshItem('_MOD_web_txtemplavoilaM1', 'pagelocalizationmode', $this->doc->backPath) .'
 					</td>
-					<td><em>' .
-						$LANG->getLL('pageLocalizationMode_' . $this->pObj->rootElementLangMode, 1) . ($this->pObj->rootElementLangParadigm != 'free' ? (' / ' .
-						$LANG->getLL('pageLocalizationParadigm_' . $this->pObj->rootElementLangParadigm)) : '') . '
+					<td width="200" valign="middle">' .
+						$GLOBALS['LANG']->getLL('pageLocalizationMode', 1) . ':
+					</td>
+					<td valign="middle"><em>' .
+						$GLOBALS['LANG']->getLL('pageLocalizationMode_' . $this->pObj->rootElementLangMode, 1) . ($this->pObj->rootElementLangParadigm != 'free' ? (' / ' .
+						$GLOBALS['LANG']->getLL('pageLocalizationParadigm_' . $this->pObj->rootElementLangParadigm)) : '') . '
 					</em></td>
 				</tr>
 			';
@@ -262,11 +268,13 @@ class tx_templavoila_mod1_localization {
 		if (($aoutput = $this->sidebar_renderItem_renderLanguageEditLinks_pure_actual())) {
 			$output .= '
 				<tr class="bgColor4">
-					<td width="1%" nowrap="nowrap">
-						'. t3lib_BEfunc::cshItem('_MOD_web_txtemplavoilaM1', 'editlanguageversion', $this->doc->backPath) .'
-						'.$LANG->getLL ('editlanguageversion', 1).':
+					<td width="20">' .
+						t3lib_BEfunc::cshItem('_MOD_web_txtemplavoilaM1', 'editlanguageversion', $this->doc->backPath) .'
 					</td>
-					<td>' .
+					<td width="200" valign="middle">' .
+						$GLOBALS['LANG']->getLL('editlanguageversion', 1) . ':
+					</td>
+					<td valign="middle">' .
 						$aoutput . '
 					</td>
 				</tr>
@@ -284,20 +292,22 @@ class tx_templavoila_mod1_localization {
 	 * @access	protected
 	 */
 	function sidebar_renderItem_renderNewTranslationSelectorbox() {
-		global $LANG, $BE_USER;
-
 		if (!$GLOBALS['BE_USER']->isPSet($this->pObj->calcPerms, 'pages', 'edit')) {
 			return FALSE;
 		}
 
+		$output = '';
+
 		if (($moutput = sidebar_renderItem_renderLanguageSelectorbox_pure_missing())) {
 			$output = '
 				<tr class="bgColor4">
-					<td width="1%" nowrap="nowrap">
-						' . t3lib_BEfunc::cshItem('_MOD_web_txtemplavoilaM1', 'createnewtranslation', $this->doc->backPath) .'
-						' . $LANG->getLL('createnewtranslation', 1) . ':
+					<td width="20">' .
+						t3lib_BEfunc::cshItem('_MOD_web_txtemplavoilaM1', 'createnewtranslation', $this->doc->backPath) .'
 					</td>
-					<td style="padding:4px;">' .
+					<td width="200" valign="middle">' .
+						$GLOBALS['LANG']->getLL('createnewtranslation', 1) . ':
+					</td>
+					<td valign="middle" style="padding: 4px;">' .
 						$moutput . '
 					</td>
 				</tr>

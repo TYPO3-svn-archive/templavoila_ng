@@ -341,35 +341,43 @@ class tx_templavoila_mod1_sidebar {
 	function renderItem_advancedFunctions(&$pObj) {
 		global $LANG;
 
-		$tableRows = array('
+		$tableHeads = array('
 			<tr class="bgColor4-20">
-				<th colspan="2">&nbsp;</th>
+				<th colspan="3">&nbsp;</th>
 			</tr>
 		');
 
 		// Render checkbox for showing hidden elements:
-		$tableRows[] = '
+		$tableHeads[] = '
 			<tr class="bgColor4">
-				<td width="1%" nowrap="nowrap">
+				<td width="20">
 					'. t3lib_BEfunc::cshItem('_MOD_web_txtemplavoilaM1', 'advancedfunctions_showhiddenelements', $this->doc->backPath) .'
+				</td>
+				<td width="200">
 					'. $LANG->getLL('sidebar_advancedfunctions_labelshowhidden', 1).':
 				</td>
-				<td>'. t3lib_BEfunc::getFuncCheck($pObj->id,'SET[tt_content_showHidden]',$pObj->MOD_SETTINGS['tt_content_showHidden'],'','').'</td>
+				<td>'. t3lib_BEfunc::getFuncCheck($pObj->id,'SET[tt_content_showHidden]', $pObj->MOD_SETTINGS['tt_content_showHidden'],'','').'</td>
 			</tr>
 		';
 
+		$tableRows  = array();
+
 		// Render checkbox for showing outline:
-		if ($GLOBALS['BE_USER']->isAdmin())	{
+		if ($GLOBALS['BE_USER']->isAdmin()) {
 			$tableRows[] = '
 				<tr class="bgColor4">
-					<td width="1%" nowrap="nowrap">
-						'. t3lib_BEfunc::cshItem('_MOD_web_txtemplavoilaM1', 'advancedfunctions_showoutline', $this->doc->backPath) .'
-						'. $LANG->getLL('sidebar_advancedfunctions_labelshowoutline', 1).'
-					:</td>
-					<td>'. t3lib_BEfunc::getFuncCheck($pObj->id,'SET[showOutline]',$pObj->MOD_SETTINGS['showOutline'],'','').'</td>
+					<td width="20">
+						' . t3lib_BEfunc::cshItem('_MOD_web_txtemplavoilaM1', 'advancedfunctions_showoutline', $this->doc->backPath) .'
+					</td>
+					<td width="200">
+						' . $LANG->getLL('sidebar_advancedfunctions_labelshowoutline', 1) . ':
+					</td>
+					<td>'. t3lib_BEfunc::getFuncCheck($pObj->id,'SET[showOutline]', $pObj->MOD_SETTINGS['showOutline'],'','').'</td>
 				</tr>
 			';
 		}
+
+		$tableFeet = array();
 
 		// Render cache menu:
 		if ($pObj->id > 0) {
@@ -377,16 +385,33 @@ class tx_templavoila_mod1_sidebar {
 			if ($cacheMenu != '') {
 				// Show cache functions only if they are available to the user
 				$cshItem = t3lib_BEfunc::cshItem('xMOD_csh_corebe', 'TCEforms_cacheSelector', $GLOBALS['BACK_PATH'],'', TRUE);
-				$tableRows[] = '
+				$tableFeet[] = '
 					<tr class="bgColor4">
-						<td nowrap="nowrap">'.$cshItem.' '.$LANG->getLL('sidebar_advancedfunctions_labelcachefunctions', 1).':</td>
-						<td>' . $cacheMenu . '</td>
+						<td nowrap="nowrap">' .
+							$cshItem . ' ' .
+							$LANG->getLL('sidebar_advancedfunctions_labelcachefunctions', 1) . ':
+						</td>
+						<td>' .
+							$cacheMenu . '
+						</td>
 					</tr>
 				';
 			}
 		}
 
-		return (count($tableRows)) ? '<table border="0" cellpadding="0" cellspacing="1" class="lrPadding" width="100%">'.implode ('', $tableRows).'</table>' : '';
+		return (count($tableRows)) ? '
+			<table border="0" cellpadding="0" cellspacing="1" class="lrPadding" width="100%">
+			<thead>' .
+				implode('', $tableHeads) . '
+			</thead>
+			<tbody>' .
+				implode('', $tableRows) . '
+			</tbody>
+			<tfoot>' .
+				implode('', $tableFeet) . '
+			</tfoot>
+			</table>
+		' : '';
 	}
 
 
