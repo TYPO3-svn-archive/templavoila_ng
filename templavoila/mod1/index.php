@@ -2498,7 +2498,10 @@ table.typo3-dyntabmenu td.disabled:hover {
 		if (!intval($this->modTSconfig['properties']['enableDeleteIconForLocalElements']) || $isReferenced)
 			return '';
 
-		$deleteIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/garbage.gif', '') . ' title="' . $GLOBALS['LANG']->getLL('deleteRecord') . '" border="0" alt="" />';
+		if (!$deletePointer['position'] && !$deletePointer['uid'])
+			$deleteIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/garbage.gif', '') . ' title="' . $GLOBALS['LANG']->getLL('deleteRecordsAll') . '" border="0" alt="" />';
+		else
+			$deleteIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/garbage.gif', '') . ' title="' . $GLOBALS['LANG']->getLL('deleteRecord'    ) . '" border="0" alt="" />';
 
 		return $this->link_delete($deleteIcon, $deletePointer, $isReferenced);
 	}
@@ -2514,7 +2517,10 @@ table.typo3-dyntabmenu td.disabled:hover {
 	function link_delete($label, $deletePointer, $isReferenced = FALSE) {
 		$deletePointerString = rawurlencode(tvID_to_jsID($this->apiObj->flexform_getStringFromPointer($deletePointer)));
 
-		return '<a href="javascript:' . htmlspecialchars('if (confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('deleteRecord' . ($isReferenced ? 'WithReferences' : '') . 'Msg')) . '))') . ' sortable_deleteRecord(\'' . $deletePointerString . '\');">' . $label . '</a>';
+		if (!$deletePointer['position'] && !$deletePointer['uid'])
+			return '<a href="javascript:' . htmlspecialchars('if (confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('deleteRecordsAllMsg'                                           )) . '))') . ' sortable_deleteRecordsAll(\'' . $deletePointerString . '\');">' . $label . '</a>';
+		else
+			return '<a href="javascript:' . htmlspecialchars('if (confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('deleteRecord' . ($isReferenced ? 'WithReferences' : '') . 'Msg')) . '))') . ' sortable_deleteRecord    (\'' . $deletePointerString . '\');">' . $label . '</a>';
 	}
 
 	/**
@@ -2860,6 +2866,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 						$unlinkDestinationPointer = $this->apiObj->flexform_getPointerFromString(jsID_to_tvID($commandParameters));
 
 						$this->apiObj->unlinkElement($unlinkDestinationPointer);
+print_r($unlinkDestinationPointer);
 						exit;
 
 					case 'ajaxDeleteRecord':

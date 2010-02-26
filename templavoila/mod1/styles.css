@@ -51,6 +51,10 @@ table.tv-clipboard div.sortableItem >        a {
 	display: none !important;
 }
 
+table.tv-clipboard div.sortableItem + div.sortableItem > table {
+	margin-top: 0.5em;
+}
+
 table.tv-container div.sortableButtons > a.onoff {
 	visibility: visible !important;
 }

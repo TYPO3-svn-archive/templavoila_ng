@@ -33,10 +33,16 @@ function sortable_removeRecord(it, command) {
 	while (it.className != 'sortableItem')
 		it = it.parentNode;
 
-	new Ajax.Request(command);
-	new Effect.Fade(it,
-		{ duration: 0.5,
-		  afterFinish: sortable_removeCallBack });
+	new Ajax.Request(command, {
+		asynchronous: false,
+		onComplete: function(transport) {
+			if (200 == transport.status) {
+				new Effect.Fade(it,
+					{ duration: 0.5,
+					  afterFinish: sortable_removeCallBack });
+			}
+		}
+	});
 }
 
 /* -------------------------------------------------------------------------- */
@@ -52,11 +58,17 @@ function sortable_unhideRecord(it, command) {
 	it.setAttribute('rel', it.getAttribute('rel').replace('[hidden]=0', '[hidden]=1').replace('unhide', 'hide'));
 	it.firstChild.src = it.firstChild.src.replace('unhide', 'hide');
 
-	new Ajax.Request(command);
-	new Effect.Fade(tab,
-		{ duration: 0.5,
-		  to: 1.0,
-		  afterFinish: sortable_unhideRecordObscureCallBack });
+	new Ajax.Request(command, {
+		asynchronous: false,
+		onComplete: function(transport) {
+			if (200 == transport.status) {
+				new Effect.Fade(tab,
+					{ duration: 0.5,
+					  to: 1.0,
+					  afterFinish: sortable_unhideRecordObscureCallBack });
+			}
+		}
+	});
 }
 
 /* -------------------------------------------------------------------------- */
@@ -75,11 +87,17 @@ function sortable_hideRecord(it, command) {
 	it.setAttribute('rel', it.getAttribute('rel').replace('[hidden]=1', '[hidden]=0').replace('hide', 'unhide'));
 	it.firstChild.src = it.firstChild.src.replace('hide', 'unhide');
 
-	new Ajax.Request(command);
-	new Effect.Fade(tab,
-		{ duration: 0.5,
-		  to: 0.5,
-		  afterFinish: sortable_hideRecordObscureCallBack });
+	new Ajax.Request(command, {
+		asynchronous: false,
+		onComplete: function(transport) {
+			if (200 == transport.status) {
+				new Effect.Fade(tab,
+					{ duration: 0.5,
+					  to: 0.5,
+					  afterFinish: sortable_hideRecordObscureCallBack });
+			}
+		}
+	});
 }
 
 /* -------------------------------------------------------------------------- */
@@ -103,13 +121,21 @@ function sortable_unlinkRecordCallBack(obj) {
 }
 
 function sortable_unlinkRecord(id) {
-	new Ajax.Request(sortable_baseLink + "&ajaxUnlinkRecord=" + escape(id));
-	new Effect.Fade(id,
-		{ duration: 0.5,
-		  afterFinish: sortable_unlinkRecordCallBack });
+	new Ajax.Request(sortable_baseLink + "&ajaxUnlinkRecord=" + escape(id), {
+		asynchronous: false,
+		onComplete: function(transport) {
+			if (200 == transport.status) {
+				new Effect.Fade(id,
+					{ duration: 0.5,
+					  afterFinish: sortable_unlinkRecordCallBack });
+			}
+		}
+	});
 }
 
 function sortable_unlinkRecordsAll(id) {
+	document.body.style.cursor = 'wait';
+
 	$(id).select('a').reverse().each( function(anchor) {
 		if (anchor.href.match(/unlinkRecord/)) {
 			// eval(decodeURI(anchor.href.split(':')[1]));
@@ -120,6 +146,8 @@ function sortable_unlinkRecordsAll(id) {
 				sortable_unlinkRecord(idnt[1]);
 		}
 	} );
+
+	document.body.style.cursor = '';
 }
 
 /* -------------------------------------------------------------------------- */
@@ -132,10 +160,33 @@ function sortable_deleteRecordCallBack(obj) {
 }
 
 function sortable_deleteRecord(id) {
-	new Ajax.Request(sortable_baseLink + "&ajaxDeleteRecord=" + escape(id));
-	new Effect.Fade(id,
-		{ duration: 0.5,
-		  afterFinish: sortable_deleteRecordCallBack });
+	new Ajax.Request(sortable_baseLink + "&ajaxDeleteRecord=" + escape(id), {
+		asynchronous: false,
+		onComplete: function(transport) {
+			if (200 == transport.status) {
+				new Effect.Fade(id,
+					{ duration: 0.5,
+					  afterFinish: sortable_deleteRecordCallBack });
+			}
+		}
+	});
+}
+
+function sortable_deleteRecordsAll(id) {
+	document.body.style.cursor = 'wait';
+
+	$(id).select('a').reverse().each( function(anchor) {
+		if (anchor.href.match(/deleteRecord/)) {
+			// eval(decodeURI(anchor.href.split(':')[1]));
+			var code = decodeURI(anchor.href.split(':')[1]);
+			var idnt = code.match(/sortable_deleteRecord *\(\'(.*)\'\)/);
+
+			if (idnt[1])
+				sortable_deleteRecord(idnt[1]);
+		}
+	} );
+
+	document.body.style.cursor = '';
 }
 
 /* -------------------------------------------------------------------------- */

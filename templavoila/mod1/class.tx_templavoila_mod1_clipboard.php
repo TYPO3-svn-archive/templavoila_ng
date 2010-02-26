@@ -321,7 +321,7 @@ class tx_templavoila_mod1_clipboard {
 			$cellFragment = '
 				<table cellpadding="0" cellspacing="0" width="100%" class="tv-coe">
 				<caption class="tt_content">' .
-					htmlspecialchars($row['header'] ? $row['header'] : 'no') . '
+					htmlspecialchars($row['header'] ? $row['header'] : $GLOBALS['LANG']->getLL('notitle')) . '
 				</caption>
 				<thead class="tt_content">
 					<tr style="' . $elementTitlebarStyle . ';" class="sortableHandle">
@@ -329,7 +329,7 @@ class tx_templavoila_mod1_clipboard {
 							<div style="float:  left;" class="nobr">' .
 								$languageIcon .
 								$titleBarLeftButtons .
-								($elementBelongsToCurrentPage ? '' : '<em>') . htmlspecialchars($row['header'] ? $row['header'] : 'no') . ($elementBelongsToCurrentPage ? '' : '</em>') . '
+								($elementBelongsToCurrentPage ? '' : '<em>') . htmlspecialchars($row['header'] ? $row['header'] : $GLOBALS['LANG']->getLL('notitle')) . ($elementBelongsToCurrentPage ? '' : '</em>') . '
 							</div>
 							<div style="float: right;" class="nobr sortableButtons">' .
 								$titleBarRightButtons . '
@@ -374,15 +374,17 @@ class tx_templavoila_mod1_clipboard {
 			// Control for deleting all deleteable records:
 			$deleteAll = '';
 			if (count($this->deleteUids) && (0 === $BE_USER->workspace)) {
-				$params = '';
-				foreach($this->deleteUids as $deleteUid) {
-					$params .= '&cmd[tt_content][' . $deleteUid . '][delete]=1';
-				}
+			//	$params = '';
+			//	foreach($this->deleteUids as $deleteUid) {
+			//		$params .= '&cmd[tt_content][' . $deleteUid . '][delete]=1';
+			//	}
+                        //
+			//	$label = $LANG->getLL('rendernonusedelements_deleteall');
+			//	$deleteAll = '<a style="float: right;" href="#" onclick="' . htmlspecialchars('jumpToUrl(\'' . $this->doc->issueCommand($params, '') . '\');') . '">'.
+			//			'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/garbage.gif', 'width="11" height="12"') . ' title="' . htmlspecialchars($label) . '" alt="" />' .
+			//			'</a>';
 
-				$label = $LANG->getLL('rendernonusedelements_deleteall');
-				$deleteAll = '<a style="float: right;" href="#" onclick="' . htmlspecialchars('jumpToUrl(\'' . $this->doc->issueCommand($params, '') . '\');') . '">'.
-						'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/garbage.gif', 'width="11" height="12"') . ' title="' . htmlspecialchars($label) . '" alt="" />' .
-						'</a>';
+				$deleteAll = $this->pObj->icon_delete(array('table' => 'tt_content'));
 			}
 
 		}

@@ -97,6 +97,8 @@
 			<label index="unlinkRecordsAllMsg">Unlink all elements?</label>
 			<label index="deleteRecord">Delete element (!)</label>
 			<label index="deleteRecordMsg">Do you really want to delete this element?</label>
+			<label index="deleteRecordsAll">Delete all elements</label>
+			<label index="deleteRecordsAllMsg">Do you really want to delete all elements?</label>
 			<label index="deleteRecordWithReferencesMsg">This element is also referenced on other pages. Do you really want to delete this element?</label>
 			<label index="pagerelatedinformation">Page related information</label>
 			<label index="advancedfunctions">Advanced functions</label>
@@ -107,6 +109,7 @@
 			<label index="makeLocal">Create local copy</label>
 			<label index="makeLocalMsg">Do you want to create a local copy of this referenced element?</label>
 			<label index="path">Path</label>
+			<label index="notitle">[No title]</label>
 			<label index="defaultLanguage">Default language</label>
 			<label index="createcopyfortranslation">Create a copy for translation</label>
 			<label index="inititemno_elementsNotBeingUsed">Elements not being used in this language or sheet</label>
