@@ -1547,7 +1547,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					<textarea class="fixed-font enable-tab" rows="15" name="_load_ds_xml_content" wrap="off"' . $GLOBALS['TBE_TEMPLATE']->formWidthText(48, 'width:98%;', 'off') . '></textarea>
 					<br />
 					<input type="submit" name="_load_ds_xml" value="' . $GLOBALS['LANG']->getLL('loadDSXml') . '" />
-					<input type="submit" name="_" value="Cancel" />',
+					<input type="submit" name="_" value="' . $GLOBALS['LANG']->getLL('cancel') . '" />',
 					FALSE,
 					TRUE,
 					0,
@@ -2928,6 +2928,9 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 								$rowCells['cmdLinks'] =
 									'&mdash;';
 							}
+						} elseif ((!$rowCells['cmdLinks'] || ($rowCells['cmdLinks'] == '&mdash;')) && $mapOK && ($value['type'] != 'no_map')) {
+							// For non-mapped cases, just output a no-break-space:
+							$rowCells['htmlPath'] = '&hellip;';
 						} else {
 							// For non-mapped cases, just output a no-break-space:
 							$rowCells['htmlPath'] = '&nbsp;';
@@ -2952,11 +2955,12 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 								foreach ($optDat as $k => $v) {
 									list($pI) = $this->markupObj->splitPath($k);
 
-									if (($value['type'] == 'attr' && $pI['modifier'] == 'ATTR') || ($value['type'] != 'attr' && $pI['modifier'] != 'ATTR')) {
+									if (($value['type'] == 'attr' && $pI['modifier'] == 'ATTR') ||
+									    ($value['type'] != 'attr' && $pI['modifier'] != 'ATTR')) {
 										if (
-												(!$this->markupObj->tags[$lastLevel['el']]['single'] || $pI['modifier'] != 'INNER') &&
-												(!is_array($mapDat) || ($pI['modifier'] != 'ATTR' && isset($mapDat[strtolower($pI['modifier'] ? $pI['modifier'] : 'outer')])) ||
-														       ($pI['modifier'] == 'ATTR' && (isset($mapDat['attr']['*']) || isset($mapDat['attr'][$pI['modifier_value']]))))
+											(!$this->markupObj->tags[$lastLevel['el']]['single'] || $pI['modifier'] != 'INNER') &&
+											(!is_array($mapDat) || ($pI['modifier'] != 'ATTR' && isset($mapDat[strtolower($pI['modifier'] ? $pI['modifier'] : 'outer')])) ||
+													       ($pI['modifier'] == 'ATTR' && (isset($mapDat['attr']['*']) || isset($mapDat['attr'][$pI['modifier_value']]))))
 											) {
 
 											if($k == $currentMappingInfo[$key]['MAP_EL']) {
@@ -2989,11 +2993,11 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 								$rowCells['cmdLinks'] = '
 									<img' . t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/icon_note.gif', 'width="18" height="16"') . ' border="0" alt="" class="absmiddle" />
 									<strong>Click a tag-icon in the window below to map this element.</strong><br />
-									<input type="submit" value="Cancel" name="_" onclick="document.location=\'' . $this->linkThisScript() . '\';return false;" />';
+									<input type="submit" value="' . $GLOBALS['LANG']->getLL('cancel') . '" name="_" onclick="document.location=\'' . $this->linkThisScript() . '\';return false;" />';
 							}
 						} elseif ((!$rowCells['cmdLinks'] || ($rowCells['cmdLinks'] == '&mdash;')) && $mapOK && ($value['type'] != 'no_map')) {
 							$rowCells['cmdLinks'] = '
-									<input type="submit" value="Map" name="_" onclick="document.location=\'' . $this->linkThisScript(array('mapElPath' => $formPrefix . '[' . $key . ']', 'htmlPath' => $path, 'mappingToTags' => $value['tx_templavoila']['tags'])) . '\';return false;" />';
+									<input type="submit" value="' . $GLOBALS['LANG']->getLL('map') . '" name="_" onclick="document.location=\'' . $this->linkThisScript(array('mapElPath' => $formPrefix . '[' . $key . ']', 'htmlPath' => $path, 'mappingToTags' => $value['tx_templavoila']['tags'])) . '\';return false;" />';
 						}
 					}
 
@@ -3043,16 +3047,18 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 						$tRows[] = '
 							<tr class="' . ($rowIndex % 2 ? 'bgColor4' : 'bgColor6') . '">
 								<td nowrap="nowrap" valign="center">' . $rowCells['title'] . '</td>
-								' . ($this->editDataStruct ? '
+								' . (                 $this->editDataStruct ? '
 								<td nowrap="nowrap">' . $key . '</td>' : '
 								' . ($mappingMode ? '
 								<td align="center">' . $rowCells['hideUI'] . '</td>' : '') . '
 								<td>' . $rowCells['description'] . '</td>') . '
 								<td align="center">' . $rowCells['tagRules'] . '</td>
-								' . ($mappingMode ? '
-								<td align="center">' . $rowCells['htmlPath'] . '</td>' : '') . '
-								' . ($BE_USER->check('tables_modify', 'tx_templavoila_tmplobj') && $rowCells['cmdLinks'] ? '
-								<td align="center">' . $rowCells['cmdLinks'] . '</td>' : '') . '
+								' . (($mappingMode || $this->editDataStruct) ? ($rowCells['htmlPath'] ? '
+								<td align="center">' . $rowCells['htmlPath'] . '</td>' : '
+								<td align="center">&hellip;</td>') : '') . '
+								' . (($mappingMode || $this->editDataStruct) && $BE_USER->check('tables_modify', 'tx_templavoila_tmplobj') ? ($rowCells['cmdLinks'] ? '
+								<td align="center">' . $rowCells['cmdLinks'] . '</td>' : '
+								<td align="center">&mdash;</td>') : '') . '
 								' . $editAddCol . '
 							</tr>';
 					}
@@ -3361,7 +3367,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 						style="cursor: pointer; vertical-align: middle;" src="' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/close.gif', '', 1) . '"
 						onclick="document.location=\'' . $this->linkThisScript() . '\'; return false;" hspace="2" />
 
-<!--					<input type="submit" name="' . $formFieldName . '" value="Delete (!)" />  -->
+<!--					<input type="submit" name="' . $formFieldName . '" value="' . $GLOBALS['LANG']->getLL('delete') . '" />  -->
 				';
 
 				/* The basic XML-structure of an entry is:

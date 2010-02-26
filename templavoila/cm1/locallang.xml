@@ -66,7 +66,7 @@
 			<label index="structureSamples">Sample Data</label>
 			<label index="structureRule">Rules</label>
 			<label index="structurePath">HTML-path</label>
-			<label index="structureAction">Actions</label>
+			<label index="structureAction">Commands</label>
 			<label index="structureEdit">Actions</label>
 
 			<label index="structureFormFieldNew">Enter new fieldname</label>
@@ -121,8 +121,10 @@
 			<label index="loadDSXml">Load Data Structure</label>
 			<label index="add">Add</label>
 			<label index="update">Update</label>
+			<label index="map">Map</label>
 			<label index="set">Set</label>
 			<label index="cancel">Cancel</label>
+			<label index="delete">Delete (!)</label>
 
 			<label index="actionShow"   >Show XML</label>		<label index="actiontitleShow"   >Preview the currently build Data Structure as XML</label>
 			<label index="actionSet"    >Set</label>		<label index="actiontitleSet"    >Will update session data with current settings</label>

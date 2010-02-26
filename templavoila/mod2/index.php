@@ -651,7 +651,8 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 					// New-DS link:
 					$content .= '
 						<a href="' . $this->mod2Script . $this->link_getParameters() . '&SET[page]=tmplfiles' . '">
-							<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/new_el.gif', 'width="11" height="12"') . ' alt="" class="absmiddle" /> ' . $GLOBALS['LANG']->getLL('center_view_ds_new') . '
+							<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/new_el.gif', 'width="11" height="12"') . ' alt="" class="absmiddle" />
+							' . $GLOBALS['LANG']->getLL('center_view_ds_new') . '
 						</a><br />';
 				}
 
@@ -697,7 +698,8 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 				// New-DS link:
 				$index .= '
 					<a href="' . $this->mod2Script . $this->link_getParameters() . '&SET[page]=tmplfiles' . '">
-						<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/new_el.gif', 'width="11" height="12"') . ' alt="" class="absmiddle" /> ' . $GLOBALS['LANG']->getLL('center_view_ds_new') . '
+						<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/new_el.gif', 'width="11" height="12"') . ' alt="" class="absmiddle" />
+						' . $GLOBALS['LANG']->getLL('center_view_ds_new') . '
 					</a><br />';
 			}
 

@@ -1069,11 +1069,6 @@ table.typo3-dyntabmenu td.disabled:hover {
 						// Add cell content to registers:
 						$beTemplateCell = '
 							<table width="100%" class="beTemplateCell">
-							<tfoot>
-							<tr>
-								<td valign="top" style="padding: 5px;" id="' . $cellId . '" class="' . $stateClass . '">' . $cellContent . '</td>
-							</tr>
-							</tfoot>
 							<tbody>
 							<tr>
 								<td valign="top" style="background-color: ' . $this->doc->bgColor4 . '; padding-top: 0; padding-bottom: 0;" class="' . $stateClass . '">' . $GLOBALS['LANG']->sL($fieldContent['meta']['title'], 1) . '</td>
