@@ -745,7 +745,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 				$output .= '
 					<table border="0" cellpadding="0" cellspacing="1" width="100%" class="tv-clipboard" id="clipboard">
 					<caption class="tool">' .
-						Clipboard . '
+						$GLOBALS['LANG']->getLL('clipboard') . '
 					</caption>
 					<tbody><tr><td>' . $this->clipboardObj->sidebar_renderNonUsedElements() . '</td></tr></tbody>
 					</table>
@@ -1112,7 +1112,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 							</th>';
 						$footerCells[] = '
 							<td valign="top" width="###WIDTH###" style="background-color: ' . $this->doc->bgColor4 . ';" align="center" class="' . $stateClass . '">' .
-								sprintf($GLOBALS['LANG']->getLL('statistics'), '<span>' . count($fieldContent['el']) . '</span>', '<span>' . $fieldData['TCEforms']['config']['maxitems'] . '</span>') . '
+								sprintf('(' . $GLOBALS['LANG']->getLL('limitation') . ')', '<span>' . count($fieldContent['el']) . '</span>', '<span>' . $fieldData['TCEforms']['config']['maxitems'] . '</span>') . '
 							</td>';
 						$cells[] = '
 							<td valign="top" width="###WIDTH###" id="' . $cellId . '" class="' . $stateClass . '">' .
@@ -1443,8 +1443,8 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 		$selItems = $tceforms->addSelectOptionsToItemArray(
 			$tceforms->initItemArray($TCA[$table]['columns'][$field]),
+			$TCA[$table]['columns'][$field],
 			$TSc0,
-			$tceforms->setTSconfig($table, $row),
 			$field
 		);
 
@@ -1502,7 +1502,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 					$thumbnail = '<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'image'), 1) . '</strong><br />';
 					$thumbnail .= t3lib_BEfunc::thumbCode($row, 'tt_content', 'image', $this->doc->backPath);
 					$text = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'bodytext'), 1) . '</strong> ' . htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['bodytext'])), 2000)), 'tt_content', $row['uid']);
-					$output='<table><tr><td valign="top">' . $text . '</td><td valign="top">' . $thumbnail . '</td></tr></table>';
+					$output = '<table><tr><td valign="top">' . $text . '</td><td valign="top">' . $thumbnail . '</td></tr></table>';
 					break;
 				case 'bullets':		//	Bullets
 					$htmlBullets = '';
@@ -1515,14 +1515,14 @@ table.typo3-dyntabmenu td.disabled:hover {
 					$output = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'bodytext'), 1) . '</strong><br />' . $htmlBullets, 'tt_content', $row['uid']);
 					break;
 				case 'uploads':		//	Filelinks
-					$output = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'media'), 1) . '</strong><br />' . str_replace(',', '<br />', htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['media'])),2000))), 'tt_content', $row['uid']);
+					$output = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'media'), 1) . '</strong><br />' . str_replace(',', '<br />', htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['media'])), 2000))), 'tt_content', $row['uid']);
 					break;
 				case 'multimedia':	//	Multimedia
-					$output = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'multimedia'), 1) . '</strong><br />' . str_replace(',', '<br />', htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['multimedia'])),2000))), 'tt_content', $row['uid']);
+					$output = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'multimedia'), 1) . '</strong><br />' . str_replace(',', '<br />', htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['multimedia'])), 2000))), 'tt_content', $row['uid']);
 					break;
 				case 'list':		//	Insert Plugin
 					$extraInfo = $this->render_previewContent_extraPluginInfo($row);
-					$output = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'list_type')) . '</strong> ' . htmlspecialchars($GLOBALS['LANG']->sL(t3lib_BEfunc::getLabelFromItemlist('tt_content','list_type',$row['list_type']))) . ' &ndash; ' . htmlspecialchars($extraInfo ? $extraInfo : $row['list_type']), 'tt_content', $row['uid']);
+					$output = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'list_type')) . '</strong> ' . htmlspecialchars($GLOBALS['LANG']->sL(t3lib_BEfunc::getLabelFromItemlist('tt_content', 'list_type', $row['list_type']))), 'tt_content', $row['uid']) . ($extraInfo ? '<br />' . $extraInfo : ' &mdash; ' . $row['list_type']);
 					break;
 				case 'html':		//	HTML
 					$output = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'bodytext'), 1) . '</strong> <div style="overflow: hidden">' . htmlspecialchars(t3lib_div::fixed_lgd_cs(trim($row['bodytext']), 2000)), 'tt_content', $row['uid']) . '</div>';
@@ -1554,8 +1554,8 @@ table.typo3-dyntabmenu td.disabled:hover {
 						$name = '<ul><li>' . implode('</li><li>', $name) . '</li></ul>';
 					}
 
-					$output = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'menu_type')) . '</strong> ' .  $label . '<br />' .
-								   '<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'pages')) . '</strong> ', 'tt_content', $row['uid']) . $name;
+					$output = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'menu_type')) . '</strong> ' .  $label . '<br />', 'tt_content', $row['uid']) .
+								   '<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'pages')) . '</strong><br />' . $name;
 					break;
 				case 'login':		//	Login Box
 					$access = array_flip(explode(',', $row['fe_group']));
@@ -1612,6 +1612,24 @@ table.typo3-dyntabmenu td.disabled:hover {
 			foreach ($hookArr as $_funcRef)	{
 				$hookOut .= t3lib_div::callUserFunction($_funcRef, $_params, $this);
 			}
+		}
+
+		if (!$hookOut && $row['pi_flexform']) {
+                        $data = t3lib_div::xml2array($row['pi_flexform']);
+
+		//	$config = array();
+		//	$config['type'] = 'flex';
+		//	$config['ds_pointerField'] = 'list_type,CType';
+		//	$config['form_type'] = 'flex';
+		//	print_r(t3lib_BEfunc::getFlexFormDS($config, $row, 'tt_content'));
+
+                        foreach ($data['data']['mainSheet']['lDEF'] as $key => $vDEF) {
+                        	if ($vDEF['vDEF'])
+					$hookOut .= '<li><em>' . $key . '</em>: ' . $vDEF['vDEF'] . '</li>';
+                        }
+
+                        if ($hookOut)
+                        	$hookOut = '<strong>Parameters:</strong><br /><ul>' . $hookOut . '</ul>';
 		}
 
 		return $hookOut;

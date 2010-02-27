@@ -29,6 +29,7 @@
 
 			<label index="page_layout">Page's layout elements</label>
 			<label index="fce_layout">Layout's elements</label>
+			<label index="clipboard">Clipboard</label>
 
 			<label index="warning_elementusedmorethanonce">This element has been used %s times on this page! ID:%s</label>
 			<label index="warning_elementusedelsewheretoo">This element has been used %s times on other pages %s! Take care with editing, hiding and deleting!</label>
@@ -77,7 +78,7 @@
 			<label index="languageDisabled">Language disabled</label>
 			<label index="viewsubelements">View sub elements</label>
 			<label index="jamming">jam inheritance</label>
-			<label index="statistics">(assigned %s element(s) of %s possible)</label>
+			<label index="limitation">assigned %s element(s) of %s possible</label>
 			<label index="gobacktooverview">Go back to whole page view</label>
 			<label index="createnewrecord">Create new element</label>
 			<label index="editrecord">Edit element</label>
@@ -168,6 +169,10 @@
 			<label index="page_settings_exclip_off">Ohne Zwischenspeicher</label>
 			<label index="page_settings_exclip_on">Zeige Zwischenspeicher</label>
 
+			<label index="page_layout">Seiten-Layout's Elemente</label>
+			<label index="fce_layout">Layout's Elemente</label>
+			<label index="clipboard">Zwischenspeicher</label>
+
 			<label index="warning_elementusedmorethanonce">Dieses Element wird auf der aktuellen Seite %s mal verwendet! ID:%s</label>
 			<label index="warning_elementusedelsewheretoo">Dieses Element wird auch %s mal auf anderen Seiten %s verwendet! Achtung beim editieren, verstecken und löschen!</label>
 			<label index="warning_containerSeparate">ACHTUNG: Für dieses Container Element wurde Lokalisierung ohne Vererbung aktiviert (langChildren = 0). Dabei handelt es sich vermutlich um eine Fehlkonfiguration, weil die Standard Oberfläche von TemplaVoila die Darstellung von lokalisierten Container Feldern nicht unterstützt! Bitte informieren Sie den Entwickler dieser Website.</label>
@@ -214,7 +219,7 @@
 			<label index="languageDisabled">Sprache deaktiviert</label>
 			<label index="viewsubelements">Unter-Elemente anzeigen</label>
 			<label index="jamming">Vererbung sperren</label>
-			<label index="statistics">(<span>%d</span> benutzte(s) Element(e) von <span>%d</span> möglichen)</label>
+			<label index="limitation">%s benutzte(s) Element(e) von %s möglichen</label>
 			<label index="gobacktooverview">Zurück zur Ansicht der ganzen Seite</label>
 			<label index="createnewrecord">Neues Element anlegen</label>
 			<label index="editrecord">Element bearbeiten</label>
@@ -224,12 +229,16 @@
 			<label index="copyrecord">Element kopieren</label>
 			<label index="cutrecord">Element ausschneiden</label>
 			<label index="createreference">Erstelle Verknüpfung</label>
+			<label index="hideRecord">Element verstecken</label>
+			<label index="hideRecordMsg">Möchten Sie dieses Element wirklich verstecken?</label>
+			<label index="hideRecordWithReferencesMsg">Dieses Element wird mehrfach verwendet. Möchten Sie dieses Element wirklich verstecken?</label>
 			<label index="unlinkRecord">Verknüpfung entfernen</label>
 			<label index="unlinkRecordMsg">Verknüpfung für diese Element lösen?</label>
 			<label index="unlinkRecordsAll">Alle Verknüpfung entfernen</label>
 			<label index="unlinkRecordsAllMsg">Alle Verknüpfung von allen diese Elementen lösen?</label>
 			<label index="deleteRecord">Element löschen (!)</label>
 			<label index="deleteRecordMsg">Möchten Sie dieses Element wirklich löschen?</label>
+			<label index="deleteRecordWithReferencesMsg">Dieses Element wird mehrfach verwendet. Möchten Sie dieses Element wirklich löschen?</label>
 			<label index="pagerelatedinformation">Seitenbezogene Informationen</label>
 			<label index="advancedfunctions">Erweiterte Funktionen</label>
 			<label index="localization">Übersetzungen</label>
@@ -259,6 +268,8 @@
 			<label index="outline_status_cleanAll">Bereinige XML aller obigen Elemente!</label>
 
 			<label index="element_localizations">Übersetzungen</label>
+			<label index="records">Andere Elemente (keine Inhalte)</label>
+			<label index="displayRecordsFrom">Zeige Elemente von:</label>
 		</languageKey>
 		<languageKey index="nl" type="array">
 			<label index="title">WEB &gt; PAGINA MODULE</label>

@@ -145,6 +145,11 @@ div.tv-preview a {
 	text-decoration: none;
 }
 
+div.tv-preview ul {
+	margin: 0;
+	padding: 0 0 0 1.5em;
+}
+
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 table.tv-hidden {
 	opacity: 0.5;

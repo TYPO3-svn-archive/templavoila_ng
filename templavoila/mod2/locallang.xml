@@ -174,6 +174,8 @@
 			<label index="center_details_loc1">Struktur ist mehrsprachig</label>
 			<label index="center_details_locc0">Kinder der Struktur sind nicht mehrsprachig</label>
 			<label index="center_details_locc1">Kinder der Struktur sind mehrsprachig</label>
+			<label index="center_details_preview0">Inhalts-Vorschau an</label>
+			<label index="center_details_preview1">Inhalts-Vorschau aus</label>
 			<label index="center_details_sheet0">Normaler Sheet-Wähler</label>
 			<label index="center_details_sheet1">Eigener Sheet-Wähler</label>
 			<label index="center_details_integer0">Der eingegebene/erzeugte Wert wird nicht in eine Nummer verwandelt</label>
@@ -182,8 +184,8 @@
 			<label index="center_details_hsc1">Der eingegebene/erzeugte Wert wird an htmlentities() übergeben</label>
 			<label index="center_details_hsc_on">HTML-Kode wird nicht dargestellt werden</label>
 			<label index="center_details_hsc_off">HTML-Kode wird dargestellt</label>
-			<label index="center_details_wrap0">The entered/computed value won't be wrapped</label>
-			<label index="center_details_wrap1">The entered/computed value will be wrapped</label>
+			<label index="center_details_wrap0">Der eingegebene/errechnete Wert wird nicht umfasst</label>
+			<label index="center_details_wrap1">Der eingegebene/errechnete Wert wird umfasst</label>
 			<label index="center_details_notv">Das Element hat keine grundsätzliche Konfiguration!</label>
 			<label index="center_details_notce">Das Element hat keine TCE Konfiguration!</label>
 			<label index="center_details_nochild">Das Element hat keine Kind-Elemente!</label>
