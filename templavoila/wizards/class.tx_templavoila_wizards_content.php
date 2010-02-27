@@ -266,7 +266,7 @@ class tx_templavoila_wizards_content {
 				'icon'=>'gfx/c_wiz/table.gif',
 				'title'=>$LANG->getLL('common_6_title'),
 				'description'=>$LANG->getLL('common_6_description'),
-				'params'=>'&defVals[tt_content][CType]=table'.$defVals,
+				'params'=>'&defVals[tt_content][CType]=table' . $defVals,
 			),
 
 			'special' => array('header'=>$LANG->getLL('special')),
@@ -275,28 +275,28 @@ class tx_templavoila_wizards_content {
 				'icon'=>'gfx/c_wiz/filelinks.gif',
 				'title'=>$LANG->getLL('special_1_title'),
 				'description'=>$LANG->getLL('special_1_description'),
-				'params'=>'&defVals[tt_content][CType]=uploads'.$defVals,
+				'params'=>'&defVals[tt_content][CType]=uploads' . $defVals,
 			),
 
 			'special_2' => array(
 				'icon'=>'gfx/c_wiz/multimedia.gif',
 				'title'=>$LANG->getLL('special_2_title'),
 				'description'=>$LANG->getLL('special_2_description'),
-				'params'=>'&defVals[tt_content][CType]=multimedia'.$defVals,
+				'params'=>'&defVals[tt_content][CType]=multimedia' . $defVals,
 			),
 
 			'special_3' => array(
 				'icon'=>'gfx/c_wiz/sitemap2.gif',
 				'title'=>$LANG->getLL('special_3_title'),
 				'description'=>$LANG->getLL('special_3_description'),
-				'params'=>'&defVals[tt_content][CType]=menu&defVals[tt_content][menu_type]=2'.$defVals,
+				'params'=>'&defVals[tt_content][CType]=menu&defVals[tt_content][menu_type]=2' . $defVals,
 			),
 
 			'special_4' => array(
 				'icon'=>'gfx/c_wiz/html.gif',
 				'title'=>$LANG->getLL('special_4_title'),
 				'description'=>$LANG->getLL('special_4_description'),
-				'params'=>'&defVals[tt_content][CType]=html'.$defVals,
+				'params'=>'&defVals[tt_content][CType]=html' . $defVals,
 			),
 
 			'forms' => array('header'=>$LANG->getLL('forms')),
@@ -312,14 +312,14 @@ class tx_templavoila_wizards_content {
 				'icon'=>'gfx/c_wiz/searchform.gif',
 				'title'=>$LANG->getLL('forms_2_title'),
 				'description'=>$LANG->getLL('forms_2_description'),
-				'params'=>'&defVals[tt_content][CType]=search'.$defVals,
+				'params'=>'&defVals[tt_content][CType]=search' . $defVals,
 			),
 
 			'forms_3' => array(
 				'icon'=>'gfx/c_wiz/login_form.gif',
 				'title'=>$LANG->getLL('forms_3_title'),
 				'description'=>$LANG->getLL('forms_3_description'),
-				'params'=>'&defVals[tt_content][CType]=login'.$defVals,
+				'params'=>'&defVals[tt_content][CType]=login' . $defVals,
 			),
 		);
 
@@ -350,8 +350,9 @@ class tx_templavoila_wizards_content {
 			}
 		}
 */
-			// Fetch all template object records which uare based one of the previously fetched data structures:
+		// Fetch all template object records which uare based one of the previously fetched data structures:
 		$templateObjectRecords = array();
+		$recordDataStructure = array();
 		$addWhere = $this->buildRecordWhere('tx_templavoila_tmplobj');
 		$res = $TYPO3_DB->exec_SELECTquery(
 			'*',
@@ -362,22 +363,27 @@ class tx_templavoila_wizards_content {
 		);
 
 		while(FALSE !== ($row = $TYPO3_DB->sql_fetch_assoc($res))) {
-			if (is_array($dataStructureRecords[$row['datastructure']])) {
+			if (is_array($dsr = $dataStructureRecords[$rd = $row['datastructure']])) {
 				$templateObjectRecords[] = $row;
+				$recordDataStructure[$rd] = t3lib_div::xml2array($dsr['dataprot']);
 			}
 		}
 
 		// Add the filtered set of TO entries to the wizard list:
 		$wizardItems['fce']['header'] = $LANG->getLL('fce');
         	foreach($templateObjectRecords as $index => $templateObjectRecord) {
-        	    $tmpFilename = 'uploads/tx_templavoila/'.$templateObjectRecord['previewicon'];
+        		$tmpFilename = 'uploads/tx_templavoila/' . $templateObjectRecord['previewicon'];
 
-        	    $wizardItems['fce_'.$index]['icon'] = (@is_file(PATH_site.$tmpFilename)) ? ('../' . $tmpFilename) : ('../' . t3lib_extMgm::siteRelPath('templavoila').'res1/default_previewicon.gif');
-        	    $wizardItems['fce_'.$index]['description'] = $templateObjectRecord['description'] ? htmlspecialchars($templateObjectRecord['description']) : $LANG->getLL ('template_nodescriptionavailable');
-        	    $wizardItems['fce_'.$index]['title'] = $templateObjectRecord['title'];
-        	    $wizardItems['fce_'.$index]['params'] = '&defVals[tt_content][CType]=templavoila_pi1&defVals[tt_content][tx_templavoila_ds]='.$templateObjectRecord['datastructure'].'&defVals[tt_content][tx_templavoila_to]='.$templateObjectRecord['uid'].$defVals;
+			// Get default values from datastructure
+			$localProcessing = t3lib_div::xml2array($templateObjectRecord['localprocessing']);
+			$defDSVals = $this->getDSDefaultValues($recordDataStructure[$templateObjectRecord['datastructure']], $localProcessing);
 
-        	    $index++;
+        		$wizardItems['fce_' . $index]['icon'] = (@is_file(PATH_site.$tmpFilename)) ? ('../' . $tmpFilename) : ('../' . t3lib_extMgm::siteRelPath('templavoila').'res1/default_previewicon.gif');
+        		$wizardItems['fce_' . $index]['description'] = $templateObjectRecord['description'] ? htmlspecialchars($templateObjectRecord['description']) : $LANG->getLL ('template_nodescriptionavailable');
+        		$wizardItems['fce_' . $index]['title'] = $templateObjectRecord['title'];
+        		$wizardItems['fce_' . $index]['params'] = '&defVals[tt_content][CType]=templavoila_pi1&defVals[tt_content][tx_templavoila_ds]=' . $templateObjectRecord['datastructure'] . '&defVals[tt_content][tx_templavoila_to]=' . $templateObjectRecord['uid'] . $defVals . $defDSVals;
+
+        		$index++;
         	}
 
 		// PLUG-INS:
@@ -397,6 +403,32 @@ class tx_templavoila_wizards_content {
 		$this->removeInvalidElements($wizardItems);
 
 		return $wizardItems;
+	}
+
+	/**
+	 * Get default values from DataStructure and merge it with TemplateObject
+	 * @param array $dsStructure	DataStructure as array
+	 * @param array $toStructure	LocalProcessing as array
+	 * @return string	additional URL arguments with configured default values
+	 */
+	function getDSDefaultValues($dsStructure, $toStructure) {
+		// if we've no datastructure information there's no need to proceed here
+		if (!is_array($dsStructure))
+			return '';
+
+		// if available local processing needs to be merged
+		if (is_array($toStructure)) {
+			$dsStructure = t3lib_div::array_merge_recursive_overrule($dsStructure, $toStructure);
+		}
+
+		$dsValues = '';
+		if (is_array($dsStructure['meta']['default']['TCEForms'])) {
+			foreach ($dsStructure['meta']['default']['TCEForms'] as $field => $value) {
+				$dsValues .= '&defVals[tt_content][' . $field . ']=' . $value;
+			}
+		}
+
+		return $dsValues;
 	}
 
 	/**

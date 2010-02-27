@@ -378,39 +378,44 @@ class tx_templavoila_wizards_site {
 	 * @return	void
 	 */
 	function wizard_step3()	{
-
-			// Save session data with filename:
+		// Save session data with filename:
 		$cfg = t3lib_div::_POST('CFG');
-		if (isset($cfg['sitetitle']))	{
+
+		if (isset($cfg['sitetitle'])) {
 			$this->wizardData['sitetitle'] = trim($cfg['sitetitle']);
 		}
-		if (isset($cfg['siteurl']))	{
+
+		if (isset($cfg['siteurl'])) {
 			$this->wizardData['siteurl'] = trim($cfg['siteurl']);
 		}
-		if (isset($cfg['username']))	{
+
+		if (isset($cfg['username'])) {
 			$this->wizardData['username'] = trim($cfg['username']);
 		}
 
-			// If the create-site button WAS clicked:
+		// If the create-site button WAS clicked:
 		if (t3lib_div::_POST('_create_site'))	{
-
-				// Show selected template file:
-			if ($this->wizardData['file'] && $this->wizardData['sitetitle'] && $this->wizardData['username'])	{
-
-					// DO import:
+			// Show selected template file:
+			if ($this->wizardData['file'] && $this->wizardData['sitetitle'] && $this->wizardData['username']) {
+				// DO import:
 				$import = $this->getImportObj();
-				$inFile = t3lib_extMgm::extPath('templavoila').'mod2/new_tv_site.xml';
-				if (@is_file($inFile) && $import->loadFile($inFile,1))	{
 
+				if (isset($this->modTSconfig['properties']['newTvSiteFile'])) {
+					$inFile = PATH_site . $this->modTSconfig['properties']['newTVsiteTemplate'];
+				} else {
+					$inFile = t3lib_extMgm::extPath('templavoila') . 'wizards/new_tv_site.xml';
+				}
+
+				if (@is_file($inFile) && $import->loadFile($inFile, 1))	{
 					$import->importData($this->importPageUid);
 
-						// Update various fields (the index values, eg. the "1" in "$import->import_mapId['pages'][1]]..." are the UIDs of the original records from the import file!)
+					// Update various fields (the index values, eg. the "1" in "$import->import_mapId['pages'][1]]..." are the UIDs of the original records from the import file!)
 					$data = array();
-					$data['pages'][t3lib_BEfunc::wsMapId('pages',$import->import_mapId['pages'][1])]['title'] = $this->wizardData['sitetitle'];
-					$data['sys_template'][t3lib_BEfunc::wsMapId('sys_template',$import->import_mapId['sys_template'][1])]['title'] = 'Main template: '.$this->wizardData['sitetitle'];
-					$data['sys_template'][t3lib_BEfunc::wsMapId('sys_template',$import->import_mapId['sys_template'][1])]['sitetitle'] = $this->wizardData['sitetitle'];
-					$data['tx_templavoila_tmplobj'][t3lib_BEfunc::wsMapId('tx_templavoila_tmplobj',$import->import_mapId['tx_templavoila_tmplobj'][1])]['fileref'] = $this->wizardData['file'];
-					$data['tx_templavoila_tmplobj'][t3lib_BEfunc::wsMapId('tx_templavoila_tmplobj',$import->import_mapId['tx_templavoila_tmplobj'][1])]['templatemapping'] = serialize(
+					$data['pages'][t3lib_BEfunc::wsMapId('pages', $import->import_mapId['pages'][1])]['title'] = $this->wizardData['sitetitle'];
+					$data['sys_template'][t3lib_BEfunc::wsMapId('sys_template', $import->import_mapId['sys_template'][1])]['title'] = 'Main template: '.$this->wizardData['sitetitle'];
+					$data['sys_template'][t3lib_BEfunc::wsMapId('sys_template', $import->import_mapId['sys_template'][1])]['sitetitle'] = $this->wizardData['sitetitle'];
+					$data['tx_templavoila_tmplobj'][t3lib_BEfunc::wsMapId('tx_templavoila_tmplobj', $import->import_mapId['tx_templavoila_tmplobj'][1])]['fileref'] = $this->wizardData['file'];
+					$data['tx_templavoila_tmplobj'][t3lib_BEfunc::wsMapId('tx_templavoila_tmplobj', $import->import_mapId['tx_templavoila_tmplobj'][1])]['templatemapping'] = serialize(
 						array(
 							'MappingInfo' => array(
 								'ROOT' => array(
