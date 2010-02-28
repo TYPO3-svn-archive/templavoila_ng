@@ -134,6 +134,8 @@ class tx_templavoila_mod2_to {
 	 */
 	function renderTODisplay($toRow, &$toRecords, $scope, $children = 0) {
 
+		$collapseIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/ol/minusonly.gif', 'width="11" height="12"') . ' alt="" class="absmiddle" />';
+
 		// Put together the records icon including content sensitive menu link wrapped around it:
 		$recordIcon = t3lib_iconWorks::getIconImage('tx_templavoila_tmplobj', $toRow, $this->doc->backPath, 'class="absmiddle"');
 		$recordIcon = $this->doc->wrapClickMenuOnIcon($recordIcon, 'tx_templavoila_tmplobj', $toRow['uid'], 1, '&callingScriptId=' . rawurlencode($this->doc->scriptID));
@@ -215,7 +217,7 @@ class tx_templavoila_mod2_to {
 
 		$mappingStatusShort = '<img' . $mappingStatusIcon . ' title="' . $mappingStatusTitle . '" class="absmiddle" />';
 		$mappingStatusLine  = '<img' . $mappingStatusIcon . ' alt="" class="absmiddle" /> ' . $mappingStatusTitle . '<br />';
-		$mappingStatusLong  = $mappingStatusLine . $mappingStatusMessage . $mappingStatusActions;
+		$mappingStatusLong  = $mappingStatusLine . $mappingStatusMessage;
 
 		if ($mappingStatusError >= 2) {
 			$this->pObj->setErrorLog($scope, 'fatal', $mappingStatusLine . ' (TO: "' . $toRow['title'] . '")');
@@ -265,7 +267,7 @@ class tx_templavoila_mod2_to {
 
 		/* ------------------------------------------------------------------------------ */
 		// Compile info table:
-		$tableAttribs = ' border="0" cellpadding="1" cellspacing="1" width="98%" style="margin-top: 3px;" class="lrPadding"';
+		$tableAttribs = ' border="0" cellpadding="1" cellspacing="1" width="98%" style="margin-top: -3px;" class="lrPadding"';
 
 		if (!$children)	{
 			if ($this->MOD_SETTINGS['set_details'])	{
@@ -278,7 +280,7 @@ class tx_templavoila_mod2_to {
 
 				$templateUsageShort = '<img' . $templateUsageIcon . ' title="' . $templateUsageTitle . '" class="absmiddle" />';
 				$templateUsageLine  = '<img' . $templateUsageIcon . ' alt="" class="absmiddle" /> ' . $templateUsageTitle . '<br />';
-				$templateUsageLong  = $templateUsageLine . $templateMessage . $templateActions;
+				$templateUsageLong  = $templateUsageLine . $templateMessage;
 
 				if ($templateUsageError >= 2) {
 					$this->pObj->setErrorLog($scope, 'fatal', $templateUsageLine . ' (TO: "' . $toRow['title'] . '")');
@@ -291,40 +293,44 @@ class tx_templavoila_mod2_to {
 			<table' . $tableAttribs . '>
 				<tr class="bgColor4-20">
 					<td colspan="3">' .
+						$collapseIcon .
 						$recordIcon .
-						$toTitle .
+						$toTitle . ' <em>[Template Object, DB Record]</em>' .
 						$editLink .
 					'</td>
 				</tr>
 				<tr class="bgColor4">
-					<td rowspan="' . ($this->MOD_SETTINGS['set_details'] ? 7 : 4) . '" style="width: 100px; text-align: center;">' . $icon . '</td>
-					<td>' . $GLOBALS['LANG']->getLL('fileref') . ':</td>
-					<td>' . $fileRef . $fileMsg . '</td>
+					<td style="width: 100px; padding: 1em; vertical-align: top; text-align: center;">' . $icon . '</td>
+					<td>
+					<dl class="TO-listing">
+						<dt>' . $GLOBALS['LANG']->getLL('description') . ':</dt>
+						<dd>' . ($toRow['description'] ? htmlspecialchars($toRow['description']) : '&mdash;') . '</dd>
+
+						<dt>' . $GLOBALS['LANG']->getLL('fileref') . ':</dt>
+						<dd>' . $fileRef . $fileMsg . '</dd>
+
+						<dt>' . $GLOBALS['LANG']->getLL('center_view_localproc') . ' <strong>XML</strong>:</dt>
+						<dd>' . $lpXML . ($this->MOD_SETTINGS['set_details'] ? '<hr />' . $XMLinfo['HTML'] : '') . '</dd>
+
+					' . ($this->MOD_SETTINGS['set_details'] ? '
+						<dt>' . $GLOBALS['LANG']->getLL('created') . ':</dt>
+						<dd>' . t3lib_BEfunc::datetime($toRow['crdate']) . ' ' . $GLOBALS['LANG']->getLL('by') . ' [' . $toRow['cruser_id'] . ']</dd>
+
+						<dt>' . $GLOBALS['LANG']->getLL('updated') . ':</dt>
+						<dd>' . t3lib_BEfunc::datetime($toRow['tstamp']) . '</dd>
+
+						<dt>' . $GLOBALS['LANG']->getLL('used') . ':</dt>
+						<dd>' . $templateUsageLong . '</dd>
+					' : '') . '
+
+						<dt>' . $GLOBALS['LANG']->getLL('center_list_mapstatus') . ':</dt>
+						<dd>' . $mappingStatusLong . '</dd>
+					</dl>
+					<div class="actions">' .
+						$mappingStatusActions . '
+					</div>
+					</td>
 				</tr>
-				<tr class="bgColor4">
-					<td>' . $GLOBALS['LANG']->getLL('description') . ':</td>
-					<td>' . htmlspecialchars($toRow['description']) . '</td>
-				</tr>
-				<tr class="bgColor4">
-					<td>' . $GLOBALS['LANG']->getLL('center_list_mapstatus') . ':</td>
-					<td>' . $mappingStatusLong . '</td>
-				</tr>
-				<tr class="bgColor4">
-					<td>' . $GLOBALS['LANG']->getLL('center_view_localproc') . ' <strong>XML</strong>:</td>
-					<td>' . $lpXML . ($this->MOD_SETTINGS['set_details'] ? '<hr />' . $XMLinfo['HTML'] : '') . '</td>
-				</tr>' . ($this->MOD_SETTINGS['set_details'] ? '
-				<tr class="bgColor4">
-					<td>' . $GLOBALS['LANG']->getLL('used') . ':</td>
-					<td>' . $templateUsageLong . '</td>
-				</tr>
-				<tr class="bgColor4">
-					<td>' . $GLOBALS['LANG']->getLL('created') . ':</td>
-					<td>' . t3lib_BEfunc::datetime($toRow['crdate']) . ' ' . $GLOBALS['LANG']->getLL('by') . ' [' . $toRow['cruser_id'] . ']</td>
-				</tr>
-				<tr class="bgColor4">
-					<td>' . $GLOBALS['LANG']->getLL('updated') . ':</td>
-					<td>' . t3lib_BEfunc::datetime($toRow['tstamp']) . '</td>
-				</tr>' : '') . '
 			</table>
 			';
 		} else {
@@ -332,39 +338,41 @@ class tx_templavoila_mod2_to {
 			<table' . $tableAttribs . '>
 				<tr class="bgColor4-20">
 					<td colspan="3">' .
+						$collapseIcon .
 						$recordIcon .
-						$toTitle .
+						$toTitle . ' <em>[Template Object, DB Record]</em>' .
 						$editLink .
 						'</td>
 				</tr>
 				<tr class="bgColor4">
-					<td>' . $GLOBALS['LANG']->getLL('fileref') . ':</td>
-					<td>' . $fileRef . $fileMsg . '</td>
+					<td>
+					<dl class="TO-listing">
+						<dt>' . $GLOBALS['LANG']->getLL('fileref') . ':</dt>
+						<dd>' . $fileRef . $fileMsg . '</dd>
+
+						<dt>' . $GLOBALS['LANG']->getLL('rendertype') . ':</dt>
+						<dd>' . t3lib_BEfunc::getProcessedValue('tx_templavoila_tmplobj', 'rendertype', $toRow['rendertype']) . '</dd>
+
+						<dt>' . $GLOBALS['LANG']->getLL('language') . ':</dt>
+						<dd>' . t3lib_BEfunc::getProcessedValue('tx_templavoila_tmplobj', 'sys_language_uid', $toRow['sys_language_uid']) . '</dd>
+
+						<dt>' . $GLOBALS['LANG']->getLL('center_view_localproc') . ' <strong>XML</strong>:</dt>
+						<dd>' . $lpXML . ($this->MOD_SETTINGS['set_details'] ? '<hr />' . $XMLinfo['HTML'] : '') . '</dd>
+
+					' . ($this->MOD_SETTINGS['set_details'] ? '
+						<dt>' . $GLOBALS['LANG']->getLL('created') . ':</dt>
+						<dd>' . t3lib_BEfunc::datetime($toRow['crdate']) . ' ' . $GLOBALS['LANG']->getLL('by') . ' [' . $toRow['cruser_id'] . ']</dd>
+
+						<dt>' . $GLOBALS['LANG']->getLL('updated') . ':</dt>
+						<dd>' . t3lib_BEfunc::datetime($toRow['tstamp']) . '</dd>
+					' : '') . '
+
+						<dt>' . $GLOBALS['LANG']->getLL('center_list_mapstatus') . ':</dt>
+						<dd>' . $mappingStatusLong . '</dd>
+					</dl>
+					' . $mappingStatusActions . '
+					</td>
 				</tr>
-				<tr class="bgColor4">
-					<td>' . $GLOBALS['LANG']->getLL('center_list_mapstatus') . ':</td>
-					<td>' . $mappingStatusLong . '</td>
-				</tr>
-				<tr class="bgColor4">
-					<td>' . $GLOBALS['LANG']->getLL('rendertype') . ':</td>
-					<td>' . t3lib_BEfunc::getProcessedValue('tx_templavoila_tmplobj', 'rendertype', $toRow['rendertype']) . '</td>
-				</tr>
-				<tr class="bgColor4">
-					<td>' . $GLOBALS['LANG']->getLL('language') . ':</td>
-					<td>' . t3lib_BEfunc::getProcessedValue('tx_templavoila_tmplobj', 'sys_language_uid', $toRow['sys_language_uid']) . '</td>
-				</tr>
-				<tr class="bgColor4">
-					<td>' . $GLOBALS['LANG']->getLL('center_view_localproc') . ' <strong>XML</strong>:</td>
-					<td>' . $lpXML . ($this->MOD_SETTINGS['set_details'] ? '<hr />' . $XMLinfo['HTML'] : '') . '</td>
-				</tr>' . ($this->MOD_SETTINGS['set_details'] ? '
-				<tr class="bgColor4">
-					<td>' . $GLOBALS['LANG']->getLL('created') . ':</td>
-					<td>' . t3lib_BEfunc::datetime($toRow['crdate']) . ' ' . $GLOBALS['LANG']->getLL('by') . ' [' . $toRow['cruser_id'] . ']</td>
-				</tr>
-				<tr class="bgColor4">
-					<td>' . $GLOBALS['LANG']->getLL('updated') . ':</td>
-					<td>' . t3lib_BEfunc::datetime($toRow['tstamp']) . '</td>
-				</tr>' : '') . '
 			</table>
 			';
 		}

@@ -10,6 +10,43 @@ table.typo3-tvlist tr.separator td {
 }
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ * mod2: structures / templates
+ */
+dl.DS-listing,
+dl.TO-listing {
+	margin: 0.75em;
+}
+
+dl.DS-listing > dt,
+dl.TO-listing > dt {
+	font-weight: bold;
+
+	width: 150px;
+	float: left;
+	clear: both;
+
+	margin: 2px 0 0 0;
+	min-height: 18px;
+}
+
+dl.DS-listing > dd,
+dl.TO-listing > dd {
+	margin: 4px 0 0 150px;
+	min-height: 18px;
+}
+
+dl.DS-listing + div.actions,
+dl.TO-listing + div.actions {
+	margin: 0.75em;
+	border-top: 1px dashed black;
+	padding: 0.75em 0 0 0;
+}
+
+dl.DS-listing + div.actions > a,
+dl.TO-listing + div.actions > a {
+}
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  * mod2: detail-view, analysis of the settings made to the DS-XML
  */
 dl.DS-details dl,

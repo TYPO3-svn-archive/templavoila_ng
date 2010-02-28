@@ -143,6 +143,8 @@ class tx_templavoila_mod2_ds {
 		$XMLinfo = array();
 		$dsID = $dsRow['_STATIC'] ? $dsRow['path'] : $dsRow['uid'];
 
+		$collapseIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/ol/minusonly.gif', 'width="11" height="12"') . ' alt="" class="absmiddle" />';
+
 		// If ds was a true record:
 		if (!$dsRow['_STATIC']) {
 
@@ -177,7 +179,7 @@ class tx_templavoila_mod2_ds {
 
 			$templateStatusShort = '<img' . $templateStatusIcon . ' title="' . $templateStatusTitle . '" class="absmiddle" />';
 			$templateStatusLine  = '<img' . $templateStatusIcon . ' alt="" class="absmiddle" /> ' . $templateStatusTitle . '<br />';
-			$templateStatusLong  = $templateStatusLine . $templateStatusMessage . $templateStatusActions;
+			$templateStatusLong  = $templateStatusLine . $templateStatusMessage;
 
 			if ($templateStatusError >= 2) {
 				$this->pObj->setErrorLog($scope, 'fatal', $templateStatusLine . ' (TO: "' . $toRow['title'] . '")');
@@ -231,28 +233,35 @@ class tx_templavoila_mod2_ds {
 			<table' . $tableAttribs . '>
 				<tr class="bgColor5">
 					<td colspan="3" style="border-top: 1px solid black;">'.
+						$collapseIcon .
 						$recordIcon .
-						$dsTitle .
+						$dsTitle . ' <em>[Data Structure, DB Record]</em>' .
 						$editLink .
 						'</td>
 				</tr>
 				<tr class="bgColor4">
-					<td rowspan="' . ($this->MOD_SETTINGS['set_details'] ? 4 : 2) . '" style="width: 100px; text-align: center;">' . $icon . '</td>
-					<td>' . $GLOBALS['LANG']->getLL('center_view_tmplstatus') . ':</td>
-					<td>' . $templateStatusLong . '</td>
+					<td style="width: 100px; padding: 1em; vertical-align: top; text-align: center;">' . $icon . '</td>
+					<td>
+					<dl class="DS-listing">
+						<dt>' . $GLOBALS['LANG']->getLL('center_view_globalproc') . '&nbsp;<strong>XML</strong>:</dt>
+						<dd>' . $lpXML . ($this->MOD_SETTINGS['set_details'] ? '<hr />' . $XMLinfo['HTML'] : '') . '</dd>
+
+					' . ($this->MOD_SETTINGS['set_details'] ? '
+						<dt>' . $GLOBALS['LANG']->getLL('created') . ':</dt>
+						<dd>' . t3lib_BEfunc::datetime($dsRow['crdate']) . ' ' . $GLOBALS['LANG']->getLL('by') . ' [' . $dsRow['cruser_id'] . ']</dd>
+
+						<dt>' . $GLOBALS['LANG']->getLL('updated') . ':</dt>
+						<dd>' . t3lib_BEfunc::datetime($dsRow['tstamp']) . '</dd>
+					' : '') . '
+
+						<dt>' . $GLOBALS['LANG']->getLL('center_view_tmplstatus') . ':</dt>
+						<dd>' . $templateStatusLong . '</dd>
+					</dl>
+					<div class="actions">' .
+						$templateStatusActions . '
+					</div>
+					</td>
 				</tr>
-				<tr class="bgColor4">
-					<td>' . $GLOBALS['LANG']->getLL('center_view_globalproc') . '&nbsp;<strong>XML</strong>:</td>
-					<td>' . $lpXML . ($this->MOD_SETTINGS['set_details'] ? '<hr />' . $XMLinfo['HTML'] : '') . '</td>
-				</tr>'.($this->MOD_SETTINGS['set_details'] ? '
-				<tr class="bgColor4">
-					<td>' . $GLOBALS['LANG']->getLL('created') . ':</td>
-					<td>' . t3lib_BEfunc::datetime($dsRow['crdate']) . ' ' . $GLOBALS['LANG']->getLL('by') . ' [' . $dsRow['cruser_id'] . ']</td>
-				</tr>
-				<tr class="bgColor4">
-					<td>' . $GLOBALS['LANG']->getLL('updated') . ':</td>
-					<td>' . t3lib_BEfunc::datetime($dsRow['tstamp']) . '</td>
-				</tr>' : '') . '
 			</table>';
 		// DS was a file:
 		} else {
@@ -290,7 +299,7 @@ class tx_templavoila_mod2_ds {
 
 			$templateStatusShort = '<img' . $templateStatusIcon . ' title="' . $templateStatusTitle . '" class="absmiddle" />';
 			$templateStatusLine  = '<img' . $templateStatusIcon . ' alt="" class="absmiddle" /> ' . $templateStatusTitle . '<br />';
-			$templateStatusLong  = $templateStatusLine . $templateStatusMessage . $templateStatusActions;
+			$templateStatusLong  = $templateStatusLine . $templateStatusMessage;
 
 			if ($templateStatusError >= 2) {
 				$this->pObj->setErrorLog($scope, 'fatal', $templateStatusLine . ' (DS: "' . $dsRow['title'] . '")');
@@ -304,24 +313,30 @@ class tx_templavoila_mod2_ds {
 			/* ------------------------------------------------------------------------------ */
 			// Compile table:
 			$content .= '
-				<table' . $tableAttribs . '>
-					<tr class="bgColor2">
-						<td colspan="3" style="border-top: 1px solid black;">' .
-							$recordIcon .
-							htmlspecialchars($dsRecTitle) .
-							'</td>
-					</tr>
-					<tr class="bgColor4">
-						<td rowspan="' . ($this->MOD_SETTINGS['set_details'] ? 2 : 1) . '" style="width: 100px; text-align: center;">'.$icon.'</td>
-						<td>XML ' . $GLOBALS['LANG']->getLL('file') . ':</td>
-						<td>' . $fileRef .
-							($this->MOD_SETTINGS['set_details'] ? '<hr/>'.$XMLinfo['HTML'] : '') . '</td>
-					</tr>'.($this->MOD_SETTINGS['set_details'] ? '
-					<tr class="bgColor4">
-						<td>' . $GLOBALS['LANG']->getLL('center_view_tmplstatus') . ':</td>
-						<td>' . $templateStatusLong . '</td>
-					</tr>' : '') . '
-				</table>';
+			<table' . $tableAttribs . '>
+				<tr class="bgColor2">
+					<td colspan="3" style="border-top: 1px solid black;">' .
+						$collapseIcon .
+						$recordIcon .
+						htmlspecialchars($dsRecTitle) . ' <em>[Data Structure, File Record]</em>'.
+						'</td>
+				</tr>
+				<tr class="bgColor4">
+					<td style="width: 100px; padding: 1em; vertical-align: top; text-align: center;">' . $icon . '</td>
+					<td>
+					<dl class="DS-listing">
+						<dt>XML ' . $GLOBALS['LANG']->getLL('file') . ':</dt>
+						<dd>' . $fileRef . ($this->MOD_SETTINGS['set_details'] ? '<hr/>' . $XMLinfo['HTML'] : '') . '</dd>
+
+						<dt>' . $GLOBALS['LANG']->getLL('center_view_tmplstatus') . ':</dt>
+						<dd>' . $templateStatusLong . '</dd>
+					</dl>
+					<div class="actions">' .
+						$templateStatusActions . '
+					</div>
+					</td>
+				</tr>
+			</table>';
 		}
 
 		// Return content

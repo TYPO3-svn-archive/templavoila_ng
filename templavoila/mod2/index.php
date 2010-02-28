@@ -645,7 +645,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 
 				// Wrap TO elements in a div-tag and add to content:
 				if ($TOcontent)	{
-					$content .= '<div style="margin-left: 102px;">' . $TOcontent . '</div>';
+					$content .= '<div style="/*margin-left: 102px;*/">' . $TOcontent . '</div>';
 				}
 
 				// Module may be allowed, but modify may not
