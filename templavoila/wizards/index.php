@@ -71,6 +71,7 @@ class tx_templavoila_wizard extends t3lib_SCbase {
 
 	// External static:
 	var $pageinfo;
+	var $config;
 	var $modTSconfig;
 	var $extKey = 'templavoila';			// Extension key of this module
 	var $baseScript = 'index.php?';
@@ -124,6 +125,17 @@ class tx_templavoila_wizard extends t3lib_SCbase {
 				$this->wiz = 'content';
 			}
 		}
+
+		// Get some configuration (context dependent):
+		$config = t3lib_BEfunc::getPagesTSconfig($this->id);
+
+		if ($this->wiz == 'site') {
+			$this->config = $config['templavoila.']['wizards.']['newSite.'];
+		} else if ($this->wiz == 'page') {
+			$this->config = $config['templavoila.']['wizards.']['newPage.'];
+		} else if ($this->wiz == 'content') {
+			$this->config = $config['templavoila.']['wizards.']['newContentElement.'];
+		}
 	}
 
 	/**
@@ -133,6 +145,7 @@ class tx_templavoila_wizard extends t3lib_SCbase {
 	 */
 	function menuConfig()	{
 		$this->MOD_MENU = array(
+			'set_rendermode' => '',
 			'wiz_step' => ''
 		);
 
@@ -141,6 +154,11 @@ class tx_templavoila_wizard extends t3lib_SCbase {
 
 		// CLEANSE SETTINGS
 		$this->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->MOD_MENU, t3lib_div::_GP('SET'), $this->MCONF['name']);
+
+		// Transfer defaults from the pageTS-config
+		if (!isset($this->MOD_SETTINGS['set_rendermode'])) {
+			$this->MOD_SETTINGS['set_rendermode'] = $this->config['renderMode'];
+		}
 	}
 
 	/**
@@ -179,6 +197,7 @@ class tx_templavoila_wizard extends t3lib_SCbase {
 
 			// Setting up support for context menus (when clicking the items icon)
 			$CMparts = $this->doc->getContextMenuCode();
+
 			$this->doc->bodyTagAdditions = $CMparts[1];
 			$this->doc->JScode .= $CMparts[0];
 			$this->doc->JScode .= $this->doc->getDynTabMenuJScode();
@@ -226,11 +245,16 @@ class tx_templavoila_wizard extends t3lib_SCbase {
 	function renderModuleContent($singleView = false) {
 		global $BE_USER, $BACK_PATH;
 
+		// version-switch
+		$suffix = '';
+		if (is_callable(array('t3lib_div', 'int_from_ver')) && t3lib_div::int_from_ver(TYPO3_version) >= 4003000)
+			$suffix = '_43';
+
 		$content = '';
 
 		// size-wizard -----------------------------------------------------------------------
 		if ($this->wiz == 'site') {
-			require_once(t3lib_extMgm::extPath('templavoila') . 'wizards/class.tx_templavoila_wizards_site.php');
+			require_once(t3lib_extMgm::extPath('templavoila') . 'wizards/class.tx_templavoila_wizards_site' . $suffix . '.php');
 
 			$content .= $this->doc->startPage($GLOBALS['LANG']->getLL('createnewsite_title'));
 			$content .= $this->doc->header($GLOBALS['LANG']->getLL('createnewsite_title'));
@@ -245,7 +269,7 @@ class tx_templavoila_wizard extends t3lib_SCbase {
 		}
 		// page-wizard -----------------------------------------------------------------------
 		else if ($this->wiz == 'page') {
-			require_once(t3lib_extMgm::extPath('templavoila') . 'wizards/class.tx_templavoila_wizards_page.php');
+			require_once(t3lib_extMgm::extPath('templavoila') . 'wizards/class.tx_templavoila_wizards_page' . $suffix . '.php');
 
 			$content .= $this->doc->startPage($GLOBALS['LANG']->getLL('createnewpage_title'));
 			$content .= $this->doc->header($GLOBALS['LANG']->getLL('createnewpage_title'));
@@ -259,7 +283,7 @@ class tx_templavoila_wizard extends t3lib_SCbase {
 		}
 		// content-wizard --------------------------------------------------------------------
 		else if ($this->wiz == 'content') {
-			require_once(t3lib_extMgm::extPath('templavoila') . 'wizards/class.tx_templavoila_wizards_content.php');
+			require_once(t3lib_extMgm::extPath('templavoila') . 'wizards/class.tx_templavoila_wizards_content' . $suffix . '.php');
 
 			$content .= $this->doc->startPage($GLOBALS['LANG']->getLL('createnewcontent_title'));
 			$content .= $this->doc->header($GLOBALS['LANG']->getLL('createnewcontent_title'));
@@ -315,6 +339,48 @@ class tx_templavoila_wizard extends t3lib_SCbase {
 class tx_templavoila_wizard_integral extends tx_templavoila_wizard {
 
 	/**
+	 * Preparing menu content
+	 *
+	 * @return	void
+	 */
+	function menuConfig() {
+		parent::menuConfig();
+	}
+
+	/**
+	 * [Describe function...]
+	 *
+	 * @return	[type]		...
+	 */
+	function getOptsMenuNoHSC() {
+		$options = '
+			<div id="options-menu">
+				<a href="#" class="toolbar-item">
+					<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/options.gif') . ' title="' . $GLOBALS['LANG']->getLL('wizard_settings', 1) . '" alt="Options" />' . '
+				</a>
+				<ul class="toolbar-item-menu" style="display: none; width: 185px;">
+		';
+
+		/* general option-group */
+		{
+			$link = $this->baseScript . $this->link_getParameters() . '&SET[set_rendermode]=###';
+
+			$entries[] = '<li class="mradio'.(!$this->MOD_SETTINGS['set_rendermode'] ? ' selected' : '') . '" name="set_rendermode"><a href="' . str_replace('###', ''    , $link) . '"' . '>' . $GLOBALS['LANG']->getLL('wizard_settings_renderlist', 1) . '</a></li>';
+			$entries[] = '<li class="mradio'.( $this->MOD_SETTINGS['set_rendermode'] ? ' selected' : '') . '" name="set_rendermode"><a href="' . str_replace('###', 'tabs', $link) . '"' . '>' . $GLOBALS['LANG']->getLL('wizard_settings_rendertabs', 1) . '</a></li>';
+
+			$group = '<ul class="group">'.implode(chr(10), $entries).'</ul>';
+			$options .= '<li class="group">' . $group . '</li>';
+		}
+
+		$options .= '
+			</ul>
+			</div>
+		';
+
+		return $options;
+	}
+
+	/**
 	 * Document Template Object
 	 *
 	 * @var mediumDoc
@@ -336,6 +402,10 @@ class tx_templavoila_wizard_integral extends tx_templavoila_wizard {
 
 		// Access check...
 		if (is_array($this->altRoot)) {
+			// The page will show only if there is a valid page and if this page may be viewed by the user
+			$altr = t3lib_BEfunc::getRecordWSOL($this->altRoot['table'], $this->altRoot['uid'], 'pid');
+			$this->pageinfo = t3lib_BEfunc::readPageAccess($altr['pid'], $this->perms_clause);
+
 			$access = true;
 		} else {
 			// The page will show only if there is a valid page and if this page may be viewed by the user
@@ -427,11 +497,16 @@ class tx_templavoila_wizard_integral extends tx_templavoila_wizard {
 
 			// Setting up support for context menus (when clicking the items icon)
 			$CMparts = $this->doc->getContextMenuCode();
+
 			$this->doc->bodyTagAdditions = $CMparts[1];
 			$this->doc->JScode .= $CMparts[0];
 		//	$this->doc->JScode .= $this->doc->getDynTabMenuJScode();
 			$this->doc->postCode .= $CMparts[2];
 			$this->doc->form = '<form action="' . htmlspecialchars($this->baseScript . $this->link_getParameters()) . '" method="post" autocomplete="off">';
+
+			/* Prototype / Scriptaculous */
+			$this->doc->JScode .= '<script src="' . $this->doc->backPath . 'contrib/prototype/prototype.js" type="text/javascript"></script>';
+			$this->doc->JScode .= '<script src="' . $this->doc->backPath . 'contrib/scriptaculous/effects.js" type="text/javascript"></script>';
 
 			$vContent = $this->doc->getVersionSelector($this->id, 1);
 			if ($vContent)	{
@@ -451,7 +526,7 @@ class tx_templavoila_wizard_integral extends tx_templavoila_wizard {
 			$markers = array(
 				'CSH'       => $docHeaderButtons['csh'],
 				'FUNC_MENU' => '',
-				'OPTS_MENU' => '',
+				'OPTS_MENU' => $this->getOptsMenuNoHSC(),
 
 				'CONTENT'   => $this->content,
 

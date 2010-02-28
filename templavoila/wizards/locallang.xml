@@ -11,6 +11,10 @@
 		<languageKey index="default" type="array">
 			<label index="title">TemplaVoilà Wizard</label>
 
+			<label index="wizard_settings">Options</label>
+			<label index="wizard_settings_rendertabs">Group elements in tabs</label>
+			<label index="wizard_settings_renderlist">Group elements in lists</label>
+
 			<label index="template_nodescriptionavailable">No description available.</label>
 			<label index="template_titledefault">Default template</label>
 			<label index="template_descriptiondefault">Standard Layout, definiert durch den Designer dieser Website.</label>

@@ -506,10 +506,12 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 				$tabs[] = $cnf;
 
 			// Create setting handlers:
-			$settings = '<p>'.
-					t3lib_BEfunc::getFuncCheck('', 'SET[set_details]', $this->MOD_SETTINGS['set_details'], '', t3lib_div::implodeArrayForUrl('', $_GET, '', 1, 1)).
-					' ' . $GLOBALS['LANG']->getLL('center_details') . ' &nbsp;&nbsp;&nbsp;'.
-				'</p><hr />';
+			$settings = '
+				<p>' .
+					t3lib_BEfunc::getFuncCheck('', 'SET[set_details]', $this->MOD_SETTINGS['set_details'], '', t3lib_div::implodeArrayForUrl('', $_GET, '', 1, 1)) .
+					' ' . $GLOBALS['LANG']->getLL('center_details') . ' &nbsp;&nbsp;&nbsp;
+				</p>
+				<hr />';
 
 			// Add output:
 			$this->content .=
@@ -822,7 +824,7 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 
 	var $templatesDir;
 
-		// Internal, dynamic:
+	// Internal, dynamic:
 	var $be_user_Array;
 	var $CALC_PERMS;
 	var $pageinfo;
@@ -940,8 +942,8 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 		{
 			$link = $this->baseScript . $this->link_getParameters() . '&SET[set_details]=###';
 
-			$entries[] = '<li class="mradio'.(!$this->MOD_SETTINGS['set_details']?' selected':'').'" name="set_details"><a href="' . str_replace('###', '', $link).'"'. '>' . $GLOBALS['LANG']->getLL('center_settings_hidden', 1) . '</a></li>';
-			$entries[] = '<li class="mradio'.( $this->MOD_SETTINGS['set_details']?' selected':'').'" name="set_details"><a href="' . str_replace('###', '1', $link).'"'.'>' . $GLOBALS['LANG']->getLL('center_settings_all', 1) . '</a></li>';
+			$entries[] = '<li class="mradio' . (!$this->MOD_SETTINGS['set_details'] ? ' selected' : '') . '" name="set_details"><a href="' . str_replace('###', '' , $link) . '"' . '>' . $GLOBALS['LANG']->getLL('center_settings_hidden', 1) . '</a></li>';
+			$entries[] = '<li class="mradio' . ( $this->MOD_SETTINGS['set_details'] ? ' selected' : '') . '" name="set_details"><a href="' . str_replace('###', '1', $link) . '"' . '>' . $GLOBALS['LANG']->getLL('center_settings_all', 1) . '</a></li>';
 
 			$group = '<ul class="group">'.implode(chr(10), $entries).'</ul>';
 			$options .= '<li class="group">' . $group . '</li>';
@@ -1078,7 +1080,7 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 			$docHeaderButtons = $this->getButtons();
 			$markers = array(
 				'CSH'       => $docHeaderButtons['csh'],
-				'FUNC_MENU' => $funcs ? $this->getFuncMenuNoHSC($this->id, 'SET[page]', $this->MOD_SETTINGS['page'], $this->MOD_MENU['page'],'',t3lib_div::implodeArrayForUrl('',$_GET,'',1,1))	: '',
+				'FUNC_MENU' => $funcs ? $this->getFuncMenuNoHSC($this->id, 'SET[page]', $this->MOD_SETTINGS['page'], $this->MOD_MENU['page'], '', t3lib_div::implodeArrayForUrl('', $_GET, '', 1, 1)) : '',
 				'OPTS_MENU' => $funcs ? $this->getOptsMenuNoHSC() : '',
 
 				'CONTENT'   => $this->content

@@ -4098,7 +4098,7 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 
 		// Access check...
 		// The page will show only if there is a valid page and if this page may be viewed by the user
-		$this->pageinfo = t3lib_BEfunc::readPageAccess($this->id,$this->perms_clause);
+		$this->pageinfo = t3lib_BEfunc::readPageAccess($this->id, $this->perms_clause);
 		$access = is_array($this->pageinfo) ? 1 : 0;
 
 		if (($this->id && $access) || ($BE_USER->user['admin'] && !$this->id))	{
@@ -4109,8 +4109,12 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 			}
 
 			$this->CALC_PERMS = $BE_USER->calcPerms($this->pageinfo);
-			if ($BE_USER->user['admin'] && !$this->id)	{
-				$this->pageinfo = array('title' => '[root-level]','uid'=>0,'pid'=>0);
+			if ($BE_USER->user['admin'] && !$this->id) {
+				$this->pageinfo = array(
+					'title' => '[root-level]',
+					'uid' => 0,
+					'pid' => 0
+				);
 			}
 
 			$this->doc = t3lib_div::makeInstance('template');

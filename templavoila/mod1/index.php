@@ -3624,6 +3624,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 
 			// Setting up support for context menus (when clicking the items icon)
 			$CMparts = $this->doc->getContextMenuCode();
+
 			$this->doc->bodyTagAdditions = $CMparts[1];
 			$this->doc->JScode .= $CMparts[0];
 		//	$this->doc->JScode .= $this->doc->getDynTabMenuJScode();
