@@ -313,9 +313,12 @@ class tx_templavoila_wizard extends t3lib_SCbase {
 	 */
 	function link_getParameters()	{
 		$output =
-			'id=' . $this->id .
+			'wiz=' . $this->wiz .
+			'&amp;id=' . $this->id .
 			(is_array($this->altRoot) ? t3lib_div::implodeArrayForUrl('altRoot', $this->altRoot) : '') .
-			($this->versionId ? '&amp;versionId='.rawurlencode($this->versionId) : '');
+			($this->versionId ? '&amp;versionId=' . rawurlencode($this->versionId) : '') .
+			(t3lib_div::_GP('parentRecord') ? '&amp;parentRecord=' . rawurlencode(t3lib_div::_GP('parentRecord')) : '') .
+			(t3lib_div::_GP('returnUrl') ? '&amp;returnUrl=' . rawurlencode(t3lib_div::_GP('returnUrl')) : '');
 
 		return $output;
 	}

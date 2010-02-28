@@ -2687,13 +2687,13 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			-->
 			<table border="0" cellspacing="1" cellpadding="1" class="typo3-dblist typo3-tvlist">
 			<colgroup>
-				<col width="*"   align="left"   />' . ($this->editDataStruct ? '
+				<col width="200" align="left"   />' . ($this->editDataStruct ? '
 				<col width="85"  align="center" />' : '
 				<col width="50"  align="center" />
 				<col width="*"   align="justify" />') . '
-				<col width="80"  align="center" />' . ($this->doMappingOfPath ? '
+				<col width="*"   align="center" />' . ($this->doMappingOfPath ? '
 				<col width="155" align="right"  />' : '
-				<col width="110" align="center" />') . ($BE_USER->check('tables_modify', 'tx_templavoila_tmplobj') ? '
+				<col width="130" align="center" />') . ($BE_USER->check('tables_modify', 'tx_templavoila_tmplobj') ? '
 				<col width="150" align="center" />' : '') . ($this->editDataStruct && !$this->_preview ? '
 				<col width="90"  align="center" />' : '') . '
 			</colgroup>

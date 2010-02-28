@@ -449,6 +449,7 @@ class tx_templavoila_wizards_content {
 	function wizard_getItem($groupKey, $itemKey, $itemConf) {
 		$itemConf['title'] = $GLOBALS['LANG']->sL($itemConf['title']);
 		$itemConf['description'] = $GLOBALS['LANG']->sL($itemConf['description']);
+
 		$itemConf['tt_content_defValues'] = $itemConf['tt_content_defValues.'];
 		unset($itemConf['tt_content_defValues.']);
 
