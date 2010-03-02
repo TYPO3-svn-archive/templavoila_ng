@@ -89,33 +89,32 @@ class tx_templavoila_mod1_specialdoktypes {
 		global $LANG, $BE_USER, $TYPO3_CONF_VARS;
 
 		if (intval($pageRecord['content_from_pid'])) {
-
 			// Prepare the record icon including a content sensitive menu link wrapped around it:
 			$pageTitle = htmlspecialchars(t3lib_div::fixed_lgd_cs(t3lib_BEfunc::getRecordTitle('pages', $pageRecord), 50));
-			$recordIcon = $recordIcon = '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_iconWorks::getIcon('pages', $pageRecord), '').' style="text-align: center; vertical-align: middle;" width="18" height="16" border="0" title="'.$pageTitle.'" alt="" />';
-			$editButton = $this->pObj->link_edit('<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/edit2.gif','').' title="'.htmlspecialchars($LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:editPage')).'" alt="" style="text-align: center; vertical-align: middle; border:0;" />', 'pages', $pageRecord['uid']);
+			$recordIcon = $recordIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_iconWorks::getIcon('pages', $pageRecord), '').' style="text-align: center; vertical-align: middle;" width="18" height="16" border="0" title="'.$pageTitle.'" alt="" />';
+			$editButton = $this->pObj->link_edit('<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/edit2.gif', '') . ' title="'.htmlspecialchars($LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:editPage')).'" alt="" style="text-align: center; vertical-align: middle; border:0;" />', 'pages', $pageRecord['uid']);
 
 			$sourcePageRecord = t3lib_beFunc::getRecordWSOL('pages', $pageRecord['content_from_pid']);
 			$sourceIcon = '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_iconWorks::getIcon('pages', $sourcePageRecord), '').' style="text-align: center; vertical-align: middle;" width="18" height="16" border="0" title="'.$sourcePageRecord['title'].'" alt="" />';
 			$sourceButton = $this->doc->wrapClickMenuOnIcon($sourceIcon, 'pages', $sourcePageRecord['uid'], 1, '&callingScriptId='.rawurlencode($this->doc->scriptID), 'new,copy,cut,pasteinto,pasteafter,delete');
 
 			$sourceLink = '
-				<a href="index.php?id='.$pageRecord['content_from_pid'].'">'.htmlspecialchars($LANG->getLL ('jumptocontentfrompidpage')).'</a>
+				<a href="' . $this->pObj->mod1Script . 'id='.$pageRecord['content_from_pid'] . '">' . htmlspecialchars($LANG->getLL ('jumptocontentfrompidpage')).'</a>
 			';
 
 			$content = '
 				<table border="0" cellpadding="2" cellspacing="0" style="border: 1px solid black; margin-bottom:5px; width:100%">
-					<tr style="background-color: '.$this->doc->bgColor2.';">
+					<tr style="background-color: ' . $this->doc->bgColor2 . ';">
 						<td nowrap="nowrap" colspan="2">
-							'.$recordIcon.$editButton.'
+							' . $recordIcon . $editButton . '
 							</a>
-							'.htmlspecialchars($pageRecord['title']).'
+							' . htmlspecialchars($pageRecord['title']) . '
 						</td>
 					</tr>
 					<tr>
 						<td style="width:80%;">
-						'.htmlspecialchars(sprintf ($LANG->getLL ('cannotedit_contentfrompid'), $sourcePageRecord['title'])).'<br /><br />
-						'.$sourceButton.'<strong>'.$sourceLink.'<strong>
+						' . htmlspecialchars(sprintf ($LANG->getLL('cannotedit_contentfrompid'), $sourcePageRecord['title'])).'<br /><br />
+						' . $sourceButton . '<strong>' . $sourceLink . '<strong>
 
 						</td>
 						<td>&nbsp;</td>
@@ -138,10 +137,10 @@ class tx_templavoila_mod1_specialdoktypes {
 	function renderDoktype_3($pageRecord) {
 		global $LANG, $BE_USER, $TYPO3_CONF_VARS;
 
-			// Prepare the record icon including a content sensitive menu link wrapped around it:
+		// Prepare the record icon including a content sensitive menu link wrapped around it:
 		$pageTitle = htmlspecialchars(t3lib_div::fixed_lgd_cs(t3lib_BEfunc::getRecordTitle('pages', $pageRecord), 50));
-		$recordIcon = $recordIcon = '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_iconWorks::getIcon('pages', $pageRecord), '').' style="text-align: center; vertical-align: middle;" width="18" height="16" border="0" title="'.$pageTitle.'" alt="" />';
-		$editButton = $this->pObj->link_edit('<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/edit2.gif','').' title="'.htmlspecialchars($LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:editPage')).'" alt="" style="text-align: center; vertical-align: middle; border:0;" />', 'pages', $pageRecord['uid']);
+		$recordIcon = $recordIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_iconWorks::getIcon('pages', $pageRecord), '').' style="text-align: center; vertical-align: middle;" width="18" height="16" border="0" title="'.$pageTitle.'" alt="" />';
+		$editButton = $this->pObj->link_edit('<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/edit2.gif', '') . ' title="' . htmlspecialchars($LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:editPage')).'" alt="" style="text-align: center; vertical-align: middle; border:0;" />', 'pages', $pageRecord['uid']);
 
 		switch ($pageRecord['urltype']) {
 			case 2 :
@@ -163,9 +162,8 @@ class tx_templavoila_mod1_specialdoktypes {
 		}
 
 		$content =
-			$this->doc->icons(1).
-			$LANG->getLL ('cannotedit_externalurl_'.$pageRecord['urltype'],'',1).
-			' <br /><br /><strong><a href="'.$url.'" target="_new">'.htmlspecialchars(sprintf($LANG->getLL ('jumptoexternalurl'), $url)).'</a></strong>'
+			$this->doc->icons(1) . $LANG->getLL('cannotedit_externalurl_' . $pageRecord['urltype'], '', 1).
+			' <br /><br /><strong><a href="' . $url . '" target="_new">' . htmlspecialchars(sprintf($LANG->getLL('jumptoexternalurl'), $url)).'</a></strong>'
 		;
 
 		return $content;
@@ -189,14 +187,17 @@ class tx_templavoila_mod1_specialdoktypes {
 
 		if (intval($pageRecord['shortcut_mode']) == 0) {
 			$shortcutSourcePageRecord = t3lib_beFunc::getRecordWSOL('pages', $pageRecord['shortcut']);
-			$jumpToShortcutSourceLink = '<strong><a href="index.php?id='.$pageRecord['shortcut'].'">'.
-										'<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/shortcut.gif',''). ' style="border:none; vertical-align: middle" /> '.
-										$LANG->getLL ('jumptoshortcutdestination', '',1).'</a></strong>';
+			$jumpToShortcutSourceLink = '
+				<strong>
+				<a href="' . $this->pObj->mod1Script . 'id=' . $pageRecord['shortcut'] . '">
+					<img'.t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/shortcut.gif', '') . ' style="border:none; vertical-align: middle" /> '.
+					$LANG->getLL('jumptoshortcutdestination', '', 1) . '
+				</a>
+				</strong>';
 		}
 
 		$content =
-			$this->doc->icons(1).
-			htmlspecialchars(sprintf ($LANG->getLL ('cannotedit_shortcut_'.intval($pageRecord['shortcut_mode'])), $shortcutSourcePageRecord['title'])).
+			$this->doc->icons(1) . htmlspecialchars(sprintf($LANG->getLL('cannotedit_shortcut_' . intval($pageRecord['shortcut_mode'])), $shortcutSourcePageRecord['title'])).
 			'<br /><br />' .
 			$jumpToShortcutSourceLink
 		;
@@ -218,17 +219,17 @@ class tx_templavoila_mod1_specialdoktypes {
 			return FALSE;
 
 		// Put together the records icon including content sensitive menu link wrapped around it:
-		$recordIcon = '<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/i/pages_mountpoint.gif','').' style="text-align: center; vertical-align: middle;" width="18" height="16" border="0" title="'.htmlspecialchars('[pages]').'" alt="" />';
-		$recordIcon = $this->doc->wrapClickMenuOnIcon($recordIcon, 'pages', $this->id, 1, '&amp;callingScriptId='.rawurlencode($this->doc->scriptID));
+		$recordIcon = '<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/i/pages_mountpoint.gif', '') . ' style="text-align: center; vertical-align: middle;" width="18" height="16" border="0" title="'.htmlspecialchars('[pages]').'" alt="" />';
+		$recordIcon = $this->doc->wrapClickMenuOnIcon($recordIcon, 'pages', $this->id, 1, '&amp;callingScriptId=' . rawurlencode($this->doc->scriptID));
 
-		$editButton = $this->pObj->link_edit('<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/edit2.gif','').' title="'.htmlspecialchars($LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:editPage')).'" alt="" style="text-align: center; vertical-align: middle; border:0;" />', 'pages', $pageRecord['uid']);
+		$editButton = $this->pObj->link_edit('<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/edit2.gif', '') . ' title="'.htmlspecialchars($LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:editPage')).'" alt="" style="text-align: center; vertical-align: middle; border:0;" />', 'pages', $pageRecord['uid']);
 
 		$mountSourcePageRecord = t3lib_beFunc::getRecordWSOL('pages', $pageRecord['mount_pid']);
-		$mountSourceIcon = '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_iconWorks::getIcon('pages', $mountSourcePageRecord), '').' style="text-align: center; vertical-align: middle;" width="18" height="16" border="0" title="'.$mountSourcePageRecord['title'].'" alt="" />';
+		$mountSourceIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_iconWorks::getIcon('pages', $mountSourcePageRecord), '').' style="text-align: center; vertical-align: middle;" width="18" height="16" border="0" title="'.$mountSourcePageRecord['title'].'" alt="" />';
 		$mountSourceButton = $this->doc->wrapClickMenuOnIcon($mountSourceIcon, 'pages', $mountSourcePageRecord['uid'], 1, '&callingScriptId='.rawurlencode($this->doc->scriptID), 'new,copy,cut,pasteinto,pasteafter,delete');
 
 		$mountSourceLink = '<br /><br />
-			<a href="index.php?id='.$pageRecord['mount_pid'].'">'.htmlspecialchars($LANG->getLL ('jumptomountsourcepage')).'</a>
+			<a href="' . $this->pObj->mod1Script . 'id=' . $pageRecord['mount_pid'] . '">' . htmlspecialchars($LANG->getLL('jumptomountsourcepage')).'</a>
 		';
 
 		$content =
@@ -264,12 +265,12 @@ class tx_templavoila_mod1_specialdoktypes {
 				<strong><a href="#" onClick="' . $onClick . '">' . $LANG->getLL('editpage_sysfolder_switchtolistview','',1).'</a></strong>
 			';
 		} else {
-			$listModuleLink = $LANG->getLL('editpage_sysfolder_listview_noaccess','',1);
+			$listModuleLink = $LANG->getLL('editpage_sysfolder_listview_noaccess', '', 1);
 		}
 
 		$content =
 			$this->doc->icons(1).
-			$LANG->getLL('editpage_sysfolder_intro','',1).
+			$LANG->getLL('editpage_sysfolder_intro', '', 1).
 			$listModuleLink
 		;
 
