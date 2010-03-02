@@ -212,7 +212,7 @@ class tx_templavoila_mod1_clipboard {
 		$clipboardElementHasSubElements = count($clipboardSubElementUidsArr) > 0;
 
 		if ($clipboardElementHasSubElements) {
-			if (array_search ($destinationRecord['uid'], $clipboardSubElementUidsArr) !== FALSE) {
+			if (array_search($destinationRecord['uid'], $clipboardSubElementUidsArr) !== FALSE) {
 				return '';
 			}
 			if ($origDestinationPointer['uid'] == $clipboardElementUid) {
@@ -258,7 +258,8 @@ class tx_templavoila_mod1_clipboard {
 		$pid = $this->pObj->id;	// If workspaces should evaluated non-used elements it must consider the id: For "element" and "branch" versions it should accept the incoming id, for "page" type versions it must be remapped (because content elements are then related to the id of the offline version)
 
 		$res = $TYPO3_DB->exec_SELECTquery (
-			t3lib_BEfunc::getCommonSelectFields('tt_content', '', array('uid', 'header', 'bodytext', 'sys_language_uid')),
+		//	t3lib_BEfunc::getCommonSelectFields('tt_content', '', array('uid', 'header', 'bodytext', 'sys_language_uid')),
+			'*',
 			'tt_content',
 			'pid=' . intval($pid) . ' ' .
 				'AND uid NOT IN (' . implode(',', $usedUids) . ') '.
