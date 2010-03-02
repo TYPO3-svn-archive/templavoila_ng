@@ -34,11 +34,14 @@
 			<label index="titlePreview">Preview of Data Structure sample data merged into the mapped tags</label>
 			<label index="titleMapping">Mapping window</label>
 			<label index="titleBuilding">Building Data Structure</label>
+			<label index="titleSettings">Data Structure settings</label>
 
+			<label index="tabFileSettings">Settings</label>
 			<label index="tabFileDetails">Information</label>
 			<label index="tabFileStructure">Structure</label>
-			<label index="tabDSStructure">Structure</label>
+			<label index="tabDSSettings">Settings</label>
 			<label index="tabDSDetails">Information</label>
+			<label index="tabDSStructure">Structure</label>
 			<label index="tabTODetails">Information</label>
 			<label index="tabHeadParts">Head-elements</label>
 			<label index="tabBodyParts">Body-elements</label>
@@ -49,6 +52,7 @@
 			<label index="tabXML">XML</label>
 
 			<label index="structureFile">Data Structure File</label>
+			<label index="structureInfoSettings">Data Structure Settings</label>
 			<label index="structureInfoOrigin">Data Structure Origin</label>
 			<label index="structureInfoXML">Data Structure XML</label>
 			<label index="structureInfoParts">Data Structure Details</label>

@@ -218,6 +218,7 @@ class tx_templavoila_cm1_presets {
 							break;
 						case 'image':
 						case 'imagefixed':
+						case 'imagelist':
 							/* preserve previous config, if of the right kind */
 							if (($reset || ($elArray[$key]['TCEforms']['config']['type'] != 'group'))) {
 								$elArray[$key]['TCEforms']['label' ] = $elArray[$key]['tx_templavoila']['title'];
@@ -248,7 +249,7 @@ class tx_templavoila_cm1_presets {
 	10.file.import.listNum = 0
 	10.file.maxW = ' . $maxW . '
 					';			// Proper alignment (at least for the first level)
-								} else {
+								} else if ($elArray[$key]['tx_templavoila']['eType'] == 'imagefixed') {
 									$elArray[$key]['tx_templavoila']['TypoScript'] = '
 	10 = ' . $typoScriptImageObject . '
 	10.file.XY = ' . $maxW . ',' . $maxH . '
@@ -261,7 +262,21 @@ class tx_templavoila_cm1_presets {
 	10.file.minW = ' . $maxW . '
 	10.file.maxH = ' . $maxH . '
 	10.file.minH = ' . $maxH . '
-					';			// Proper alignment (at least for the first level)
+';			// Proper alignment (at least for the first level)
+								} else if ($elArray[$key]['tx_templavoila']['eType'] == 'imagelist') {
+									$elArray[$key]['tx_templavoila']['TypoScript'] = '
+	10 = HTML
+	10.value.current = 1
+	10.value.split.token = ,
+	10.value.split.cObjNum = 1
+	10.value.split.1 {
+	  10 = IMAGE
+	  10.file.import = uploads/tx_templavoila/
+	  10.file.import.current = 1
+	  10.file.import.listNum = 0
+	  10.file.maxW = ' . $maxW . '
+	}
+';			// Proper alignment (at least for the first level)
 								}
 							}
 
@@ -271,7 +286,7 @@ class tx_templavoila_cm1_presets {
 								if ($elArray[$theKey]['tx_templavoila']['eType'] == 'link') {
 									$elArray[$key]['tx_templavoila']['TypoScript'] .= '
 	10.stdWrap.typolink.parameter.field = ' . $theKey . '
-					';			// Proper alignment (at least for the first level)
+';			// Proper alignment (at least for the first level)
 									break;
 								}
 							}
@@ -306,7 +321,7 @@ class tx_templavoila_cm1_presets {
 	10 = TEXT
 	10.typolink.parameter.current = 1
 	10.typolink.returnLast = url
-					';			// Proper alignment (at least for the first level)
+';			// Proper alignment (at least for the first level)
 									/* preserve previous config, if explicitly set */
 									if (!isset($elArray[$key]['tx_templavoila']['proc']['HSC']) || $reset)
 										$elArray[$key]['tx_templavoila']['proc']['HSC'] = 1;
@@ -315,7 +330,7 @@ class tx_templavoila_cm1_presets {
 									$elArray[$key]['tx_templavoila']['TypoScript'] = '
 	10 = TEXT
 	10.typolink.parameter.current = 1
-					';			// Proper alignment (at least for the first level)
+';			// Proper alignment (at least for the first level)
 								}
 							}
 							break;
@@ -342,7 +357,7 @@ class tx_templavoila_cm1_presets {
 	10.source.current = 1
 	10.tables = tt_content' . ($scope == TVDS_SCOPE_PAGE ? '
 	10.wrap = <!--TYPO3SEARCH_begin--> | <!--TYPO3SEARCH_end-->' : '') . '
-					';			// Proper alignment (at least for the first level)
+';			// Proper alignment (at least for the first level)
 							}
 
 							$elArray[$key]['tx_templavoila']['oldStyleColumnNumber'] = $eTypeCECounter;
@@ -404,8 +419,8 @@ class tx_templavoila_cm1_presets {
 										$elArray[$key]['tx_templavoila']['TypoScript'] = '
 	10 = TEXT
 	10.current = 1
-	10.typolink.parameter.field = '.$theKey.'
-										';
+	10.typolink.parameter.field = ' . $theKey . '
+';			// Proper alignment (at least for the first level)
 									}
 								}
 							}
@@ -431,7 +446,7 @@ class tx_templavoila_cm1_presets {
 	  10.offset = 0,14
 	  10.fontSize = 14
 	}
-								';
+';			// Proper alignment (at least for the first level)
 							}
 							// Normal output.
 							else if (!isset($elArray[$key]['tx_templavoila']['proc']['HSC']) || $reset) {

@@ -254,7 +254,7 @@ class tx_templavoila_wizard extends t3lib_SCbase {
 
 		// size-wizard -----------------------------------------------------------------------
 		if ($this->wiz == 'site') {
-			require_once(t3lib_extMgm::extPath('templavoila') . 'wizards/class.tx_templavoila_wizards_site' . $suffix . '.php');
+			require_once(t3lib_extMgm::extPath('templavoila') . 'wizards/class.tx_templavoila_wizards_site' . /*$suffix .*/ '.php');
 
 			$content .= $this->doc->startPage($GLOBALS['LANG']->getLL('createnewsite_title'));
 			$content .= $this->doc->header($GLOBALS['LANG']->getLL('createnewsite_title'));
@@ -269,7 +269,7 @@ class tx_templavoila_wizard extends t3lib_SCbase {
 		}
 		// page-wizard -----------------------------------------------------------------------
 		else if ($this->wiz == 'page') {
-			require_once(t3lib_extMgm::extPath('templavoila') . 'wizards/class.tx_templavoila_wizards_page' . $suffix . '.php');
+			require_once(t3lib_extMgm::extPath('templavoila') . 'wizards/class.tx_templavoila_wizards_page' . /*$suffix .*/ '.php');
 
 			$content .= $this->doc->startPage($GLOBALS['LANG']->getLL('createnewpage_title'));
 			$content .= $this->doc->header($GLOBALS['LANG']->getLL('createnewpage_title'));
@@ -313,12 +313,9 @@ class tx_templavoila_wizard extends t3lib_SCbase {
 	 */
 	function link_getParameters()	{
 		$output =
-			'wiz=' . $this->wiz .
-			'&amp;id=' . $this->id .
+			'id=' . $this->id .
 			(is_array($this->altRoot) ? t3lib_div::implodeArrayForUrl('altRoot', $this->altRoot) : '') .
-			($this->versionId ? '&amp;versionId=' . rawurlencode($this->versionId) : '') .
-			(t3lib_div::_GP('parentRecord') ? '&amp;parentRecord=' . rawurlencode(t3lib_div::_GP('parentRecord')) : '') .
-			(t3lib_div::_GP('returnUrl') ? '&amp;returnUrl=' . rawurlencode(t3lib_div::_GP('returnUrl')) : '');
+			($this->versionId ? '&amp;versionId=' . rawurlencode($this->versionId) : '');
 
 		return $output;
 	}
@@ -366,7 +363,7 @@ class tx_templavoila_wizard_integral extends tx_templavoila_wizard {
 
 		/* general option-group */
 		{
-			$link = $this->baseScript . $this->link_getParameters() . '&SET[set_rendermode]=###';
+			$link = $this->baseScript . $this->link_getAllParameters() . '&SET[set_rendermode]=###';
 
 			$entries[] = '<li class="mradio'.(!$this->MOD_SETTINGS['set_rendermode'] ? ' selected' : '') . '" name="set_rendermode"><a href="' . str_replace('###', ''    , $link) . '"' . '>' . $GLOBALS['LANG']->getLL('wizard_settings_renderlist', 1) . '</a></li>';
 			$entries[] = '<li class="mradio'.( $this->MOD_SETTINGS['set_rendermode'] ? ' selected' : '') . '" name="set_rendermode"><a href="' . str_replace('###', 'tabs', $link) . '"' . '>' . $GLOBALS['LANG']->getLL('wizard_settings_rendertabs', 1) . '</a></li>';
@@ -696,6 +693,25 @@ class tx_templavoila_wizard_integral extends tx_templavoila_wizard {
 		$pageInfo = $theIcon . '<em>[pid: ' . $pageRecord['uid'] . ']</em>';
 		return $pageInfo;
 	}
+
+	/**
+	 * Creates additional parameters which are used for linking to the current page while editing it
+	 *
+	 * @return	string		parameters
+	 * @access public
+	 */
+	function link_getAllParameters()	{
+		$output =
+			'wiz=' . $this->wiz .
+			'&amp;id=' . $this->id .
+			(is_array($this->altRoot) ? t3lib_div::implodeArrayForUrl('altRoot', $this->altRoot) : '') .
+			($this->versionId ? '&amp;versionId=' . rawurlencode($this->versionId) : '') .
+			(t3lib_div::_GP('parentRecord') ? '&amp;parentRecord=' . rawurlencode(t3lib_div::_GP('parentRecord')) : '') .
+			(t3lib_div::_GP('returnUrl') ? '&amp;returnUrl=' . rawurlencode(t3lib_div::_GP('returnUrl')) : '');
+
+		return $output;
+	}
+
 }
 
 // Include extension?

@@ -345,22 +345,33 @@ class tx_templavoila_mod2_xml {
 	/*	$DScontent = array('meta' => $DScontent['meta']);	*/
 
 		$languageMode = '';
+		$layoutMode = 'Automatic layout in the page-module';
+		$sheetMode = 'Automatic sheet selection: [sDEF]';
+
 		if (is_array($DScontent['meta'])) {
-			if ($DScontent['meta']['langDisable'])	{
+			if ($DScontent['meta']['langDisable']) {
 				$languageMode = $GLOBALS['LANG']->getLL('disabled');
 			} elseif ($DScontent['meta']['langChildren']) {
 				$languageMode = $GLOBALS['LANG']->getLL('inherited');
 			} else {
 				$languageMode = $GLOBALS['LANG']->getLL('separated');
 			}
+
+			if (trim($DScontent['meta']['sheetSelector'])) {
+				$layoutMode = 'Contains a custom sheet selector: [' . $DScontent['meta']['sheetSelector'] . ']';
+			}
+
+			if (trim($DScontent['meta']['beLayout'])) {
+				$layoutMode = 'Contains a custom backend layout for the page-module';
+			}
 		}
 
 		if ($referenceFields) {
 			$containerMode = $GLOBALS['LANG']->getLL('yes');
 
-			if ($languageMode === 'Separate') {
+			if ($languageMode === $GLOBALS['LANG']->getLL('separated')) {
 				$containerMode .= ' ' . $this->doc->icons(3) . $GLOBALS['LANG']->getLL('center_refs_sep');
-			} else if ($languageMode === 'Inheritance') {
+			} else if ($languageMode === $GLOBALS['LANG']->getLL('inherited')) {
 				$containerMode .= ' ' . $this->doc->icons(2);
 				if ($inputFields) {
 					$containerMode .= $GLOBALS['LANG']->getLL('center_refs_inp');
@@ -381,7 +392,9 @@ class tx_templavoila_mod2_xml {
 				'rootElements'    => $rootElements,
 				'referenceFields' => $referenceFields,
 				'inputFields'     => $inputFields,
-				'languageMode'    => $languageMode
+				'languageMode'    => $languageMode,
+				'layoutMode'      => $layoutMode,
+				'sheetMode'       => $sheetMode
 			)
 		);
 	}

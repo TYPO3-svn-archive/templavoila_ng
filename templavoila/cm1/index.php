@@ -244,9 +244,9 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 *
 	 * @return	void
 	 */
-	function menuConfig()    {
-		$this->MOD_MENU = Array (
-			'displayMode' => array	(
+	function menuConfig() {
+		$this->MOD_MENU = array(
+			'displayMode' => array(
 				'explode' => $GLOBALS['LANG']->getLL('displayModeExploded'),
 #				'_'	  => $GLOBALS['LANG']->getLL('displayModeOverlay'),
 				'source'  => $GLOBALS['LANG']->getLL('displayModeSource'),
@@ -257,6 +257,15 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		);
 
 		parent::menuConfig();
+	}
+
+	/**
+	 * Removes items from the ->MOD_MENU array. Used for the function menu selector.
+	 *
+	 * @return	void
+	 */
+	function menuDisable($DS_row) {
+
 	}
 
 	/**
@@ -376,7 +385,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	function array_merge_recursive_overrule($arr0, $arr1, $notAddKeys = 0, $includeEmtpyValues = true, $kill = true) {
 		foreach ($arr1 as $key => $val) {
 			if(is_array($arr0[$key])) {
-				if (is_array($arr1[$key]))	{
+				if (is_array($arr1[$key])) {
 					$arr0[$key] = $this->array_merge_recursive_overrule($arr0[$key],$arr1[$key],$notAddKeys,$includeEmtpyValues,$kill);
 				}
 				else if ($kill) {
@@ -1015,6 +1024,8 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			$cmd = 'preview';
 		} elseif (t3lib_div::_GP('_save_data_mapping')) {		// Saving mapping to Session
 			$cmd = 'save_data_mapping';
+		} elseif (t3lib_div::_GP('_save_settings')) {			// Saving settings
+			$cmd = 'save_settings';
 		} elseif (t3lib_div::_GP('_updateDS') ||
 			  t3lib_div::_GP('_updateDS_x')) {
 			$cmd = 'updateDS';
@@ -1141,18 +1152,33 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 		// Setting Current Mapping information to session variable content OR blank if none exists.
 		$currentMappingInfo = is_array($sesDat['currentMappingInfo']) ? $sesDat['currentMappingInfo'] : array();
+
 		// This will clean up the Current Mapping info to match the Data Structure.
 		$this->cleanUpMappingInfoAccordingToDS($currentMappingInfo, $dataStruct);
 
 		// CMD switch:
 		switch ($cmd) {
-
 			// Saving incoming Mapping Data to session data:
-			case 'save_data_mapping':
-				if (is_array($inputData = t3lib_div::_GP('dataMappingForm', 1))) {
-					$sesDat['currentMappingInfo'] = $currentMappingInfo = $this->array_merge_recursive_overrule($currentMappingInfo, $inputData);
-					$sesDat['dataStruct'] = $dataStruct;
+			case 'save_settings':
+				/* overwrite only if receiving new assignment */
+				if (is_array($inputData = t3lib_div::_GP('dataStructureForm', 1))) {
+					$dataStruct['meta'] = $this->array_merge_recursive_overrule($dataStruct['meta'], $inputData['meta']);
+					$this->cleanUpSettings(&$dataStruct['meta']);
 
+					$sesDat['autoDS']['meta'] =
+					$sesDat['dataStruct']['meta'] = $dataStruct['meta'];
+					$GLOBALS['BE_USER']->setAndSaveSessionData($this->MCONF['name'] . '_mappingInfo', $sesDat);
+				}
+				break;
+
+			case 'save_data_mapping':
+				/* overwrite only if receiving new assignment */
+				if (is_array($inputData = t3lib_div::_GP('dataMappingForm', 1))) {
+					$currentMappingInfo = $this->array_merge_recursive_overrule($currentMappingInfo, $inputData);
+					$this->cleanUpMappingInfoAccordingToDS($currentMappingInfo, $dataStruct);
+
+					$sesDat['currentMappingInfo'] = $currentMappingInfo;
+					$sesDat['dataStruct'] = $dataStruct;
 					$GLOBALS['BE_USER']->setAndSaveSessionData($this->MCONF['name'] . '_mappingInfo', $sesDat);
 				}
 				break;
@@ -1160,8 +1186,11 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			// Saving incoming Data Structure settings to session data:
 			case 'updateDS':
 				if (is_array($inDS = t3lib_div::_GP('autoDS', 1))) {
-					$sesDat['dataStruct'] = $sesDat['autoDS'] = $dataStruct = $this->array_merge_recursive_overrule($dataStruct, $inDS);
+					$dataStruct = $this->array_merge_recursive_overrule($dataStruct, $inDS);
+					$this->cleanUpSettings(&$dataStruct['meta']);
 
+					$sesDat['autoDS'] =
+					$sesDat['dataStruct'] = $dataStruct;
 					$GLOBALS['BE_USER']->setAndSaveSessionData($this->MCONF['name'] . '_mappingInfo', $sesDat);
 				}
 
@@ -1206,7 +1235,6 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 		// Creating $templatemapping array with cached mapping content:
 		if (t3lib_div::inList('showXMLDS,save_dsto_into,save_dsto', $cmd)) {
-
 			// Template mapping prepared:
 			$templatemapping = array();
 			$templatemapping['MappingInfo'] = $currentMappingInfo;
@@ -1274,7 +1302,6 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 		// CMD switch:
 		switch ($cmd) {
-
 			// If it is requested to save the current DS and mapping information to a DS and TO record, then...:
 			case 'save_dsto_into':
 				// DS:
@@ -1373,7 +1400,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 						$presetsObj->substEtypeWithRealStuff($storeDataStruct['ROOT']['el'], $contentSplittedByMapping['sub']['ROOT'], $dsREC['scope']);
 					}
 
-					$dataProtXML = t3lib_div::array2xml_cs($storeDataStruct,'T3DataStructure', array('useCDATA' => 1));
+					$dataProtXML = t3lib_div::array2xml_cs($storeDataStruct, 'T3DataStructure', array('useCDATA' => 1));
 					$dataArr['tx_templavoila_datastructure'][$dsREC['uid']]['dataprot'] = $dataProtXML;
 
 					// Init TCEmain object and store:
@@ -1456,7 +1483,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			'title'
 		);
 
-		while(false !== ($row = $TYPO3_DB->sql_fetch_assoc($res))) {
+		while (false !== ($row = $TYPO3_DB->sql_fetch_assoc($res))) {
 			$sf_opt[] = '<option value="' . htmlspecialchars($row['uid']) . '">'.htmlspecialchars($row['title'] . ' (UID:' . $row['uid'] . ')') . '</option>';
 		}
 
@@ -1491,7 +1518,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			$optg = $opts[$num];
 
 			if (is_array($optg) && (count($optg) > 0)) {
-				$opt[] = '<optgroup class="c-divider" label="' . $nfo[0] . '"'.str_replace('50%', '0%', $nfo[1]) . '>';
+				$opt[] = '<optgroup class="c-divider" label="' . $nfo[0] . '"' . str_replace('50%', '0%', $nfo[1]) . '>';
 
 				foreach ($optg as $opid => $optf) {
 					$opt[] = '<optgroup label="' . $this->storageFolders[$opid] . '"' . str_replace('50%', '0%', $sysf) . '>';
@@ -1508,7 +1535,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		}
 
 		// Module Interface output begin:
-		switch($cmd)	{
+		switch ($cmd) {
 			// Show XML DS
 			case 'showXMLDS':
 				require_once(PATH_t3lib . 'class.t3lib_syntaxhl.php');
@@ -1620,15 +1647,16 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					$menuItems = array();
 
 					if (!$singleView) {
-					//	$menuItems[] = '<input type="submit" name="_showXMLDS"   value="' . $GLOBALS['LANG']->getLL('actionShow'   ) . '" title="' . $GLOBALS['LANG']->getLL('actiontitleShow'   ) . '" />';
-						$menuItems[] = '<input type="submit" name="_clear"       value="' . $GLOBALS['LANG']->getLL('actionClearDS') . '" title="' . $GLOBALS['LANG']->getLL('actiontitleClearDS') . '" />';
-					//	$menuItems[] = '<input type="submit" name="_preview"     value="' . $GLOBALS['LANG']->getLL('actionPreview') . '" title="' . $GLOBALS['LANG']->getLL('actiontitlePreview') . '" />';
-						$menuItems[] = '<input type="submit" name="_saveScreen"  value="' . $GLOBALS['LANG']->getLL('actionSaveas' ) . '" title="' . $GLOBALS['LANG']->getLL('actiontitleSaveas' ) . '" />'; if ($this->changedDS) {
-						$menuItems[] = '<input type="submit" name="_reload_from" value="' . $GLOBALS['LANG']->getLL('actionRevert' ) . '" title="' . $GLOBALS['LANG']->getLL('actiontitleRevertS') . '" />'; }
-						$menuItems[] = '<input type="submit" name="_loadScreen"  value="' . $GLOBALS['LANG']->getLL('actionLoad'   ) . '" title="' . $GLOBALS['LANG']->getLL('actiontitleLoad'   ) . '" />';
-						$menuItems[] = '<input type="submit" name="_DO_NOTHING"  value="' . $GLOBALS['LANG']->getLL('actionRefresh') . '" title="' . $GLOBALS['LANG']->getLL('actiontitleRefresh') . '" />';
+					//	$menuItems[] = '<input type="submit" name="_showXMLDS"     value="' . $GLOBALS['LANG']->getLL('actionShow'   ) . '" title="' . $GLOBALS['LANG']->getLL('actiontitleShow'   ) . '" />';
+						$menuItems[] = '<input type="submit" name="_clear"         value="' . $GLOBALS['LANG']->getLL('actionClearDS') . '" title="' . $GLOBALS['LANG']->getLL('actiontitleClearDS') . '" />';
+					//	$menuItems[] = '<input type="submit" name="_preview"       value="' . $GLOBALS['LANG']->getLL('actionPreview') . '" title="' . $GLOBALS['LANG']->getLL('actiontitlePreview') . '" />';
+						$menuItems[] = '<input type="submit" name="_saveScreen"    value="' . $GLOBALS['LANG']->getLL('actionSaveas' ) . '" title="' . $GLOBALS['LANG']->getLL('actiontitleSaveas' ) . '" />'; if ($this->changedDS) {
+						$menuItems[] = '<input type="submit" name="_reload_from"   value="' . $GLOBALS['LANG']->getLL('actionRevert' ) . '" title="' . $GLOBALS['LANG']->getLL('actiontitleRevertS') . '" />'; }
+						$menuItems[] = '<input type="submit" name="_loadScreen"    value="' . $GLOBALS['LANG']->getLL('actionLoad'   ) . '" title="' . $GLOBALS['LANG']->getLL('actiontitleLoad'   ) . '" />';
+						$menuItems[] = '<input type="submit" name="_DO_NOTHING"    value="' . $GLOBALS['LANG']->getLL('actionRefresh') . '" title="' . $GLOBALS['LANG']->getLL('actiontitleRefresh') . '" />';
 					} else {
-						$menuItems[] = '<input type="submit" name="_DO_NOTHING"  value="' . $GLOBALS['LANG']->getLL('actionApply'  ) . '" title="' . $GLOBALS['LANG']->getLL('actiontitleApply'  ) . '" />';
+						$menuItems[] = '<input type="submit" name="_save_settings" value="' . $GLOBALS['LANG']->getLL('actionApply'  ) . '" title="' . $GLOBALS['LANG']->getLL('actiontitleApply'  ) . '" />'; if ($this->changedDS) {
+						$menuItems[] = '<input type="submit" name="_reload_from"   value="' . $GLOBALS['LANG']->getLL('actionRevert' ) . '" title="' . $GLOBALS['LANG']->getLL('actiontitleRevertS') . '" />'; }
 					}
 
 					$menuContent = '
@@ -1647,7 +1675,11 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				// the preview-screen has it's own section and csh
 				if ($cmd == 'preview') {
 					$content .=
-						$this->renderTemplateMapper($this->displayFile,$this->displayPath, $dataStruct, $currentMappingInfo, $menuContent);
+						$this->renderTemplateMapper($this->displayFile, $this->displayPath, $dataStruct, $currentMappingInfo, $menuContent);
+				// show settings in meta-header
+				} else if ($cmd == 'meta') {
+					$content .=
+						$this->renderTemplateSettings($this->displayFile, $this->displayPath, $dataStruct, $currentMappingInfo, $menuContent);
 				} else {
 					$content .= '
 						<!--
@@ -1679,7 +1711,6 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 		// Working on Header and Body of HTML source:
 		if (@is_file($this->displayFile) && t3lib_div::getFileAbsFileName($this->displayFile)) {
-
 			// -----------------------------------------------------
 			// -- Aquiring structural view --
 			$this->doc->sectionBegin();
@@ -1694,7 +1725,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				-->
 				' .
 				$this->doc->section(
-					$GLOBALS['LANG']->getLL('structureInfoOrigin') . ': ' . $this->cshItem('xMOD_tx_templavoila', 'mapping_file', $this->doc->backPath,''),
+					$GLOBALS['LANG']->getLL('structureInfoOrigin') . ': ' . $this->cshItem('xMOD_tx_templavoila', 'mapping_file', $this->doc->backPath, ''),
 					$this->renderOrigin_details(),
 					FALSE,
 					TRUE,
@@ -1704,6 +1735,27 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			$this->parts['details'] = array(
 				'label' => $GLOBALS['LANG']->getLL('tabDSDetails'),
 				'content' => $originContent
+			);
+
+			// -----------------------------------------------------
+			// -- Write header of page --
+			$this->doc->sectionBegin();
+			$settingsContent = '
+				<!--
+					Settings (meta):
+				-->
+				' .
+				$this->doc->section(
+					$GLOBALS['LANG']->getLL('structureInfoSettings') . ': ' . $this->cshItem('xMOD_tx_templavoila', 'mapping_meta', $this->doc->backPath, ''),
+					$this->renderFile_editProcessing($singleView, 'meta'),
+					FALSE,
+					TRUE,
+					0,
+					TRUE);
+
+			$this->parts['settings'] = array(
+				'label' => $GLOBALS['LANG']->getLL('tabDSSettings'),
+				'content' => $settingsContent
 			);
 
 			// -----------------------------------------------------
@@ -1749,8 +1801,9 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				'label' => $GLOBALS['LANG']->getLL('tabPreview'),
 				'content' => $previewContent
 			);
-		} else
+		} else {
 			$content = $this->doc->section($GLOBALS['LANG']->getLL('templateFile') . ' ' . $GLOBALS['LANG']->getLL('error'), $GLOBALS['LANG']->getLL('errorFileNotFound'), 0, 1, 3);
+		}
 
 		$this->parts['structure'] = array(
 			'label' => $GLOBALS['LANG']->getLL('tabDSStructure'),
@@ -1811,6 +1864,8 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			$row = t3lib_BEfunc::getRecordWSOL('tx_templavoila_datastructure', $this->displayUid);
 
 			if (is_array($row)) {
+				// Turn off header-mapping for FCEs
+				$this->menuDisable($row);
 
 				// Write header of page:
 				$this->doc->sectionBegin();
@@ -1899,9 +1954,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				while (false !== ($TO_Row = $TYPO3_DB->sql_fetch_assoc($res)))	{
 					t3lib_BEfunc::workspaceOL('tx_templavoila_tmplobj', $TO_Row);
 
-					$fileref = t3lib_div::getFileAbsFileName($TO_Row['fileref']);
-
-					if ($fileref) {
+					if (($fileref = t3lib_div::getFileAbsFileName($TO_Row['fileref']))) {
 						// Link to updating DS/TO:
 						$onCl = $this->baseScript . 'id=' . $this->id . '&file=' . rawurlencode($fileref) . '&_load_ds_xml=1&_load_ds_xml_to=' . $TO_Row['uid'];
 						$onClMsg = 'if (confirm(\'' . $GLOBALS['LANG']->getLL('mess.onModifyAlert') . '\')) { document.location = \'' . $onCl . '\'; } return false;';
@@ -1960,7 +2013,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				if (is_array($dataStruct)) {
 					require_once(PATH_t3lib.'class.t3lib_syntaxhl.php');
 
-						// Make instance of syntax highlight class:
+					// Make instance of syntax highlight class:
 					$hlObj = t3lib_div::makeInstance('t3lib_syntaxhl');
 
 					$dataStructureXML = t3lib_div::array2xml_cs($origDataStruct,'T3DataStructure', array('useCDATA' => 1));
@@ -2070,6 +2123,9 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					if (is_array($DS_row) || @is_file($DSOfile)) {
 						// Get main DS array:
 						if (is_array($DS_row))	{
+							// Turn off header-mapping for FCEs
+							$this->menuDisable($DS_row);
+
 							// Get title and icon:
 							$tRows[] = $this->renderDS_info($DS_row);
 							// Get type:
@@ -2128,7 +2184,6 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 						// If there is a valid data structure, draw table:
 						if (is_array($dataStruct)) {
-
 							// -----------------------------------------------------
 							// Determine if DS is a template record and if it is a page template:
 							$showBodyTag = !is_array($DS_row) || intval($DS_row['scope']) == TVDS_SCOPE_PAGE ? TRUE : FALSE;
@@ -2331,7 +2386,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		$currentMappingInfo_head = is_array($sesDat['currentMappingInfo_head']) ? $sesDat['currentMappingInfo_head'] : array();
 		$currentMappingInfo      = is_array($sesDat['currentMappingInfo'     ]) ? $sesDat['currentMappingInfo'     ] : array();
 
-		$this->cleanUpMappingInfoAccordingToDS($currentMappingInfo,$dataStruct);
+		$this->cleanUpMappingInfoAccordingToDS($currentMappingInfo, $dataStruct);
 
 		// Perform processing for head -----------------------------------------------------
 		// GPvars, incoming data
@@ -2361,8 +2416,6 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		}
 
 		// Perform processing for body ----------------------------------------------------
-		// GPvars, incoming data
-		$inputData = t3lib_div::_GP('dataMappingForm', 1);
 
 		// Update session data:
 		if ($cmd == 'reload_from' || $cmd == 'clear' || $cmd == 'clear_body') {
@@ -2372,19 +2425,17 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			$sesDat['dataStruct'] = $dataStruct;
 			$sesDat['currentMappingInfo'] = $currentMappingInfo;
 			$GLOBALS['BE_USER']->setAndSaveSessionData($this->MCONF['name'] . '_mappingInfo', $sesDat);
-		} else {
-			if ($cmd == 'save_data_mapping' && is_array($inputData)) {
-				/* overwrite only if receiving new assignment */
-				if ($inputData) {
-					$currentMappingInfo =
-						$this->array_merge_recursive_overrule($currentMappingInfo, $inputData);
-				}
-
-				// Adding data structure to session data so that the PREVIEW window can access the DS easily...
-				$sesDat['dataStruct'] = $dataStruct;
-				$sesDat['currentMappingInfo'] = $currentMappingInfo;
-				$GLOBALS['BE_USER']->setAndSaveSessionData($this->MCONF['name'] . '_mappingInfo', $sesDat);
+		} else if ($cmd == 'save_data_mapping') {
+			/* overwrite only if receiving new assignment */
+			if (is_array($inputData = t3lib_div::_GP('dataMappingForm', 1))) {
+				$currentMappingInfo = $this->array_merge_recursive_overrule($currentMappingInfo, $inputData);
+				$this->cleanUpMappingInfoAccordingToDS($currentMappingInfo, $dataStruct);
 			}
+
+			// Adding data structure to session data so that the PREVIEW window can access the DS easily...
+			$sesDat['dataStruct'] = $dataStruct;
+			$sesDat['currentMappingInfo'] = $currentMappingInfo;
+			$GLOBALS['BE_USER']->setAndSaveSessionData($this->MCONF['name'] . '_mappingInfo', $sesDat);
 		}
 
 		// SAVE to template object
@@ -2605,6 +2656,98 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 		// Return result:
 		return $headerParts;
+	}
+
+	/**
+	 * Creates the template settings table + form
+	 *
+	 * @param	string		The abs file name to read
+	 * @param	string		The HTML-path to follow. Eg. 'td#content table[1] tr[1] / INNER | img[0]' or so. Normally comes from clicking a tag-image in the display frame.
+	 * @param	array		The data Structure to map to
+	 * @param	array		The current mapping information
+	 * @param	string		HTML content to show after the Data Structure table.
+	 * @return	string		HTML table.
+	 */
+	function renderTemplateSettings($displayFile, $path, $dataStruct = array(), $currentMappingInfo = array(), $htmlAfterDSTable = '') {
+		$meta = array(
+			'beLayout'		=> '',
+			'langDisable'		=> '',
+			'langChildren'		=> '',
+			'disableDataPreview'	=> '',
+			'sheetSelector'		=> '',
+			'noEditOnCreation'	=> ''
+		);
+
+		// Data Structure Meta array must be ... and array of course...
+		if (is_array($dataStruct) && is_array($dataStruct['meta'])) {
+			$meta = $this->array_merge_recursive_overrule($meta, $dataStruct['meta']);
+		}
+
+		// Create Data Structure table:
+		$content .= '
+			<!--
+				Data Structure settings:
+			-->
+
+			<fieldset>
+				<legend>FCE settings</legend>
+
+				<dl>
+					<dt><label>Language support:' .
+						$this->cshItem('xMOD_tx_templavoila', 'settings_languagemode', $this->doc->backPath, '', TRUE) . '
+					</label></dt>
+					<dd><select onchange="
+					switch (this.selectedIndex) {
+						case 0: document.getElementById(\'langDisable\').value = \'1\'; document.getElementById(\'langChildren\').value = \'0\'; break;
+						case 1: document.getElementById(\'langDisable\').value = \'0\'; document.getElementById(\'langChildren\').value = \'1\'; break;
+						case 2: document.getElementById(\'langDisable\').value = \'0\'; document.getElementById(\'langChildren\').value = \'0\'; break;
+					}
+					">
+						<option value="1" ' . ( $meta['langDisable']                           ? 'selected="selected"' : '') . '>Off</option>
+						<option value="2" ' . (!$meta['langDisable'] &&  $meta['langChildren'] ? 'selected="selected"' : '') . '>Inherited</option>
+						<option value="3" ' . (!$meta['langDisable'] && !$meta['langChildren'] ? 'selected="selected"' : '') . '>Seperated</option>
+					</select>
+					<input id="langDisable"  type="hidden" name="dataStructureForm[meta][langDisable]"  value="' . ($meta['langDisable' ] ? '1' : '0') . '" />
+					<input id="langChildren" type="hidden" name="dataStructureForm[meta][langChildren]" value="' . ($meta['langChildren'] ? '1' : '0') . '" />
+					</dd>
+				</dl>
+			</fieldset>
+
+			<fieldset>
+				<legend>TV settings</legend>
+
+				<dl>
+					<dt><label>Disable data previews permanently:' .
+						$this->cshItem('xMOD_tx_templavoila', 'settings_datapreview', $this->doc->backPath, '', TRUE) . '
+					</label></dt>
+					<dd><input type="checkbox" name="dataStructureForm[meta][disableDataPreview]" value="1" ' . ($meta['disableDataPreview'] ? 'checked="checked"' : '') . ' /></dd>
+					<dt><label>Don\'t show the edit form when a new content element has been created (it will be filled with default values):' .
+						$this->cshItem('xMOD_tx_templavoila', 'settings_contentwizard', $this->doc->backPath, '', TRUE) . '
+					</label></dt>
+					<dd><input type="checkbox" name="dataStructureForm[meta][noEditOnCreation]" value="1" ' . ($meta['noEditOnCreation'] ? 'checked="checked"' : '') . ' /></dd>
+					<dt><label>Custom sheet selector:' .
+						$this->cshItem('xMOD_tx_templavoila', 'settings_sheetselection', $this->doc->backPath, '', TRUE) . '
+					</label></dt>
+					<dd><input type="text" name="dataStructureForm[meta][sheetSelector]" value="' . htmlspecialchars(trim($meta['sheetSelector'])) . '" /></dd>
+				</dl>
+			</fieldset>
+
+			<fieldset>
+				<legend>Backend layout</legend>
+
+				<dl>
+					<dt><label>HTML' .
+						$this->cshItem('xMOD_tx_templavoila', 'settings_belayout', $this->doc->backPath, '', TRUE) . '
+					</label></dt>
+					<dd><textarea name="dataStructureForm[meta][beLayout]" rows="20">' .
+						htmlspecialchars($meta['beLayout']) .
+					'</textarea></dd>
+				</dl>
+			</fieldset>
+
+			' . $htmlAfterDSTable;
+
+		return $content;
 	}
 
 	/**
@@ -3191,6 +3334,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 							<option value="int"'.             ($insertDataArray['tx_templavoila']['eType'] == 'int'              ? ' selected="selected"' : '') . '>Integer value</option>
 							<option value="image"'.           ($insertDataArray['tx_templavoila']['eType'] == 'image'            ? ' selected="selected"' : '') . '>Image field</option>
 							<option value="imagefixed"'.      ($insertDataArray['tx_templavoila']['eType'] == 'imagefixed'       ? ' selected="selected"' : '') . '>Image field, fixed W+H</option>
+							<option value="imagelist"'.       ($insertDataArray['tx_templavoila']['eType'] == 'imagelist'        ? ' selected="selected"' : '') . '>Image list</option>
 							<option value="select"'.          ($insertDataArray['tx_templavoila']['eType'] == 'select'           ? ' selected="selected"' : '') . '>Selector box</option>
 						</optgroup>
 						<optgroup class="c-divider" label="' . $GLOBALS['LANG']->getLL('structureFormTSElements') . '">
@@ -3755,10 +3899,26 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			foreach($currentMappingInfo as $key => $value) {
 				if (!isset($dataStruct[$key])) {
 					unset($currentMappingInfo[$key]);
-				} else {
-					if (is_array($dataStruct[$key]['el'])) {
-						$this->cleanUpMappingInfoAccordingToDS($currentMappingInfo[$key]['el'], $dataStruct[$key]['el']);
-					}
+				} else if (is_array($dataStruct[$key]['el'])) {
+					$this->cleanUpMappingInfoAccordingToDS($currentMappingInfo[$key]['el'], $dataStruct[$key]['el']);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Function to clean up "old" stuff in the meta array. Basically it will remove EVERYTHING which is not known according to the input Data Structure
+	 *
+	 * @param	array		Data Structure meta
+	 * @return	void
+	 */
+	function cleanUpSettings(&$currentMeta) {
+		if (is_array($currentMeta)) {
+			foreach($currentMeta as $key => $value) {
+				if (trim($currentMeta[$key]) === '') {
+					unset($currentMeta[$key]);
+				} else if (is_array($currentMeta[$key])) {
+					$this->cleanUpSettings($currentMeta[$key]);
 				}
 			}
 		}
@@ -3842,7 +4002,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			$PA = array(
 				'fieldChangeFunc' => array(),
 				'formName' => 'pageform',
-				'itemName' => $formElementName.'[]',
+				'itemName' => $formElementName . '[]',
 				'params' => array(
 #					'type' => 'header',
 					'type' => 'description',
@@ -3916,7 +4076,7 @@ if (!function_exists('md5_file')) {
  */
 class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 
-		// Internal, dynamic:
+	// Internal, dynamic:
 	var $be_user_Array;
 	var $CALC_PERMS;
 	var $pageinfo;
@@ -3926,18 +4086,18 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 	 *
 	 * @return	void
 	 */
-	function menuConfig()	{
+	function menuConfig() {
 		global $BE_USER;
 
 		parent::menuConfig();
 
-			// Sticky Information?
+		// Sticky Information?
 		$this->MOD_MENU['stick'] = '';
 
-			// Render content, depending on input values:
+		// Render content, depending on input values:
 		if (t3lib_div::_GP('mode') == 'display' ||
-			t3lib_div::_GP('mode') == 'browser') {
-				// Data source display
+		    t3lib_div::_GP('mode') == 'browser') {
+			// Data source display
 			$this->MOD_MENU['page'] =
 				array(
 				/*	'details'   => '',	*/
@@ -3949,16 +4109,17 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 					'preview'   => ''
 				);
 		} elseif (t3lib_div::_GP('file')) {
-				// Browsing file directly, possibly creating a template/data object records.
+			// Browsing file directly, possibly creating a template/data object records.
 			$this->MOD_MENU['page'] =
 				array(
+					'settings'  => $GLOBALS['LANG']->getLL('tabFileSettings'),
 				/*	'details'   => $GLOBALS['LANG']->getLL('tabFileDetails'),	*/
 					'structure' => $GLOBALS['LANG']->getLL('tabFileStructure'),
 					'preview'   => $GLOBALS['LANG']->getLL('tabPreview'),
 					'xml'       => $GLOBALS['LANG']->getLL('tabXML')
 				);
 		} elseif (t3lib_div::_GP('table') == 'tx_templavoila_datastructure') {
-				// Data source display
+			// Data source display
 			$this->MOD_MENU['page'] =
 				array(
 				/*	'details'   => $GLOBALS['LANG']->getLL('tabDSDetails'),	*/
@@ -3966,7 +4127,7 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 					'xml'       => $GLOBALS['LANG']->getLL('tabXML')
 				);
 		} elseif (t3lib_div::_GP('table') == 'tx_templavoila_tmplobj') {
-				// Data source display
+			// Data source display
 			$this->MOD_MENU['page'] =
 				array(
 				/*	'details'   => $GLOBALS['LANG']->getLL('tabTODetails'),	*/
@@ -3981,17 +4142,32 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 			}
 		}
 
-			// page/be_user TSconfig settings and blinding of menu-items
+		// page/be_user TSconfig settings and blinding of menu-items
 		$this->modTSconfig = t3lib_BEfunc::getModTSconfig($this->id, 'mod.' . $this->MCONF['name']);
 
-			// CLEANSE SETTINGS
+		// CLEANSE SETTINGS
 		$this->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->MOD_MENU, t3lib_div::_GP('SET'), $this->MCONF['name']);
 
-			// Fallback on multi-pages
+		// Fallback on multi-pages
 		if (t3lib_div::_GP('_loadScreen'))
 			$this->MOD_SETTINGS['page'] = 'structure';
 		if (t3lib_div::_GP('_saveScreen'))
 			$this->MOD_SETTINGS['page'] = 'structure';
+	}
+
+	/**
+	 * Removes items from the ->MOD_MENU array. Used for the function menu selector.
+	 *
+	 * @return	void
+	 */
+	function menuDisable($DS_row) {
+		parent::menuDisable($DS_row);
+
+		if (intval($DS_row['scope']) == TVDS_SCOPE_FCE) {
+			unset($this->MOD_MENU['page']['header']);
+			if ($this->MOD_SETTINGS['page'] == 'header')
+				$this->MOD_SETTINGS['page'] = 'mapping';
+		}
 	}
 
 	/**

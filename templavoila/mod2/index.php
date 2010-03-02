@@ -631,6 +631,8 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 							</a>
 						</td>' . ($this->MOD_SETTINGS['set_details'] ? '
 						<td align="center">' . $rDSDres['stats']['languageMode'] . '</td>
+						<td align="center">' . $rDSDres['stats']['layoutMode'] . '</td>
+						<td align="center">' . $rDSDres['stats']['sheetMode'] . '</td>
 						<td align="center">' . $rDSDres['stats']['rootElements'] . '</td>
 						<td align="center">' . $rDSDres['stats']['referenceFields'] . '</td>
 						<td align="center">' . $rDSDres['stats']['inputFields'] . '</td>' : '') . '

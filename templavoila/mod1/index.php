@@ -992,7 +992,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @see render_framework_allSheets(), render_framework_singleSheet()
 	 */
 	function render_framework_singleSheet_traverse($singleView, $elementContentTreeArr, $languageKey, $sheet, $group = '') {
-		global $done;
+		global $done, $recursion;
 
 		// Define l/v keys for current language:
 		$langChildren = intval($elementContentTreeArr['ds_meta']['langChildren']);
@@ -1007,7 +1007,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 		$flagRenderBeLayout = $beTemplate ? TRUE : FALSE;
 
 		// some constants
-		$haspreview = is_array($previews = $elementContentTreeArr['previewData']['sheets'][$sheet]);
+		$haspreview = is_array($previews = &$elementContentTreeArr['previewData']['sheets'][$sheet]);
 		$hassubs = is_array($elementContentTreeArr['sub'][$sheet]) && is_array($subs = $elementContentTreeArr['sub'][$sheet][$lKey]);
 
 		// how to render the sheet
@@ -1016,24 +1016,47 @@ table.typo3-dyntabmenu td.disabled:hover {
 		$footerCells = array();
 		$cells = array();
 		$done = ($group == '' ? array() : $done);
+		$recursion = (!isset($recursion ) ? 0 : $recursion + 1);
+
+//for ($r = 0; $r < $recursion; $r++)
+//  echo '&nbsp;';
+//echo '' . $group . ' <br />';
 
 		// ----------------------------------------------------------------------------------
 		// Traverse previewData fields:
 		if ($haspreview)
-		foreach ($previews as $fieldID => $fieldData) {
+//		foreach ($previews as $fieldID => $fieldData) {
+		while (($fieldData = current($previews)) !== FALSE) {
+			$fieldID = key($previews);
+			next($previews);
+
 			// check for early bail out
-			if (strlen($fieldID) <= strlen($group))
-				continue;
+//			if (strlen($fieldID) <= strlen($group))
+//				continue;
 			if (!$fieldData['isMapped'] || $fieldData['isHidden'])
 				continue;
 
 			// remove the group from the field
 			$fieldFrag = str_replace($group, '', $fieldID);
-			// check for prefix-replace
-			if ($fieldID != ($group . $fieldFrag))
-				continue;
+			// check for if the current element is
+			// still part of the current group, finish
+			// recursion if not
+			if ($fieldID != ($group . $fieldFrag)) {
+//				continue;
+				prev($previews);
+				break;
+			}
 
 			if (strchr($fieldFrag, SEPARATOR_XPATH) !== FALSE) {
+				/* group has been detected, revert to the first group
+				 * entry (previous entry) and start recursion
+				 */
+				prev($previews);
+
+//for ($r = 0; $r < $recursion; $r++)
+//  echo '&nbsp;';
+//echo '+' . $fieldID . ' [node]<br />';
+
 				// --------------------------------------------------------------------------
 				// the first field of a possible group that hits us will trigger the grouping
 				$fieldFrags = explode(SEPARATOR_XPATH, $fieldFrag);
@@ -1043,8 +1066,9 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 				$groupID = $group . $co;
 				$groupenter = $group . $co . SEPARATOR_XPATH . $el . SEPARATOR_XPATH;
-				if (!$done[$groupenter]) {
-					$done[$groupenter] = true;
+
+				if (!$done[$elementContentTreeArr['el']['uid'] . '|' . $groupenter]) {
+					$done[$elementContentTreeArr['el']['uid'] . '|' . $groupenter] = true;
 
 					$output .= $this->render_framework_singleSheet_flush($cells, $headerCells, $footerCells);
 					$outbuf  = $this->render_framework_singleSheet_traverse($singleView, $elementContentTreeArr, $languageKey, $sheet, $groupenter);
@@ -1056,6 +1080,10 @@ table.typo3-dyntabmenu td.disabled:hover {
 						</div>';
 				}
 			} else if (strchr($fieldFrag, SEPARATOR_XPATH) === FALSE) {
+//for ($r = 0; $r < $recursion; $r++)
+//  echo '&nbsp;';
+//echo '-' . $fieldID . ' [leaf]<br />';
+
 				// -------------------------------------------------------------------------
 				// for now process only those field that are direct child of the given group
 				if ($hassubs && is_array($subs[$fieldID][$vKey])) {
@@ -1140,6 +1168,8 @@ table.typo3-dyntabmenu td.disabled:hover {
 			// finalizes tables
 			$output .= $this->render_framework_singleSheet_flush($cells, $headerCells, $footerCells);
 		}
+
+		$recursion = $recursion - 1;
 
 		return $output;
 	}
@@ -1385,7 +1415,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 						$thumbnail = t3lib_BEfunc::thumbCode(array('dummyFieldName' => $fieldValue), '', 'dummyFieldName', $this->doc->backPath, '', $TCEformsConfiguration['uploadfolder']);
 						$cellContent .=
 							'<strong>' . $TCEformsLabel . '</strong><br /> '.
-							$thumbnail . '<br />';
+							$this->link_edit('<span class="inlineEdit">' . $edit2 . '&nbsp;</span>', $table, $uid) . ' ' . $thumbnail . '<br />';
 					}
 				} else if ($TCEformsConfiguration['type'] != '') {
 					// Render for everything else:
