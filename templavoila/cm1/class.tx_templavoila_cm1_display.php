@@ -226,7 +226,11 @@ implode('', $pp) . '
 <html>
 <head>
 	<title>File Content With Preview</title>
-	<style>pre img { position: absolute; }</style>
+	<style>
+		pre { margin: 0; padding: 0; }
+		pre.indicate { margin: -1px; border: 1px dashed black; background: #F0F0F0; }
+		pre img { position: absolute; }
+	</style>
 </head>' .
 implode('', $cParts) . '
 </body>

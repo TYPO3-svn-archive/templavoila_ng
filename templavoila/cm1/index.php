@@ -247,10 +247,11 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	function menuConfig() {
 		$this->MOD_MENU = array(
 			'displayMode' => array(
-				'explode' => $GLOBALS['LANG']->getLL('displayModeExploded'),
-#				'_'	  => $GLOBALS['LANG']->getLL('displayModeOverlay'),
-				'source'  => $GLOBALS['LANG']->getLL('displayModeSource'),
-#				'borders' => $GLOBALS['LANG']->getLL('displayModeTable'),
+				'explode'  => $GLOBALS['LANG']->getLL('displayModeExploded'),
+#				'checkbox' => 'checkboxed',
+#				'_'	   => $GLOBALS['LANG']->getLL('displayModeOverlay'),
+				'source'   => $GLOBALS['LANG']->getLL('displayModeSource'),
+#				'borders'  => $GLOBALS['LANG']->getLL('displayModeTable'),
 			),
 			'displayTags' => '',
 			'showDSxml' => ''

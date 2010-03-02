@@ -284,7 +284,7 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 	function getContentBasedOnPath($content, $pathStrArr) {
 		// INIT:
 		$this->init();
-		$this->searchPaths=array();
+		$this->searchPaths = array();
 		$tagList = '';
 
 		foreach($pathStrArr as $pathStr) {
@@ -462,7 +462,7 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 			if ($pathInfo['placeholder'])	{
 				$content = str_replace(
 					$pathInfo['placeholder'],
-					$token?$token.$path.$pathInfo['modifier_lu'].$token:$pathInfo['content'],
+					$token ? $token . $path . $pathInfo['modifier_lu'] . $token : $pathInfo['content'],
 					$content
 				);
 			}
@@ -470,7 +470,7 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 				foreach($pathInfo['attr'] as $attrN => $pcPair)	{
 					$content = str_replace(
 						$pcPair['placeholder'],
-						$token?$token.$path.'/ATTR:'.$attrN.$token:$pcPair['content'],
+						$token ? $token . $path . '/ATTR:' . $attrN . $token : $pcPair['content'],
 						$content
 					);
 				}
@@ -517,7 +517,7 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 		if (is_array($sampleOrder)) {
 			$out = '';
 			foreach ($sampleOrder as $pointer) {
-				$out.=$currentMappingInfo['cArray'][$pointer];
+				$out .= $currentMappingInfo['cArray'][$pointer];
 			}
 		} else {
 			$out = implode($firstLevelImplodeToken, $currentMappingInfo['cArray']);
@@ -602,22 +602,22 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 			// modifier:
 			$modArr = t3lib_div::trimExplode(':', $theCmd,1);
 			if ($modArr[0])	{
-				$subPaths[$index]['modifier']=$modArr[0];
-				$subPaths[$index]['modifier_value']=$modArr[1];
-				if (strstr($modArr[0],'INNER'))	{
-					$subPaths[$index]['modifier_lu']='/INNER';
-				} elseif ($modArr[0]=='RANGE')	{
-					$subPaths[$index]['modifier_lu']='/RANGE:'.$modArr[1];
+				$subPaths[$index]['modifier'] = $modArr[0];
+				$subPaths[$index]['modifier_value'] = $modArr[1];
+				if (strstr($modArr[0], 'INNER'))	{
+					$subPaths[$index]['modifier_lu'] = '/INNER';
+				} elseif ($modArr[0] == 'RANGE')	{
+					$subPaths[$index]['modifier_lu'] = '/RANGE:' . $modArr[1];
 				} else {
-					$subPaths[$index]['modifier_lu']='';	// Outer.
+					$subPaths[$index]['modifier_lu'] = '';	// Outer.
 				}
 			}
 
 			// Tag list
-			$tagIndex=array();
+			$tagIndex = array();
 			$tagSplitParts = $splitParts;
-			if ($subPaths[$index]['modifier']=='RANGE' && $subPaths[$index]['modifier_value'])	{
-				$tagSplitParts[]=$subPaths[$index]['modifier_value'];
+			if ($subPaths[$index]['modifier'] == 'RANGE' && $subPaths[$index]['modifier_value']) {
+				$tagSplitParts[] = $subPaths[$index]['modifier_value'];
 			}
 			foreach($tagSplitParts as $tagV)	{
 				list($tagName) = preg_split('/[^a-zA-Z0-9_-]/', $tagV);
@@ -869,7 +869,7 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 		xml_parse_into_struct($parser, $content, $vals, $index);
 
 		if (xml_get_error_code($parser))
-			return 'Line '.xml_get_current_line_number($parser).': '.xml_error_string(xml_get_error_code($parser));
+			return 'Line ' . xml_get_current_line_number($parser) . ': ' . xml_error_string(xml_get_error_code($parser));
 		xml_parser_free($parser);
 
 		$this->tags = $index;
@@ -979,10 +979,10 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 			if ($k % 2) {
 				// INSIDE BLOCK: Processing of block content. This includes a recursive call to this function for the inner content of the block tags.
 				$firstTag = $this->htmlParse->getFirstTag($v);	// The first tag's content
-				$firstTagName = strtolower($this->htmlParse->getFirstTagName($v));	// The 'name' of the first tag
+				$firstTagName = strtolower($this->htmlParse->getFirstTagName($v));		// The 'name' of the first tag
 				$endTag = $firstTag == $startCCTag ? $endCCTag : '</' . $firstTagName . '>';	// Create proper end-tag
-				$v = $this->htmlParse->removeFirstAndLastTag($v);	// Finally remove the first tag (unless we do this, the recursivity will be eternal!
-				$params = $this->htmlParse->get_tag_attributes($firstTag,1);	// Get attributes
+				$v = $this->htmlParse->removeFirstAndLastTag($v);				// Finally remove the first tag (unless we do this, the recursivity will be eternal!
+				$params = $this->htmlParse->get_tag_attributes($firstTag,1);			// Get attributes
 
 				// IF pathMode is set:
 				$subPath = $this->makePath($path,$firstTagName,$params[0]);
@@ -1007,8 +1007,8 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 
                     			//search for conditional comments
 					$startTag = '';
-					if(count($soloParts) > 0 && $recursion == 0) {
-						foreach($soloParts as $key => $value) {
+					if (count($soloParts) > 0 && $recursion == 0) {
+						foreach ($soloParts as $key => $value) {
 							//check for downlevel-hidden and downlevel-revealed syntax, see http://msdn.microsoft.com/de-de/library/ms537512(en-us,VS.85).aspx
 							$matchCount1 = preg_match_all('/<!([-]+)?\[if(.+)\]([-]+)?>/', $value, $matches1);
 							$matchCount2 = preg_match_all('/<!([-]+)?\[endif\]([-]+)?>/', $value, $matches2);
@@ -1032,9 +1032,9 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 					}
 
 					// Traverse solo tags
-					foreach($soloParts as $kk => $vv) {
+					foreach ($soloParts as $kk => $vv) {
 						if ($kk % 2) {
-							$firstTag = $vv;	// The first tag's content
+							$firstTag = $vv;							// The first tag's content
 							$firstTagName = strtolower($this->htmlParse->getFirstTagName($vv));	// The 'name' of the first tag
 							$params = $this->htmlParse->get_tag_attributes($firstTag, 1);
 
@@ -1050,14 +1050,14 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 							}
 						} elseif ($this->mode == 'source' && $mode == 'markup') {
 							$vv = $this->sourceDisplay($vv, $recursion, '', 1);
-						} elseif ($this->mode=='checkbox')	{
-							$vv = $this->checkboxDisplay($vv,$recursion,'','',1);
-						} elseif ($mode=='search' && $this->rangeEndSearch[$recursion])	{
-							$this->searchPaths[$this->rangeStartPath[$recursion]]['content'].=$vv;
+						} elseif ($this->mode == 'checkbox') {
+							$vv = $this->checkboxDisplay($vv, $recursion, '', '', 1);
+						} elseif ($mode == 'search' && $this->rangeEndSearch[$recursion]) {
+							$this->searchPaths[$this->rangeStartPath[$recursion]]['content'] .= $vv;
 							$vv = '';
 						}
 
-						$soloParts[$kk]=$vv;
+						$soloParts[$kk] = $vv;
 					}
 
 					$v = implode('', $soloParts);
@@ -1097,32 +1097,32 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 
 		if ($mode == 'block') {
 			// Disable A tags:
-			if ($firstTagName=='a')	{
-				$params[0]['onclick']='return false;';
-				$firstTag = '<'.trim($firstTagName.' '.t3lib_div::implodeAttributes($params[0])).'>';
+			if ($firstTagName == 'a') {
+				$params[0]['onclick'] = 'return false;';
+				$firstTag = '<' . trim($firstTagName . ' ' . t3lib_div::implodeAttributes($params[0])) . '>';
 			}
 
 			// Display modes:
-			if ($this->mode=='explode')	{
-				if ($firstTagName=='table')	{
+			if ($this->mode == 'explode') {
+				if ($firstTagName == 'table') {
 					$params[0]['border']=0;
 					$params[0]['cellspacing']=4;
 					$params[0]['cellpadding']=0;
-					$params[0]['style'].='; border: 1px dotted #666666;';
-					$firstTag = '<'.trim($firstTagName.' '.t3lib_div::implodeAttributes($params[0])).'>';
-				} elseif ($firstTagName=='td')	{
-					$params[0]['style'].='; border: 1px dotted #666666;';
-					$firstTag = '<'.trim($firstTagName.' '.t3lib_div::implodeAttributes($params[0])).'>';
+					$params[0]['style'] .= '; border: 1px dotted #666666;';
+					$firstTag = '<' . trim($firstTagName . ' ' . t3lib_div::implodeAttributes($params[0])) . '>';
+				} elseif ($firstTagName == 'td') {
+					$params[0]['style'] .= '; border: 1px dotted #666666;';
+					$firstTag = '<' . trim($firstTagName . ' ' . t3lib_div::implodeAttributes($params[0])) . '>';
 
 					$v = (string)$v!=''?$v:'&nbsp;';
 				}
-			} elseif ($this->mode=='borders')	{
-				if ($firstTagName=='table')	{
+			} elseif ($this->mode == 'borders') {
+				if ($firstTagName == 'table') {
 					$params[0]['style'].='; border: 1px dotted #666666;';
-					$firstTag = '<'.trim($firstTagName.' '.t3lib_div::implodeAttributes($params[0])).'>';
-				} elseif ($firstTagName=='td')	{
+					$firstTag = '<' . trim($firstTagName . ' ' . t3lib_div::implodeAttributes($params[0])) . '>';
+				} elseif ($firstTagName == 'td') {
 					$params[0]['style'].='; border: 1px dotted #666666;';
-					$firstTag = '<'.trim($firstTagName.' '.t3lib_div::implodeAttributes($params[0])).'>';
+					$firstTag = '<' . trim($firstTagName . ' ' . t3lib_div::implodeAttributes($params[0])) . '>';
 				}
 			}
 
@@ -1130,32 +1130,32 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 			$tagConf = $this->tags[$firstTagName];
 
 			// If source mode or normal
-			if ($this->mode=='source')	{
-				$v = $this->sourceDisplay($firstTag,$recursion,$gnyf).$v.$this->sourceDisplay($endTag,$recursion);
-			} elseif ($this->mode=='checkbox')	{
-				$v = $this->checkboxDisplay($firstTag.$v.$endTag,$recursion,$subPath,$gnyf);
+			if ($this->mode == 'source') {
+				$v = '<pre>' . $this->sourceDisplay($firstTag, $recursion, $gnyf) . $v . $this->sourceDisplay($endTag, $recursion) . '</pre>';
+			} elseif ($this->mode == 'checkbox') {
+				$v =  $this->checkboxDisplay($firstTag . $v . $endTag, $recursion, $subPath, $gnyf);
 			} else {
 				// Find wrapping value for tag.
-				if (is_array($tagConf['wrap']) && $gnyf)	{
-					$gnyf=$tagConf['wrap'][0].$gnyf.$tagConf['wrap'][1];
+				if (is_array($tagConf['wrap']) && $gnyf) {
+					$gnyf = $tagConf['wrap'][0] . $gnyf . $tagConf['wrap'][1];
 				}
 
 				// Place gnyf relative to the tags and content.
 				if ($tagConf['anchor_outside'])	{
-					$v = $gnyf.$firstTag.$v.$endTag;
+					$v = $gnyf . $firstTag . $v . $endTag;
 				} else {
-					$v = $firstTag.$gnyf.$v.$endTag;
+					$v = $firstTag . $gnyf . $v . $endTag;
 				}
 			}
 		} else {
 			// If solo/single element:
 			// Adding gnyf to the tag:
-			if ($this->mode=='source')	{
-				$v = $this->sourceDisplay($v,$recursion,$gnyf);
-			} elseif ($this->mode=='checkbox')	{
-				$v = $this->checkboxDisplay($v,$recursion,$subPath,$gnyf);
+			if ($this->mode == 'source') {
+				$v = '<pre>' . $this->sourceDisplay($v, $recursion, $gnyf) . '</pre>';
+			} elseif ($this->mode == 'checkbox') {
+				$v = $this->checkboxDisplay($v, $recursion, $subPath, $gnyf);
 			} else {
-				$v = $gnyf.$v;
+				$v = $gnyf . $v;
 			}
 		}
 
@@ -1259,15 +1259,16 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 	 * @param	boolean		If set, then the line will be formatted in color as a "value" (means outside of the tag which might otherwise be what is shown)
 	 * @return	string		Formatted input.
 	 */
-	function sourceDisplay($str,$recursion,$gnyf='',$valueStr=0)	{
-		if (strcmp(trim($str),''))	{
-			return str_pad('',$recursion*2,' ',STR_PAD_LEFT).
-				$gnyf.
-				($valueStr ? '<font color="#6666FF"><em>' : '').
+	function sourceDisplay($str, $recursion, $gnyf = '', $valueStr = 0) {
+		if (strcmp(trim($str), '')) {
+			return str_pad('', $recursion * 2, ' ', STR_PAD_LEFT) .
+				$gnyf .
+				($valueStr ? '<font color="#6666FF"><em>' : '') .
 				htmlspecialchars(t3lib_div::fixed_lgd_cs(preg_replace('/\s+/', ' ', $str), $this->maxLineLengthInSourceMode)).
-				($valueStr ? '</em></font>' : '').
+				($valueStr ? '</em></font>' : '') .
 				chr(10);
 		}
+
 		return '';
 	}
 
@@ -1342,11 +1343,12 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 	function getGnyf($firstTagName, $path, $title) {
 		if (!$this->onlyElements || t3lib_div::inList($this->onlyElements, $firstTagName)) {
 			$onclick = str_replace('###PATH###', $this->pathPrefix . $path, $this->gnyfImgAdd);
+			$onhover = ' onmouseover="this.parentNode.className=\'indicate\'" onmouseout="this.parentNode.className=\'\'"';
 			$icon = $this->tags[$firstTagName]['icon'];
 
 			$gnyf  = $this->textGnyf
-				? '<span ' . $onclick . ' style="cursor:pointer; border: 1px solid blank; background-color: yellow;">[' . $firstTagName . ']</span>'
-				: '<img' . $icon . $onclick . ' style="cursor:pointer;" title="' . htmlspecialchars(t3lib_div::fixed_lgd_cs($title, -200)) . '"' . $this->gnyfStyle . ' alt="" />';
+				? '<span ' . $onclick . $onhover . ' style="cursor: pointer; border: 1px solid blank; background-color: yellow;">[' . $firstTagName . ']</span>'
+				: '<img' . $icon . $onclick . $onhover . ' style="cursor: pointer;" title="' . htmlspecialchars(t3lib_div::fixed_lgd_cs($title, -200)) . '"' . $this->gnyfStyle . ' alt="" />';
 			$gnyf .= $this->mode == 'explode'
 				? '<br />'
 				: '';
