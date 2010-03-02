@@ -176,9 +176,9 @@ class tx_templavoila_cm1_presets {
 							if (($reset || ($elArray[$key]['TCEforms']['config']['type'] != 'text'))) {
 								$elArray[$key]['TCEforms']['label' ] = $elArray[$key]['tx_templavoila']['title'];
 								$elArray[$key]['TCEforms']['config'] = array(
-									'type' => 'text',
-									'cols' => '48',
-									'rows' => '5',
+									'type'		=> 'text',
+									'cols'		=> '48',
+									'rows'		=> '5',
 								);
 							}
 
@@ -191,12 +191,12 @@ class tx_templavoila_cm1_presets {
 							if (($reset || ($elArray[$key]['TCEforms']['config']['type'] != 'text'))) {
 								$elArray[$key]['TCEforms']['label' ] = $elArray[$key]['tx_templavoila']['title'];
 								$elArray[$key]['TCEforms']['config'] = array(
-									'type' => 'text',
-									'cols' => '48',
-									'rows' => '5',
-									'softref' => (isset($GLOBALS['TCA']['tt_content']['columns']['bodytext']['config']['softref']) ?
-											    $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config']['softref'] :
-													'typolink_tag,images,email[subst],url'),
+									'type'		=> 'text',
+									'cols'		=> '48',
+									'rows'		=> '5',
+									'softref'	=> (isset($GLOBALS['TCA']['tt_content']['columns']['bodytext']['config']['softref']) ?
+												  $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config']['softref'] :
+												  'typolink_tag,images,email[subst],url'),
 								);
 							}
 
@@ -223,15 +223,15 @@ class tx_templavoila_cm1_presets {
 							if (($reset || ($elArray[$key]['TCEforms']['config']['type'] != 'group'))) {
 								$elArray[$key]['TCEforms']['label' ] = $elArray[$key]['tx_templavoila']['title'];
 								$elArray[$key]['TCEforms']['config'] = array(
-									'type' => 'group',
-									'internal_type' => 'file',
-									'allowed' => 'gif,png,jpg,jpeg',
-									'max_size' => '1000',
-									'uploadfolder' => 'uploads/tx_templavoila',
-									'show_thumbs' => '1',
-									'size' => '1',
-									'maxitems' => '1',
-									'minitems' => '0'
+									'type'		=> 'group',
+									'internal_type'	=> 'file',
+									'allowed'	=> 'gif,png,jpg,jpeg',
+									'max_size'	=> '1000',
+									'uploadfolder'	=> 'uploads/tx_templavoila',
+									'show_thumbs'	=> '1',
+									'size'		=> ($elArray[$key]['tx_templavoila']['eType'] != 'imagelist' ? '1' : '10'),
+									'maxitems'	=> ($elArray[$key]['tx_templavoila']['eType'] != 'imagelist' ? '1' : '100'),
+									'minitems'	=> '0'
 								);
 							}
 
@@ -296,12 +296,12 @@ class tx_templavoila_cm1_presets {
 							if (($reset || ($elArray[$key]['TCEforms']['config']['type'] != 'input'))) {
 								$elArray[$key]['TCEforms']['label' ] = $elArray[$key]['tx_templavoila']['title'];
 								$elArray[$key]['TCEforms']['config'] = array(
-									'type' => 'input',
-									'size' => '15',
-									'max' => '256',
-									'checkbox' => '',
-									'eval' => 'trim',
-									'wizards' => Array(
+									'type'		=> 'input',
+									'size'		=> '15',
+									'max'		=> '256',
+									'checkbox'	=> '',
+									'eval'		=> 'trim',
+									'wizards'	=> Array(
 										'_PADDING' => 2,
 										'link' => Array(
 											'type' => 'popup',
@@ -339,14 +339,14 @@ class tx_templavoila_cm1_presets {
 							if (($reset || ($elArray[$key]['TCEforms']['config']['type'] != 'group'))) {
 								$elArray[$key]['TCEforms']['label']=$elArray[$key]['tx_templavoila']['title'];
 								$elArray[$key]['TCEforms']['config'] = array(
-									'type' => 'group',
-									'internal_type' => 'db',
-									'allowed' => 'tt_content',
-									'size' => '5',
-									'maxitems' => '200',
-									'minitems' => '0',
-									'multiple' => '1',
-									'show_thumbs' => '1'
+									'type'		=> 'group',
+									'internal_type'	=> 'db',
+									'allowed'	=> 'tt_content',
+									'size'		=> '5',
+									'maxitems'	=> '200',
+									'minitems'	=> '0',
+									'multiple'	=> '1',
+									'show_thumbs'	=> '1'
 								);
 							}
 
