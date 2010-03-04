@@ -227,7 +227,7 @@ class tx_templavoila_mod2_to {
 
 		/* ------------------------------------------------------------------------------ */
 		if ($this->MOD_SETTINGS['set_details'])	{
-			$XMLinfo = $this->pObj->xmlObj->DSdetails($toRow['localprocessing']);
+			$XMLinfo = $this->pObj->xmlObj->getXMLdetails($toRow['localprocessing']);
 		}
 
 		/* ------------------------------------------------------------------------------ */

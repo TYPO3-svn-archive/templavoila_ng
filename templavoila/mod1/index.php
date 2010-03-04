@@ -522,6 +522,7 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 				table {position:relative;}
 				.sortableHandle {cursor:move;}
 				.pages .sortableHandle {cursor:default;}
+				.dropmarker { background: center center url(' . t3lib_extMgm::extRelPath($this->extKey) . 'res/markarea.png) repeat transparent; z-index: 999; }
 			';
 
 			if (t3lib_extMgm::isLoaded('t3skin')) {
@@ -3528,6 +3529,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 				table {position:relative;}
 				.sortableHandle {cursor:move;}
 				.pages .sortableHandle {cursor:default;}
+				.dropmarker { background: center center url(' . t3lib_extMgm::extRelPath($this->extKey) . 'res/markarea.png) repeat transparent; z-index: 999; }
 			';
 
 			// Add optionsmenu

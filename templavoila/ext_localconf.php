@@ -34,6 +34,7 @@ t3lib_extMgm::addUserTSConfig('
 	mod.web_txtemplavoilaM1.disableAdvancedControls = 0
 	mod.web_txtemplavoilaM1.disableHideIcon = 0
 	mod.web_txtemplavoilaM1.disableDeleteIcon = 0
+	mod.web_txtemplavoilaM1.enableDeleteIconForLocalElements = 1
 	mod.web_txtemplavoilaM1.disableContainerElementLocalizationWarning = 0
 	mod.web_txtemplavoilaM1.disableContainerElementLocalizationWarning_warningOnly = 0
 ');
@@ -215,7 +216,7 @@ if (is_callable(array('t3lib_div', 'int_from_ver')) && t3lib_div::int_from_ver(T
 
 	if (t3lib_div::compat_version('4.3')) {
 		t3lib_extMgm::addPageTSConfig('
-	templavoila.wizards.newContentElement.wizardItems.special.media {
+	templavoila.wizards.newContentElement.wizardItems.special.elements.media {
 		icon = gfx/c_wiz/multimedia.gif
 		title = LLL:EXT:cms/layout/locallang_db_new_content_el.xml:special_media_title
 		description = LLL:EXT:cms/layout/locallang_db_new_content_el.xml:special_media_description

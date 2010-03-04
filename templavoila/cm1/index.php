@@ -2672,6 +2672,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	function renderTemplateSettings($displayFile, $path, $dataStruct = array(), $currentMappingInfo = array(), $htmlAfterDSTable = '') {
 		$meta = array(
 			'beLayout'		=> '',
+			'beLayoutFile'		=> '',
 			'langDisable'		=> '',
 			'langChildren'		=> '',
 			'disableDataPreview'	=> '',

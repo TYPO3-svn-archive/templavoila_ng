@@ -148,6 +148,8 @@ var Draggables = {
 
       Event.observe(document, "mouseup", this.eventMouseUp);
       Event.observe(document, "mousemove", this.eventMouseMove);
+      Event.observe(document, "mousewheel", this.eventMouseMove);
+      Event.observe(document, "mousescroll", this.eventMouseMove);
       Event.observe(document, "keypress", this.eventKeypress);
     }
     this.drags.push(draggable);
@@ -158,6 +160,8 @@ var Draggables = {
     if(this.drags.length == 0) {
       Event.stopObserving(document, "mouseup", this.eventMouseUp);
       Event.stopObserving(document, "mousemove", this.eventMouseMove);
+      Event.stopObserving(document, "mousewheel", this.eventMouseMove);
+      Event.stopObserving(document, "mousescroll", this.eventMouseMove);
       Event.stopObserving(document, "keypress", this.eventKeypress);
     }
   },
@@ -283,7 +287,7 @@ var Draggable = Class.create({
     if(!this.handle) this.handle = $(options.handle);
     if(!this.handle) this.handle = this.element;
 
-    if(options.scroll && !options.scroll.scrollTo && !options.scroll.outerHTML) {
+    if(options.scroll /*&& !options.scroll.scrollTo && !options.scroll.outerHTML*/) {
       options.scroll = $(options.scroll);
       this._isScrollChild = Element.childOf(this.element, options.scroll);
     }
@@ -342,6 +346,13 @@ var Draggable = Class.create({
       this.element.style.zIndex = this.options.zindex;
     }
 
+    if(1) {
+      /* NIELS: maintain original width anytime were not in a new dropable */
+      this.originalW = parseInt(this.element.style.width) || '';
+      this.absoluteW = Element.getWidth(this.element) + 'px';
+    //  this.element.style.width = this.absoluteW;
+    }
+
     if(this.options.ghosting) {
       this._clone = this.element.cloneNode(true);
       this.element._originallyAbsolute = (this.element.getStyle('position') == 'absolute');
@@ -397,6 +408,7 @@ var Draggable = Class.create({
       if(pointer[1] < (p[1]+this.options.scrollSensitivity)) speed[1] = pointer[1]-(p[1]+this.options.scrollSensitivity);
       if(pointer[0] > (p[2]-this.options.scrollSensitivity)) speed[0] = pointer[0]-(p[2]-this.options.scrollSensitivity);
       if(pointer[1] > (p[3]-this.options.scrollSensitivity)) speed[1] = pointer[1]-(p[3]-this.options.scrollSensitivity);
+
       this.startScrolling(speed);
     }
 
@@ -445,6 +457,9 @@ var Draggable = Class.create({
 
     if(this.options.zindex)
       this.element.style.zIndex = this.originalZ;
+    if(1)
+      /* NIELS: maintain original width anytime were not in a new dropable */
+      this.element.style.width = this.originalW;
 
     if(this.options.endeffect)
       this.options.endeffect(this.element);
@@ -648,6 +663,7 @@ var Sortable = {
       delay:       0,
       hoverclass:  null,
       ghosting:    false,
+      marking:     false,
       quiet:       false,
       scroll:      false,
       scrollSensitivity: 20,
@@ -675,6 +691,7 @@ var Sortable = {
       scrollSensitivity: options.scrollSensitivity,
       delay:       options.delay,
       ghosting:    options.ghosting,
+      marking:     options.marking,
       constraint:  options.constraint,
       handle:      options.handle };
 
@@ -781,6 +798,7 @@ var Sortable = {
       return;
     } else if(overlap>0.5) {
       Sortable.mark(dropon, 'before');
+
       if(dropon.previousSibling != element) {
         var oldParentNode = element.parentNode;
         element.style.visibility = "hidden"; // fix gecko rendering
@@ -788,9 +806,12 @@ var Sortable = {
         if(dropon.parentNode!=oldParentNode)
           Sortable.options(oldParentNode).onChange(element);
         Sortable.options(dropon.parentNode).onChange(element);
+
+        Sortable.markarea(dropon.parentNode, element);
       }
     } else {
       Sortable.mark(dropon, 'after');
+
       var nextElement = dropon.nextSibling || null;
       if(nextElement != element) {
         var oldParentNode = element.parentNode;
@@ -799,6 +820,8 @@ var Sortable = {
         if(dropon.parentNode!=oldParentNode)
           Sortable.options(oldParentNode).onChange(element);
         Sortable.options(dropon.parentNode).onChange(element);
+
+        Sortable.markarea(dropon.parentNode, element);
       }
     }
   },
@@ -830,9 +853,10 @@ var Sortable = {
       }
 
       dropon.insertBefore(element, child);
-
       Sortable.options(oldParentNode).onChange(element);
       droponOptions.onChange(element);
+
+      Sortable.markarea(dropon, element);
     }
   },
 
@@ -849,7 +873,10 @@ var Sortable = {
       Sortable._marker =
         ($('dropmarker') || Element.extend(document.createElement('DIV'))).
           hide().addClassName('dropmarker').setStyle({position:'absolute'});
-      document.getElementsByTagName("body").item(0).appendChild(Sortable._marker);
+      if (sortable.scroll)
+        sortable.scroll.appendChild(Sortable._marker);
+      else
+        document.getElementsByTagName("body").item(0).appendChild(Sortable._marker);
     }
     var offsets = Position.cumulativeOffset(dropon);
     Sortable._marker.setStyle({left: offsets[0]+'px', top: offsets[1] + 'px'});
@@ -859,6 +886,63 @@ var Sortable = {
         Sortable._marker.setStyle({left: (offsets[0]+dropon.clientWidth) + 'px'});
       else
         Sortable._marker.setStyle({top: (offsets[1]+dropon.clientHeight) + 'px'});
+
+    Sortable._marker.show();
+  },
+
+  markarea: function(dropin, element) {
+    // mark on marking only
+    var sortable = Sortable.options(dropin);
+    if(sortable && !sortable.marking) return;
+
+    if(!Sortable._marker) {
+      Sortable._marker =
+        ($('dropmarker') || Element.extend(document.createElement('DIV'))).
+          hide().addClassName('dropmarker').setStyle({position:'absolute'});
+      if (sortable.scroll)
+        sortable.scroll.appendChild(Sortable._marker);
+      else
+        document.getElementsByTagName("body").item(0).appendChild(Sortable._marker);
+    }
+
+    /* compute position */
+    var offsets = Position.cumulativeOffset(element);
+
+    offsets[0]-=parseInt(Element.getStyle(element,'left') || 0);
+    offsets[1]-=parseInt(Element.getStyle(element,'top') || 0);
+
+    /* cumulativeOffset-bug compensation: absolute positioned scroll-element */
+    if (sortable.scroll) {
+      var correction = Position.cumulativeOffset(sortable.scroll);
+
+      offsets[0]-=correction[0];
+      offsets[1]-=correction[1];
+    }
+
+    /* cumulativeOffset-bug compensation: table-cell borders */
+    if (element.parentNode) {
+      offsets[0]+=parseInt(Element.getStyle(element.parentNode,'border-left-width') || 0);
+      offsets[1]+=parseInt(Element.getStyle(element.parentNode,'border-top-width') || 0);
+    }
+
+    /* compute area */
+    var sizes = [0,0], s;
+
+    if ((s = Element.select(element, sortable.marking)) && s[0]) {
+      sizes[0]=Element.getWidth(s[0]);
+      sizes[1]=Element.getHeight(s[0]);
+    }
+    else {
+      sizes[0]=Element.getWidth(element);
+      sizes[1]=Element.getHeight(element);
+    }
+
+    Sortable._marker.setStyle({
+    	left: offsets[0]+'px',
+    	top: offsets[1]+'px',
+	width: sizes[0]+'px',
+	height: sizes[1]+'px'
+    });
 
     Sortable._marker.show();
   },

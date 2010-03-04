@@ -78,20 +78,20 @@ class tx_templavoila_mod2_xml {
 	 * Shows a graphical summary of a array-tree, which suppose was a XML
 	 * (but don't need to). This function works recursively.
 	 *
-	 * @param	[type]		$DStree: an array holding the DSs defined structure
-	 * @return	[type]		HTML showing an overview of the DS-structure
+	 * @param	[type]		$XMLtree: an array holding the T3DataStructure
+	 * @return	[type]		HTML showing an overview of the T3DataStructure
 	 */
-	function renderDSdetails($DStree) {
+	function renderXMLdetails($XMLtree) {
 		$HTML = '';
 
-		if (is_array($DStree) && (count($DStree) > 0)) {
+		if (is_array($XMLtree) && (count($XMLtree) > 0)) {
 			$HTML .= '<dl class="DS-details">';
 
-			foreach ($DStree as $elm => $def) {
+			foreach ($XMLtree as $elm => $def) {
 				$HTML .= '<dt>';
 				$HTML .= ($elm == "meta"
 					? $GLOBALS['LANG']->getLL('center_details_conf')
-					: $def['tx_templavoila']['title']);
+					: $def['tx_templavoila']['title'] . ' (' . $elm . ')');
 				$HTML .= '</dt>';
 				$HTML .= '<dd>';
 
@@ -205,62 +205,63 @@ class tx_templavoila_mod2_xml {
 							$HTML .= '<ul class="DS-proc">' . $proc . '</ul>';
 
 						switch ($tv['eType']) {
-							case "input":            $preset = 'Plain input field';             $tco = false; break;
-							case "input_h":          $preset = 'Header field';                  $tco = false; break;
-							case "input_g":          $preset = 'Header field, Graphical';       $tco = false; break;
-							case "text":             $preset = 'Text area for bodytext';        $tco = false; break;
-							case "rte":              $preset = 'Rich text editor for bodytext'; $tco = false; break;
-							case "link":             $preset = 'Link field';                    $tco = false; break;
-							case "int":              $preset = 'Integer value';                 $tco = false; break;
-							case "image":            $preset = 'Image field';                   $tco = false; break;
-							case "imagefixed":       $preset = 'Image field, fixed W+H';        $tco = false; break;
-							case "select":           $preset = 'Selector box';                  $tco = false; break;
-							case "ce":               $preset = 'Content Elements';              $tco = true;  break;
-							case "TypoScriptObject": $preset = 'TypoScript Object Path';        $tco = true;  break;
+							case "input":
+							case "input_h":
+							case "input_g":
+							case "text":
+							case "rte":
+							case "link":
+							case "int":
+							case "image":
+							case "imagefixed":
+							case "imagelist":
+							case "select":
+								$preset = sprintf($GLOBALS['LANG']->getLL('center_details_preset_' + $tv['eType']), $tv['eType']);
+								$tco = false;
+								break;
+							case "ce":
+							case "TypoScriptObject":
 
-							case "none":             $preset = 'None';                          $tco = true;  break;
-							default:                 $preset = 'Custom [' . $tv['eType'] . ']'; $tco = true;  break;
+							case "none":
+							default:
+								$preset = sprintf($GLOBALS['LANG']->getLL('center_details_preset_' + $tv['eType']), $tv['eType']);
+								$tco = true;
+								break;
 						}
 
-						switch ($tv['oldStyleColumnNumber']) {
-							case 0:  $column = 'Normal [0]';                                   break;
-							case 1:  $column = 'Left [1]';                                     break;
-							case 2:  $column = 'Right [2]';                                    break;
-							case 3:  $column = 'Border [3]';                                   break;
-							default: $column = 'Custom [' . $tv['oldStyleColumnNumber'] . ']'; break;
-						}
+						$column = sprintf($GLOBALS['LANG']->getLL('center_details_column_' + $tv['oldStyleColumnNumber']), $tv['oldStyleColumnNumber']);
 
 						$notes = '';
-						if (($tv['eType'] != "TypoScriptObject") && isset($tv['TypoScriptObjPath']))
-							$notes .= '<li>redundant &lt;TypoScriptObjPath&gt;-entry</li>';
 						if (($tv['eType'] == "TypoScriptObject") && isset($tv['TypoScript']))
-							$notes .= '<li>redundant &lt;TypoScript&gt;-entry</li>';
+							$notes .= '<li>' . $GLOBALS['LANG']->getLL('center_details_ts_redundant') . '</li>';
 						if ((($tv['eType'] == "TypoScriptObject") || !isset($tv['TypoScript'])) && isset($tv['TypoScript_constants']))
-							$notes .= '<li>redundant &lt;TypoScript_constants&gt;-entry</li>';
-						if (isset($tv['proc']) && isset($tv['proc']['int']) && ($tv['proc']['int'] == 1) && isset($tv['proc']['HSC']))
-							$notes .= '<li>redundant &lt;proc&gt;&lt;HSC&gt;-entry</li>';
+							$notes .= '<li>' . $GLOBALS['LANG']->getLL('center_details_ts_redundantconst') . '</li>';
+						if (($tv['eType'] != "TypoScriptObject") && isset($tv['TypoScriptObjPath']))
+							$notes .= '<li>' . $GLOBALS['LANG']->getLL('center_details_ts_redundantpath') . '</li>';
 						if (isset($tv['TypoScriptObjPath']) && preg_match('/[^a-zA-Z0-9\.\:_]/', $tv['TypoScriptObjPath']))
-							$notes .= '<li><strong>&lt;TypoScriptObjPath&gt;-entry contains illegal characters and/or has multiple lines</strong></li>';
+							$notes .= '<li><strong>' . $GLOBALS['LANG']->getLL('center_details_ts_illegalpath') . '</strong></li>';
+						if (isset($tv['proc']) && isset($tv['proc']['int']) && ($tv['proc']['int'] == 1) && isset($tv['proc']['HSC']))
+							$notes .= '<li>' . $GLOBALS['LANG']->getLL('center_details_hcs_redundant') . '</li>';
 
 						$tsstats = '';
-						if (isset($tv['TypoScript_constants']))
-							$tsstats .= '<li>' . count($tv['TypoScript_constants']) . ' Constants defined for use in the &lt;TypoScript&gt;-entry</li>';
 						if (isset($tv['TypoScript']))
-							$tsstats .= '<li>' . (1 + strlen($tv['TypoScript']) - strlen(str_replace("\n", "", $tv['TypoScript']))) . ' lines of code inside the &lt;TypoScript&gt;-entry</li>';
+							$tsstats .= '<li>' . sprintf($GLOBALS['LANG']->getLL('center_details_ts_stats'), (1 + strlen($tv['TypoScript']) - strlen(str_replace("\n", "", $tv['TypoScript'])))) . '</li>';
+						if (isset($tv['TypoScript_constants']))
+							$tsstats .= '<li>' . sprintf($GLOBALS['LANG']->getLL('center_details_ts_statsconst'), count($tv['TypoScript_constants'])) . '</li>';
 						if (isset($tv['TypoScriptObjPath']))
-							$tsstats .= '<li>will utilize the structure <em>' . $tv['TypoScriptObjPath'] . '</em> defined inside the &lt;TypoScriptObjPath&gt;-entry</li>';
+							$tsstats .= '<li>' . sprintf($GLOBALS['LANG']->getLL('center_details_ts_statspath'), '<em>' . $tv['TypoScriptObjPath'] . '</em>') . '</li>';
 
 						$HTML .= '<dl class="DS-infos">';
-						$HTML .= '<dt>Preset used for the element:</dt>';
+						$HTML .= '<dt>' . $GLOBALS['LANG']->getLL('center_details_preset') . ':</dt>';
 						$HTML .= '<dd>' . $preset . '</dd>';
-						$HTML .= '<dt>Column-positioning:</dt>';
+						$HTML .= '<dt>' . $GLOBALS['LANG']->getLL('center_details_column') . ':</dt>';
 						$HTML .= '<dd>' . $column . '</dd>';
 						if ($tsstats != '') {
-							$HTML .= '<dt>Typo-Script:</dt>';
+							$HTML .= '<dt>' . $GLOBALS['LANG']->getLL('center_details_ts') . ':</dt>';
 							$HTML .= '<dd><ul class="DS-stats">' . $tsstats . '</ul></dd>';
 						}
 						if ($notes != '') {
-							$HTML .= '<dt>Notes:</dt>';
+							$HTML .= '<dt>' . $GLOBALS['LANG']->getLL('center_details_notes') . ':</dt>';
 							$HTML .= '<dd><ul class="DS-notes">' . $notes . '</ul></dd>';
 						}
 						$HTML .= '</dl>';
@@ -288,7 +289,7 @@ class tx_templavoila_mod2_xml {
 					if (isset($def['section']))
 						;
 					if (isset($def['el']))
-						$HTML .= $this->renderDSdetails($def['el']);
+						$HTML .= $this->renderXMLdetails($def['el']);
 				}
 
 				$HTML .= '</dd>';
@@ -308,18 +309,18 @@ class tx_templavoila_mod2_xml {
 	/**
 	 * Show meta data part of Data Structure
 	 *
-	 * @param	[type]		$DSstring: ...
+	 * @param	[type]		$XMLstring: ...
 	 * @return	[type]		...
 	 */
-	function DSdetails($DSstring) {
-		$DScontent = t3lib_div::xml2array($DSstring);
+	function getXMLdetails($XMLstring) {
+		$XMLcontent = t3lib_div::xml2array($XMLstring);
 
 		$inputFields     = 0;
 		$referenceFields = 0;
 		$rootElements    = 0;
 
-		if (is_array ($DScontent) && is_array($DScontent['ROOT']['el'])) {
-			foreach($DScontent['ROOT']['el'] as $elKey => $elCfg) {
+		if (is_array ($XMLcontent) && is_array($XMLcontent['ROOT']['el'])) {
+			foreach($XMLcontent['ROOT']['el'] as $elKey => $elCfg) {
 
 				if (isset($elCfg['TCEforms']))	{
 					// Assuming that a reference field for content elements is recognized like this, increment counter. Otherwise assume input field of some sort.
@@ -342,27 +343,30 @@ class tx_templavoila_mod2_xml {
 			}
 		}
 
-	/*	$DScontent = array('meta' => $DScontent['meta']);	*/
+	/*	$XMLcontent = array('meta' => $XMLcontent['meta']);	*/
 
 		$languageMode = '';
-		$layoutMode = 'Automatic layout in the page-module';
-		$sheetMode = 'Automatic sheet selection: [sDEF]';
+		$layoutMode = $GLOBALS['LANG']->getLL('center_layout_auto');
+		$sheetMode = $GLOBALS['LANG']->getLL('center_sheet_auto');
 
-		if (is_array($DScontent['meta'])) {
-			if ($DScontent['meta']['langDisable']) {
+		if (is_array($XMLcontent['meta'])) {
+			if ($XMLcontent['meta']['langDisable']) {
 				$languageMode = $GLOBALS['LANG']->getLL('disabled');
-			} elseif ($DScontent['meta']['langChildren']) {
+			} elseif ($XMLcontent['meta']['langChildren']) {
 				$languageMode = $GLOBALS['LANG']->getLL('inherited');
 			} else {
 				$languageMode = $GLOBALS['LANG']->getLL('separated');
 			}
 
-			if (trim($DScontent['meta']['sheetSelector'])) {
-				$layoutMode = 'Contains a custom sheet selector: [' . $DScontent['meta']['sheetSelector'] . ']';
+			if (trim($XMLcontent['meta']['sheetSelector'])) {
+				$sheetMode = sprintf($GLOBALS['LANG']->getLL('center_sheet_sel'), $XMLcontent['meta']['sheetSelector']);
 			}
 
-			if (trim($DScontent['meta']['beLayout'])) {
-				$layoutMode = 'Contains a custom backend layout for the page-module';
+			if (trim($XMLcontent['meta']['beLayout'])) {
+				$layoutMode = $GLOBALS['LANG']->getLL('center_layout_becode');
+			}
+			else if (trim($XMLcontent['meta']['beLayoutFile'])) {
+				$layoutMode = sprintf($GLOBALS['LANG']->getLL('center_layout_befile'), renderFile_link($XMLcontent['meta']['beLayoutFile']));
 			}
 		}
 
@@ -383,10 +387,10 @@ class tx_templavoila_mod2_xml {
 			$containerMode = $GLOBALS['LANG']->getLL('no');
 		}
 
-		return array(/*t3lib_div::view_array($DScontent).'Language Mode => "'.$languageMode.'"<hr/>
+		return array(/*t3lib_div::view_array($XMLcontent).'Language Mode => "'.$languageMode.'"<hr/>
 						Root Elements = ' . $rootElements . ', hereof ref/input fields = '.($referenceFields.'/'.$inputFields).'<hr/>
 						'.$rootElementsHTML*/
-			'HTML'   => $this->renderDSdetails($DScontent),
+			'HTML'   => $this->renderXMLdetails($XMLcontent),
 			'status' => $containerMode,
 			'stats'  => array(
 				'rootElements'    => $rootElements,
@@ -397,6 +401,31 @@ class tx_templavoila_mod2_xml {
 				'sheetMode'       => $sheetMode
 			)
 		);
+	}
+
+	/**
+	 * Renders the name and a link of a given template-file
+	 *
+	 * @param	string		The file-path
+	 * @return	the dl-fragment with the informations and icons
+	 */
+	function renderFile_link($theFile) {
+		// Find the file:
+		$theFile = t3lib_div::getFileAbsFileName($theFile, 1);
+		if ($theFile && @is_file($theFile)) {
+			preg_match_all('/(.*)\\.([^\\.]*$)/',  $theFile, $reg);
+			$alttext = '' . $reg[2][0];
+
+			$icon = t3lib_BEfunc::getFileIcon($alttext);
+			$icon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/fileicons/' . $icon, 'width="18" height="16"') . ' align="top" title="' . htmlspecialchars($alttext) . '" alt="" />';
+
+			$relFilePath = substr($theFile,strlen(PATH_site));
+			$onCl = 'return top.openUrlInWindow(\'' . t3lib_div::getIndpEnv('TYPO3_SITE_URL') . $relFilePath.'\', \'FileView\');';
+
+			return $GLOBALS['SOBE']->doc->wrapClickMenuOnIcon($icon, $theFile) . ' <a href="#" onclick="' . htmlspecialchars($onCl) . '">' . htmlspecialchars($relFilePath) . '</a>';
+		}
+
+		return '';
 	}
 
 }

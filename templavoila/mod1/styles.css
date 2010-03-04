@@ -71,6 +71,11 @@ table.tv-clipboard table.tv-coe tr.sortableHandle > td + td > a:firstChild {
 	display: none;
 }
 
+table.tv-container table.tv-coe tr.sortableHandle > td + td > a:firstChild,
+table.tv-clipboard table.tv-coe tr.sortableHandle > td + td > a:firstChild {
+	display: none;
+}
+
 table.tv-container img.new,
 table.tv-container img.browse,
 table.tv-container img.paste {

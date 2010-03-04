@@ -6,8 +6,10 @@ var sortable_containers;
 var sortable_parameters = {
 	tag: "div",
 	ghosting: false,
+	marking: "table.tv-coe",
 	format: /(.*)/,
 	handle: "sortableHandle",
+	hoverclass: "sortableIndicator",
 	dropOnEmpty: true,
 	constraint: false,
 	containment: sortable_containers,

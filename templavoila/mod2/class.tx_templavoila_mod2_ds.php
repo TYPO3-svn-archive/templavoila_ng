@@ -224,7 +224,7 @@ class tx_templavoila_mod2_ds {
 			/* ------------------------------------------------------------------------------ */
 			// Details:
 			if ($this->MOD_SETTINGS['set_details'])	{
-				$XMLinfo = $this->pObj->xmlObj->DSdetails($dsRow['dataprot']);
+				$XMLinfo = $this->pObj->xmlObj->getXMLdetails($dsRow['dataprot']);
 			}
 
 			/* ------------------------------------------------------------------------------ */
@@ -284,7 +284,7 @@ class tx_templavoila_mod2_ds {
 						'</a>';
 
 				if ($this->MOD_SETTINGS['set_details'])	{
-					$XMLinfo = $this->pObj->xmlObj->DSdetails(t3lib_div::getUrl($fileReference));
+					$XMLinfo = $this->pObj->xmlObj->getXMLdetails(t3lib_div::getUrl($fileReference));
 				}
 			} else {
 				$fileRef = htmlspecialchars($dsRow['path']) . ' [' . $GLOBALS['LANG']->getLL('filenotfound') . '!]';
