@@ -1523,16 +1523,16 @@ table.typo3-dyntabmenu td.disabled:hover {
 				case 'text':		//	Text
 				case 'table':		//	Table
 				case 'mailform':	//	Form
-					$output = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content','bodytext'), 1) . '</strong> ' . htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['bodytext'])), 2000)), 'tt_content', $row['uid']);
+					$output = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'bodytext'), 1) . '</strong> <span class="bodytext">' . htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['bodytext'])), 2000)) . '</span>', 'tt_content', $row['uid']);
 					break;
 				case 'image':		//	Image
-					$output = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content','image'), 1) . '</strong><br /> ', 'tt_content', $row['uid']) . t3lib_BEfunc::thumbCode($row, 'tt_content', 'image', $this->doc->backPath);
+					$output = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'image'), 1) . '</strong><br /> ', 'tt_content', $row['uid']) . t3lib_BEfunc::thumbCode($row, 'tt_content', 'image', $this->doc->backPath);
 					break;
 				case 'textpic':		//	Text w/image
 				case 'splash':		//	Textbox
 					$thumbnail = '<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'image'), 1) . '</strong><br />';
 					$thumbnail .= t3lib_BEfunc::thumbCode($row, 'tt_content', 'image', $this->doc->backPath);
-					$text = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'bodytext'), 1) . '</strong> ' . htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['bodytext'])), 2000)), 'tt_content', $row['uid']);
+					$text = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'bodytext'), 1) . '</strong> <span class="bodytext">' . htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['bodytext'])), 2000)) . '</span>', 'tt_content', $row['uid']);
 					$output = '<table><tr><td valign="top">' . $text . '</td><td valign="top">' . $thumbnail . '</td></tr></table>';
 					break;
 				case 'bullets':		//	Bullets

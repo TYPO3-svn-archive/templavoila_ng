@@ -155,6 +155,10 @@ div.tv-preview ul {
 	padding: 0 0 0 1.5em;
 }
 
+div.tv-preview .bodytext {
+	font-family: Serif;
+}
+
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 table.tv-hidden {
 	opacity: 0.5;
