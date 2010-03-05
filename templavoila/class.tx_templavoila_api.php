@@ -1130,7 +1130,7 @@ class tx_templavoila_api {
 
 		$parentRecord = t3lib_BEfunc::getRecordWSOL($table, $uid, 'uid,pid,tx_templavoila_ds,tx_templavoila_flex' . ($table == 'pages' ? ',t3ver_swapmode' : ''));
 		$flexFieldArr = t3lib_div::xml2array($parentRecord['tx_templavoila_flex']);
-		$expandedDataStructure = $this->ds_getExpandedDataStructure ($table, $parentRecord);
+		$expandedDataStructure = $this->ds_getExpandedDataStructure($table, $parentRecord);
 
 		if (is_array ($flexFieldArr['data'])) {
 			foreach ($flexFieldArr['data'] as $sheetKey => $languagesArr) {
@@ -1175,11 +1175,11 @@ class tx_templavoila_api {
 	 * @return	array		Array of flexform pointers
 	 * @access public
 	 */
-	function flexform_getFlexformPointersToSubElementsRecursively ($table, $uid, &$flexformPointers, $recursionDepth=0) {
+	function flexform_getFlexformPointersToSubElementsRecursively($table, $uid, &$flexformPointers, $recursionDepth = 0) {
 		if (!is_array($flexformPointers))
 			$flexformPointers = array();
 
-		$parentRecord = t3lib_BEfunc::getRecordWSOL($table, $uid, 'uid,pid,tx_templavoila_flex,tx_templavoila_ds,tx_templavoila_to'.($table=='pages' ? ',t3ver_swapmode' : ''));
+		$parentRecord = t3lib_BEfunc::getRecordWSOL($table, $uid, 'uid,pid,tx_templavoila_flex,tx_templavoila_ds,tx_templavoila_to' . ($table=='pages' ? ',t3ver_swapmode' : ''));
 		$flexFieldArr = t3lib_div::xml2array($parentRecord['tx_templavoila_flex']);
 		$expandedDataStructure = $this->ds_getExpandedDataStructure($table, $parentRecord);
 
@@ -1351,7 +1351,7 @@ class tx_templavoila_api {
 	 * @return	mixed		Either the field name relating to the given column number or FALSE if all fall back methods failed and no suitable field could be found.
 	 * @access public
 	 */
-	function ds_getFieldNameByColumnPosition ($contextPageUid, $columnPosition) {
+	function ds_getFieldNameByColumnPosition($contextPageUid, $columnPosition) {
 		global $TCA;
 
 		$foundFieldName = FALSE;
@@ -1362,7 +1362,7 @@ class tx_templavoila_api {
 		if (!is_array ($pageRow))
 			return FALSE;
 
-		$dataStructureArr = $this->ds_getExpandedDataStructure ('pages', $pageRow);
+		$dataStructureArr = $this->ds_getExpandedDataStructure('pages', $pageRow);
 
 		// Traverse the data structure and search for oldStyleColumnNumber configurations:
 		if (is_array ($dataStructureArr)) {
@@ -1414,7 +1414,7 @@ class tx_templavoila_api {
 	function ds_getColumnPositionByFieldName($contextPageUid, $fieldName) {
 		$pageRow = t3lib_BEfunc::getRecordWSOL('pages', $contextPageUid);
 		if (is_array($pageRow)) {
-			$dataStructureArr = $this->ds_getExpandedDataStructure ('pages', $pageRow);
+			$dataStructureArr = $this->ds_getExpandedDataStructure('pages', $pageRow);
 
 			// Traverse the data structure and search for oldStyleColumnNumber configurations:
 			if (is_array ($dataStructureArr)) {
@@ -1442,30 +1442,32 @@ class tx_templavoila_api {
 	 * @return	array		The data structure, expanded for all sheets inside.
 	 * @access public
 	 */
-	function ds_getExpandedDataStructure ($table, $row) {
+	function ds_getExpandedDataStructure($table, $row) {
 		global $TCA;
 
-		t3lib_div::loadTCA ($table);
+		t3lib_div::loadTCA($table);
 		$conf = $TCA[$table]['columns']['tx_templavoila_flex']['config'];
 		$dataStructureArr = t3lib_BEfunc::getFlexFormDS($conf, $row, $table);
 
 		$expandedDataStructureArr = array();
-		if (!is_array ($dataStructureArr)) $dataStructureArr = array();
+		if (!is_array($dataStructureArr))
+			$dataStructureArr = array();
 
-		if (is_array($dataStructureArr['sheets']))	{
-			foreach (array_keys($dataStructureArr['sheets']) as $sheetKey)	{
+		if (is_array($dataStructureArr['sheets'])) {
+			foreach (array_keys($dataStructureArr['sheets']) as $sheetKey) {
 				list ($sheetDataStructureArr, $sheet) = t3lib_div::resolveSheetDefInDS($dataStructureArr, $sheetKey);
-				if ($sheet == $sheetKey)	{
+				if ($sheet == $sheetKey) {
 					$expandedDataStructureArr[$sheetKey] = $sheetDataStructureArr;
 				}
 			}
 		} else {
-			$sheetKey='sDEF';
+			$sheetKey = 'sDEF';
 			list ($sheetDataStructureArr, $sheet) = t3lib_div::resolveSheetDefInDS($dataStructureArr, $sheetKey);
-			if ($sheet == $sheetKey)	{
+			if ($sheet == $sheetKey) {
 				$expandedDataStructureArr[$sheetKey] = $sheetDataStructureArr;
 			}
 		}
+
 		return $expandedDataStructureArr;
 	}
 
@@ -1479,24 +1481,28 @@ class tx_templavoila_api {
 	 * @return	mixed		Array of Template Object records or FALSE if an error occurred.
 	 * @access public
 	 */
-	function ds_getAvailablePageTORecords ($pageUid) {
+	function ds_getAvailablePageTORecords($pageUid) {
 		global $TYPO3_DB;
 
-		$storageFolderPID = $this->getStorageFolderPid ($pageUid);
+		$storageFolderPID = $this->getStorageFolderPid($pageUid);
 
 		$tTO = 'tx_templavoila_tmplobj';
 		$tDS = 'tx_templavoila_datastructure';
-		$res = $TYPO3_DB->exec_SELECTquery (
+		$res = $TYPO3_DB->exec_SELECTquery(
 			"$tTO.*",
 			"$tTO LEFT JOIN $tDS ON $tTO.datastructure = $tDS.uid",
-			"$tTO.pid=".intval($storageFolderPID)." AND $tDS.scope=" . TVDS_SCOPE_PAGE .
-				t3lib_befunc::deleteClause ($tTO) . t3lib_befunc::deleteClause ($tDS) .
-				t3lib_BEfunc::versioningPlaceholderClause($tTO) . t3lib_BEfunc::versioningPlaceholderClause($tDS)
+			"$tTO.pid=" . intval($storageFolderPID) . " AND $tDS.scope=" . TVDS_SCOPE_PAGE .
+				t3lib_befunc::deleteClause($tTO) .
+				t3lib_befunc::deleteClause($tDS) .
+				t3lib_BEfunc::versioningPlaceholderClause($tTO) .
+				t3lib_BEfunc::versioningPlaceholderClause($tDS)
 		);
-		if (!$res) return FALSE;
+
+		if (!$res)
+			return FALSE;
 
 		$templateObjectRecords = array();
-		while (false != ($row = $TYPO3_DB->sql_fetch_assoc($res)))	{
+		while (false != ($row = $TYPO3_DB->sql_fetch_assoc($res))) {
 			$templateObjectRecords[$row['uid']] = $row;
 		}
 
@@ -1683,7 +1689,9 @@ class tx_templavoila_api {
 		}
 
 		// If element is a Flexible Content Element (or a page) then look at the content inside:
-		if ($table == 'pages' || $table == $this->rootTable || ($table == 'tt_content' && $row['CType'] == 'templavoila_pi1')) {
+		if (($table == $this->rootTable) ||
+		    ($table == 'pages') ||
+		    ($table == 'tt_content' && $row['CType'] == 'templavoila_pi1')) {
 			t3lib_div::loadTCA($table);
 
 			$rawDataStructureArr = t3lib_BEfunc::getFlexFormDS($TCA[$table]['columns']['tx_templavoila_flex']['config'], $row, $table);
@@ -1700,10 +1708,11 @@ class tx_templavoila_api {
 					$currentTemplateObject = FALSE;
 			}
 
-			$tree['ds_is_found'] = is_array($rawDataStructureArr);
-			$tree['ds_meta'    ] = $rawDataStructureArr['meta'];
-			$tree['to_title'   ] = $currentTemplateObject['title'];
-			$tree['to_icon'    ] = $currentTemplateObject['previewicon'];
+			$tree['ds_is_found'   ] = is_array($rawDataStructureArr);
+			$tree['ds_meta'       ] = $rawDataStructureArr['meta'];
+			$tree['to_title'      ] = $currentTemplateObject['title'];
+			$tree['to_icon'       ] = $currentTemplateObject['previewicon'];
+			$tree['to_description'] = $currentTemplateObject['description'];
 
 			$flexformContentArr = t3lib_div::xml2array($row['tx_templavoila_flex']);
 
@@ -1895,7 +1904,7 @@ class tx_templavoila_api {
 	function getContentTree_fetchPageTemplateObject($row) {
 		$templateObjectUid = $row['tx_templavoila_ds'] ? intval($row['tx_templavoila_to']) : 0;
 		if (!$templateObjectUid) {
-			$rootLine = t3lib_beFunc::BEgetRootLine($row['uid'],'', TRUE);
+			$rootLine = t3lib_beFunc::BEgetRootLine($row['uid'], '', TRUE);
 			foreach($rootLine as $rootLineRecord) {
 				$pageRecord = t3lib_beFunc::getRecordWSOL('pages', $rootLineRecord['uid']);
 

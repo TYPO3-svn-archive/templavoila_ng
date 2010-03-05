@@ -28,6 +28,7 @@
  *
  * @author    Kasper Skaarhoj <kasper@typo3.com>
  * @coauthor  Robert Lemke <robert@typo3.org>
+ * @coauthor  Niels Fröhling <niels@frohling.biz>
  */
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
@@ -1201,17 +1202,17 @@ class tx_templavoila_pi1 extends tslib_pibase {
 		switch ($table) {
 			case 'pages':
 				$tRows[] = '<tr style="background-color: #ABBBB4;">
-						<td colspan="2"><b>Page:</b> '.htmlspecialchars(t3lib_div::fixed_lgd_cs($row['title'],30)).' <em>[UID:'.$row['uid'].']</em></td>
+						<td colspan="2"><strong>Page:</strong> ' . htmlspecialchars(t3lib_div::fixed_lgd_cs($row['title'], 30)) . ' <em>[UID:' . $row['uid'] . ']</em></td>
 					</tr>';
 				break;
 			case 'tt_content':
 				$tRows[] = '<tr style="background-color: #ABBBB4;">
-						<td colspan="2"><b>Flexible Content:</b> '.htmlspecialchars(t3lib_div::fixed_lgd_cs($row['header'],30)).' <em>[UID:'.$row['uid'].']</em></td>
+						<td colspan="2"><strong>Flexible Content:</strong> ' . htmlspecialchars(t3lib_div::fixed_lgd_cs($row['header'], 30)) . ' <em>[UID:' . $row['uid'] . ']</em></td>
 					</tr>';
 				break;
 			default:
 				$tRows[] = '<tr style="background-color: #ABBBB4;">
-						<td colspan="2">Table "'.$table.'" <em>[UID:'.$row['uid'].']</em></td>
+						<td colspan="2">Table "' . $table . '" <em>[UID:' . $row['uid'] . ']</em></td>
 					</tr>';
 				break;
 		}
@@ -1220,27 +1221,28 @@ class tx_templavoila_pi1 extends tslib_pibase {
 		if (is_numeric($srcPointer)) {
 			$tRows[] = '
 				<tr>
-					<td valign="top"><b>Data Structure:</b></td>
-					<td>'.htmlspecialchars(t3lib_div::fixed_lgd_cs($DSrec['title'],30)).' <em>[UID:'.$srcPointer.']</em>'.
-						($DSrec['previewicon'] ? '<br/><img src="uploads/tx_templavoila/'.$DSrec['previewicon'].'" alt="" />' : '').
+					<td valign="top"><strong>Data Structure:</strong></td>
+					<td>' . htmlspecialchars(t3lib_div::fixed_lgd_cs($DSrec['title'], 30)) . ' <em>[UID:' . $srcPointer . ']</em>'.
+						($DSrec['previewicon'] ? '<br/><img src="uploads/tx_templavoila/' . $DSrec['previewicon'] . '" alt="" />' : '') .
 						'</td>
 				</tr>';
 		} else {
 			$tRows[] = '
 				<tr>
-					<td valign="top"><b>Data Structure:</b></td>
-					<td>'.htmlspecialchars($srcPointer).'</td>
+					<td valign="top"><strong>Data Structure:</strong></td>
+					<td>' . htmlspecialchars($srcPointer) . '</td>
 				</tr>';
 		}
 
 		// Template Object:
 		$tRows[] = '
 			<tr>
-				<td valign="top"><b>Template Object:</b></td>
-				<td>'.htmlspecialchars(t3lib_div::fixed_lgd_cs($TOrec['title'],30)).' <em>[UID:'.$TOrec['uid'].']</em>'.
-					($TOrec['previewicon'] ? '<br/><img src="uploads/tx_templavoila/'.$TOrec['previewicon'].'" alt="" />' : '').
+				<td valign="top"><strong>Template Object:</strong></td>
+				<td>'.htmlspecialchars(t3lib_div::fixed_lgd_cs($TOrec['title'], 30)) . ' <em>[UID:' . $TOrec['uid'] . ']</em>' .
+					($TOrec['previewicon'] ? '<br/><img src="uploads/tx_templavoila/' . $TOrec['previewicon'] . '" alt="" />' : '').
 					'</td>
 			</tr>';
+
 		if ($TOrec['description']) {
 			$tRows[] = '
 				<tr>
@@ -1248,6 +1250,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 					<td>' . htmlspecialchars($TOrec['description']) . '</td>
 				</tr>';
 		}
+
 		$tRows[] = '
 			<tr>
 				<td valign="top" nowrap="nowrap">&nbsp; &nbsp; &nbsp; Template File:</td>
@@ -1278,7 +1281,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 		// Compile information:
 		$id = 'templavoila-preview-'.t3lib_div::shortMD5(microtime());
 		$content = '
-			<div style="text-align: left; position: absolute; display:none; filter: alpha(Opacity=90);" id="' . $id . '">
+			<div style="text-align: left; position: absolute; display: none; filter: alpha(Opacity=90);" id="' . $id . '">
 				' . $infoArray . '
 			</div>
 			<div id="' . $id . '-wrapper" style=""

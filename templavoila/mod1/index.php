@@ -847,10 +847,16 @@ table.typo3-dyntabmenu td.disabled:hover {
 	function render_framework_singleSheet($singleView, $contentTreeArr, $languageKey, $sheet, $parentPointer = array(), $parentDsMeta = array()) {
 		global $TYPO3_CONF_VARS;
 
+		$isContainer = (($contentTreeArr['el']['table'] == 'pages') || ($contentTreeArr['el']['table'] == 'tt_content' && $contentTreeArr['el']['CType'] == 'templavoila_pi1'));
+
+		$hidePreview = intval($contentTreeArr['ds_meta']['disableDataPreview']) || $this->MOD_SETTINGS['tt_content_hidePreviews'];
+		$hideCollapse = !$isContainer && $hidePreview;
+
 		$elementBelongsToCurrentPage = ($contentTreeArr['el']['table'] == 'pages') || ($contentTreeArr['el']['pid'] == $this->rootElementUid_pidForContent);
 		$elementIsAlsoUsedElsewhere = ($contentTreeArr['el']['table'] == 'tt_content') && ($ia = $this->checkReferenceCount($contentTreeArr['el']['uid'])) && (count($ia) > 1);
 
 		// Prepare the record icon including a content sensitive menu link wrapped around it:
+		$collapseIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/ol/minusonly.gif', 'width="11" height="12"') . ' alt="" class="absmiddle" />';
 		$recordIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, $contentTreeArr['el']['icon'], 'width="18" height="16"') . ' border="0" title="' . htmlspecialchars('[' . $contentTreeArr['el']['table'] . ':' . $contentTreeArr['el']['uid'] . ']') . '" alt="" />';
 
 		$menuCommands = array();
@@ -862,7 +868,8 @@ table.typo3-dyntabmenu td.disabled:hover {
 			$menuCommands[] = 'copy';
 		}
 
-		$titleBarLeftButtons  = $this->translatorMode ? $recordIcon : (count($menuCommands) == 0 ? $recordIcon : $this->doc->wrapClickMenuOnIcon($recordIcon, $contentTreeArr['el']['table'], $contentTreeArr['el']['uid'], 1, '&amp;callingScriptId=' . rawurlencode($this->doc->scriptID), implode(',', $menuCommands)));
+		$titleBarLeftButtons  = ($hideCollapse ? '' : $collapseIcon);
+		$titleBarLeftButtons .= $this->translatorMode ? $recordIcon : (count($menuCommands) == 0 ? $recordIcon : $this->doc->wrapClickMenuOnIcon($recordIcon, $contentTreeArr['el']['table'], $contentTreeArr['el']['uid'], 1, '&amp;callingScriptId=' . rawurlencode($this->doc->scriptID), implode(',', $menuCommands)));
 		$titleBarLeftButtons .= $this->getRecordStatHookValue($contentTreeArr['el']['table'], $contentTreeArr['el']['uid']) . ' ';
 
 		unset($menuCommands);
@@ -878,8 +885,10 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 				if ($singleView)
 					$titleBarLeftButtons =
-					($this->localizationObj ?
-						$this->localizationObj->sidebar_renderItem_renderLanguageSelectorbox_pure_actual() : '') . ' ';
+					($this->localizationObj
+						? $this->localizationObj->sidebar_renderItem_renderLanguageSelectorbox_pure_actual()
+						: ''
+					) . ' ';
 				break;
 			case 'tt_content':
 				$elementTitlebarColor = ($elementBelongsToCurrentPage ? $this->doc->bgColor5 : $this->doc->bgColor6);
@@ -924,9 +933,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 		// Create localization-tools if neccessary:
 		$localize = $this->render_localizationInfo($contentTreeArr, $parentPointer, $parentDsMeta);
-echo '<pre>';
-print_r($contentTreeArr);
-echo '</pre>';
+
 		// Finally assemble the table:
 		$finalContent = '
 			<table cellpadding="0" cellspacing="0" width="100%" class="tv-coe' . ($contentTreeArr['el']['isHidden'] ? ' tv-hidden' : '') . '">
@@ -942,32 +949,47 @@ echo '</pre>';
 						<div style="float:  left;" class="nobr">' .
 							$languageIcon .
 							$titleBarLeftButtons .
-							($elementBelongsToCurrentPage ? '' : '<em>') . htmlspecialchars($contentTreeArr['el']['title']) . ($elementBelongsToCurrentPage ? '' : '</em>') . '
+							($elementBelongsToCurrentPage ? '' : '<em>') .
+								htmlspecialchars($contentTreeArr['el']['title']) .
+							($elementBelongsToCurrentPage ? '' : '</em>') . '
 						</div>
 						<div style="float: right;" class="nobr sortableButtons">' .
 							$titleBarRightButtons . '
 						</div>
 					</th>
-				</tr>
+				</tr>' .
+				($isContainer ? '
 				<tr>
-					<th>
+					<th>' . ($contentTreeArr['to_icon'] ? '
+						<img style="float: left; padding-right: 1em;" src="' . $this->doc->backPath . '../uploads/tx_templavoila/' . $contentTreeArr['to_icon'] . '" />' : '') . '
+						<dl style="float: left; margin: 0;">
+							<dt>Template Object:</dt>
+							<dd>' . ($contentTreeArr['to_title'] ? htmlspecialchars($contentTreeArr['to_title']) : '&mdash;') . '</dd>
+							<dt>Template Description:</dt>
+							<dd>' . ($contentTreeArr['to_description'] ? htmlspecialchars($contentTreeArr['to_description']) : '&mdash;') . '</dd>
+							<dt>' . ($contentTreeArr['el']['table'] == 'pages' ? 'Page' : 'FCE') . ' created:</dt>
+							<dd>' . t3lib_BEfunc::datetime($this->rootElementRecord['crdate']) . ' by [' . $this->rootElementRecord['cruser_id'] . ']</dd>
+							<dt>' . ($contentTreeArr['el']['table'] == 'pages' ? 'Page' : 'FCE') . ' last modified:</dt>
+							<dd>' . t3lib_BEfunc::datetime($this->rootElementRecord['tstamp']) . '</dd>
+						</dl>
 					</th>
 				</tr>
+				' : '') . '
 			</thead>
+			' . (trim($localize . $warnings) ? '
 			<tfoot>
 				<tr style="' . $elementTitlebarStyle . ';">
 					<td>' . $localize . $warnings . '</td>
 				</tr>
 			</tfoot>
+			' : '') . '
 			<tbody>
 				<tr>
 					' .
-						(is_array($contentTreeArr['previewData']['fullRow'])
-						&&	  $contentTreeArr['el']['table'] == 'tt_content'
-						&&	  $contentTreeArr['el']['CType'] != 'templavoila_pi1'
-						? (intval($contentTreeArr['ds_meta']['disableDataPreview']) || $this->MOD_SETTINGS['tt_content_hidePreviews']
-						?	''
-						:	'<td>' . $this->render_previewContent($contentTreeArr['previewData']['fullRow']) . '</td>')
+						(is_array($contentTreeArr['previewData']['fullRow']) && !$isContainer
+						? ($hidePreview
+						  ?	''
+						  :	'<td>' . $this->render_previewContent($contentTreeArr['previewData']['fullRow']) . '</td>')
 						:	'<td>' . $this->render_framework_singleSheet_traverse($singleView, $contentTreeArr, $languageKey, $sheet) . '</td>'
 						) .
 					'
@@ -1124,11 +1146,14 @@ echo '</pre>';
 							</table>';
 						$beTemplate = str_replace('###' . $fieldID . '###', $beTemplateCell, $beTemplate);
 					} else {
+						$collapseIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/ol/minusonly.gif', 'width="11" height="12"') . ' alt="" class="absmiddle" />';
+						$containerIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/i/tt_content.gif', 'width="11" height="12"') . ' title="Container for content elements" class="absmiddle" />';
+
 						// Add cell content to registers:
 						$headerCells[] = '
 							<th valign="top" width="###WIDTH###" style="background-color: ' . $this->doc->bgColor4 . ';" class="' . $stateClass . '">
-								<div style="float:  left;" class="nobr">
-									<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/i/tt_content.gif', 'width="11" height="12"') . ' title="Container for content elements" class="absmiddle" />' .
+								<div style="float:  left;" class="nobr">' .
+									$collapseIcon . $containerIcon .
 									$GLOBALS['LANG']->sL($fieldContent['meta']['title'], 1) . '
 								</div>
 								<div style="float: right;" class="nobr extraOptions">' .
