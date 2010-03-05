@@ -298,7 +298,7 @@ class tx_templavoila_mod1_localization {
 
 		$output = '';
 
-		if (($moutput = sidebar_renderItem_renderLanguageSelectorbox_pure_missing())) {
+		if (($moutput = $this->sidebar_renderItem_renderLanguageSelectorbox_pure_missing())) {
 			$output = '
 				<tr class="bgColor4">
 					<td width="20">' .

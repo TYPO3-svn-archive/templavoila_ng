@@ -552,18 +552,18 @@ table.typo3-dyntabmenu td.disabled:hover {
 			// Show the "edit current page" screen along with the sidebar
 			$shortCut = ($BE_USER->mayMakeShortcut() ? '<br /><br />' . $this->doc->makeShortcutIcon('id,altRoot', implode(',', array_keys($this->MOD_MENU)), $this->MCONF['name']) : '');
 			if (($this->sideBarObj->position == 'left') && $this->modTSconfig['properties']['sideBarEnable']) {
-				$this->content .= '
+				$this->content = '
 					<table cellspacing="0" cellpadding="0" style="width: 100%; height: 550px; padding: 0; margin: 0;">
 						<tr>
 							<td style="vertical-align:top;">' . $this->sideBarObj->render() . '</td>
-							<td style="vertical-align:top; padding-bottom:20px;" width="99%">' . $content . $shortCut . '</td>
+							<td style="vertical-align:top; padding-bottom:20px;" width="99%">' . $this->content . $shortCut . '</td>
 						</tr>
 					</table>
 				';
 			} else {
 				$sideBarTop = $this->modTSconfig['properties']['sideBarEnable']  && ($this->sideBarObj->position == 'toprows' || $this->sideBarObj->position == 'toptabs') ? $this->sideBarObj->render() : '';
 
-				$this->content .= $sideBarTop . $content . $shortCut;
+				$this->content = $sideBarTop . $this->content . $shortCut;
 			}
 
 		// No access or no current page uid:
@@ -745,9 +745,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 				// Create table and header cell:
 				$output .= '
 					<table border="0" cellpadding="0" cellspacing="1" width="100%" class="tv-clipboard" id="clipboard">
-					<caption class="tool">' .
-						$GLOBALS['LANG']->getLL('clipboard') . '
-					</caption>
+					<caption class="tool">' . $GLOBALS['LANG']->getLL('clipboard') . '</caption>
 					<tbody><tr><td>' . $this->clipboardObj->sidebar_renderNonUsedElements() . '</td></tr></tbody>
 					</table>
 					<br />
@@ -926,7 +924,9 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 		// Create localization-tools if neccessary:
 		$localize = $this->render_localizationInfo($contentTreeArr, $parentPointer, $parentDsMeta);
-
+echo '<pre>';
+print_r($contentTreeArr);
+echo '</pre>';
 		// Finally assemble the table:
 		$finalContent = '
 			<table cellpadding="0" cellspacing="0" width="100%" class="tv-coe' . ($contentTreeArr['el']['isHidden'] ? ' tv-hidden' : '') . '">
@@ -947,6 +947,10 @@ table.typo3-dyntabmenu td.disabled:hover {
 						<div style="float: right;" class="nobr sortableButtons">' .
 							$titleBarRightButtons . '
 						</div>
+					</th>
+				</tr>
+				<tr>
+					<th>
 					</th>
 				</tr>
 			</thead>

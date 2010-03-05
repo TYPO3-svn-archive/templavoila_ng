@@ -1125,9 +1125,10 @@ class tx_templavoila_api {
 	 * @access public
 	 */
 	function flexform_getListOfSubElementUidsRecursively($table, $uid, &$recordUids, $recursionDepth=0) {
+		if (!is_array($recordUids))
+			$recordUids = array();
 
-		if (!is_array($recordUids)) $recordUids = array();
-		$parentRecord = t3lib_BEfunc::getRecordWSOL($table, $uid, 'uid,pid,tx_templavoila_ds,tx_templavoila_flex'.($table=='pages' ? ',t3ver_swapmode' : ''));
+		$parentRecord = t3lib_BEfunc::getRecordWSOL($table, $uid, 'uid,pid,tx_templavoila_ds,tx_templavoila_flex' . ($table == 'pages' ? ',t3ver_swapmode' : ''));
 		$flexFieldArr = t3lib_div::xml2array($parentRecord['tx_templavoila_flex']);
 		$expandedDataStructure = $this->ds_getExpandedDataStructure ($table, $parentRecord);
 
@@ -1175,11 +1176,12 @@ class tx_templavoila_api {
 	 * @access public
 	 */
 	function flexform_getFlexformPointersToSubElementsRecursively ($table, $uid, &$flexformPointers, $recursionDepth=0) {
+		if (!is_array($flexformPointers))
+			$flexformPointers = array();
 
-		if (!is_array($flexformPointers)) $flexformPointers = array();
 		$parentRecord = t3lib_BEfunc::getRecordWSOL($table, $uid, 'uid,pid,tx_templavoila_flex,tx_templavoila_ds,tx_templavoila_to'.($table=='pages' ? ',t3ver_swapmode' : ''));
 		$flexFieldArr = t3lib_div::xml2array($parentRecord['tx_templavoila_flex']);
-		$expandedDataStructure = $this->ds_getExpandedDataStructure ($table, $parentRecord);
+		$expandedDataStructure = $this->ds_getExpandedDataStructure($table, $parentRecord);
 
 		if (is_array ($flexFieldArr['data'])) {
 			foreach ($flexFieldArr['data'] as $sheetKey => $languagesArr) {
@@ -1520,19 +1522,19 @@ class tx_templavoila_api {
 	 * @return	array		Array with tree and register of used content elements
 	 * @access public
 	 */
-	function getContentTree($table, $row, $includePreviewData=TRUE)	{
+	function getContentTree($table, $row, $includePreviewData = TRUE) {
 
-			// Load possible website languages:
+		// Load possible website languages:
 		$this->loadWebsiteLanguages();
 
-			// Initialize tt_content register:
+		// Initialize tt_content register:
 		$tt_content_elementRegister = array();
 		$this->includePreviewData = $includePreviewData;
 
-			// Get content tree:
+		// Get content tree:
 		$tree = $this->getContentTree_element($table, $row, $tt_content_elementRegister);
 
-			// Return result:
+		// Return result:
 		return array(
 			'tree' => $tree,
 			'contentElementUsage' => $tt_content_elementRegister
@@ -1658,20 +1660,20 @@ class tx_templavoila_api {
 	 * @return	array		The content tree
 	 * @access protected
 	 */
-	function getContentTree_element($table, $row, &$tt_content_elementRegister, $prevRecList='')	{
+	function getContentTree_element($table, $row, &$tt_content_elementRegister, $prevRecList = '') {
 		global $TCA, $LANG;
 
 		$tree = array();
 		$tree['el'] = array(
-			'table' => $table,
-			'uid' => $row['uid'],
-			'pid' => $row['pid'],
-			'_ORIG_uid' => $row['_ORIG_uid'],
-			'title' => t3lib_div::fixed_lgd_cs(t3lib_BEfunc::getRecordTitle($table, $row),50),
-			'icon' => t3lib_iconWorks::getIcon($table,$row),
-			'sys_language_uid' => $row['sys_language_uid'],
-			'l18n_parent' => $row['l18n_parent'],
-			'CType' => $row['CType'],
+			'table'			=> $table,
+			'uid'			=> $row['uid'],
+			'pid'			=> $row['pid'],
+			'_ORIG_uid'		=> $row['_ORIG_uid'],
+			'title'			=> t3lib_div::fixed_lgd_cs(t3lib_BEfunc::getRecordTitle($table, $row),50),
+			'icon'			=> t3lib_iconWorks::getIcon($table,$row),
+			'sys_language_uid'	=> $row['sys_language_uid'],
+			'l18n_parent'		=> $row['l18n_parent'],
+			'CType'			=> $row['CType'],
 		);
 
 		if ($this->includePreviewData) {
@@ -1681,9 +1683,9 @@ class tx_templavoila_api {
 		}
 
 		// If element is a Flexible Content Element (or a page) then look at the content inside:
-		if ($table == 'pages' || $table == $this->rootTable || ($table=='tt_content' && $row['CType']=='templavoila_pi1'))	{
-
+		if ($table == 'pages' || $table == $this->rootTable || ($table == 'tt_content' && $row['CType'] == 'templavoila_pi1')) {
 			t3lib_div::loadTCA($table);
+
 			$rawDataStructureArr = t3lib_BEfunc::getFlexFormDS($TCA[$table]['columns']['tx_templavoila_flex']['config'], $row, $table);
 			$expandedDataStructureArr = $this->ds_getExpandedDataStructure($table, $row);
 
@@ -1699,7 +1701,10 @@ class tx_templavoila_api {
 			}
 
 			$tree['ds_is_found'] = is_array($rawDataStructureArr);
-			$tree['ds_meta'] = $rawDataStructureArr['meta'];
+			$tree['ds_meta'    ] = $rawDataStructureArr['meta'];
+			$tree['to_title'   ] = $currentTemplateObject['title'];
+			$tree['to_icon'    ] = $currentTemplateObject['previewicon'];
+
 			$flexformContentArr = t3lib_div::xml2array($row['tx_templavoila_flex']);
 
 			if (is_array($currentTemplateObject))
@@ -1717,12 +1722,11 @@ class tx_templavoila_api {
 			$vKeys = $langDisable ? array('vDEF') : ($langChildren ? $this->allSystemWebsiteLanguages['all_vKeys'] : array('vDEF'));
 
 			// Traverse each sheet in the FlexForm Structure:
-			foreach($expandedDataStructureArr as $sheetKey => $sheetData)	{
-
+			foreach ($expandedDataStructureArr as $sheetKey => $sheetData) {
 				// Add some sheet meta information:
-				$tree['sub'][$sheetKey] = array();
 				$tree['contentFields'][$sheetKey] = array();
-				$tree['meta'][$sheetKey] = array(
+				$tree['sub'          ][$sheetKey] = array();
+				$tree['meta'         ][$sheetKey] = array(
 					'title'		=> (is_array($sheetData) && $sheetData['ROOT']['TCEforms']['sheetTitle'      ] ? $LANG->sL($sheetData['ROOT']['TCEforms']['sheetTitle'      ]) : ''),
 					'description'	=> (is_array($sheetData) && $sheetData['ROOT']['TCEforms']['sheetDescription'] ? $LANG->sL($sheetData['ROOT']['TCEforms']['sheetDescription']) : ''),
 					'short'		=> (is_array($sheetData) && $sheetData['ROOT']['TCEforms']['sheetShortDescr' ] ? $LANG->sL($sheetData['ROOT']['TCEforms']['sheetShortDescr' ]) : ''),

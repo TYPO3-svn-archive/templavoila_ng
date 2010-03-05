@@ -152,6 +152,7 @@ class tx_templavoila_mod2_overview {
 			foreach ($list as $pid => &$stat) {
 				if (($path = $this->pObj->getPIDPath($pid))) {
 					$stat['path'] = $path;
+					$stat['full'] = $path;
 				}
 			}
 
@@ -236,8 +237,8 @@ class tx_templavoila_mod2_overview {
 					$tRows[] = '
 						<tr class="' . ($i++ % 2 == 0 ? 'bgColor4' : 'bgColor6') . '">
 							<td style="padding-left: ' . ($in * 10) . 'px">' . (($pid > 0)
-							? '<a href="' . $this->pObj->baseScript . 'id=' . $pid . '" onclick="setHighlight(' . $pid . ');">' . htmlspecialchars($path) . '</a>'
-							: htmlspecialchars($path)) . '
+							? '<a title="' . $stat['full'] . '" href="' . $this->pObj->baseScript . 'id=' . $pid . '" onclick="setHighlight(' . $pid . ');">' . htmlspecialchars($path) . '</a>'
+							: '<span title="' . $stat['full'] . '">' . htmlspecialchars($path) . '</span>') . '
 							</td>
 							<td align="center">' . $stat['DS'] . '</td>
 							<td align="center">' . $stat['TO'] . '</td>
