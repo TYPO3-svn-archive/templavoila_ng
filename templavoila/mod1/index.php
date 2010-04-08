@@ -3562,6 +3562,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 			';
 
 			// Add optionsmenu
+			$this->doc->loadJavascriptLib(t3lib_extMgm::extRelPath($this->extKey) . "res/getElementsByClassName.js");
 			$this->doc->loadJavascriptLib(t3lib_extMgm::extRelPath($this->extKey) . "res/optionsmenu.js");
 
 			// Add custom styles

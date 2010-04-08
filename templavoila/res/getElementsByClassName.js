@@ -76,3 +76,6 @@ var getElementsByClassName = function (className, tag, elm){
 	}
 	return getElementsByClassName(className, tag, elm);
 };
+
+/* seed implementation */
+getElementsByClassName("dummy", "body");

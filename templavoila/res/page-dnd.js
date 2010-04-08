@@ -224,7 +224,7 @@ function sortable_updateItemButtons(el, newPos) {
 
 function sortable_updatePasteButtons(oldPos, newPos) {
 	var i = 0; var p = new Array; var href = "";
-	var buttons = document.getElementsByClassName("sortablePaste");
+	var buttons = getElementsByClassName("sortablePaste");
 	if (buttons[i].firstChild && buttons[i].firstChild.href.indexOf("&source=" + escape(oldPos)) != -1) {
 		for (i = 0; i < buttons.length; i++) {
 			if (buttons[i].firstChild) {

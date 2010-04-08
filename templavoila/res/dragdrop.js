@@ -921,8 +921,16 @@ var Sortable = {
 
     /* cumulativeOffset-bug compensation: table-cell borders */
     if (element.parentNode) {
-      offsets[0]+=parseInt(Element.getStyle(element.parentNode,'border-left-width') || 0);
-      offsets[1]+=parseInt(Element.getStyle(element.parentNode,'border-top-width') || 0);
+      if(isNaN(Element.getStyle(element.parentNode,'border-left-width')))
+      	switch (Element.getStyle(element.parentNode,'border-left-width')) {
+      	}
+      else
+        offsets[0]+=parseInt(Element.getStyle(element.parentNode,'border-left-width') || 0);
+      if(isNaN(Element.getStyle(element.parentNode,'border-top-width')))
+      	switch (Element.getStyle(element.parentNode,'border-top-width')) {
+      	}
+      else
+        offsets[1]+=parseInt(Element.getStyle(element.parentNode,'border-top-width') || 0);
     }
 
     /* compute area */

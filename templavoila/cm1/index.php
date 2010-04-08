@@ -545,8 +545,8 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		$this->doc->divClass = '';
 
 		// Add xmlarea
-		$this->doc->loadJavascriptLib(t3lib_extMgm::extRelPath($this->extKey) . "cm1/getElementsByClassName.js");
-		$this->doc->loadJavascriptLib(t3lib_extMgm::extRelPath($this->extKey) . "cm1/xmlarea.js");
+		$this->doc->loadJavascriptLib(t3lib_extMgm::extRelPath($this->extKey) . "res/getElementsByClassName.js");
+		$this->doc->loadJavascriptLib(t3lib_extMgm::extRelPath($this->extKey) . "res/xmlarea.js");
 
 		// Add custom styles
 		$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath($this->extKey) . "cm1/styles.css";
