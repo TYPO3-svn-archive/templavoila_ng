@@ -249,6 +249,8 @@ class tx_templavoila_mod1_clipboard {
 	function sidebar_renderNonUsedElements() {
 		global $LANG, $TYPO3_DB, $BE_USER;
 
+		$hidePreview = $this->pObj->MOD_SETTINGS['tt_content_hidePreviews'];
+
 		$elementBelongsToCurrentPage = true;
 
 		$output = '';
@@ -272,7 +274,7 @@ class tx_templavoila_mod1_clipboard {
 
 		// Used to collect all those tt_content uids with no references which can be deleted
 		$this->deleteUids = array();
-		while(false !== ($row = $TYPO3_DB->sql_fetch_assoc($res))) {
+		while (false !== ($row = $TYPO3_DB->sql_fetch_assoc($res))) {
  			$elementTitlebarColor = $this->doc->bgColor5;
 			$elementTitlebarStyle = 'background-color: ' . $elementTitlebarColor;
 
@@ -347,7 +349,12 @@ class tx_templavoila_mod1_clipboard {
 				</tfoot>
 				<tbody>
 					<tr>
-						<td>' . $this->pObj->render_previewContent($row) . '</td>
+					' .
+						($hidePreview
+						  ?	''
+						  :	'<td>' . $this->pObj->render_previewContent($row) . '</td>'
+						) .
+					'
 					</tr>
 				<tbody>
 				</table>
