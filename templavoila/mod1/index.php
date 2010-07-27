@@ -946,7 +946,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 			<thead class="' . $contentTreeArr['el']['table'] . '">
 				<tr style="' . $elementTitlebarStyle . ';" class="sortableHandle">
 					<th>
-						<div style="float:  left;" class="nobr">' .
+						<div style="float:  left;" class="nobrs">' .
 							$languageIcon .
 							$titleBarLeftButtons .
 							($elementBelongsToCurrentPage ? '' : '<em>') .
@@ -1152,7 +1152,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 						// Add cell content to registers:
 						$headerCells[] = '
 							<th valign="top" width="###WIDTH###" style="background-color: ' . $this->doc->bgColor4 . ';" class="' . $stateClass . '">
-								<div style="float:  left;" class="nobr">' .
+								<div style="float:  left;" class="nobrs">' .
 									$collapseIcon . $containerIcon .
 									$GLOBALS['LANG']->sL($fieldContent['meta']['title'], 1) . '
 								</div>
