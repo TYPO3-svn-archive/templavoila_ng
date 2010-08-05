@@ -137,6 +137,10 @@ table.tv-coe tr.sortableHandle + tr td >     img.bottom {
 	margin: 1px;
 }
 
+table.tv-coe + .typo3-message {
+	margin-top: 6px;
+}
+
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 table.tv-elist td > span.nobr >     img,
 table.tv-elist td > span.nobr > a > img {

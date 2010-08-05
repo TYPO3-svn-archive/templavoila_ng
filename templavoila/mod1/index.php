@@ -172,6 +172,7 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 	var $sideBarObj;					// Instance of sidebar class
 	var $clipboardObj;					// Instance of clipboard class
 	var $recordsObj;					// Instance of records class
+	var $messages;
 
 	/**
 	 * @var tx_templavoila_api
@@ -286,8 +287,8 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 		}
 
 		// page/be_user TSconfig settings and blinding of menu-items
-		$this->modTSconfig = t3lib_BEfunc::getModTSconfig($this->id,'mod.'.$this->MCONF['name']);
-		$this->MOD_MENU['view'] = t3lib_BEfunc::unsetMenuItems($this->modTSconfig['properties'],$this->MOD_MENU['view'],'menu.function');
+		$this->modTSconfig = t3lib_BEfunc::getModTSconfig($this->id, 'mod.' . $this->MCONF['name']);
+		$this->MOD_MENU['view'] = t3lib_BEfunc::unsetMenuItems($this->modTSconfig['properties'], $this->MOD_MENU['view'], 'menu.function');
 
 		if (!isset($this->modTSconfig['properties']['sideBarEnable']))
 			$this->modTSconfig['properties']['sideBarEnable'] = 1;
@@ -299,6 +300,79 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 	}
 
 
+
+	/*******************************************
+	 *
+	 * Message helpers (protected)
+	 *
+	 *******************************************/
+
+	function msgThrow($type, $string, $head = true) {
+		if (version_compare(TYPO3_version, '4.3', '>')) {
+
+			switch ($type) {
+				case 'error': $type = t3lib_FlashMessage::ERROR; break;
+				case 'warning': $type = t3lib_FlashMessage::WARNING; break;
+				case 'ok': $type = t3lib_FlashMessage::OK; break;
+				case 'note': $type = t3lib_FlashMessage::NOTICE; break;
+			}
+
+			$flashMessage = t3lib_div::makeInstance(
+				't3lib_FlashMessage',
+				'',
+				$string,
+				$type
+			);
+
+			return $flashMessage->render();
+		} else {
+
+			switch ($type) {
+				case 'error': $type = $GLOBALS['LANG']->getLL('error'); $icon = 'gfx/icon_fatalerror.gif'; break;
+				case 'warning': $type = $GLOBALS['LANG']->getLL('error'); $icon = 'gfx/icon_warning.gif'; break;
+				case 'ok': $type = ''; $icon = 'gfx/icon_ok.gif'; break;
+				case 'note': $type = ''; $icon = 'gfx/icon_note.gif'; break;
+			}
+
+			return  '<img' . t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], $icon, 'width="18" height="16"') . ' border="0" align="top" class="absmiddle" alt="" />' .
+				($head
+				? '<strong>' . $type . '</strong> '
+				:     '<h4>' . $type . '</h4> '
+				) .
+				$string;
+		}
+	}
+
+	function msgReset() {
+		$this->messages = array();
+	}
+
+	function msgAppend($type, $string) {
+		$this->messages[] = $this->msgThrow($type, $string, false);
+	}
+
+	function msgFlush(&$content, $prefix = false) {
+		if (is_array($this->messages) && count($this->messages)) {
+			if ($prefix)
+				$content = '
+
+					<!--
+						Messages:
+					-->
+					' . implode('<br />', $this->messages) . '
+				' . $content;
+			else
+				$content .= '
+
+					<!--
+						Messages:
+					-->
+					' . implode('<br />', $this->messages) . '
+				';
+		}
+
+		$this->messages = array();
+	}
 
 
 
@@ -982,7 +1056,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 					<td>' . $localize . $warnings . '</td>
 				</tr>
 			</tfoot>
-			' : '') . '
+			' : '') . ($contentTreeArr['ds_is_found'] ? '
 			<tbody>
 				<tr>
 					' .
@@ -995,8 +1069,12 @@ table.typo3-dyntabmenu td.disabled:hover {
 					'
 				</tr>
 			</tbody>
+			' : '') . '
 			</table>
 		';
+
+		if (!$contentTreeArr['ds_is_found'])
+			$finalContent .= $this->msgThrow('note', $GLOBALS['LANG']->getLL('notemplate'), false);
 
 		return $finalContent;
 	}
@@ -1021,10 +1099,11 @@ table.typo3-dyntabmenu td.disabled:hover {
 	function render_framework_singleSheet_traverse($singleView, $elementContentTreeArr, $languageKey, $sheet, $group = '') {
 		global $done, $recursion;
 
-		// Define l/v keys for current language:
+		// Get meta-configuration for language-behaviour
 		$langChildren = intval($elementContentTreeArr['ds_meta']['langChildren']);
 		$langDisable  = intval($elementContentTreeArr['ds_meta']['langDisable']);
 
+		// Define l/v keys for current language:
 		$lKey = $langDisable ? 'lDEF' : ($langChildren ? 'lDEF' : 'l' . $languageKey);
 		$vKey = $langDisable ? 'vDEF' : ($langChildren ? 'v' . $languageKey : 'vDEF');
 
@@ -1035,7 +1114,8 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 		// some constants
 		$haspreview = is_array($previews = &$elementContentTreeArr['previewData']['sheets'][$sheet]);
-		$hassubs = is_array($elementContentTreeArr['sub'][$sheet]) && is_array($subs = $elementContentTreeArr['sub'][$sheet][$lKey]);
+		$hassubs    = is_array(             $elementContentTreeArr['sub'][$sheet]) &&
+		              is_array($subs     =  $elementContentTreeArr['sub'][$sheet][$lKey]);
 
 		// how to render the sheet
 		$output = '';
@@ -1107,16 +1187,19 @@ table.typo3-dyntabmenu td.disabled:hover {
 						</div>';
 				}
 			} else if (strchr($fieldFrag, SEPARATOR_XPATH) === FALSE) {
+				// Consider multi-language fields
+				$vGet = ($fieldData['multilang'] ? 'vALL' : $vKey);
+
 //for ($r = 0; $r < $recursion; $r++)
 //  echo '&nbsp;';
 //echo '-' . $fieldID . ' [leaf]<br />';
 
 				// -------------------------------------------------------------------------
 				// for now process only those field that are direct child of the given group
-				if ($hassubs && is_array($subs[$fieldID][$vKey])) {
+				if ($hassubs && is_array($subs[$fieldID][$vGet])) {
 					// -----------------------------------------------------------------
 					// sub-element
-					$fieldContent = $subs[$fieldID][$vKey];
+					$fieldContent = $subs[$fieldID][$vGet];
 					$cellContent = $this->render_framework_subElement($singleView, $elementContentTreeArr, $languageKey, $sheet, $fieldID);
 					$stateClass = ($fieldData['TCEforms']['config']['maxitems'] <= count($fieldContent['el']) ? 'full' : (count($fieldContent['el']) > 0 ? 'used' : 'empty'));
 
@@ -1127,7 +1210,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 						'sheet' => $sheet,
 						'sLang' => $lKey,
 						'field' => $fieldID,
-						'vLang' => $vKey
+						'vLang' => $vGet
 					);
 
 					/* id-strings must not contain double-colons because of the selectors-api */
@@ -1255,10 +1338,11 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 */
 	function render_framework_subElement($singleView, $elementContentTreeArr, $languageKey, $sheet, $fieldID) {
 
-		// Define l/v keys for current language:
+		// Get meta-configuration for language-behaviour
 		$langChildren = intval($elementContentTreeArr['ds_meta']['langChildren']);
 		$langDisable  = intval($elementContentTreeArr['ds_meta']['langDisable']);
 
+		// Define l/v keys for current language:
 		$lKey = $langDisable ? 'lDEF' : ($langChildren ? 'lDEF' : 'l' . $languageKey);
 		$vKey = $langDisable ? 'vDEF' : ($langChildren ? 'v' . $languageKey : 'vDEF');
 
@@ -1269,7 +1353,12 @@ table.typo3-dyntabmenu td.disabled:hover {
 		// ----------------------------------------------------------------------------------
 		// Traverse container fields:
 		if (($fieldValuesContent = $elementContentTreeArr['sub'][$sheet][$lKey][$fieldID])) {
-			$fieldContent = $fieldValuesContent[$vKey];
+			$fieldData = $elementContentTreeArr['previewData']['sheets'][$sheet][$fieldID];
+
+			// Consider multi-language fields
+			$vGet = ($fieldData['multilang'] ? 'vALL' : $vKey);
+
+			$fieldContent = $fieldValuesContent[$vGet];
 			$cellContent = '';
 
 			// Create flexform pointer pointing to "before the first sub element":
@@ -1279,7 +1368,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 				'sheet'    => $sheet,
 				'sLang'    => $lKey,
 				'field'    => $fieldID,
-				'vLang'    => $vKey,
+				'vLang'    => $vGet,
 				'position' => 0
 			);
 
@@ -1365,10 +1454,11 @@ table.typo3-dyntabmenu td.disabled:hover {
 		if (intval($elementContentTreeArr['ds_meta']['disableDataPreview']) || $this->MOD_SETTINGS['tt_content_hidePreviews'])
 			return '';
 
-		// Define l/v keys for current language:
+		// Get meta-configuration for language-behaviour
 		$langChildren = intval($elementContentTreeArr['ds_meta']['langChildren']);
 		$langDisable  = intval($elementContentTreeArr['ds_meta']['langDisable']);
 
+		// Define l/v keys for current language:
 		$lKey = $langDisable ? 'lDEF' : ($langChildren ? 'lDEF' : 'l' . $languageKey);
 		$vKey = $langDisable ? 'vDEF' : ($langChildren ? 'v' . $languageKey : 'vDEF');
 
@@ -1379,6 +1469,9 @@ table.typo3-dyntabmenu td.disabled:hover {
 		// ----------------------------------------------------------------------------------
 		// Preview of FlexForm content if any:
 		if (($fieldData = $elementContentTreeArr['previewData']['sheets'][$sheet][$fieldID])) {
+			// Consider multi-language fields
+			$vGet = ($fieldData['multilang'] ? 'vALL' : $vKey);
+
 			$edit2 = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/edit2.gif', '') . ' title="' . $GLOBALS['LANG']->getLL('editrecord') . '" border="0" alt="" />';
 			$table = $elementContentTreeArr['el']['table'];
 			$uid   = $elementContentTreeArr['previewData']['fullRow']['uid'];
@@ -1391,31 +1484,42 @@ table.typo3-dyntabmenu td.disabled:hover {
 			// --------------------------------------------------------------------------
 			// Making preview for array/section parts of a FlexForm structure:
 			if ($fieldData['type'] == 'array') {
-				if (is_array($fieldData['subElements'][$lKey])) {
+				if (is_array($fieldData['subElements']['data'][$lKey])) {
 					if ($fieldData['section']) {
 						$cellContent .=
 							'<strong>' . $fieldData['title'] . '</strong><br /> ' .
 							'<ol>';
 
-						foreach($fieldData['subElements'][$lKey] as $sectionData) {
+						foreach ($fieldData['subElements']['data'][$lKey] as $sectionData) {
 							if (is_array($sectionData)) {
 								$sectionFieldKey = key($sectionData);
-								if (is_array ($sectionData[$sectionFieldKey]['el'])) {
+
+								if (is_array($sectionData[$sectionFieldKey]['el'])) {
 									$cellContent .=
 										'<li style="border-top: 1px dotted rgb(0, 0, 0); padding-top: 5px; margin-top: 5px;">'.
 										'<dl>';
+
 									foreach ($sectionData[$sectionFieldKey]['el'] as $containerFieldKey => $containerData) {
 										if ($containerFieldKey[0] != '_') {
+											$containerFieldID = $sectionFieldKey . SEPARATOR_XPATH . 'el' . SEPARATOR_XPATH . $containerFieldKey;
+											$containerFieldData = $fieldData['subElements']['section'][$containerFieldID];
+
+											// Consider multi-language fields
+											$vSec = ($containerFieldData['multilang'] ? 'vALL' : $vKey);
+
 											$cellContent .=
-												'<dt style="width: 25%; float: left; clear: left;"><strong>' . $containerFieldKey . '</strong></dt> ' .
+												'<dt style="width: 25%; float: left; clear: left;">' .
+													'<strong>' . ($containerFieldData['title'] ? $containerFieldData['title'] : $containerFieldKey) . '</strong>' .
+												'</dt> ' .
 												'<dd style="margin-left: 25%;">'.
-												(trim($containerData[$vKey]) != ''
-												?	$this->link_edit(htmlspecialchars(t3lib_div::fixed_lgd_cs(strip_tags($containerData[$vKey]), 200)), $table, $uid) . ' &nbsp;'
+												(trim($containerData[$vSec]) != ''
+												?	$this->link_edit(htmlspecialchars(t3lib_div::fixed_lgd_cs(strip_tags($containerData[$vSec]), 200)), $table, $uid) . ' &nbsp;'
 												:	(is_array($containerData['el']) ? '&hellip;' : '&mdash;')
 												).
 												'</dd>';
 										}
 									}
+
 									$cellContent .=
 										'</dl>' .
 										'</li>';
@@ -1424,12 +1528,13 @@ table.typo3-dyntabmenu td.disabled:hover {
 						}
 
 						$cellContent .=
-							'</ol>';
-					} else if (count($fieldData['subElements']) > 0) {
-						foreach ($fieldData['subElements'][$lKey] as $containerKey => $containerData) {
+							'</ol>
+							<br class="clear" />';
+					} else if (count($fieldData['subElements']['data']) > 0) {
+						foreach ($fieldData['subElements']['data'][$lKey] as $containerKey => $containerData) {
 							$cellContent .=
 								'<strong>' . $containerKey . '</strong><br /> ' .
-								'<p>' . $this->link_edit($edit2 . '&nbsp;' . htmlspecialchars(t3lib_div::fixed_lgd_cs(strip_tags($containerData[$vKey]), 200)), $table, $uid) . '</p>';
+								'<p>' . $this->link_edit($edit2 . '&nbsp;' . htmlspecialchars(t3lib_div::fixed_lgd_cs(strip_tags($containerData[$vGet]), 200)), $table, $uid) . '</p>';
 						}
 					}
 				}
@@ -1437,7 +1542,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 			// --------------------------------------------------------------------------
 			// Preview of flexform fields on top-level:
 			else {
-				$fieldValue = $fieldData['data'][$lKey][$vKey];
+				$fieldValue = $fieldData['data'][$lKey][$vGet];
 
 				if ($TCEformsConfiguration['type'] == 'group') {
 					if ($TCEformsConfiguration['internal_type'] == 'file') {
@@ -2036,7 +2141,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 			'warnings'     => $warnings,
 			'controls'     => $titleBarRightButtons . $controls,
 			'table'        => $contentTreeArr['el']['table'],
-			'uid'          =>  $contentTreeArr['el']['uid'],
+			'uid'          => $contentTreeArr['el']['uid'],
 			'flag'         => $languageIcon,
 			'isNewVersion' => $contentTreeArr['el']['_ORIG_uid'] ? TRUE : FALSE,
 			'elementTitlebarStyle' => (!$elementBelongsToCurrentPage ? 'background-color: ' . $this->doc->bgColor6 : '')
@@ -2044,7 +2149,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 
 		// Create entry for localizaitons...
-		$this->render_outline_localizations($contentTreeArr, $entries, $indentLevel+1);
+		$this->render_outline_localizations($contentTreeArr, $entries, $indentLevel + 1);
 
 		// Create entries for sub-elements in all sheets:
 		if ($contentTreeArr['sub']) {
@@ -2068,9 +2173,11 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 */
 	function render_outline_subElements($contentTreeArr, $sheet, &$entries, $indentLevel) {
 
-		// Define l/v keys for current language:
+		// Get meta-configuration for language-behaviour
 		$langChildren = intval($contentTreeArr['ds_meta']['langChildren']);
 		$langDisable  = intval($contentTreeArr['ds_meta']['langDisable' ]);
+
+		// Define l/v keys for current language:
 		$lKeys = $langDisable ? array('lDEF') : ($langChildren ? array('lDEF') : $this->translatedLanguagesArr_isoCodes['all_lKeys']);
 		$vKeys = $langDisable ? array('vDEF') : ($langChildren ? $this->translatedLanguagesArr_isoCodes['all_vKeys'] : array('vDEF'));
 
@@ -2079,6 +2186,9 @@ table.typo3-dyntabmenu td.disabled:hover {
 			// Traverse fields:
 			if (is_array($contentTreeArr['sub'][$sheet][$lKey])) {
 				foreach($contentTreeArr['sub'][$sheet][$lKey] as $fieldID => $fieldValuesContent) {
+				//	$fieldData = $elementContentTreeArr['previewData']['sheets'][$sheet][$fieldID];
+				//	$vGets = ($fieldData['multilang'] ? array('vALL') : $vKeys);
+
 					foreach($vKeys as $vKey) {
 						if (is_array($fieldValuesContent[$vKey])) {
 							$fieldContent = $fieldValuesContent[$vKey];
@@ -2098,7 +2208,11 @@ table.typo3-dyntabmenu td.disabled:hover {
 							$controls = $this->icon_nbp($subElementPointer);
 
 							// Add entry for lKey level:
-							$specialPath = ($sheet != 'sDEF' ? '<' . $sheet . '>' : '') . ($lKey != 'lDEF' ? '<' . $lKey . '>' : '') . ($vKey != 'vDEF' ? '<' . $vKey . '>' : '');
+							$specialPath =
+								($sheet != 'sDEF' ? '<' . $sheet . '>' : '') .
+								($lKey  != 'lDEF' ? '<' . $lKey  . '>' : '') .
+								($vKey  != 'vDEF' ? '<' . $vKey  . '>' : '');
+
 							$entries[] = array(
 								'indentLevel' => $indentLevel,
 								'icon'        => '',
@@ -2944,7 +3058,6 @@ table.typo3-dyntabmenu td.disabled:hover {
 						$unlinkDestinationPointer = $this->apiObj->flexform_getPointerFromString(jsID_to_tvID($commandParameters));
 
 						$this->apiObj->unlinkElement($unlinkDestinationPointer);
-print_r($unlinkDestinationPointer);
 						exit;
 
 					case 'ajaxDeleteRecord':
@@ -3508,8 +3621,8 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 			$this->canEditContent = $GLOBALS['BE_USER']->isPSet($this->calcPerms, 'pages', 'editcontent');
 
 			// Define the root element record:
-			$this->rootElementTable = is_array($this->altRoot) ? $this->altRoot['table'] : 'pages';
-			$this->rootElementUid = is_array($this->altRoot) ? $this->altRoot['uid'] : $this->id;
+			$this->rootElementTable  = is_array($this->altRoot) ? $this->altRoot['table'] : 'pages';
+			$this->rootElementUid    = is_array($this->altRoot) ? $this->altRoot['uid'] : $this->id;
 			$this->rootElementRecord = t3lib_BEfunc::getRecordWSOL($this->rootElementTable, $this->rootElementUid, '*');
 
 			// If pages use current UID, otherwhise you must use the PID to define the Page ID
@@ -3532,12 +3645,12 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 			$this->doc->docType = 'xhtml_trans';
 			$this->doc->tableLayout = Array (
 				'0' => Array (
-					'0' => Array('<td valign="top"><b>','</b></td>'),
-					"defCol" => Array('<td><img src="'.$this->doc->backPath.'clear.gif" width="10" height="1" alt="" /></td><td valign="top"><b>','</b></td>')
+					'0'	 => Array('<td valign="top"><b>', '</b></td>'),
+					"defCol" => Array('<td><img src="' . $this->doc->backPath . 'clear.gif" width="10" height="1" alt="" /></td><td valign="top"><b>', '</b></td>')
 				),
 				"defRow" => Array (
-					"0" => Array('<td valign="top">','</td>'),
-					"defCol" => Array('<td><img src="'.$this->doc->backPath.'clear.gif" width="10" height="1" alt="" /></td><td valign="top">','</td>')
+					"0"	 => Array('<td valign="top">', '</td>'),
+					"defCol" => Array('<td><img src="' . $this->doc->backPath . 'clear.gif" width="10" height="1" alt="" /></td><td valign="top">', '</td>')
 				)
 			);
 
@@ -3729,6 +3842,19 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 			} else {
 				// Render nothing
 				$this->content  = '';
+
+				if (version_compare(TYPO3_version, '4.3', '>')) {
+					$GLOBALS['LANG']->includeLLFile('EXT:cms/layout/locallang.xml');
+
+					$flashMessage = t3lib_div::makeInstance(
+						't3lib_FlashMessage',
+						$GLOBALS['LANG']->getLL('clickAPage_content'),
+						$GLOBALS['LANG']->getLL('clickAPage_header') . ' [TemplaVoilà]',
+						t3lib_FlashMessage::INFO
+					);
+
+					$this->content = $flashMessage->render();
+				}
 			}
 
 			// Setting up the buttons and markers for docheader
@@ -3757,12 +3883,12 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 			$this->doc->docType = 'xhtml_trans';
 			$this->doc->tableLayout = Array (
 				'0' => Array (
-					'0' => Array('<td valign="top"><b>','</b></td>'),
-					"defCol" => Array('<td><img src="'.$this->doc->backPath.'clear.gif" width="10" height="1" alt="" /></td><td valign="top"><b>','</b></td>')
+					'0'	 => Array('<td valign="top"><b>', '</b></td>'),
+					"defCol" => Array('<td><img src="' . $this->doc->backPath . 'clear.gif" width="10" height="1" alt="" /></td><td valign="top"><b>', '</b></td>')
 				),
 				"defRow" => Array (
-					"0" => Array('<td valign="top">','</td>'),
-					"defCol" => Array('<td><img src="'.$this->doc->backPath.'clear.gif" width="10" height="1" alt="" /></td><td valign="top">','</td>')
+					"0"	 => Array('<td valign="top">', '</td>'),
+					"defCol" => Array('<td><img src="' . $this->doc->backPath . 'clear.gif" width="10" height="1" alt="" /></td><td valign="top">', '</td>')
 				)
 			);
 

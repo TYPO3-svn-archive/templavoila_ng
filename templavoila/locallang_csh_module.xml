@@ -34,6 +34,11 @@
             <languageKey index="mapping_ds.description"></languageKey>
             <languageKey index="mapping_ds_to.description"></languageKey>
             <languageKey index="mapping_ds_showXML.description"></languageKey>
+            <languageKey index="settings_languagemode.description"></languageKey>
+            <languageKey index="settings_datapreview.description"></languageKey>
+            <languageKey index="settings_contentwizard.description"></languageKey>
+            <languageKey index="settings_sheetselection.description"></languageKey>
+            <languageKey index="settings_belayout.description"></languageKey>
         </labelContext>
     </meta>
     <data type="array">
@@ -66,6 +71,15 @@
             <label index="mapping_ds.description">[FILL IN] mapping_ds</label>
             <label index="mapping_ds_to.description">[FILL IN] mapping_ds_to</label>
             <label index="mapping_ds_showXML.description">[FILL IN] mapping_ds_showXML</label>
+            <label index="settings_languagemode.description">
+            	In the “Disabled” mode no alternative languages are provided.
+            	In the “Inheritance” mode the two languages are directly near each other.
+            	In the “Separate” mode the two languages are separated completely in the form.
+            </label>
+            <label index="settings_datapreview.description">[FILL IN] settings_datapreview</label>
+            <label index="settings_contentwizard.description">[FILL IN] settings_contentwizard</label>
+            <label index="settings_sheetselection.description">[FILL IN] settings_sheetselection</label>
+            <label index="settings_belayout.description">[FILL IN] settings_belayout</label>
         </languageKey>
     </data>
     <orig_hash type="array">

@@ -111,6 +111,7 @@
 			<label index="makeLocalMsg">Do you want to create a local copy of this referenced element?</label>
 			<label index="path">Path</label>
 			<label index="notitle">[No title]</label>
+			<label index="notemplate">There has been no template defined for the curent page.</label>
 			<label index="defaultLanguage">Default language</label>
 			<label index="createcopyfortranslation">Create a copy for translation</label>
 			<label index="inititemno_elementsNotBeingUsed">Elements not being used in this language or sheet</label>

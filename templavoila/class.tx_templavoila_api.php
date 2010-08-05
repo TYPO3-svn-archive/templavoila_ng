@@ -324,12 +324,16 @@ class tx_templavoila_api {
 		$dataArr['tt_content']['NEW']['pid'] = $newRecordPid;
 		unset($dataArr['tt_content']['NEW']['uid']);
 
-			// If the destination is not the default language, try to set the old-style sys_language_uid field accordingly
-		if ($destinationPointer['sLang'] != 'lDEF' || $destinationPointer['vLang'] != 'vDEF') {
-			$languageKey = $destinationPointer['vLang'] != 'vDEF' ? $destinationPointer['vLang'] : $destinationPointer['sLang'];
+		// If the destination is not the default language, try to set the old-style sys_language_uid field accordingly
+		if (($destinationPointer['sLang'] != 'lDEF') ||
+		    ($destinationPointer['vLang'] != 'vDEF')) {
+			$languageKey = $destinationPointer['vLang'] != 'vDEF'
+				? $destinationPointer['vLang']
+				: $destinationPointer['sLang'];
+
 			$staticLanguageRows = t3lib_BEfunc::getRecordsByField('static_languages', 'lg_iso_2', substr($languageKey, 1));
 			if (isset($staticLanguageRows[0]['uid'])) {
-				$languageRecord = t3lib_BEfunc::getRecordRaw('sys_language', 'static_lang_isocode='.intval($staticLanguageRows[0]['uid']));
+				$languageRecord = t3lib_BEfunc::getRecordRaw('sys_language', 'static_lang_isocode=' . intval($staticLanguageRows[0]['uid']));
 				if (isset($languageRecord['uid'])) {
 					$dataArr['tt_content']['NEW']['sys_language_uid'] = $languageRecord['uid'];
 				}
@@ -495,7 +499,7 @@ class tx_templavoila_api {
 	 * @return	boolean		TRUE if operation was successfuly, otherwise false
 	 * @access public
 	 */
-	function referenceElement ($sourcePointer, $destinationPointer) {
+	function referenceElement($sourcePointer, $destinationPointer) {
 		if ($this->debug)
 			t3lib_div::devLog ('API: referenceElement()', 'templavoila', 0, array ('sourcePointer' => $sourcePointer, 'destinationPointer' => $destinationPointer));
 
@@ -515,10 +519,9 @@ class tx_templavoila_api {
 	 * @access public
 	 */
 	function referenceElementByUid ($uid, $destinationPointer) {
-		if ($this->debug)
-			t3lib_div::devLog ('API: referenceElementByUid()', 'templavoila', 0, array ('uid' => $uid, 'destinationPointer' => $destinationPointer));
+		if ($this->debug) t3lib_div::devLog ('API: referenceElementByUid()', 'templavoila', 0, array ('uid' => $uid, 'destinationPointer' => $destinationPointer));
 
-		$sourcePointer = array (
+		$sourcePointer = array(
 			'table' => 'tt_content',
 			'uid' => intval($uid)
 		);
@@ -534,8 +537,7 @@ class tx_templavoila_api {
 	 * @access public
 	 */
 	function unlinkElement ($sourcePointer) {
-		if ($this->debug)
-			t3lib_div::devLog ('API: unlinkElement()', 'templavoila', 0, array ('sourcePointer' => $sourcePointer));
+		if ($this->debug) t3lib_div::devLog ('API: unlinkElement()', 'templavoila', 0, array ('sourcePointer' => $sourcePointer));
 
 		return $this->process('unlink', $sourcePointer);
 	}
@@ -549,8 +551,7 @@ class tx_templavoila_api {
 	 * @access public
 	 */
 	function deleteElement ($sourcePointer) {
-		if ($this->debug)
-			t3lib_div::devLog ('API: deleteElement()', 'templavoila', 0, array ('sourcePointer' => $sourcePointer));
+		if ($this->debug) t3lib_div::devLog ('API: deleteElement()', 'templavoila', 0, array ('sourcePointer' => $sourcePointer));
 
 		return $this->process('delete', $sourcePointer);
 	}
@@ -1587,30 +1588,40 @@ class tx_templavoila_api {
 		&$tt_content_elementRegister, $prevRecList
 	) {
 
-		foreach($fieldList as $fieldKey => $fieldData) {
+		foreach ($fieldList as $fieldKey => $fieldData) {
 			$fieldPath = $xpath . $fieldKey;
 
 			// Compile preview data:
-			if ($this->includePreviewData)	{
+			if ($this->includePreviewData) {
 				$dsel = $map[$fieldKey];
 
 				$previewData[$fieldPath] = array(
+					// base config
 					'templavoila' => $fieldData['tx_templavoila'],
 					'title'       => $fieldData['tx_templavoila']['title'],
 					'inheritance' => $fieldData['tx_templavoila']['inheritance'],
+					'multilang'   => $fieldData['tx_templavoila']['multilang'],
 					'TCEforms'    => $fieldData['TCEforms'],
 					'type'        => $fieldData['type'],
 					'section'     => $fieldData['section'],
 					'data'        => array(),
+
+					// section
 					'subElements' => array(),
+
+					// states
 					'isHidden'    =>                          ($dsel['HID_EL']),
 					'isMapped'    => is_array($dsel) && !empty($dsel['MAP_EL']),
 					'isJammed'    => $this->api_getFFvalue($data, $fieldPath, $sKey, 'lDEF', '_JAMM')
 				);
 
+				// Consider multi-language fields
+				$vGets = ($fieldData['tx_templavoila']['multilang'] ? array('vALL') : $vKeys);
+
+				// Extract all required fields
 				foreach ($lKeys as $lKey) {
-					foreach($vKeys as $vKey) {
-						$previewData[$fieldPath]['data'][$lKey][$vKey] = $this->api_getFFvalue($data, $fieldPath, $sKey, $lKey, $vKey);
+					foreach ($vGets as $vGet) {
+						$previewData[$fieldPath]['data'][$lKey][$vGet] = $this->api_getFFvalue($data, $fieldPath, $sKey, $lKey, $vGet);
 					}
 				}
 
@@ -1626,9 +1637,27 @@ class tx_templavoila_api {
 					}
 					// sections are stoppers, recursion here isn't permited
 					else {
-						foreach($lKeys as $lKey) {
-							$previewData[$fieldPath]['subElements'][$lKey] = $this->api_getFFvalue($data, $fieldPath, $sKey, $lKey, 'el');
+						$previewSection = array();
+						$sectionFields = array();
+						$sectionData = array();
+
+						$this->traverseContentTree_element(
+							'', $fieldData['el'], $map[$fieldKey]['el'], null,
+							$previewSection, $sectionFields, $sub,
+							'', array(), array(),
+							$tt_content_elementRegister, $prevRecList
+						);
+
+						foreach ($lKeys as $lKey) {
+							$sectionData[$lKey] = $this->api_getFFvalue($data, $fieldPath, $sKey, $lKey, 'el');
 						}
+
+						// sub-data definition
+						$previewData[$fieldPath]['subElements'] = array(
+							'section'	=> $previewSection,
+							'contentFields'	=> $sectionFields,
+							'data'		=> $sectionData
+						);
 					}
 				}
 			}
@@ -1637,15 +1666,18 @@ class tx_templavoila_api {
 			if ($fieldData['TCEforms']['config']['type'         ] == 'group' &&
 			    $fieldData['TCEforms']['config']['internal_type'] == 'db' &&
 			    $fieldData['TCEforms']['config']['allowed'      ] == 'tt_content') {
-					foreach($lKeys as $lKey)	{
-						foreach($vKeys as $vKey) {
-							$listOfSubElementUids = $this->api_getFFvalue($data, $fieldPath, $sKey, $lKey, $vKey);
+				// Consider multi-language fields
+				$vGets = ($fieldData['tx_templavoila']['multilang'] ? array('vALL') : $vKeys);
 
-							// sub->XPath
-							$sub[$lKey][$fieldPath][$vKey] = $this->getContentTree_processSubContent($listOfSubElementUids, $tt_content_elementRegister, $prevRecList);
-							$sub[$lKey][$fieldPath][$vKey]['meta']['title'] = $fieldData['TCEforms']['label'];
-						}
+				foreach ($lKeys as $lKey) {
+					foreach ($vGets as $vGet) {
+						$listOfSubElementUids = $this->api_getFFvalue($data, $fieldPath, $sKey, $lKey, $vGet);
+
+						// sub->XPath
+						$sub[$lKey][$fieldPath][$vGet] = $this->getContentTree_processSubContent($listOfSubElementUids, $tt_content_elementRegister, $prevRecList);
+						$sub[$lKey][$fieldPath][$vGet]['meta']['title'] = $fieldData['TCEforms']['label'];
 					}
+				}
 			}
 			// If generally there are non-container fields, register them:
 			elseif ($fieldData['type'] != 'array' && $fieldData['TCEforms']['config']) {
@@ -1675,7 +1707,7 @@ class tx_templavoila_api {
 			'uid'			=> $row['uid'],
 			'pid'			=> $row['pid'],
 			'_ORIG_uid'		=> $row['_ORIG_uid'],
-			'title'			=> t3lib_div::fixed_lgd_cs(t3lib_BEfunc::getRecordTitle($table, $row),50),
+			'title'			=> t3lib_div::fixed_lgd_cs(t3lib_BEfunc::getRecordTitle($table, $row), 50),
 			'icon'			=> t3lib_iconWorks::getIcon($table,$row),
 			'sys_language_uid'	=> $row['sys_language_uid'],
 			'l18n_parent'		=> $row['l18n_parent'],
@@ -1792,26 +1824,27 @@ class tx_templavoila_api {
 	function getContentTree_processSubContent($listOfSubElementUids, &$tt_content_elementRegister, $prevRecList) {
 		global $TCA;
 
-			// Init variable:
+		// Init variable:
 		$subTree = array();
 
-			// Get records:
+		// Get records:
 		$dbAnalysis = t3lib_div::makeInstance('t3lib_loadDBGroup');
 		$dbAnalysis->start($listOfSubElementUids, 'tt_content');
 
-			// Traverse records:
+		// Traverse records:
 		$counter = 1;
-			// Note: key in $dbAnalysis->itemArray is not a valid counter! It is in 'tt_content_xx' format!
-		foreach($dbAnalysis->itemArray as $recIdent)	{
-			$idStr = 'tt_content:'.$recIdent['id'];
 
-			if (!t3lib_div::inList($prevRecList,$idStr))	{
-				$nextSubRecord = t3lib_BEfunc::getRecordWSOL('tt_content',$recIdent['id']);
+		// Note: key in $dbAnalysis->itemArray is not a valid counter! It is in 'tt_content_xx' format!
+		foreach($dbAnalysis->itemArray as $recIdent) {
+			$idStr = 'tt_content:' . $recIdent['id'];
 
-				if (is_array($nextSubRecord))	{
+			if (!t3lib_div::inList($prevRecList, $idStr)) {
+				$nextSubRecord = t3lib_BEfunc::getRecordWSOL('tt_content', $recIdent['id']);
+
+				if (is_array($nextSubRecord)) {
 					$tt_content_elementRegister[$recIdent['id']]++;
 
-					$subTree['el'][$idStr] = $this->getContentTree_element('tt_content', $nextSubRecord, $tt_content_elementRegister, $prevRecList.','.$idStr);
+					$subTree['el'][$idStr] = $this->getContentTree_element('tt_content', $nextSubRecord, $tt_content_elementRegister, $prevRecList . ',' . $idStr);
 					$subTree['el'][$idStr]['el']['index'] = $counter;
 					$subTree['el'][$idStr]['el']['isHidden'] = $TCA['tt_content']['ctrl']['enablecolumns']['disabled'] && $nextSubRecord[$TCA['tt_content']['ctrl']['enablecolumns']['disabled']];
 					$subTree['el_list'][$counter] = $idStr;
@@ -1842,10 +1875,15 @@ class tx_templavoila_api {
 		global $TYPO3_DB;
 
 		$localizationInfoArr = array();
-		if ($contentTreeArr['el']['table']=='tt_content' && $contentTreeArr['el']['sys_language_uid']<=0)	{
+		if (($contentTreeArr['el']['table'] == 'tt_content') &&
+		    ($contentTreeArr['el']['sys_language_uid'] <= 0)) {
 
-				// Finding translations of this record and select overlay record:
-			$fakeElementRow = array ('uid' => $contentTreeArr['el']['uid'], 'pid' => $contentTreeArr['el']['pid']);
+			// Finding translations of this record and select overlay record:
+			$fakeElementRow = array(
+				'uid' => $contentTreeArr['el']['uid'],
+				'pid' => $contentTreeArr['el']['pid']
+			);
+
 			t3lib_beFunc::fixVersioningPID('tt_content', $fakeElementRow);
 
 			$res = $TYPO3_DB->exec_SELECTquery(
@@ -1858,18 +1896,19 @@ class tx_templavoila_api {
 			);
 
 			$attachedLocalizations = array();
-			while(TRUE == ($olrow = $TYPO3_DB->sql_fetch_assoc($res)))	{
-				t3lib_BEfunc::workspaceOL('tt_content',$olrow);
+			while (TRUE == ($olrow = $TYPO3_DB->sql_fetch_assoc($res))) {
+				t3lib_BEfunc::workspaceOL('tt_content', $olrow);
 				if (!isset($attachedLocalizations[$olrow['sys_language_uid']]))	{
 					$attachedLocalizations[$olrow['sys_language_uid']] = $olrow['uid'];
 				}
 			}
 
-				// Traverse the available languages of the page (not default and [All])
-			if (is_array($this->allSystemWebsiteLanguages) && is_array($this->allSystemWebsiteLanguages['rows'])) {
-				foreach(array_keys($this->allSystemWebsiteLanguages['rows']) as $sys_language_uid)	{
-					if ($sys_language_uid > 0)	{
-						if (isset($attachedLocalizations[$sys_language_uid]))	{
+			// Traverse the available languages of the page (not default and [All])
+			if (is_array($this->allSystemWebsiteLanguages) &&
+			    is_array($this->allSystemWebsiteLanguages['rows'])) {
+				foreach (array_keys($this->allSystemWebsiteLanguages['rows']) as $sys_language_uid) {
+					if ($sys_language_uid > 0) {
+						if (isset($attachedLocalizations[$sys_language_uid])) {
 							$localizationInfoArr[$sys_language_uid] = array();
 							$localizationInfoArr[$sys_language_uid]['mode'] = 'exists';
 							$localizationInfoArr[$sys_language_uid]['localization_uid'] = $attachedLocalizations[$sys_language_uid];
@@ -2000,7 +2039,7 @@ class tx_templavoila_api {
 		$this->allSystemWebsiteLanguages['all_lKeys'][] = 'lDEF';
 		$this->allSystemWebsiteLanguages['all_vKeys'][] = 'vDEF';
 
-			// Select all website languages:
+		// Select all website languages:
 		$this->allSystemWebsiteLanguages['rows'] = $TYPO3_DB->exec_SELECTgetRows(
 			'sys_language.*',
 			'sys_language',
@@ -2011,14 +2050,14 @@ class tx_templavoila_api {
 			'uid'
 		);
 
-			// Traverse and set ISO codes if found:
-		foreach($this->allSystemWebsiteLanguages['rows'] as $row)	{
-			if ($row['static_lang_isocode'])	{
-				$staticLangRow = t3lib_BEfunc::getRecord('static_languages',$row['static_lang_isocode'],'lg_iso_2');
+		// Traverse and set ISO codes if found:
+		foreach ($this->allSystemWebsiteLanguages['rows'] as $row) {
+			if ($row['static_lang_isocode']) {
+				$staticLangRow = t3lib_BEfunc::getRecord('static_languages', $row['static_lang_isocode'], 'lg_iso_2');
 				if ($staticLangRow['lg_iso_2']) {
 					$this->allSystemWebsiteLanguages['rows'][$row['uid']]['_ISOcode'] = $staticLangRow['lg_iso_2'];
-					$this->allSystemWebsiteLanguages['all_lKeys'][] = 'l'.$staticLangRow['lg_iso_2'];
-					$this->allSystemWebsiteLanguages['all_vKeys'][] = 'v'.$staticLangRow['lg_iso_2'];
+					$this->allSystemWebsiteLanguages['all_lKeys'][] = 'l' . $staticLangRow['lg_iso_2'];
+					$this->allSystemWebsiteLanguages['all_vKeys'][] = 'v' . $staticLangRow['lg_iso_2'];
 				}
 			}
 		}

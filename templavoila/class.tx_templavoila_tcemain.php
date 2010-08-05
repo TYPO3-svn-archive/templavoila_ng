@@ -395,7 +395,7 @@ class tx_templavoila_tcemain {
 
 		$templaVoilaAPI = t3lib_div::makeInstance('tx_templavoila_api');
 
-		$sourceFlexformPointersArr = $templaVoilaAPI->flexform_getPointersByRecord ($uid, $sourceRecordBeforeMove['pid']);
+		$sourceFlexformPointersArr = $templaVoilaAPI->flexform_getPointersByRecord($uid, $sourceRecordBeforeMove['pid']);
 		$sourceFlexformPointer = $sourceFlexformPointersArr[0];
 
 		$mainContentAreaFieldName = $templaVoilaAPI->ds_getFieldNameByColumnPosition($destPid, 0);
@@ -438,16 +438,18 @@ class tx_templavoila_tcemain {
 
 		$templaVoilaAPI = t3lib_div::makeInstance('tx_templavoila_api');
 
-		$sourceFlexformPointersArr = $templaVoilaAPI->flexform_getPointersByRecord ($uid, $sourceRecordBeforeMove['pid']);
+		$sourceFlexformPointersArr = $templaVoilaAPI->flexform_getPointersByRecord($uid, $sourceRecordBeforeMove['pid']);
 		$sourceFlexformPointer = $sourceFlexformPointersArr[0];
 
-		$neighbourFlexformPointersArr = $templaVoilaAPI->flexform_getPointersByRecord (abs($origDestPid), $destPid);
+		$neighbourFlexformPointersArr = $templaVoilaAPI->flexform_getPointersByRecord(abs($origDestPid), $destPid);
 		$neighbourFlexformPointer = $neighbourFlexformPointersArr[0];
 
 		// One-line-fix for frontend editing (see Bug #2154).
 		// NOTE: This fix leads to unwanted behaviour in one special and unrealistic situation: If you move the second
 		// element to after the first element, it will move to the very first position instead of staying where it is.
-		if ($neighbourFlexformPointer['position'] == 1 && $sourceFlexformPointer['position'] == 2) $neighbourFlexformPointer['position'] = 0;
+		if (($neighbourFlexformPointer['position'] == 1) &&
+			($sourceFlexformPointer['position'] == 2))
+			$neighbourFlexformPointer['position'] = 0;
 
 		$templaVoilaAPI->moveElement_setElementReferences ($sourceFlexformPointer, $neighbourFlexformPointer);
 	}
@@ -514,7 +516,8 @@ class tx_templavoila_tcemain {
 					$sortByField => $sortNumber,
 					'colPos' => $colPos
 				);
-				$TYPO3_DB->exec_UPDATEquery (
+
+				$TYPO3_DB->exec_UPDATEquery(
 					'tt_content',
 					'uid=' . intval($elementArr['uid']),
 					$updateFields
@@ -535,10 +538,10 @@ class tx_templavoila_tcemain {
 	 * @return	void
 	 */
 	protected function updateDataSourceFromTemplateObject($table, array &$incomingFieldArray, t3lib_beUserAuth &$beUser) {
-		if (($table == 'pages' || $table == 'tt_content') &&
-			isset($incomingFieldArray['tx_templavoila_to'])) {
+		if (($table == 'pages' || $table == 'tt_content') && isset($incomingFieldArray['tx_templavoila_to'])) {
 			$this->updateDataSourceFieldFromTemplateObjectField($incomingFieldArray, 'tx_templavoila_ds', 'tx_templavoila_to', $beUser);
 		}
+
 		if ($table == 'pages' && isset($incomingFieldArray['tx_templavoila_next_to'])) {
 			$this->updateDataSourceFieldFromTemplateObjectField($incomingFieldArray, 'tx_templavoila_next_ds', 'tx_templavoila_next_to', $beUser);
 		}
@@ -556,19 +559,19 @@ class tx_templavoila_tcemain {
 	 */
 	protected function updateDataSourceFieldFromTemplateObjectField(array &$incomingFieldArray, $dsField, $toField, t3lib_beUserAuth &$beUser) {
 		$toId = $incomingFieldArray[$toField];
+
 		if (intval($toId) == 0) {
 			$incomingFieldArray[$dsField] = '';
-		}
-		else {
+		} else {
 			if ($beUser->workspace) {
 				$record = t3lib_BEfunc::getWorkspaceVersionOfRecord($beUser->workspace, 'tx_templavoila_tmplobj', $toId, 'datastructure');
 				if (!is_array($record)) {
 					$record = t3lib_BEfunc::getRecord('tx_templavoila_tmplobj', $toId, 'datastructure');
 				}
-			}
-			else {
+			} else {
 				$record = t3lib_BEfunc::getRecord('tx_templavoila_tmplobj', $toId, 'datastructure');
 			}
+
 			if (is_array($record) && isset($record['datastructure'])) {
 				$incomingFieldArray[$dsField] = $record['datastructure'];
 			}

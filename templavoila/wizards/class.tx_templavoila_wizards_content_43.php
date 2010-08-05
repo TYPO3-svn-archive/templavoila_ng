@@ -313,15 +313,28 @@ class tx_templavoila_wizards_content {
 				}
 
 				if (is_array($wizardElements)) {
-					foreach ($wizardElements as $itemKey => $itemConf) {
-						$itemKey = preg_replace('/\.$/', '', $itemKey);
-						if ($showAll || in_array($itemKey, $showItems)) {
-							$tmpItem = $this->wizard_getItem($groupKey, $itemKey, $itemConf);
-							if ($tmpItem) {
-								$groupItems[$groupKey . '_' . $itemKey] = $tmpItem;
+					/* in the explicit case we do sort by given keys */
+					if (count($showItems) && !$showAll)
+						foreach ($showItems as $itemKey) {
+							$itemConf = $wizardElements[$itemKey . '.'];
+							if ($itemConf) {
+								$tmpItem = $this->wizard_getItem($groupKey, $itemKey, $itemConf);
+								if ($tmpItem) {
+									$groupItems[$groupKey . '_' . $itemKey] = $tmpItem;
+								}
 							}
 						}
-					}
+					/* otherwise we just go ahead */
+					else
+						foreach ($wizardElements as $itemKey => $itemConf) {
+							$itemKey = preg_replace('/\.$/', '', $itemKey);
+							if ($showAll || in_array($itemKey, $showItems)) {
+								$tmpItem = $this->wizard_getItem($groupKey, $itemKey, $itemConf);
+								if ($tmpItem) {
+									$groupItems[$groupKey . '_' . $itemKey] = $tmpItem;
+								}
+							}
+						}
 				}
 
 				if (count($groupItems)) {

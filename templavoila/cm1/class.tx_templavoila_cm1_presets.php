@@ -170,11 +170,12 @@ class tx_templavoila_cm1_presets {
 					if (!$reset && trim($bef))
 						$elArray[$key]['tx_templavoila']['TypoScript'] = $bef;
 				} else {
-					switch($elArray[$key]['tx_templavoila']['eType'])	{
+					switch($elArray[$key]['tx_templavoila']['eType']) {
 						case 'text':
 							/* preserve previous config, if of the right kind */
 							if (($reset || ($elArray[$key]['TCEforms']['config']['type'] != 'text'))) {
 								$elArray[$key]['TCEforms']['label' ] = $elArray[$key]['tx_templavoila']['title'];
+								$elArray[$key]['TCEforms']['multi' ] = $elArray[$key]['tx_templavoila']['multilang'];
 								$elArray[$key]['TCEforms']['config'] = array(
 									'type'		=> 'text',
 									'cols'		=> '48',
@@ -190,6 +191,7 @@ class tx_templavoila_cm1_presets {
 							/* preserve previous config, if of the right kind */
 							if (($reset || ($elArray[$key]['TCEforms']['config']['type'] != 'text'))) {
 								$elArray[$key]['TCEforms']['label' ] = $elArray[$key]['tx_templavoila']['title'];
+								$elArray[$key]['TCEforms']['multi' ] = $elArray[$key]['tx_templavoila']['multilang'];
 								$elArray[$key]['TCEforms']['config'] = array(
 									'type'		=> 'text',
 									'cols'		=> '48',
@@ -222,6 +224,7 @@ class tx_templavoila_cm1_presets {
 							/* preserve previous config, if of the right kind */
 							if (($reset || ($elArray[$key]['TCEforms']['config']['type'] != 'group'))) {
 								$elArray[$key]['TCEforms']['label' ] = $elArray[$key]['tx_templavoila']['title'];
+								$elArray[$key]['TCEforms']['multi' ] = $elArray[$key]['tx_templavoila']['multilang'];
 								$elArray[$key]['TCEforms']['config'] = array(
 									'type'		=> 'group',
 									'internal_type'	=> 'file',
@@ -295,6 +298,7 @@ class tx_templavoila_cm1_presets {
 							/* preserve previous config, if of the right kind */
 							if (($reset || ($elArray[$key]['TCEforms']['config']['type'] != 'input'))) {
 								$elArray[$key]['TCEforms']['label' ] = $elArray[$key]['tx_templavoila']['title'];
+								$elArray[$key]['TCEforms']['multi' ] = $elArray[$key]['tx_templavoila']['multilang'];
 								$elArray[$key]['TCEforms']['config'] = array(
 									'type'		=> 'input',
 									'size'		=> '15',
@@ -338,6 +342,7 @@ class tx_templavoila_cm1_presets {
 							/* preserve previous config, if of the right kind */
 							if (($reset || ($elArray[$key]['TCEforms']['config']['type'] != 'group'))) {
 								$elArray[$key]['TCEforms']['label']=$elArray[$key]['tx_templavoila']['title'];
+								$elArray[$key]['TCEforms']['multi' ] = $elArray[$key]['tx_templavoila']['multilang'];
 								$elArray[$key]['TCEforms']['config'] = array(
 									'type'		=> 'group',
 									'internal_type'	=> 'db',
@@ -366,7 +371,8 @@ class tx_templavoila_cm1_presets {
 						case 'int':
 							/* preserve previous config, if of the right kind */
 							if (($reset || ($elArray[$key]['TCEforms']['config']['type'] != 'input'))) {
-								$elArray[$key]['TCEforms']['label']=$elArray[$key]['tx_templavoila']['title'];
+								$elArray[$key]['TCEforms']['label' ] = $elArray[$key]['tx_templavoila']['title'];
+								$elArray[$key]['TCEforms']['multi' ] = $elArray[$key]['tx_templavoila']['multilang'];
 								$elArray[$key]['TCEforms']['config'] = array(
 									'type' => 'input',
 									'size' => '4',
@@ -385,6 +391,7 @@ class tx_templavoila_cm1_presets {
 							/* preserve previous config, if of the right kind */
 							if (($reset || ($elArray[$key]['TCEforms']['config']['type'] != 'select'))) {
 								$elArray[$key]['TCEforms']['label' ] = $elArray[$key]['tx_templavoila']['title'];
+								$elArray[$key]['TCEforms']['multi' ] = $elArray[$key]['tx_templavoila']['multilang'];
 								$elArray[$key]['TCEforms']['config'] = array(
 									'type' => 'select',
 									'items' => Array (
@@ -402,7 +409,8 @@ class tx_templavoila_cm1_presets {
 						case 'input_g':
 							/* preserve previous config, if of the right kind */
 							if (($reset || ($elArray[$key]['TCEforms']['config']['type'] != 'input'))) {
-								$elArray[$key]['TCEforms']['label']=$elArray[$key]['tx_templavoila']['title'];
+								$elArray[$key]['TCEforms']['label' ] = $elArray[$key]['tx_templavoila']['title'];
+								$elArray[$key]['TCEforms']['multi' ] = $elArray[$key]['tx_templavoila']['multilang'];
 								$elArray[$key]['TCEforms']['config'] = array(
 									'type' => 'input',
 									'size' => '48',

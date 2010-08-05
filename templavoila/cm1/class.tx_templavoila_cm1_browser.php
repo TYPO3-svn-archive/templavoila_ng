@@ -165,7 +165,7 @@ class tx_templavoila_cm1_browser {
 		$curr = t3lib_div::_GP('current');
 
 		// Process each object of the configuration array
-		foreach($conf as $key => $value) {
+		foreach ($conf as $key => $value) {
 
 			// TS object ID
 			$id = $pObj . $key;
@@ -204,7 +204,7 @@ class tx_templavoila_cm1_browser {
 		//	array_push($htmlCode,  str_replace(  '<li class="' , '<li class="last ', array_pop($htmlCode)));
 			array_push($htmlCode, preg_replace('/^<li class="/', '<li class="last ', array_pop($htmlCode)));
 
-				// Return hierarchy
+			// Return hierarchy
 			return
 			'<ul class="' . (!$pObj ? 'tree' : '') . '">' .
 			implode(chr(10), $htmlCode) .

@@ -83,6 +83,8 @@
 			<label index="structureFormOther">Other</label>
 			<label index="structureFormRules">Mapping rules</label>
 			<label index="structureFormInheritance">Inheritance</label>
+			<label index="structureFormOverlayMode">Overlay-mode</label>
+			<label index="structureFormMultilanguage">Multi-language</label>
 			<label index="structureFormTSConst">TypoScript Constants</label>
 			<label index="structureFormTSCode">TypoScript Code</label>
 			<label index="structureFormExtra">Extra options</label>
@@ -121,6 +123,9 @@
 			<label index="createDSTO">CREATE DS and TO</label>
 			<label index="updateDSTO">UPDATE TO (and DS)</label>
 			<label index="noDSDefined">No Data Structure was defined in the record... (Must be T3DataStructure XML content)</label>
+			<label index="noDSWith">No Data Structure Record could be found with UID "%d"</label>
+			<label index="noTOWith">No Template Object Record could be found with UID "%d"</label>
+			<label index="noDSFile">The file "%s" could not be found!</label>
 			<label index="pasteDSXml">Alternatively, paste the Data Structure XML into this form</label>
 			<label index="loadDSXml">Load Data Structure</label>
 			<label index="add">Add</label>

@@ -61,8 +61,8 @@
 			<label index="center_view_tmplstatus">Template Status</label>
 			<label index="center_view_globalproc">Global Processing</label>
 			<label index="center_view_localproc">Local Processing</label>
-			<label index="center_view_ds">View datastructure</label>
-			<label index="center_view_ds_new">Create new datastructure</label>
+			<label index="center_view_ds">View Data Structure</label>
+			<label index="center_view_ds_new">Create new Data Structure</label>
 			<label index="center_view_to">Update mapping</label>
 			<label index="center_view_to_map">Map</label>
 			<label index="center_view_to_remap">Remap</label>

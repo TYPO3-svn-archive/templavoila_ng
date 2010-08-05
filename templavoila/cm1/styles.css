@@ -9,6 +9,10 @@ table.typo3-tvlist {
 	table-layout: fixed;
 }
 
+table.typo3-tvlist + .typo3-message {
+	margin-top: 6px;
+}
+
 table#c-headerParts pre {
 	overflow-x: auto;
 	white-space: normal;
@@ -222,4 +226,24 @@ tr.tv-edit-row div.tv-ts-tree {
 	border: 1px solid black;
 	padding: 1px;
 	background: white;
+}
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+div.t3e_wrap {
+	width: 100% !important;
+	height: 200px !important;
+}
+
+div.t3e_wrap div.t3e_linenum_wrap {
+	height: 200px !important;
+}
+
+div.t3e_wrap div.t3e_linenum_wrap dt {
+	line-height: 16px !important;
+	font-weight: normal;
+}
+
+div.t3e_wrap div.t3e_iframe_wrap iframe {
+	width: 100% !important;
+	height: 200px !important;
 }

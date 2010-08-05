@@ -865,7 +865,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 
 			if (!$sameParent) {
 				// Step 1: Unset curent parent record info
-				$unsetKeys = array ();
+				$unsetKeys = array();
 				foreach ($GLOBALS['TSFE']->register as $dkey => $dvalue) {
 					if (preg_match('/^tx_templavoila_pi1\.parentRec\./', $dkey)) {
 						$unsetKeys[] = $dkey;
@@ -873,9 +873,9 @@ class tx_templavoila_pi1 extends tslib_pibase {
 				}
 
 				// Step 2: unset previous parent info
-				foreach ($unsetKeys as $dkey) {
+				foreach ($unsetKeys as $dkey)
 					unset ($GLOBALS['TSFE']->register[$dkey]);
-				}
+
 				unset($unsetKeys); // free memory
 
 				// Step 3: Restore previous parent record info if necessary
@@ -904,6 +904,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 			// Create local processing information array:
 			$LP = array();
 			foreach ($DSelements as $key => $dsConf) {
+
 				// For all non-sections:
 				if (($DSelements[$key]['type'] != 'array') ||
 				    ($DSelements[$key]['section'] != 1)) {
@@ -925,7 +926,11 @@ class tx_templavoila_pi1 extends tslib_pibase {
 			$dataRecord = array();
 			if (is_array($dataValues)) {
 				foreach ($dataValues as $key => $values) {
-					$dataRecord[$key] = $this->overlayValue($dataValues[$key], $valueKey, $LP[$key]['langOverlayMode']);
+					// Consider multi-language fields
+					$valueGet = ($LP[$key]['multilang'] ? 'vALL' : $valueKey);
+
+					// Language/Object inheritance:
+					$dataRecord[$key] = $this->overlayValue($dataValues[$key], $valueGet, $LP[$key]['langOverlayMode']);
 				}
 			}
 
@@ -945,14 +950,15 @@ class tx_templavoila_pi1 extends tslib_pibase {
 						if (!isset($dataValues[$key]['el']))
 							$dataValues[$key]['el'] = array();
 
+						// Go into section
 						if ($DSelements[$key]['section']) {
-+							$registerCounter = 1;
+							$registerCounter = 1;
 
 							foreach ($dataValues[$key]['el'] as $ik => $el) {
-+								$GLOBALS['TSFE']->register["tx_templavoila_pi1.sectionPos"] = $registerCounter;
-+								$GLOBALS['TSFE']->register["tx_templavoila_pi1.sectionCount"] = count($dataValues[$key]['el']);
-+								$GLOBALS['TSFE']->register["tx_templavoila_pi1.sectionIsFirstItem"] = ($registerCounter == 1);
-+								$GLOBALS['TSFE']->register["tx_templavoila_pi1.sectionIsLastItem"] = count($dataValues[$key]['el']) == $registerCounter;
+								$GLOBALS['TSFE']->register["tx_templavoila_pi1.sectionPos"] = $registerCounter;
+								$GLOBALS['TSFE']->register["tx_templavoila_pi1.sectionCount"] = count($dataValues[$key]['el']);
+								$GLOBALS['TSFE']->register["tx_templavoila_pi1.sectionIsFirstItem"] = ($registerCounter == 1);
+								$GLOBALS['TSFE']->register["tx_templavoila_pi1.sectionIsLastItem"] = count($dataValues[$key]['el']) == $registerCounter;
 
 								if (is_array($el)) {
 						//			$theKey = key($el);
@@ -1002,8 +1008,11 @@ class tx_templavoila_pi1 extends tslib_pibase {
 						}
 					}
 				} else {
+					// Consider multi-language fields
+					$valueGet = ($LP[$key]['multilang'] ? 'vALL' : $valueKey);
+
 					// Language/Object inheritance:
-					$dataValues[$key][$valueKey] = $this->overlayValue($dataValues[$key], $valueKey, $LP[$key]['langOverlayMode']);
+					$dataValues[$key][$valueKey] = $this->overlayValue($dataValues[$key], $valueGet, $LP[$key]['langOverlayMode']);
 
 					// The value "__REMOVE" will trigger removal of the item!
 					if (is_array($dataValues[$key][$valueKey]) && !strcmp($dataValues[$key][$valueKey]['ERROR'], '__REMOVE')) {
@@ -1018,9 +1027,9 @@ class tx_templavoila_pi1 extends tslib_pibase {
 					if ($DSelements[$key]['TCEforms']['config']['type'] == 'select') {
 						if (substr($dataValues[$key][$valueKey], 0, 4) == 'LLL:') {
 							$tempLangVal = $GLOBALS['TSFE']->sL($dataValues[$key][$valueKey]);
-							if ($tempLangVal != '') {
+							if ($tempLangVal != '')
 								$dataValues[$key][$valueKey] = $tempLangVal;
-							}
+
 							unset($tempLangVal);
 						}
 					}
@@ -1121,7 +1130,8 @@ class tx_templavoila_pi1 extends tslib_pibase {
 	 * @return	string		The value
 	 */
 	function overlayValue($dV, $valueKey, $overlayMode = '') {
-		if ($valueKey != 'vDEF') {
+		if (($valueKey != 'vDEF') &&
+		    ($valueKey != 'vALL')) {
 
 			// Consider overlay modes:
 			switch ((string)$overlayMode) {
@@ -1131,14 +1141,14 @@ class tx_templavoila_pi1 extends tslib_pibase {
 
 				case 'ifBlank':
 					// Only if the value is truely blank!
-					return strcmp(trim($dV[$valueKey]),'') ? $dV[$valueKey] : $dV['vDEF'];
+					return strcmp(trim($dV[$valueKey]), '') ? $dV[$valueKey] : $dV['vDEF'];
 
 				case 'never':
 					// Always return its own value
 					return $dV[$valueKey];
 
 				case 'removeIfBlank':
-					if (!strcmp(trim($dV[$valueKey]),'')) {
+					if (!strcmp(trim($dV[$valueKey]), '')) {
 						return array('ERROR' => '__REMOVE');
 					}
 				default:
