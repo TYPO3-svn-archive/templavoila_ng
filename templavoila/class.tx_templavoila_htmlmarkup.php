@@ -200,11 +200,11 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 	var $backPath = '';		// Will contain the backend back-path which is necessary when marking-up the code in order to fix all media paths.
 	var $gnyfStyle = '';		// will contain style-part for gnyf images. (see init())
 	var $gnyfImgAdd = '';		// Eg. 	onclick="return parent.mod.updPath('###PATH###');"
-	var $pathPrefix='';		// Prefix for the path returned to the mod frame when tag image is clicked.
-	var $tDat='';
+	var $pathPrefix = '';		// Prefix for the path returned to the mod frame when tag image is clicked.
+	var $tDat = '';
 
-	var $elCountArray=array();	// Used to register the paths during parsing the code (see init())
-	var $elParentLevel=array();	// Used to register the all elements on the same level
+	var $elCountArray = array();	// Used to register the paths during parsing the code (see init())
+	var $elParentLevel = array();	// Used to register the all elements on the same level
 	var $searchPaths = '';		// Used to contain the paths to search for when searching for a paths. (see getContentBasedOnPath())
 
 
@@ -287,7 +287,7 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 		$this->searchPaths = array();
 		$tagList = '';
 
-		foreach($pathStrArr as $pathStr) {
+		foreach ($pathStrArr as $pathStr) {
 			list($pathInfo) = $this->splitPath($pathStr);
 			$this->searchPaths[$pathInfo['path']] = $pathInfo;
 
@@ -352,12 +352,12 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 	 * @param	[type]		$currentMappingInfo: ...
 	 * @return	[type]		...
 	 */
-	function splitContentToMappingInfo($fileContent,$currentMappingInfo) {
+	function splitContentToMappingInfo($fileContent, $currentMappingInfo) {
 		// Get paths into an array
 		$paths = $this->mappingInfoToSearchPath($currentMappingInfo);
 
 		// Split content by the paths.
-		$divContent = $this->getContentBasedOnPath($fileContent,$paths);
+		$divContent = $this->getContentBasedOnPath($fileContent, $paths);
 
 		// Token for splitting the content further.
 		$token = md5(microtime());
@@ -457,16 +457,17 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 	 * @param	[type]		$token: ...
 	 * @return	string		HTML .
 	 */
-	function mergeSearchpartsIntoContent($content,$searchParts,$token='')	{
-		foreach($searchParts as $path => $pathInfo)	{
-			if ($pathInfo['placeholder'])	{
+	function mergeSearchpartsIntoContent($content, $searchParts, $token = '') {
+		foreach($searchParts as $path => $pathInfo) {
+			if ($pathInfo['placeholder']) {
 				$content = str_replace(
 					$pathInfo['placeholder'],
 					$token ? $token . $path . $pathInfo['modifier_lu'] . $token : $pathInfo['content'],
 					$content
 				);
 			}
-			if (is_array($pathInfo['attr']))	{
+
+			if (is_array($pathInfo['attr'])) {
 				foreach($pathInfo['attr'] as $attrN => $pcPair)	{
 					$content = str_replace(
 						$pcPair['placeholder'],
@@ -561,7 +562,7 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 				foreach ($currentMappingInfo['cArray'] as $key => $val) {
 					if (!t3lib_div::testInt($key)) {
 						if (is_array($editStruct[$key]['el']) && $currentMappingInfo['sub'][$key]) {
-							$rcs = $this->mergeFormDataIntoTemplateStructure($editStruct[$key]['el'],$currentMappingInfo['sub'][$key],'',$valueKey);
+							$rcs = $this->mergeFormDataIntoTemplateStructure($editStruct[$key]['el'], $currentMappingInfo['sub'][$key], '', $valueKey);
 
 							$currentMappingInfo['cArray'][$key] = str_replace('###GROUP###', $rcs, $editStruct[$key][$valueKey]);
 						} else {
@@ -573,7 +574,7 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 					}
 				}
 
-				$out = implode($firstLevelImplodeToken,$currentMappingInfo['cArray']);
+				$out = implode($firstLevelImplodeToken, $currentMappingInfo['cArray']);
 			}
 		}
 
@@ -586,11 +587,11 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 	 * @param	string		The total path string to explode into smaller units.
 	 * @return	array		Array with the information inside.
 	 */
-	function splitPath($pathStr)	{
+	function splitPath($pathStr) {
 		$subPaths = t3lib_div::trimExplode('|',$pathStr,1);
 
-		foreach($subPaths as $index => $path)	{
-			$subPaths[$index]=array();
+		foreach($subPaths as $index => $path) {
+			$subPaths[$index] = array();
 			$subPaths[$index]['fullpath'] = $path;
 
 			// Get base parts of the page: the PATH and the COMMAND
@@ -616,13 +617,16 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 			// Tag list
 			$tagIndex = array();
 			$tagSplitParts = $splitParts;
-			if ($subPaths[$index]['modifier'] == 'RANGE' && $subPaths[$index]['modifier_value']) {
+			if (($subPaths[$index]['modifier'] == 'RANGE') &&
+			    ($subPaths[$index]['modifier_value'])) {
 				$tagSplitParts[] = $subPaths[$index]['modifier_value'];
 			}
-			foreach($tagSplitParts as $tagV)	{
+
+			foreach($tagSplitParts as $tagV) {
 				list($tagName) = preg_split('/[^a-zA-Z0-9_-]/', $tagV);
 				$tagIndex[$tagName]++;
 			}
+
 			$subPaths[$index]['tagList']=implode(',',array_keys($tagIndex));
 
 			// Setting "path" and "parent"
@@ -642,19 +646,22 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 	 * @param	[type]		$uid: ...
 	 * @return	[type]		...
 	 */
-	function getTemplateArrayForTO($uid)	{
+	function getTemplateArrayForTO($uid) {
 		global $TCA, $TYPO3_DB;
-		if (isset($TCA['tx_templavoila_tmplobj']))	{
+
+		if (isset($TCA['tx_templavoila_tmplobj'])) {
 			$res = $TYPO3_DB->exec_SELECTquery (
 				'*',
 				'tx_templavoila_tmplobj',
-				'uid='.intval($uid).($TCA['tx_templavoila_tmplobj']['ctrl']['delete'] ? ' AND NOT '.$TCA['tx_templavoila_tmplobj']['ctrl']['delete'] : '')
+				'uid=' . intval($uid) . ($TCA['tx_templavoila_tmplobj']['ctrl']['delete'] ? ' AND NOT ' . $TCA['tx_templavoila_tmplobj']['ctrl']['delete'] : '')
 			);
+
 			$row = $TYPO3_DB->sql_fetch_assoc($res);
 			$this->tDat = unserialize($row['templatemapping']);
 
 			return $this->tDat['MappingData_cached'];
 		}
+
 		return false;
 	}
 
@@ -665,13 +672,16 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 	 * @param	[type]		$data: ...
 	 * @return	mixed		??? or <code>false</code> if ???
 	 */
-	function mergeDataArrayToTemplateArray($TA,$data)	{
-		if (is_array($TA['cArray']))	{
-			foreach($data as $key => $value)	{
-				if (isset($TA['cArray'][$key]))	$TA['cArray'][$key]=$value;
+	function mergeDataArrayToTemplateArray($TA, $data) {
+		if (is_array($TA['cArray'])) {
+			foreach($data as $key => $value) {
+				if (isset($TA['cArray'][$key]))
+					$TA['cArray'][$key] = $value;
 			}
-			return implode('',$TA['cArray']);
+
+			return implode('', $TA['cArray']);
 		}
+
 		return false;
 	}
 
@@ -974,7 +984,7 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 		}
 
 		// Traverse all sections of blocks
-		foreach($blocks as $k => $v) {
+		foreach ($blocks as $k => $v) {
 			// If inside a block tag
 			if ($k % 2) {
 				// INSIDE BLOCK: Processing of block content. This includes a recursive call to this function for the inner content of the block tags.
@@ -982,13 +992,13 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 				$firstTagName = strtolower($this->htmlParse->getFirstTagName($v));		// The 'name' of the first tag
 				$endTag = $firstTag == $startCCTag ? $endCCTag : '</' . $firstTagName . '>';	// Create proper end-tag
 				$v = $this->htmlParse->removeFirstAndLastTag($v);				// Finally remove the first tag (unless we do this, the recursivity will be eternal!
-				$params = $this->htmlParse->get_tag_attributes($firstTag,1);			// Get attributes
+				$params = $this->htmlParse->get_tag_attributes($firstTag, 1);			// Get attributes
 
 				// IF pathMode is set:
-				$subPath = $this->makePath($path,$firstTagName,$params[0]);
+				$subPath = $this->makePath($path, $firstTagName, $params[0]);
 
 				// Make the call again - recursively.
-				if ($recursion < $this->maxRecursion && !($mode == 'search' && isset($this->searchPaths[$subPath]) && ($this->searchPaths[$subPath]['modifier']!='ATTR')))
+				if ($recursion < $this->maxRecursion && !($mode == 'search' && isset($this->searchPaths[$subPath]) && ($this->searchPaths[$subPath]['modifier'] != 'ATTR')))
 					$v = $this->recursiveBlockSplitting($v, $tagsBlock, $tagsSolo, $mode, $subPath, $recursion + 1);
 
 				if ($mode == 'markup') {
@@ -1118,10 +1128,10 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 				}
 			} elseif ($this->mode == 'borders') {
 				if ($firstTagName == 'table') {
-					$params[0]['style'].='; border: 1px dotted #666666;';
+					$params[0]['style'] .= '; border: 1px dotted #666666;';
 					$firstTag = '<' . trim($firstTagName . ' ' . t3lib_div::implodeAttributes($params[0])) . '>';
 				} elseif ($firstTagName == 'td') {
-					$params[0]['style'].='; border: 1px dotted #666666;';
+					$params[0]['style'] .= '; border: 1px dotted #666666;';
 					$firstTag = '<' . trim($firstTagName . ' ' . t3lib_div::implodeAttributes($params[0])) . '>';
 				}
 			}
@@ -1310,21 +1320,22 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 	 * @param	string		The attributes for the tag in an array with key/value pairs
 	 * @return	string		The sub path.
 	 */
-	function makePath($path,$firstTagName,$attr)	{
-			// Detect if pathMode is set and then construct the path based on the mode set.
+	function makePath($path, $firstTagName, $attr) {
 #debug($path,1);
-		if ($this->pathMode)	{
-			switch($this->pathMode)	{
+		// Detect if pathMode is set and then construct the path based on the mode set.
+		if ($this->pathMode) {
+			switch ($this->pathMode) {
 				default:
-					$counterIDstr = $firstTagName.($attr['class']?'.'.$attr['class']:'');	// Counter ID string
+					$counterIDstr = $firstTagName . ($attr['class'] ? '.' . implode('.', explode(' ', $attr['class'])) : '');	// Counter ID string
 					$this->elCountArray[$path][$counterIDstr]++;		// Increase counter, include
-						// IF id attribute is set, then THAT will reset everything since IDs must be unique. (expecting that ID is a string with no whitespace... at least not checking for that here!)
-					if ($attr['id'])	{
-						$subPath = $firstTagName.'#'.trim($attr['id']);
-						$this->elParentLevel[$path][]=$counterIDstr.'#'.$attr['id'];
+
+					// IF id attribute is set, then THAT will reset everything since IDs must be unique. (expecting that ID is a string with no whitespace... at least not checking for that here!)
+					if ($attr['id']) {
+						$subPath = $firstTagName . '#' . trim($attr['id']);
+						$this->elParentLevel[$path][] = $counterIDstr . '#' . $attr['id'];
 					} else {
-						$subPath = trim($path.' '.$counterIDstr.'['.$this->elCountArray[$path][$counterIDstr].']');
-						$this->elParentLevel[$path][]=$counterIDstr.'['.$this->elCountArray[$path][$counterIDstr].']';
+						$subPath =   trim($path . ' ' . $counterIDstr . '[' . $this->elCountArray[$path][$counterIDstr].']');
+						$this->elParentLevel[$path][] = $counterIDstr . '[' . $this->elCountArray[$path][$counterIDstr].']' ;
 					}
 				break;
 			}
