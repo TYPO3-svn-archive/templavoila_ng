@@ -1515,7 +1515,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 					if (t3lib_div::_GP('_save_dsto_return') ||
 					    t3lib_div::_GP('_save_dsto_return_x')) {
-						header('Location: ' . t3lib_div::locationHeaderUrl($this->returnUrl));
+						header('Location: ' . t3lib_div::locationHeaderUrl($this->returnUrl ? $this->returnUrl : $this->baseScript . 'id=' . $this->id));
 						exit;
 					}
 
@@ -1960,7 +1960,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 				if (is_array($dataStruct)) {
 					// Showing Data Structure:
-					$tRows = $this->drawDataStructureMap($row, $dataStruct);
+					$tRows = $this->drawDataStructureMap($row['scope'], $dataStruct['meta'], $dataStruct);
 
 					$this->doc->sectionBegin();
 					$content = '
