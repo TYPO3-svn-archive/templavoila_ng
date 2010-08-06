@@ -904,7 +904,6 @@ class tx_templavoila_pi1 extends tslib_pibase {
 			// Create local processing information array:
 			$LP = array();
 			foreach ($DSelements as $key => $dsConf) {
-
 				// For all non-sections:
 				if (($DSelements[$key]['type'] != 'array') ||
 				    ($DSelements[$key]['section'] != 1)) {
@@ -918,6 +917,16 @@ class tx_templavoila_pi1 extends tslib_pibase {
 						} else {
 							$LP[$key] = $TOelements[$key]['tx_templavoila'];
 						}
+					}
+				}
+				// For all sections:
+				else {
+					// Set base configuration:
+					$LP[$key]['proc']['stdWrap'] = $DSelements[$key]['tx_templavoila']['proc']['stdWrap'];
+
+					// Overlaying local processing:
+					if ($TOelements[$key]['tx_templavoila']['proc']['stdWrap']) {
+						$LP[$key]['proc']['stdWrap'] = $TOelements[$key]['tx_templavoila']['proc']['stdWrap'];
 					}
 				}
 			}
@@ -976,7 +985,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 									$GLOBALS['TSFE']->register['tx_templavoila_pi1.parentRec.' . str_replace('ROOT' . SEPARATOR_XPATH . 'el' . SEPARATOR_XPATH, '', $xpath . $key . SEPARATOR_XPATH . 'position')] = $ik;
 								}
 
-+								$registerCounter++;
+								$registerCounter++;
 							}
 
 							$dataValues[$key][$valueKey] = '###GROUP###';
@@ -984,21 +993,22 @@ class tx_templavoila_pi1 extends tslib_pibase {
 							$this->processDataValues_traverse($dataValues[$key]['el'], $DSelements[$key]['el'], $TOelements[$key]['el'], $valueKey, $xpath . $key . SEPARATOR_XPATH . 'el' . SEPARATOR_XPATH);
 
 							$dataValues[$key][$valueKey] = '###GROUP###';
+						}
 
-							$cObj->setCurrentVal($dataValues[$key][$valueKey]);
-							$GLOBALS['TSFE']->register['tx_templavoila_pi1.parentRec.' . str_replace('ROOT' . SEPARATOR_XPATH . 'el' . SEPARATOR_XPATH, '', $xpath . $key)] = $dataValues[$key][$valueKey];
+						// Various local quick-processing options:
+						$pOptions = $LP[$key]['proc'];
 
-							// Various local quick-processing options:
-							$pOptions = $LP[$key]['proc'];
+						if (is_array($pOptions)) {
+							if (trim($pOptions['stdWrap'])) {
+								/* prepare stdWrap for SC & CO */
+								$cObj->setCurrentVal($dataValues[$key][$valueKey]);
+								$GLOBALS['TSFE']->register['tx_templavoila_pi1.parentRec.' . str_replace('ROOT' . SEPARATOR_XPATH . 'el' . SEPARATOR_XPATH, '', $xpath . $key)] = $dataValues[$key][$valueKey];
 
-							if (is_array($pOptions)) {
-								if (trim($pOptions['stdWrap'])) {
-									// BUG HERE: should convert array to TypoScript...
-									$tsparserObj = t3lib_div::makeInstance('t3lib_TSparser');
-									$tsparserObj->parse($pOptions['stdWrap']);
+								// BUG HERE: should convert array to TypoScript...
+								$tsparserObj = t3lib_div::makeInstance('t3lib_TSparser');
+								$tsparserObj->parse($pOptions['stdWrap']);
 
-									$dataValues[$key][$valueKey] = $cObj->stdWrap($dataValues[$key][$valueKey], $tsparserObj->setup);
-								}
+								$dataValues[$key][$valueKey] = $cObj->stdWrap($dataValues[$key][$valueKey], $tsparserObj->setup);
 							}
 						}
 
@@ -1020,9 +1030,6 @@ class tx_templavoila_pi1 extends tslib_pibase {
 						return;
 					}
 
-					$cObj->setCurrentVal($dataValues[$key][$valueKey]);
-					$GLOBALS['TSFE']->register['tx_templavoila_pi1.parentRec.' . str_replace('ROOT' . SEPARATOR_XPATH . 'el' . SEPARATOR_XPATH, '', $xpath . $key)] = $dataValues[$key][$valueKey];
-
 					// Render localized labels for 'select' elements:
 					if ($DSelements[$key]['TCEforms']['config']['type'] == 'select') {
 						if (substr($dataValues[$key][$valueKey], 0, 4) == 'LLL:') {
@@ -1034,13 +1041,16 @@ class tx_templavoila_pi1 extends tslib_pibase {
 						}
 					}
 
+					/* prepare stdWrap for EL */
+					$cObj->setCurrentVal($dataValues[$key][$valueKey]);
+					$GLOBALS['TSFE']->register['tx_templavoila_pi1.parentRec.' . str_replace('ROOT' . SEPARATOR_XPATH . 'el' . SEPARATOR_XPATH, '', $xpath . $key)] = $dataValues[$key][$valueKey];
+
 					// TypoScript / TypoScriptObjPath:
 					if (trim($LP[$key]['TypoScript']) ||
 					    trim($LP[$key]['TypoScriptObjPath'])) {
 						$tsparserObj = t3lib_div::makeInstance('t3lib_TSparser');
 
 						if (trim($LP[$key]['TypoScript'])) {
-
 							// If constants were found locally/internally in DS/TO:
 							if (is_array($LP[$key]['TypoScript_constants'])) {
 								foreach($LP[$key]['TypoScript_constants'] as $constant => $value) {
@@ -1100,7 +1110,6 @@ class tx_templavoila_pi1 extends tslib_pibase {
 
 					// Various local quick-processing options:
 					if (is_array($pOptions = $LP[$key]['proc'])) {
-
 						// HSC of all values by default:
 						if ($pOptions['int'])
 							$dataValues[$key][$valueKey] = intval($dataValues[$key][$valueKey]);

@@ -553,7 +553,9 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 					$secKey = key($section);
 					$secDat = $section[$secKey];
 					if ($currentMappingInfo['sub'][$secKey]) {
-						$out .= $this->mergeFormDataIntoTemplateStructure($secDat['el'], $currentMappingInfo['sub'][$secKey], '', $valueKey);
+						$rcs = $this->mergeFormDataIntoTemplateStructure($secDat['el'], $currentMappingInfo['sub'][$secKey], '', $valueKey);
+
+						$out .= str_replace('###GROUP###', $rcs, $secDat[$valueKey]);
 					}
 				}
 			}
