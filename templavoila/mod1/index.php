@@ -77,7 +77,7 @@
  * 1989:     function icon_hide($el)
  * 2017:     function link_hide($label, $table, $uid, $hidden, $forced=FALSE)
  * 2055:     function icon_edit($el)
- * 2076:     function link_edit($label, $table, $uid, $forced=FALSE)
+ * 2076:     function link_edit($label, $table, $uid, $columns, $forced=FALSE)
  * 2103:     function icon_browse($parentPointer)
  * 2139:     function icon_new($parentPointer)
  * 2156:     function link_new($label, $parentPointer)
@@ -169,15 +169,16 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 	var $canCreateNew, $canEditPage, $canEditContent;
 
 	var $doc;						// Instance of template doc class
+	var $apiObj;						// Instance of tx_templavoila_api
 	var $sideBarObj;					// Instance of sidebar class
 	var $clipboardObj;					// Instance of clipboard class
 	var $recordsObj;					// Instance of records class
+	var $icoObj;						// Instance of iconlinks class
 	var $messages;
 
 	/**
 	 * @var tx_templavoila_api
 	 */
-	var $apiObj;						// Instance of tx_templavoila_api
 	var $sortableContainers = array();			// Contains the containers for drag and drop
 
 
@@ -246,6 +247,10 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 		// Initialize the record module
 		$this->recordsObj =& t3lib_div::getUserObj('EXT:templavoila/mod1/class.tx_templavoila_mod1_records.php:&tx_templavoila_mod1_records', '');
 		$this->recordsObj->init($this);
+
+		// Initialize the iconlinks module
+		$this->icoObj =& t3lib_div::getUserObj('EXT:templavoila/mod1/class.tx_templavoila_mod1_iconlinks.php:&tx_templavoila_mod1_iconlinks', '');
+		$this->icoObj->init($this);
 	}
 
 	/**
@@ -700,7 +705,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 					if (!$singleView && $this->canEditPage) {
 						// Edit icon only if page can be modified by user
-						$content .= '<br /><br /><strong>' . $this->icon_edit(array('table' => 'pages', 'uid' => $this->id)) . '</strong>';
+						$content .= '<br /><br /><strong>' . $this->icoObj->icon_edit(array('table' => 'pages', 'uid' => $this->id)) . '</strong>';
 					}
 
 					// Do not output editing code for special doctypes!
@@ -921,7 +926,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 	function render_framework_singleSheet($singleView, $contentTreeArr, $languageKey, $sheet, $parentPointer = array(), $parentDsMeta = array()) {
 		global $TYPO3_CONF_VARS;
 
-		$isContainer = (($contentTreeArr['el']['table'] == 'pages') || ($contentTreeArr['el']['table'] == 'tt_content' && $contentTreeArr['el']['CType'] == 'templavoila_pi1'));
+		$isContainer = (($contentTreeArr['el']['table'] == 'pages') || (($contentTreeArr['el']['table'] == 'tt_content') && ($contentTreeArr['el']['CType'] == 'templavoila_pi1')));
 
 		$hidePreview = intval($contentTreeArr['ds_meta']['disableDataPreview']) || $this->MOD_SETTINGS['tt_content_hidePreviews'];
 		$hideCollapse = !$isContainer && $hidePreview;
@@ -930,8 +935,8 @@ table.typo3-dyntabmenu td.disabled:hover {
 		$elementIsAlsoUsedElsewhere = ($contentTreeArr['el']['table'] == 'tt_content') && ($ia = $this->checkReferenceCount($contentTreeArr['el']['uid'])) && (count($ia) > 1);
 
 		// Prepare the record icon including a content sensitive menu link wrapped around it:
-		$collapseIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/ol/minusonly.gif', 'width="11" height="12"') . ' alt="" class="absmiddle" />';
-		$recordIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, $contentTreeArr['el']['icon'], 'width="18" height="16"') . ' border="0" title="' . htmlspecialchars('[' . $contentTreeArr['el']['table'] . ':' . $contentTreeArr['el']['uid'] . ']') . '" alt="" />';
+		$collapseIcon = $this->icoObj->icon_collapse();
+		$recordIcon = $this->icoObj->icon_record($contentTreeArr['el']);
 
 		$menuCommands = array();
 		if ($this->canCreateNew) {
@@ -952,9 +957,9 @@ table.typo3-dyntabmenu td.disabled:hover {
 		switch ($contentTreeArr['el']['table']) {
 			case 'pages':
 				$titleBarLeftButtons .= $this->translatorMode || !$this->canEditPage ? '' :
-					$this->icon_edit($contentTreeArr['el']) .
-					$this->icon_hide($contentTreeArr['el']) .
-					$this->icon_view($contentTreeArr['el']) . ' ';
+					$this->icoObj->icon_edit($contentTreeArr['el']) .
+					$this->icoObj->icon_hide($contentTreeArr['el']) .
+					$this->icoObj->icon_view($contentTreeArr['el']) . ' ';
 				$titleBarRightButtons = '';
 
 				if ($singleView)
@@ -976,13 +981,13 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 					// Create CE specific buttons:
 					$linkMakeLocal =
-						$this->icon_makeLocal($parentPointer, !$elementBelongsToCurrentPage);
+						$this->icoObj->icon_makeLocal($parentPointer, !$elementBelongsToCurrentPage);
 					$linkEdit = ($elementBelongsToCurrentPage ?
-						$this->icon_edit($contentTreeArr['el']) : '');
+						$this->icoObj->icon_edit($contentTreeArr['el']) : '');
 					$linkUnlink =
-						$this->icon_unlink($parentPointer) . ($elementBelongsToCurrentPage ?
-						$this->icon_hide($contentTreeArr['el'], $elementIsAlsoUsedElsewhere) .
-						$this->icon_delete($parentPointer, $elementIsAlsoUsedElsewhere) : '');
+						$this->icoObj->icon_unlink($parentPointer) . ($elementBelongsToCurrentPage ?
+						$this->icoObj->icon_hide($contentTreeArr['el'], $elementIsAlsoUsedElsewhere) .
+						$this->icoObj->icon_delete($parentPointer, $elementIsAlsoUsedElsewhere) : '');
 
 					$titleBarRightButtons =
 						$linkEdit .
@@ -1000,13 +1005,14 @@ table.typo3-dyntabmenu td.disabled:hover {
 		}
 
 		// Prepare the language icon:
-		$languageIcon = $this->icon_lang($contentTreeArr['el'], $languageUid);
+		$languageIcon = $this->icoObj->icon_lang($contentTreeArr['el'], $languageUid);
 
 		// Create warning messages if neccessary:
 		$warnings = $this->render_warnings($contentTreeArr, FALSE);
 
 		// Create localization-tools if neccessary:
-		$localize = $this->render_localizationInfo($contentTreeArr, $parentPointer, $parentDsMeta);
+		if ($languageUid >= 0)
+			$localize = $this->render_localizationInfo($contentTreeArr, $parentPointer, $parentDsMeta);
 
 		// Finally assemble the table:
 		$finalContent = '
@@ -1050,13 +1056,13 @@ table.typo3-dyntabmenu td.disabled:hover {
 				</tr>
 				' : '') . '
 			</thead>
-			' . (trim($localize . $warnings) ? '
+			' . (trim($warnings) ? '
 			<tfoot>
 				<tr style="' . $elementTitlebarStyle . ';">
-					<td>' . $localize . $warnings . '</td>
+					<td>' . $warnings . '</td>
 				</tr>
 			</tfoot>
-			' : '') . ($contentTreeArr['ds_is_found'] ? '
+			' : '') . (($contentTreeArr['el']['table'] != 'pages') || $contentTreeArr['ds_is_found'] ? '
 			<tbody>
 				<tr>
 					' .
@@ -1069,11 +1075,17 @@ table.typo3-dyntabmenu td.disabled:hover {
 					'
 				</tr>
 			</tbody>
+			' : '') . (trim($localize) ? '
+			<tbody>
+				<tr style="' . $elementTitlebarStyle . ';">
+					<td>' . $localize . '</td>
+				</tr>
+			</tbody>
 			' : '') . '
 			</table>
 		';
 
-		if (!$contentTreeArr['ds_is_found'])
+		if (($contentTreeArr['el']['table'] == 'pages') && !$contentTreeArr['ds_is_found'])
 			$finalContent .= $this->msgThrow('note', $GLOBALS['LANG']->getLL('notemplate'), false);
 
 		return $finalContent;
@@ -1229,8 +1241,8 @@ table.typo3-dyntabmenu td.disabled:hover {
 							</table>';
 						$beTemplate = str_replace('###' . $fieldID . '###', $beTemplateCell, $beTemplate);
 					} else {
-						$collapseIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/ol/minusonly.gif', 'width="11" height="12"') . ' alt="" class="absmiddle" />';
-						$containerIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/i/tt_content.gif', 'width="11" height="12"') . ' title="Container for content elements" class="absmiddle" />';
+						$collapseIcon = $this->icoObj->icon_collapse();
+						$containerIcon = $this->icoObj->icon_container();
 
 						// Add cell content to registers:
 						$headerCells[] = '
@@ -1247,7 +1259,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 										<input type="checkbox" ' . ($fieldData['isJammed'] ? 'checked="checked" ' : '') . $this->cbox_jammswitch($groupElementPointer) . ' />
 									</label>
 									' : '') .
-									$this->icon_unlink($groupElementPointer) . '
+									$this->icoObj->icon_unlink($groupElementPointer) . '
 									' : '') . '
 								</div>
 							</th>';
@@ -1278,8 +1290,11 @@ table.typo3-dyntabmenu td.disabled:hover {
 			// removes not used markers
 			$output = preg_replace("/###field_.*?###/", '', $beTemplate);
 		} else {
-			// finalizes tables
-			$output .= $this->render_framework_singleSheet_flush($cells, $headerCells, $footerCells);
+			// finalizes tables'
+			$outbuf = $this->render_framework_singleSheet_flush($cells, $headerCells, $footerCells);
+
+			if ($outbuf != '')
+				$output .= '<div class="tv-grp">' . $outbuf . '</div>';
 		}
 
 		$recursion = $recursion - 1;
@@ -1373,7 +1388,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 			);
 
 			// "Browse", "New" and "Paste" icon:
-			$cellContent .= $this->icon_nbp($subElementPointer);
+			$cellContent .= $this->icoObj->icon_nbp($subElementPointer);
 
 			// -----------------------------------------------------------------------------
 			// Render the list of elements (and possibly call itself recursively if needed):
@@ -1400,7 +1415,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 						$cellFragment = $this->render_framework_allSheets($singleView, $subElementArr, $languageKey, $subElementPointer, $elementContentTreeArr['ds_meta']);
 
 						// "Browse", "New" and "Paste" icon:
-						$cellFragment .= $this->icon_nbp($subElementPointer);
+						$cellFragment .= $this->icoObj->icon_nbp($subElementPointer);
 
 						if ($this->canEditContent) {
 							/* id-strings must not contain double-colons because of the selectors-api */
@@ -1413,7 +1428,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 						$cellContent .= $cellFragment;
 					}
 					else {
-						// Modify the flexform pointer so it points to the position of the curren sub element:
+						// Modify the flexform pointer so it points to the position of the current sub element:
 						$subElementPointer['position'] = $position;
 
 						$cellFragment = '';
@@ -1507,16 +1522,60 @@ table.typo3-dyntabmenu td.disabled:hover {
 											// Consider multi-language fields
 											$vSec = ($containerFieldData['multilang'] ? 'vALL' : $vKey);
 
-											$cellContent .=
-												'<dt style="width: 25%; float: left; clear: left;">' .
-													'<strong>' . ($containerFieldData['title'] ? $containerFieldData['title'] : $containerFieldKey) . '</strong>' .
-												'</dt> ' .
-												'<dd style="margin-left: 25%;">'.
-												(trim($containerData[$vSec]) != ''
-												?	$this->link_edit(htmlspecialchars(t3lib_div::fixed_lgd_cs(strip_tags($containerData[$vSec]), 200)), $table, $uid) . ' &nbsp;'
-												:	(is_array($containerData['el']) ? '&hellip;' : '&mdash;')
-												).
-												'</dd>';
+											$containerFieldValue = $containerData[$vSec];
+
+											if (trim($containerFieldValue) != '') {
+												$TCEformsConfiguration = $containerFieldData['TCEforms']['config'];
+												$TCEformsLabel = $this->localizedFFLabel($containerFieldData['TCEforms']['label'], 1);	// title for non-section elements
+
+												if ($TCEformsConfiguration['type'] == 'group') {
+													if ($TCEformsConfiguration['internal_type'] == 'file') {
+														// Render preview for images:
+														$thumbnail = t3lib_BEfunc::thumbCode(array('dummyFieldName' => $containerFieldValue), '', 'dummyFieldName', $this->doc->backPath, '', $TCEformsConfiguration['uploadfolder']);
+														$cellContent .=
+															'<dt style="width: 25%; float: left; clear: left;">' .
+																'<strong>' . $TCEformsLabel . '</strong>' .
+															'<dt>' .
+															'<dd style="margin-left: 25%;">' .
+																$this->icoObj->link_edit('<span class="inlineEdit">' . $thumbnail . '</span>', $table, $uid, 'tx_templavoila_flex') .
+															'</dd>';
+													}
+												} else if ($TCEformsConfiguration['type'] != '') {
+													// Render for everything else:
+													$cellContent .=
+														'<dt style="width: 25%; float: left; clear: left;">' .
+															'<strong>' . $TCEformsLabel . '</strong>' .
+														'</dt>' .
+														'<dd style="margin-left: 25%;">' .
+															$this->icoObj->link_edit('<span class="inlineEdit">' . htmlspecialchars(t3lib_div::fixed_lgd_cs(strip_tags($containerFieldValue), 200)) . '</span>', $table, $uid, 'tx_templavoila_flex') .
+														'</dd>';
+												} else if ($fieldData['templavoila']['eType'] == 'TypoScriptObject') {
+													// Render for everything else:
+													$cellContent .=
+														'<dt style="width: 25%; float: left; clear: left;">' .
+															'<strong>' . $TCEformsLabel . '</strong>' .
+															' <em>[' . $containerFieldData['templavoila']['TypoScriptObjPath'] . ']</em>' .
+														'</dt>' .
+														'<dd style="margin-left: 25%;">' .
+															$containerFieldData['templavoila']['TypoScriptObjDesc'] .
+														'</dd>';
+												} else {
+													// Render for everything else:
+													$cellContent .=
+														'<dt style="width: 25%; float: left; clear: left;">' .
+															'<strong>' . $TCEformsLabel . '</strong>' .
+														'</dt>' .
+														'<dd style="margin-left: 25%;"></dd>';
+												}
+											} else {
+												$cellContent .=
+													'<dt style="width: 25%; float: left; clear: left;">' .
+														'<strong>' . ($containerFieldData['title'] ? $containerFieldData['title'] : $containerFieldKey) . '</strong>' .
+													'</dt> ' .
+													'<dd style="margin-left: 25%;">' .
+														(is_array($containerData['el']) ? '&hellip;' : '&mdash;') .
+													'</dd>';
+											}
 										}
 									}
 
@@ -1532,9 +1591,11 @@ table.typo3-dyntabmenu td.disabled:hover {
 							<br class="clear" />';
 					} else if (count($fieldData['subElements']['data']) > 0) {
 						foreach ($fieldData['subElements']['data'][$lKey] as $containerKey => $containerData) {
+							$cellPreview =
+								htmlspecialchars(t3lib_div::fixed_lgd_cs(strip_tags($containerData[$vGet]), 200));
 							$cellContent .=
 								'<strong>' . $containerKey . '</strong><br /> ' .
-								'<p>' . $this->link_edit($edit2 . '&nbsp;' . htmlspecialchars(t3lib_div::fixed_lgd_cs(strip_tags($containerData[$vGet]), 200)), $table, $uid) . '</p>';
+								'<p>' . $this->icoObj->link_edit($edit2 . '&nbsp;' . $cellPreview, $table, $uid, 'tx_templavoila_flex') . '</p>';
 						}
 					}
 				}
@@ -1550,13 +1611,15 @@ table.typo3-dyntabmenu td.disabled:hover {
 						$thumbnail = t3lib_BEfunc::thumbCode(array('dummyFieldName' => $fieldValue), '', 'dummyFieldName', $this->doc->backPath, '', $TCEformsConfiguration['uploadfolder']);
 						$cellContent .=
 							'<strong>' . $TCEformsLabel . '</strong><br /> '.
-							$this->link_edit('<span class="inlineEdit">' . $edit2 . '&nbsp;</span>', $table, $uid) . ' ' . $thumbnail . '<br />';
+							$this->icoObj->link_edit('<span class="inlineEdit">' . $edit2 . '&nbsp;</span>', $table, $uid, 'tx_templavoila_flex') . ' ' . $thumbnail .
+							'<br />';
 					}
-				} else if ($TCEformsConfiguration['type'] != '') {
+				} else if ($TCEformsConfiguration['type'] != '') { //$this->icoObj->icon_lang($contentTreeArr['el'], $languageUid);
 					// Render for everything else:
 					$cellContent .=
-						'<strong>' . $TCEformsLabel . '</strong><br /> ' .
-						$this->link_edit('<span class="inlineEdit">' . $edit2 . '&nbsp;</span>' . htmlspecialchars(t3lib_div::fixed_lgd_cs(strip_tags($fieldValue), 200)), $table, $uid) . '<br />';
+						'<strong>' . $TCEformsLabel . '</strong><br /> ' . // $vGet .
+						$this->icoObj->link_edit('<span class="inlineEdit">' . $edit2 . '&nbsp;</span>' . htmlspecialchars(t3lib_div::fixed_lgd_cs(strip_tags($fieldValue), 200)), $table, $uid, 'tx_templavoila_flex') .
+						'<br />';
 				} else if ($fieldData['templavoila']['eType'] == 'TypoScriptObject') {
 					// Render for everything else:
 					$cellContent .=
@@ -1565,7 +1628,8 @@ table.typo3-dyntabmenu td.disabled:hover {
 				} else {
 					// Render for everything else:
 					$cellContent .=
-						'<strong>' . $TCEformsLabel . '</strong><br />';
+						'<strong>' . $TCEformsLabel . '</strong>' .
+						'<br />';
 				}
 			}
 
@@ -1657,16 +1721,16 @@ table.typo3-dyntabmenu td.disabled:hover {
 				case 'text':		//	Text
 				case 'table':		//	Table
 				case 'mailform':	//	Form
-					$output = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'bodytext'), 1) . '</strong> <span class="bodytext">' . htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['bodytext'])), 2000)) . '</span>', 'tt_content', $row['uid']);
+					$output = $this->icoObj->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'bodytext'), 1) . '</strong> <span class="bodytext">' . htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['bodytext'])), 2000)) . '</span>', 'tt_content', $row['uid']);
 					break;
 				case 'image':		//	Image
-					$output = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'image'), 1) . '</strong><br /> ', 'tt_content', $row['uid']) . t3lib_BEfunc::thumbCode($row, 'tt_content', 'image', $this->doc->backPath);
+					$output = $this->icoObj->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'image'), 1) . '</strong><br /> ', 'tt_content', $row['uid']) . t3lib_BEfunc::thumbCode($row, 'tt_content', 'image', $this->doc->backPath);
 					break;
 				case 'textpic':		//	Text w/image
 				case 'splash':		//	Textbox
 					$thumbnail = '<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'image'), 1) . '</strong><br />';
 					$thumbnail .= t3lib_BEfunc::thumbCode($row, 'tt_content', 'image', $this->doc->backPath);
-					$text = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'bodytext'), 1) . '</strong> <span class="bodytext">' . htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['bodytext'])), 2000)) . '</span>', 'tt_content', $row['uid']);
+					$text = $this->icoObj->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'bodytext'), 1) . '</strong> <span class="bodytext">' . htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['bodytext'])), 2000)) . '</span>', 'tt_content', $row['uid']);
 					$output = '<table><tr><td valign="top">' . $text . '</td><td valign="top">' . $thumbnail . '</td></tr></table>';
 					break;
 				case 'bullets':		//	Bullets
@@ -1677,26 +1741,26 @@ table.typo3-dyntabmenu td.disabled:hover {
 							$htmlBullets .= htmlspecialchars(trim(strip_tags($listItem))) . '<br />';
 						}
 					}
-					$output = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'bodytext'), 1) . '</strong><br />' . $htmlBullets, 'tt_content', $row['uid']);
+					$output = $this->icoObj->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'bodytext'), 1) . '</strong><br />' . $htmlBullets, 'tt_content', $row['uid']);
 					break;
 				case 'uploads':		//	Filelinks
-					$output = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'media'), 1) . '</strong><br />' . str_replace(',', '<br />', htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['media'])), 2000))), 'tt_content', $row['uid']);
+					$output = $this->icoObj->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'media'), 1) . '</strong><br />' . str_replace(',', '<br />', htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['media'])), 2000))), 'tt_content', $row['uid']);
 					break;
 				case 'multimedia':	//	Multimedia
-					$output = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'multimedia'), 1) . '</strong><br />' . str_replace(',', '<br />', htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['multimedia'])), 2000))), 'tt_content', $row['uid']);
+					$output = $this->icoObj->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'multimedia'), 1) . '</strong><br />' . str_replace(',', '<br />', htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['multimedia'])), 2000))), 'tt_content', $row['uid']);
 					break;
 				case 'list':		//	Insert Plugin
 					$extraInfo = $this->render_previewContent_extraPluginInfo($row);
-					$output = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'list_type')) . '</strong> ' . htmlspecialchars($GLOBALS['LANG']->sL(t3lib_BEfunc::getLabelFromItemlist('tt_content', 'list_type', $row['list_type']))), 'tt_content', $row['uid']) . ($extraInfo ? '<br />' . $extraInfo : ' &mdash; ' . $row['list_type']);
+					$output = $this->icoObj->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'list_type')) . '</strong> ' . htmlspecialchars($GLOBALS['LANG']->sL(t3lib_BEfunc::getLabelFromItemlist('tt_content', 'list_type', $row['list_type']))), 'tt_content', $row['uid']) . ($extraInfo ? '<br />' . $extraInfo : ' &mdash; ' . $row['list_type']);
 					break;
 				case 'html':		//	HTML
-					$output = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'bodytext'), 1) . '</strong> <div style="overflow: hidden">' . htmlspecialchars(t3lib_div::fixed_lgd_cs(trim($row['bodytext']), 2000)), 'tt_content', $row['uid']) . '</div>';
+					$output = $this->icoObj->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'bodytext'), 1) . '</strong> <div style="overflow: hidden">' . htmlspecialchars(t3lib_div::fixed_lgd_cs(trim($row['bodytext']), 2000)), 'tt_content', $row['uid']) . '</div>';
 					break;
 				case 'header': 		//	Header
 					$output =
-					//	$this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'header'), 1) . '</strong> ' . htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['header'])), 2000)), 'tt_content', $row['uid']) .
+					//	$this->icoObj->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'header'), 1) . '</strong> ' . htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['header'])), 2000)), 'tt_content', $row['uid']) .
 					//	'<br />' .
-						$this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'subheader'), 1) . '</strong> ' . htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['subheader'])), 2000)), 'tt_content', $row['uid']);
+						$this->icoObj->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'subheader'), 1) . '</strong> ' . htmlspecialchars(t3lib_div::fixed_lgd_cs(trim(strip_tags($row['subheader'])), 2000)), 'tt_content', $row['uid']);
 					break;
 				case 'shortcut':	//	Insert records
 					break;
@@ -1714,13 +1778,13 @@ table.typo3-dyntabmenu td.disabled:hover {
 						foreach ($name as $n => $na) {
 							$na = t3lib_BEfunc::getRecordWSOL('pages', $n);
 							$name[$n] = t3lib_BEfunc::getRecordTitle('pages', $na, TRUE);
-							$name[$n] = $this->link_edit($name[$n], 'pages', $n);
+							$name[$n] = $this->icoObj->link_edit($name[$n], 'pages', $n);
 						}
 						$name = '<ul><li>' . implode('</li><li>', $name) . '</li></ul>';
 					}
 
-					$output = $this->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'menu_type')) . '</strong> ' .  $label . '<br />', 'tt_content', $row['uid']) .
-								   '<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'pages')) . '</strong><br />' . $name;
+					$output = $this->icoObj->link_edit('<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'menu_type')) . '</strong> ' .  $label . '<br />', 'tt_content', $row['uid']) .
+								           '<strong>' . $GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel('tt_content', 'pages')) . '</strong><br />' . $name;
 					break;
 				case 'login':		//	Login Box
 					$access = array_flip(explode(',', $row['fe_group']));
@@ -1839,19 +1903,16 @@ table.typo3-dyntabmenu td.disabled:hover {
 							);
 
 							// Put together the records icon including content sensitive menu link wrapped around it:
-							$recordIcon_l10n = t3lib_iconWorks::getIconImage('tt_content', $localizedRecordInfo['row'], $this->doc->backPath, 'class="absmiddle" title="' . htmlspecialchars('[tt_content:' . $localizedRecordInfo['uid'].']').'"');
-							if (!$this->translatorMode) {
-								$recordIcon_l10n = $this->doc->wrapClickMenuOnIcon($recordIcon_l10n, 'tt_content', $localizedRecordInfo['uid'], 1, '&amp;callingScriptId=' . rawurlencode($this->doc->scriptID), 'new,copy,cut,pasteinto,pasteafter');
-							}
+							$collapseIcon = $this->icoObj->icon_collapse();
 
 							$l10nInfo =
 								$this->getRecordStatHookValue('tt_content', $localizedRecordInfo['row']['uid']) .
-								$recordIcon_l10n .
+								$collapseIcon . $recordIcon_l10n .
 								htmlspecialchars(t3lib_div::fixed_lgd_cs(strip_tags(t3lib_BEfunc::getRecordTitle('tt_content', $localizedRecordInfo['row'])), 50));
 							$l10nInfo .=
 								'<br />' . $localizedRecordInfo['content'];
 
-							list($flagLink_begin, $flagLink_end) = explode('|*|', $this->link_edit('|*|', 'tt_content', $localizedRecordInfo['uid'], TRUE));
+							list($flagLink_begin, $flagLink_end) = explode('|*|', $this->icoObj->link_edit('|*|', 'tt_content', $localizedRecordInfo['uid'], '', TRUE));
 							if ($this->translatorMode) {
 								$l10nInfo.= '<br />' . $flagLink_begin . '<em>' . $GLOBALS['LANG']->getLL('clickToEditTranslation') . '</em>' . $flagLink_end;
 							}
@@ -1893,7 +1954,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 								$localizeIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/clip_copy.gif', 'width="12" height="12"') . ' class="bottom" title="' . $linkLabel . '" alt="" />';
 
 								$l10nInfo  =      '<a href="#" onclick="' . htmlspecialchars($onClick) . '" style="clear: right;">' . $localizeIcon . '</a>';
-								$l10nInfo .= ' <em><a href="#" onclick="' . htmlspecialchars($onClick) . '" style="clear: right;">'.$linkLabel . '</a></em>';
+								$l10nInfo .= ' <em><a href="#" onclick="' . htmlspecialchars($onClick) . '" style="clear: right;">' . $linkLabel . '</a></em>';
 								$flagLink_begin = '<a href="#" onclick="' . htmlspecialchars($onClick) . '" style="float: right; margin-top: 4px;">';
 								$flagLink_end  = '</a>';
 
@@ -1910,7 +1971,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 							// Here we want to show the "Localized FlexForm" information (and link to edit record) _only_ if there are other fields than group-fields for content elements: It only makes sense for a translator to deal with the record if that is the case.
 							// Change of strategy (27/11): Because there does not have to be content fields; could be in sections or arrays and if thats the case you still want to localize them! There has to be another way...
 						//	if (count($contentTreeArr['contentFields']['sDEF']))	{
-								list($flagLink_begin, $flagLink_end) = explode('|*|', $this->link_edit('|*|', 'tt_content', $contentTreeArr['el']['uid'], TRUE));
+								list($flagLink_begin, $flagLink_end) = explode('|*|', $this->icoObj->link_edit('|*|', 'tt_content', $contentTreeArr['el']['uid'], '', TRUE));
 								$l10nInfo = $flagLink_begin . '<em>[Click to translate FlexForm]</em>' . $flagLink_end;
 								$this->global_localization_status[$sys_language_uid][] = array(
 									'status' => 'flex',
@@ -1936,7 +1997,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 			}
 
 			$output = count($tRows)
-			?	'<h3>' . $GLOBALS['LANG']->getLL('element_localizations', 1) . ':</h3>' . implode('', $tRows)
+			?	'' . $GLOBALS['LANG']->getLL('element_localizations', 1) . ':</td></tr><tr><td>' . implode('', $tRows)
 			:	'';
 		}
 
@@ -2081,17 +2142,18 @@ table.typo3-dyntabmenu td.disabled:hover {
 		$elementIsAlsoUsedElsewhere = ($contentTreeArr['el']['table'] == 'tt_content') && ($ia = $this->checkReferenceCount($contentTreeArr['el']['uid'])) && (count($ia) > 1);
 
 		// Prepare the record icon including a context sensitive menu link wrapped around it:
-		$recordIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, $contentTreeArr['el']['icon'], 'width="18" height="16"') . ' border="0" title="' . htmlspecialchars('[' . $contentTreeArr['el']['table'] . ':' . $contentTreeArr['el']['uid'] . ']') . '" alt="" />';
-		$titleBarLeftButtons = $this->translatorMode ? $recordIcon : $this->doc->wrapClickMenuOnIcon($recordIcon,$contentTreeArr['el']['table'], $contentTreeArr['el']['uid'], 1, '&amp;callingScriptId=' . rawurlencode($this->doc->scriptID), 'new,copy,cut,pasteinto,pasteafter,delete');
+		$recordIcon = $this->icoObj->icon_record($contentTreeArr['el']);
+
+		$titleBarLeftButtons = $this->translatorMode ? $recordIcon : $this->doc->wrapClickMenuOnIcon($recordIcon, $contentTreeArr['el']['table'], $contentTreeArr['el']['uid'], 1, '&amp;callingScriptId=' . rawurlencode($this->doc->scriptID), 'new,copy,cut,pasteinto,pasteafter,delete');
 		$titleBarLeftButtons.= $this->getRecordStatHookValue($contentTreeArr['el']['table'], $contentTreeArr['el']['uid']);
 
 		// Prepare table specific settings:
 		switch ($contentTreeArr['el']['table']) {
 			case 'pages':
 				$titleBarLeftButtons .= $this->translatorMode ? '' :
-					$this->icon_edit($contentTreeArr['el']) .
-					$this->icon_hide($contentTreeArr['el']) .
-					$this->icon_view($contentTreeArr['el']);
+					$this->icoObj->icon_edit($contentTreeArr['el']) .
+					$this->icoObj->icon_hide($contentTreeArr['el']) .
+					$this->icoObj->icon_view($contentTreeArr['el']);
 				$titleBarRightButtons = '';
 
 				if ($singleView)
@@ -2105,13 +2167,13 @@ table.typo3-dyntabmenu td.disabled:hover {
 				if (!$this->translatorMode) {
 					// Create CE specific buttons:
 					$linkMakeLocal =
-						$this->icon_makeLocal($parentPointer, !$elementBelongsToCurrentPage);
+						$this->icoObj->icon_makeLocal($parentPointer, !$elementBelongsToCurrentPage);
 					$linkEdit = ($elementBelongsToCurrentPage ?
-						$this->icon_edit($contentTreeArr['el']) : '');
+						$this->icoObj->icon_edit($contentTreeArr['el']) : '');
 					$linkUnlink =
-						$this->icon_unlink($parentPointer) . ($elementBelongsToCurrentPage ?
-						$this->icon_hide($contentTreeArr['el'], $elementIsAlsoUsedElsewhere) .
-						$this->icon_delete($parentPointer, $elementIsAlsoUsedElsewhere) : '');
+						$this->icoObj->icon_unlink($parentPointer) . ($elementBelongsToCurrentPage ?
+						$this->icoObj->icon_hide($contentTreeArr['el'], $elementIsAlsoUsedElsewhere) .
+						$this->icoObj->icon_delete($parentPointer, $elementIsAlsoUsedElsewhere) : '');
 
 					$titleBarRightButtons =
 						$linkEdit .
@@ -2128,7 +2190,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 		}
 
 		// Prepare the language icon:
-		$languageIcon = $this->icon_lang($contentTreeArr['el'], $languageUid);
+		$languageIcon = $this->icoObj->icon_lang($contentTreeArr['el'], $languageUid);
 
 		// Create warning messages if neccessary:
 		$warnings = $this->render_warnings($contentTreeArr, true);
@@ -2205,7 +2267,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 							);
 
 							// "Browse", "New" and "Paste" icon:
-							$controls = $this->icon_nbp($subElementPointer);
+							$controls = $this->icoObj->icon_nbp($subElementPointer);
 
 							// Add entry for lKey level:
 							$specialPath =
@@ -2231,7 +2293,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 										$subElementPointer['position'] = $position;
 
 										// "Browse", "New" and "Paste" icon:
-										$controls = $this->icon_nbp($subElementPointer);
+										$controls = $this->icoObj->icon_nbp($subElementPointer);
 
 										$this->render_outline_element($singleView, $subElementArr, $entries, $indentLevel + 1, $subElementPointer, $controls);
 									}
@@ -2257,27 +2319,29 @@ table.typo3-dyntabmenu td.disabled:hover {
 	function render_outline_localizations($contentTreeArr, &$entries, $indentLevel) {
 		global $BE_USER;
 
-		if ($contentTreeArr['el']['table'] == 'tt_content' && $contentTreeArr['el']['sys_language_uid'] <= 0) {
+		if (($contentTreeArr['el']['table'] == 'tt_content') &&
+		    ($contentTreeArr['el']['sys_language_uid'] <= 0)) {
 
 			// Traverse the available languages of the page (not default and [All])
 			foreach($this->translatedLanguagesArr as $sys_language_uid => $sLInfo)	{
 				if ($sys_language_uid > 0 && $BE_USER->checkLanguageAccess($sys_language_uid)) {
 					switch((string)$contentTreeArr['localizationInfo'][$sys_language_uid]['mode']) {
 						case 'exists':
-
 							// Get localized record:
 							$olrow = t3lib_BEfunc::getRecordWSOL('tt_content', $contentTreeArr['localizationInfo'][$sys_language_uid]['localization_uid']);
 
 							// Put together the records icon including content sensitive menu link wrapped around it:
-							$recordIcon_l10n = $this->getRecordStatHookValue('tt_content', $olrow['uid']) .
+							$recordIcon_l10n =
+								$this->getRecordStatHookValue('tt_content', $olrow['uid']) .
 								t3lib_iconWorks::getIconImage('tt_content', $olrow,$this->doc->backPath, 'class="absmiddle" title="' . htmlspecialchars('[tt_content:' . $olrow['uid'] . ']') . '"');
-							if (!$this->translatorMode)	{
+
+							if (!$this->translatorMode) {
 								$recordIcon_l10n = $this->doc->wrapClickMenuOnIcon($recordIcon_l10n, 'tt_content', $olrow['uid'], 1, '&amp;callingScriptId=' . rawurlencode($this->doc->scriptID), 'new,copy,cut,pasteinto,pasteafter');
 							}
 
-							list($flagLink_begin, $flagLink_end) = explode('|*|', $this->link_edit('|*|', 'tt_content', $olrow['uid'], TRUE));
+							list($flagLink_begin, $flagLink_end) = explode('|*|', $this->icoObj->link_edit('|*|', 'tt_content', $olrow['uid'], '', TRUE));
 
-								// Create entry for this element:
+							// Create entry for this element:
 							$entries[] = array(
 								'indentLevel' => $indentLevel,
 								'icon' => $recordIcon_l10n,
@@ -2352,7 +2416,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 		}
 
 		if (($contentTreeArr['el']['table'] === 'tt_content') && ($ia = $this->checkReferenceCount($contentTreeArr['el']['uid'])) && (count($ia) > $this->global_tt_content_elementRegister[$contentTreeArr['el']['uid']])) {
-			$warnings .= '<div>' . $this->doc->icons(2) . ' <em>' . sprintf(htmlspecialchars($GLOBALS['LANG']->getLL('warning_elementusedelsewheretoo', '')), count($ia), $this->link_warn('<img src="gfx/magnifier.png" class="absmiddle" />', $contentTreeArr['el']['uid'], $ia)) . '</em></div>';
+			$warnings .= '<div>' . $this->doc->icons(2) . ' <em>' . sprintf(htmlspecialchars($GLOBALS['LANG']->getLL('warning_elementusedelsewheretoo', '')), count($ia), $this->icoObj->link_warn('<img src="gfx/magnifier.png" class="absmiddle" />', $contentTreeArr['el']['uid'], $ia)) . '</em></div>';
 		}
 
 		// Displaying warning for container content (in default sheet - a limitation) elements if localization is enabled:
@@ -2382,447 +2446,6 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 *******************************************/
 
 	/**
-	 * Returns the language-icon of a given element.
-	 *
-	 * @param	array		$el: The element configuration
-	 * @param	integer		$languageUid: The language identifier
-	 * @return	string		image of the flag of the language
-	 * @access protected
-	 */
-	function icon_lang($el, $languageUid) {
-		$languageLabel = htmlspecialchars ($this->allAvailableLanguages[$el['sys_language_uid']]['title']);
-		$languageIcon = $this->allAvailableLanguages[$languageUid]['flagIcon'] ? '<img src="' . $this->allAvailableLanguages[$languageUid]['flagIcon'] . '" title="' . $languageLabel . '" alt="' . $languageLabel . '" />' : ($languageLabel && $languageUid ? '[' . $languageLabel . ']' : '');
-
-		// If there was a language icon and the language was not default or [all] and if that langauge is accessible for the user, then wrap the flag with an edit link (to support the "Click the flag!" principle for translators)
-		if ($languageIcon && ($languageUid > 0) && $GLOBALS['BE_USER']->checkLanguageAccess($languageUid) && ($el['table'] === 'tt_content')) {
-			$languageIcon = $this->link_edit($languageIcon, 'tt_content', $el['uid'], TRUE);
-		}
-
-		return $languageIcon;
-	}
-
-	/**
-	 * Returns a block images showing and offering the operations to
-	 * insert new records (new, browse, paste)
-	 *
-	 * @param	array		$el: The element configuration
-	 * @return	string		classed span containing the anchors and images
-	 * @access protected
-	 */
-	function icon_nbp($el) {
-		$controls = '';
-
-		if ($this->canEditContent) {
-			// "Browse", "New" and "Paste" icon:
-			$controls .= '<span class="sortableControls">';
-			if (!$this->translatorMode && $this->canCreateNew) {
-				$controls .= $this->icon_new($el); }
-				$controls .= $this->icon_browse($el);
-			$controls .= '<span class="sortablePaste">' . $this->clipboardObj->element_getPasteButtons($el) . '</span>';
-			$controls .= '</span>';
-		}
-
-		return $controls;
-	}
-
-	/**
-	 * Returns an image in a HTML link for viewing
-	 *
-	 * @param	array		$el: The element configuration
-	 * @return	string		image inside a HTML anchor tag containing the label and the correct link
-	 * @access protected
-	 */
-	function icon_view($el) {
-		$viewPageIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/zoom.gif', 'width="12" height="12"') . ' title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:labels.showPage', 1) . '" alt="" />';
-
-		$label = $viewPageIcon;
-
-		return $this->link_view($label, $el['table'], $el['uid']);
-	}
-
-	/**
-	 * Returns an HTML link for viewing
-	 *
-	 * @param	string		$label: The label (or image)
-	 * @param	string		$table: The table, fx. 'tt_content'
-	 * @param	integer		$uid: The uid of the element to be hidden/unhidden
-	 * @return	string		HTML anchor tag containing the label and the correct link
-	 * @access protected
-	 */
-	function link_view($label, $table, $uid) {
-
-		$onClick = t3lib_BEfunc::viewOnClick($uid, $this->doc->backPath, t3lib_BEfunc::BEgetRootLine($uid),'','',($this->currentLanguageUid?'&L='.$this->currentLanguageUid:''));
-
-		return '<a href="#" onclick="' . htmlspecialchars($onClick) . '">' . $label . '</a>';
-	}
-
-	/**
-	 * Returns an image in a HTML link for hiding
-	 *
-	 * @param	array		$el: The element configuration
-	 * @return	string		image inside a HTML anchor tag containing the label and the correct link
-	 * @access protected
-	 */
-	function icon_hide($el, $isReferenced = FALSE) {
-		if (intval($this->modTSconfig['properties']['disableHideIcon']))
-			return '';
-
-		$hideIcon = ($el['table'] == 'pages'
-		?	'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/button_hide.gif',  '') . ' border="0" title="' . htmlspecialchars($GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:hidePage'  )) . '" alt="" />'
-		:	'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/button_hide.gif',  '') . ' border="0" title="' . htmlspecialchars($GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:hide'      )) . '" alt="" />');
-		$unhideIcon = ($el['table'] == 'pages'
-		?	'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/button_unhide.gif','') . ' border="0" title="' . htmlspecialchars($GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:unHidePage')) . '" alt="" />'
-		:	'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/button_unhide.gif','') . ' border="0" title="' . htmlspecialchars($GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:unHide'    )) . '" alt="" />');
-
-		if ($el['isHidden'])
-			$label = $unhideIcon;
-		else
-			$label = $hideIcon;
-
-		return $this->link_hide($label, $el['table'], $el['uid'], $el['isHidden'], $isReferenced);
-	}
-
-	/**
-	 * Returns an HTML link for hiding
-	 *
-	 * @param	string		$label: The label (or image)
-	 * @param	string		$table: The table, fx. 'tt_content'
-	 * @param	integer		$uid: The uid of the element to be hidden/unhidden
-	 * @param	integer		$hidden: The hidden state of the element
-	 * @param	boolean		$forced: By default the link is not shown if translatorMode is set, but with this boolean it can be forced anyway.
-	 * @return	string		HTML anchor tag containing the label and the correct link
-	 * @access protected
-	 */
-	function link_hide($label, $table, $uid, $hidden, $isReferenced = FALSE, $forced = FALSE) {
-		if ($label) {
-			if (($table == 'pages' && ($this->calcPerms &  2) ||
-			     $table != 'pages' && ($this->calcPerms & 16)) &&
-				(!$this->translatorMode || $forced))	{
-					if ($table == "pages" && $this->currentLanguageUid) {
-						$params = '&data[' . $table . '][' . $uid . '][hidden]=' . (1 - $hidden);
-
-					//	return '<a href="#" onclick="' . htmlspecialchars('return jumpToUrl(\'' . $GLOBALS['SOBE']->doc->issueCommand($params, -1) . '\');') . '">' . $label . '</a>';
-					} else {
-						$params = '&data[' . $table . '][' . $uid . '][hidden]=' . (1 - $hidden);
-
-						if ($isReferenced)
-							$link = '<a href="#" onclick="' . htmlspecialchars('if (confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('hideRecord' . ($isReferenced ? 'WithReferences' : '') . 'Msg')) . '))') . ' eval(this.getAttribute(\'rel\'));"';
-						else
-							$link = '<a href="#" onclick="eval(this.getAttribute(\'rel\'));"';
-
-						/* the commands are independent of the position,
-						 * so sortable doesn't need to update these and we
-						 * can safely use '#'
-						 */
-						if ($hidden)
-							$link .= ' rel="sortable_unhideRecord(this, \'' . $GLOBALS['SOBE']->doc->issueCommand($params, -1) . '\');">' . $label . '</a>';
-						else
-							$link .= ' rel="sortable_hideRecord  (this, \'' . $GLOBALS['SOBE']->doc->issueCommand($params, -1) . '\');">' . $label . '</a>';
-
-						return $link;
-					}
-				} else {
-					return $label;
-				}
-		}
-
-		return '';
-	}
-
-	/**
-	 * Returns an image in a HTML link for editing
-	 *
-	 * @param	array		$el: The element configuration
-	 * @return	string		image inside a HTML anchor tag containing the label and the correct link
-	 * @access protected
-	 */
-	function icon_edit($el) {
-
-		$editIcon = ($el['table'] == 'pages'
-		?	'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/edit2.gif', '') . ' border="0" title="' . htmlspecialchars($GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:editPage')) . '" alt="" />'
-		:	'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/edit2.gif', '') . ' border="0" title="' . htmlspecialchars($GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:edit'    )) . '" alt="" />');
-
-		$label = $editIcon;
-
-		return $this->link_edit($label, $el['table'], $el['uid']);
-	}
-
-	/**
-	 * Returns an HTML link for editing
-	 *
-	 * @param	string		$label: The label (or image)
-	 * @param	string		$table: The table, fx. 'tt_content'
-	 * @param	integer		$uid: The uid of the element to be edited
-	 * @param	boolean		$forced: By default the link is not shown if translatorMode is set, but with this boolean it can be forced anyway.
-	 * @return	string		HTML anchor tag containing the label and the correct link
-	 * @access protected
-	 */
-	function link_edit($label, $table, $uid, $forced = FALSE) {
-		if ($label) {
-			if (($table == 'pages' && ($this->calcPerms & 2) ||
-			     $table != 'pages' && ($this->calcPerms & 16)) &&
-			    (!$this->translatorMode || $forced)) {
-				if ($table == "pages" && $this->currentLanguageUid) {
-					return '<a href="' . $this->baseScript . $this->link_getParameters() . '&amp;editPageLanguageOverlay=' . $this->currentLanguageUid . '">' . $label . '</a>';
-				} else {
-					$onClick = t3lib_BEfunc::editOnClick('&edit[' . $table . '][' . $uid . ']=edit', $this->doc->backPath);
-					return '<a href="#" onclick="' . htmlspecialchars($onClick) . '">' . $label . '</a>';
-				}
-			} else {
-				return $label;
-			}
-		}
-
-		return '';
-	}
-
-	/**
-	 * Returns an image in a HTML link for browsing an existing record
-	 *
-	 * @param	array		$parentPointer: Flexform pointer defining the parent element of the new record
-	 * @return	string		image inside a HTML anchor tag containing the label and the correct link
-	 * @access protected
-	 */
-	function icon_browse($parentPointer) {
-
-		$browseIcon = '<img class="browse"' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/insert3.gif',     '') . ' border="0" title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:labels.browse_db') . '" alt="" />';
-		$insertIcon = '<img class="browse"' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/plusbullet2.gif', '') . ' border="0" title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:labels.browse_db') . '" alt="" />';
-
-		$p = $this->apiObj->flexform_getStringFromPointer($parentPointer);
-		$b = $GLOBALS['BE_USER']->getSessionData('lastPasteRecord');
-
-		if ($p == $b)
-			$label = $insertIcon;
-		else
-			$label = $browseIcon;
-
-		$parameters =
-			$this->link_getParameters() .
-		//	'&amp;CB[removeAll]=normal' .
-			'&amp;pasteRecord=ref' .
-			'&amp;source=' . rawurlencode('###') .
-			'&amp;destination=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer));
-		$browser =
-			'browserPos = this;' .
-			'setFormValueOpenBrowser(\'db\',\'browser[communication]|||tt_content\');' .
-			'return FALSE;';
-
-		return '<a href="#" ' . ($p == $b ? 'id="browserPos"' : '') . ' rel="' . $this->baseScript . $parameters . '#browserPos" onclick="' . $browser . '">' . $label . '</a>';
-	}
-
-	/**
-	 * Returns an image in a HTML link for creating a new record
-	 *
-	 * @param	array		$parentPointer: Flexform pointer defining the parent element of the new record
-	 * @return	string		image inside a HTML anchor tag containing the label and the correct link
-	 * @access protected
-	 */
-	function icon_new($parentPointer) {
-
-		$newIcon = '<img class="new"' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/new_el.gif', '') . ' border="0" title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:newRecordGeneral') . '" alt="" />';
-
-		return $this->link_new($newIcon, $parentPointer);
-	}
-
-	/**
-	 * Returns an HTML link for creating a new record
-	 *
-	 * @param	string		$label: The label (or image)
-	 * @param	array		$parentPointer: Flexform pointer defining the parent element of the new record
-	 * @return	string		HTML anchor tag containing the label and the correct link
-	 * @access protected
-	 */
-	function link_new($label, $parentPointer) {
-
-		$parameters =
-			$this->link_getParameters() .
-			'&amp;parentRecord=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '&amp;returnUrl=' . rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI'));
-
-		return '<a href="' . $this->wizScript . $parameters . '">' . $label . '</a>';
-	}
-
-	/**
-	 * Returns an image in a HTML link for unlinking a content element. Unlinking means that the record still
-	 * exists but is not connected to any other content element or page.
-	 *
-	 * @param	array		$unlinkPointer: Flexform pointer pointing to the element to be unlinked
-	 * @return	string		image inside a HTML anchor tag containing the label and the unlink-link
-	 * @access protected
-	 */
-	function icon_unlink($unlinkPointer) {
-		if (!$unlinkPointer['position'])
-			$unlinkIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'res/link_delete.png', '') . ' title="' . $GLOBALS['LANG']->getLL('unlinkRecordsAll') . '" border="0" alt="" />';
-		else
-			$unlinkIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'res/link_delete.png', '') . ' title="' . $GLOBALS['LANG']->getLL('unlinkRecord'    ) . '" border="0" alt="" />';
-
-		return $this->link_unlink($unlinkIcon, $unlinkPointer);
-	}
-
-	/**
-	 * Returns an HTML link for unlinking a content element. Unlinking means that the record still exists but
-	 * is not connected to any other content element or page.
-	 *
-	 * @param	string		$label: The label
-	 * @param	array		$unlinkPointer: Flexform pointer pointing to the element to be unlinked
-	 * @return	string		HTML anchor tag containing the label and the unlink-link
-	 * @access protected
-	 */
-	function link_unlink($label, $unlinkPointer) {
-		$unlinkPointerString = rawurlencode(tvID_to_jsID($this->apiObj->flexform_getStringFromPointer($unlinkPointer)));
-
-		if (!$unlinkPointer['position'])
-			return '<a href="javascript:' . htmlspecialchars('if (confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('unlinkRecordsAllMsg')) . '))') . ' sortable_unlinkRecordsAll(\'' . $unlinkPointerString . '\');" class="onoff">' . $label . '</a>';
-		else
-			return '<a href="javascript:' . htmlspecialchars('if (confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('unlinkRecordMsg'    )) . '))') . ' sortable_unlinkRecord    (\'' . $unlinkPointerString . '\');" class="onoff">' . $label . '</a>';
-	}
-
-	/**
-	 * Returns an image in a HTML link for deleting a content element.
-	 *
-	 * @param	array		$unlinkPointer: Flexform pointer pointing to the element to be unlinked
-	 * @return	string		image inside a HTML anchor tag containing the label and the unlink-link
-	 * @access protected
-	 */
-	function icon_delete($deletePointer, $isReferenced = FALSE) {
-		/* disabling turn on */
-		if ( intval($this->modTSconfig['properties']['disableDeleteIcon']))
-		/* exception to disabling pass-through */
-		if (!intval($this->modTSconfig['properties']['enableDeleteIconForLocalElements']) || $isReferenced)
-			return '';
-
-		if (!$deletePointer['position'] && !$deletePointer['uid'])
-			$deleteIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/garbage.gif', '') . ' title="' . $GLOBALS['LANG']->getLL('deleteRecordsAll') . '" border="0" alt="" />';
-		else
-			$deleteIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/garbage.gif', '') . ' title="' . $GLOBALS['LANG']->getLL('deleteRecord'    ) . '" border="0" alt="" />';
-
-		return $this->link_delete($deleteIcon, $deletePointer, $isReferenced);
-	}
-
-	/**
-	 * Returns an HTML link for deleting a content element.
-	 *
-	 * @param	string		$label: The label
-	 * @param	array		$unlinkPointer: Flexform pointer pointing to the element to be unlinked
-	 * @return	string		HTML anchor tag containing the label and the unlink-link
-	 * @access protected
-	 */
-	function link_delete($label, $deletePointer, $isReferenced = FALSE) {
-		$deletePointerString = rawurlencode(tvID_to_jsID($this->apiObj->flexform_getStringFromPointer($deletePointer)));
-
-		if (!$deletePointer['position'] && !$deletePointer['uid'])
-			return '<a href="javascript:' . htmlspecialchars('if (confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('deleteRecordsAllMsg'                                           )) . '))') . ' sortable_deleteRecordsAll(\'' . $deletePointerString . '\');">' . $label . '</a>';
-		else
-			return '<a href="javascript:' . htmlspecialchars('if (confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('deleteRecord' . ($isReferenced ? 'WithReferences' : '') . 'Msg')) . '))') . ' sortable_deleteRecord    (\'' . $deletePointerString . '\');">' . $label . '</a>';
-	}
-
-	/**
-	 * Returns an image in a HTML link for warn about a content element.
-	 *
-	 * @param	array		$unlinkPointer: Flexform pointer pointing to the element to be unlinked
-	 * @return	string		image inside a HTML anchor tag containing the label and the unlink-link
-	 * @access protected
-	 */
-	function icon_warn($uid, $infoData) {
-
-		$warningIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_warning2.gif', '') . 'class="absmiddle" title="' . htmlspecialchars('Ref: ' . count($infoData)) . '" border="0" alt="" />';
-
-		return $this->link_warn($warningIcon, $uid, $infoData);
-	}
-
-	/**
-	 * Returns an HTML link for warn about a content element.
-	 *
-	 * @param	string		$label: The label
-	 * @param	array		$unlinkPointer: Flexform pointer pointing to the element to be unlinked
-	 * @return	string		HTML anchor tag containing the label and the unlink-link
-	 * @access protected
-	 */
-	function link_warn($label, $uid, $infoData) {
-
-		return '<a href="#" onclick="' . htmlspecialchars('top.launchView(\'tt_content\', \'' . $uid . '\'); return FALSE;') . '" title="' . htmlspecialchars(t3lib_div::fixed_lgd_cs(implode(' / ', $infoData), 100)) . '">' . $label . '</a>';
-	}
-
-	/**
-	 * Returns an image in a HTML link for making a reference content element local to the page (copying it).
-	 *
-	 * @param	array		$makeLocalPointer: Flexform pointer pointing to the element which shall be copied
-	 * @param	string		$realDup: Indicated if the element isn't possibly allready from the current page
-	 * @return	string		image inside a HTML anchor tag containing the label and the unlink-link
-	 * @access protected
-	 */
-	function icon_makeLocal($makeLocalPointer, $realDup = 0) {
-
-		$dupIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'mod1/makelocalcopy.gif', '') . ' title="' . $GLOBALS['LANG']->getLL('makeLocal') . '" border="0" alt="" />';
-
-		if ($realDup)
-			return $this->link_makeLocal($dupIcon, $makeLocalPointer);
-		else
-			return '';
-	}
-
-	/**
-	 * Returns an HTML link for making a reference content element local to the page (copying it).
-	 *
-	 * @param	string		$label: The label
-	 * @param	array		$makeLocalPointer: Flexform pointer pointing to the element which shall be copied
-	 * @return	string		HTML anchor tag containing the label and the unlink-link
-	 * @access protected
-	 */
-	function link_makeLocal($label, $makeLocalPointer) {
-		$makeLocalString = $this->apiObj->flexform_getStringFromPointer($makeLocalPointer);
-
-		return '<a href="' . $this->baseScript . $this->link_getParameters() . '&amp;makeLocalRecord=' . rawurlencode($makeLocalString) . '#' . tvID_to_jsID($makeLocalString) . '" onclick="' . htmlspecialchars('return confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('makeLocalMsg')) . ');') . '">' . $label . '</a>';
-	}
-
-	/**
-	 * Returns an checkbox for jamming of inheritance of the given element
-	 *
-	 * @param	array		$parentPointer: Flexform pointer defining the element to be jammed
-	 * @return	string		HTML anchor tag containing the label and the correct link
-	 * @access protected
-	 */
-	function cbox_jamm($parentPointer) {
-		$parentPointer['vLang'] = '_JAMM';
-
-		return ' onclick="sortable_exec(\'' . $this->baseScript . $this->link_getParameters() . '&amp;ajaxJammField=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '\');"';
-//		return ' onclick="jumpToUrl(\'' . $this->baseScript . $this->link_getParameters() . '&amp;ajaxJammField=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '\');"';
-	}
-
-	/**
-	 * Returns an checkbox for unjamming of inheritance of the given element
-	 *
-	 * @param	array		$parentPointer: Flexform pointer defining the element to be unjammed
-	 * @return	string		HTML anchor tag containing the label and the correct link
-	 * @access protected
-	 */
-	function cbox_unjamm($parentPointer) {
-		$parentPointer['vLang'] = '_JAMM';
-
-		return ' onclick="sortable_exec(\'' . $this->baseScript . $this->link_getParameters() . '&amp;ajaxUnjammField=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '\');"';
-//		return ' onclick="jumpToUrl(\'' . $this->baseScript . $this->link_getParameters() . '&amp;ajaxUnjammField=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '\');"';
-	}
-
-	/**
-	 * Returns an checkbox for jamming/unjamming of inheritance of the given element
-	 *
-	 * @param	array		$parentPointer: Flexform pointer defining the element to be jammed/unjammed
-	 * @return	string		HTML anchor tag containing the label and the correct link
-	 * @access protected
-	 */
-	function cbox_jammswitch($parentPointer) {
-		$parentPointer['vLang'] = '_JAMM';
-
-		return ' onclick="
-			if (this.checked)
-				sortable_exec(\'' . $this->baseScript . $this->link_getParameters() . '&amp;ajaxJammField=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '\');
-			else
-				sortable_exec(\'' . $this->baseScript . $this->link_getParameters() . '&amp;ajaxUnjammField=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '\');
-			"';
-
-//		return 'onclick="jumpToUrl(\'' . $this->baseScript . $this->link_getParameters() . '&amp;ajaxJammField=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '\');"';
-	}
-
-	/**
 	 * Creates additional parameters which are used for linking to the current page while editing it
 	 *
 	 * @return	string		parameters
@@ -2836,10 +2459,6 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 		return $output;
 	}
-
-
-
-
 
 
 	/*******************************************
@@ -4096,11 +3715,9 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 
 		// Add icon with clickmenu, etc:
 		if ($pageRecord['uid'])	{	// If there IS a real page
-			$alttext = t3lib_BEfunc::getRecordIconAltText($pageRecord, 'pages');
-			$iconImg = t3lib_iconWorks::getIconImage('pages', $pageRecord, $this->backPath, 'class="absmiddle" title="' . htmlspecialchars($alttext) . '"');
-
 			// Make Icon:
-			$theIcon = $GLOBALS['SOBE']->doc->wrapClickMenuOnIcon($iconImg, 'pages', $pageRecord['uid']);
+			$pageIcon = $this->icoObj->icon_page($pageRecord);
+			$theIcon = $GLOBALS['SOBE']->doc->wrapClickMenuOnIcon($pageIcon, 'pages', $pageRecord['uid']);
 		// On root-level of page tree
 		} else {
 			// Make Icon
