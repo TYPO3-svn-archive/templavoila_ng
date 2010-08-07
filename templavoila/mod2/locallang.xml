@@ -92,6 +92,15 @@
 			<label index="center_details_notv">The element has no basic definitions!</label>
 			<label index="center_details_notce">The element has no TCE-form definitions!</label>
 			<label index="center_details_nochild">The element has no children!</label>
+			<label index="center_details_overlay">Language overlay mode</label>
+			<label index="center_details_overlay_">Default</label>
+			<label index="center_details_overlay_ifFalse">If evaluates to "false"</label>
+			<label index="center_details_overlay_ifBlank">If evaluates to ""</label>
+			<label index="center_details_overlay_never">Never</label>
+			<label index="center_details_overlay_removeBlank">Remove if evaluates to ""</label>
+			<label index="center_details_multilang">Multi-language field</label>
+			<label index="center_details_multilang_0">no</label>
+			<label index="center_details_multilang_1">yes</label>
 			<label index="center_details_preset">Preset used for the element</label>
 			<label index="center_details_preset_input">Plain input field</label>
 			<label index="center_details_preset_input_h">Header field</label>

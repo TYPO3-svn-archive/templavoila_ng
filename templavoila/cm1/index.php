@@ -3581,7 +3581,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 						<dd><input type="text" size="80" name="'.$formFieldName.'[TCEforms][defaultExtras]" value="' . htmlspecialchars($insertDataArray['TCEforms']['defaultExtras']) . '" /></dd>
 					</dl>';
 				}
-				else if ($insertDataArray['type'] != 'section') {
+				else /*if ($insertDataArray['type'] != 'section')*/ {
 					/* The process-related XML-structure of an tx_templavoila-entry is:
 					 *
 					 * <tx_templavoila>
@@ -4296,7 +4296,7 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 	 * @return	string		parameters
 	 * @access public
 	 */
-	function link_getParameters() {
+	function uri_getParameters() {
 		$array = $_GET; unset($array['M']);
 
 		return t3lib_div::implodeArrayForUrl('', $array, '', 1, 1);
@@ -4357,7 +4357,7 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 
 		/* general option-group */
 		{
-			$link = $this->baseScript . $this->link_getParameters() . '&mapElPath=' . $this->mapElPath . '&SET[displayTags]=###';
+			$link = $this->baseScript . $this->uri_getParameters() . '&mapElPath=' . $this->mapElPath . '&SET[displayTags]=###';
 
 			$entries[] = '<li class="mradio' . (!$this->MOD_SETTINGS['displayTags']      ? ' selected' : '') . '" name="displayTags"><a href="' . str_replace('###', '' , $link) . '"' . '>' . 'All tags'         . '</a></li>';
 			$entries[] = '<li class="mradio' . ( $this->MOD_SETTINGS['displayTags'] == 1 ? ' selected' : '') . '" name="displayTags"><a href="' . str_replace('###', '1', $link) . '"' . '>' . 'Block elements'   . '</a></li>';

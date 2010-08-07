@@ -81,7 +81,7 @@ class tx_templavoila_mod2_xml {
 	 * @param	[type]		$XMLtree: an array holding the T3DataStructure
 	 * @return	[type]		HTML showing an overview of the T3DataStructure
 	 */
-	function renderXMLdetails($XMLtree) {
+	function renderXMLdetails(&$XMLmeta, &$XMLtree) {
 		$HTML = '';
 
 		if (is_array($XMLtree) && (count($XMLtree) > 0)) {
@@ -155,7 +155,7 @@ class tx_templavoila_mod2_xml {
 					 * 	<tx_templavoila>	-> entries with informational character belonging to this entry
 					 * 	<TCEforms>		-> entries being used for TCE-construction
 					 * 	<type + el + section>	-> subsequent hierarchical construction
-					 *	<langOverlayMode>	-> ??? (is it the language-key?)
+					 *	<langOverlayMode>	->
 					 * </element>
 					 */
 					if (($tv = $def['tx_templavoila'])) {
@@ -164,6 +164,8 @@ class tx_templavoila_mod2_xml {
 						 * <tx_templavoila>
 						 * 	<title>			-> Human readable title of the element
 						 * 	<description>		-> A description explaining the elements function
+						 * 	<langOverlayMode>	->
+						 * 	<multilang>		->
 						 * 	<sample_data>		-> Some sample-data (can't contain HTML)
 						 * 	<eType>			-> The preset-type of the element, used to switch use/content of TCEforms/TypoScriptObjPath
 						 * 	<oldStyleColumnNumber>	-> for distributing the fields across the tt_content column-positions
@@ -180,6 +182,15 @@ class tx_templavoila_mod2_xml {
 
 						if (isset($tv['description']) && ($tv['description'] != ''))
 							$HTML .= '<p>"' . $tv['description'] . '"</p>';
+
+						if (!$XMLmeta['langDisable']) {
+							$HTML .= '<dl class="DS-infos">';
+							$HTML .= '<dt>' . $GLOBALS['LANG']->getLL('center_details_overlay') . ':</dt>';
+							$HTML .= '<dd>' . $GLOBALS['LANG']->getLL('center_details_overlay_' . $tv['langOverlayMode']) . '</dd>';
+							$HTML .= '<dt>' . $GLOBALS['LANG']->getLL('center_details_multilang') . ':</dt>';
+							$HTML .= '<dd>' . $GLOBALS['LANG']->getLL('center_details_multilang_' . ($tv['multilang'] ? '0' : '1')) . '</dd>';
+							$HTML .= '</dl>';
+						}
 
 						/* it would also be possible to use the 'list-style-image'-property
 						 * for the flags, which would be more sensible to IE-bugs though
@@ -216,7 +227,7 @@ class tx_templavoila_mod2_xml {
 							case "imagefixed":
 							case "imagelist":
 							case "select":
-								$preset = sprintf($GLOBALS['LANG']->getLL('center_details_preset_' + $tv['eType']), $tv['eType']);
+								$preset = sprintf($GLOBALS['LANG']->getLL('center_details_preset_' . $tv['eType']), $tv['eType']);
 								$tco = false;
 								break;
 							case "ce":
@@ -224,7 +235,7 @@ class tx_templavoila_mod2_xml {
 
 							case "none":
 							default:
-								$preset = sprintf($GLOBALS['LANG']->getLL('center_details_preset_' + $tv['eType']), $tv['eType']);
+								$preset = sprintf($GLOBALS['LANG']->getLL('center_details_preset_' . $tv['eType']), $tv['eType']);
 								$tco = true;
 								break;
 						}
@@ -289,7 +300,7 @@ class tx_templavoila_mod2_xml {
 					if (isset($def['section']))
 						;
 					if (isset($def['el']))
-						$HTML .= $this->renderXMLdetails($def['el']);
+						$HTML .= $this->renderXMLdetails($XMLmeta, $def['el']);
 				}
 
 				$HTML .= '</dd>';
@@ -349,7 +360,7 @@ class tx_templavoila_mod2_xml {
 		$layoutMode = $GLOBALS['LANG']->getLL('center_layout_auto');
 		$sheetMode = $GLOBALS['LANG']->getLL('center_sheet_auto');
 
-		if (is_array($XMLcontent['meta'])) {
+		if (is_array($XMLmeta = $XMLcontent['meta'])) {
 			if ($XMLcontent['meta']['langDisable']) {
 				$languageMode = $GLOBALS['LANG']->getLL('disabled');
 			} elseif ($XMLcontent['meta']['langChildren']) {
@@ -364,10 +375,11 @@ class tx_templavoila_mod2_xml {
 
 			if (trim($XMLcontent['meta']['beLayout'])) {
 				$layoutMode = $GLOBALS['LANG']->getLL('center_layout_becode');
-			}
-			else if (trim($XMLcontent['meta']['beLayoutFile'])) {
+			} else if (trim($XMLcontent['meta']['beLayoutFile'])) {
 				$layoutMode = sprintf($GLOBALS['LANG']->getLL('center_layout_befile'), renderFile_link($XMLcontent['meta']['beLayoutFile']));
 			}
+		} else {
+			$XMLmeta = array();
 		}
 
 		if ($referenceFields) {
@@ -390,7 +402,7 @@ class tx_templavoila_mod2_xml {
 		return array(/*t3lib_div::view_array($XMLcontent).'Language Mode => "'.$languageMode.'"<hr/>
 						Root Elements = ' . $rootElements . ', hereof ref/input fields = '.($referenceFields.'/'.$inputFields).'<hr/>
 						'.$rootElementsHTML*/
-			'HTML'   => $this->renderXMLdetails($XMLcontent),
+			'HTML'   => $this->renderXMLdetails($XMLmeta, $XMLcontent),
 			'status' => $containerMode,
 			'stats'  => array(
 				'rootElements'    => $rootElements,

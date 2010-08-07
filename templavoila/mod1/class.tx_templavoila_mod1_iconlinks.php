@@ -119,7 +119,7 @@ class tx_templavoila_mod1_iconlinks {
 	 */
 	function link_new($label, $parentPointer) {
 		$parameters =
-			$this->pObj->link_getParameters() .
+			$this->pObj->uri_getParameters() .
 			'&amp;parentRecord=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '&amp;returnUrl=' . rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI'));
 
 		return '<a href="' . $this->pObj->wizScript . $parameters . '">' . $label . '</a>';
@@ -207,7 +207,7 @@ class tx_templavoila_mod1_iconlinks {
 			     $table != 'pages' && ($this->pObj->calcPerms & 16)) &&
 			    (!$this->pObj->translatorMode || $forced)) {
 				if ($table == "pages" && $this->pObj->currentLanguageUid) {
-					return '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;editPageLanguageOverlay=' . $this->pObj->currentLanguageUid . '">' . $label . '</a>';
+					return '<a href="' . $this->pObj->baseScript . $this->pObj->uri_getParameters() . '&amp;editPageLanguageOverlay=' . $this->pObj->currentLanguageUid . '">' . $label . '</a>';
 				} else {
 					$which = '&edit[' . $table . '][' . $uid . ']=edit';
 					if ($columns)
@@ -235,7 +235,7 @@ class tx_templavoila_mod1_iconlinks {
 	function link_makeLocal($label, $makeLocalPointer) {
 		$makeLocalString = $this->apiObj->flexform_getStringFromPointer($makeLocalPointer);
 
-		return '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;makeLocalRecord=' . rawurlencode($makeLocalString) . '#' . tvID_to_jsID($makeLocalString) . '" onclick="' . htmlspecialchars('return confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('makeLocalMsg')) . ');') . '">' . $label . '</a>';
+		return '<a href="' . $this->pObj->baseScript . $this->pObj->uri_getParameters() . '&amp;makeLocalRecord=' . rawurlencode($makeLocalString) . '#' . tvID_to_jsID($makeLocalString) . '" onclick="' . htmlspecialchars('return confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('makeLocalMsg')) . ');') . '">' . $label . '</a>';
 	}
 
 	/**
@@ -372,7 +372,7 @@ class tx_templavoila_mod1_iconlinks {
 			$label = $browseIcon;
 
 		$parameters =
-			$this->pObj->link_getParameters() .
+			$this->pObj->uri_getParameters() .
 		//	'&amp;CB[removeAll]=normal' .
 			'&amp;pasteRecord=ref' .
 			'&amp;source=' . rawurlencode('###') .
@@ -544,8 +544,8 @@ class tx_templavoila_mod1_iconlinks {
 	function cbox_jamm($parentPointer) {
 		$parentPointer['vLang'] = '_JAMM';
 
-		return ' onclick="sortable_exec(\'' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;ajaxJammField=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '\');"';
-//		return ' onclick="jumpToUrl(\'' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;ajaxJammField=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '\');"';
+		return ' onclick="sortable_exec(\'' . $this->pObj->baseScript . $this->pObj->uri_getParameters() . '&amp;ajaxJammField=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '\');"';
+//		return ' onclick="jumpToUrl(\'' . $this->pObj->baseScript . $this->pObj->uri_getParameters() . '&amp;ajaxJammField=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '\');"';
 	}
 
 	/**
@@ -558,8 +558,8 @@ class tx_templavoila_mod1_iconlinks {
 	function cbox_unjamm($parentPointer) {
 		$parentPointer['vLang'] = '_JAMM';
 
-		return ' onclick="sortable_exec(\'' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;ajaxUnjammField=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '\');"';
-//		return ' onclick="jumpToUrl(\'' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;ajaxUnjammField=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '\');"';
+		return ' onclick="sortable_exec(\'' . $this->pObj->baseScript . $this->pObj->uri_getParameters() . '&amp;ajaxUnjammField=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '\');"';
+//		return ' onclick="jumpToUrl(\'' . $this->pObj->baseScript . $this->pObj->uri_getParameters() . '&amp;ajaxUnjammField=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '\');"';
 	}
 
 	/**
@@ -574,12 +574,12 @@ class tx_templavoila_mod1_iconlinks {
 
 		return ' onclick="
 			if (this.checked)
-				sortable_exec(\'' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;ajaxJammField=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '\');
+				sortable_exec(\'' . $this->pObj->baseScript . $this->pObj->uri_getParameters() . '&amp;ajaxJammField=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '\');
 			else
-				sortable_exec(\'' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;ajaxUnjammField=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '\');
+				sortable_exec(\'' . $this->pObj->baseScript . $this->pObj->uri_getParameters() . '&amp;ajaxUnjammField=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '\');
 			"';
 
-//		return 'onclick="jumpToUrl(\'' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;ajaxJammField=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '\');"';
+//		return 'onclick="jumpToUrl(\'' . $this->pObj->baseScript . $this->pObj->uri_getParameters() . '&amp;ajaxJammField=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($parentPointer)) . '\');"';
 	}
 
 

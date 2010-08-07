@@ -529,7 +529,7 @@ class tx_templavoila_cm1_presets {
 			else {
 				unset($elArray[$key]['tx_templavoila']['TypoScript_constants']);
 				unset($elArray[$key]['tx_templavoila']['TypoScript']);
-				unset($elArray[$key]['tx_templavoila']['proc']);
+			/*	unset($elArray[$key]['tx_templavoila']['proc']);	*/
 				unset($elArray[$key]['TCEforms']);
 			}
 

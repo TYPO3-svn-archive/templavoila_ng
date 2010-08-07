@@ -56,7 +56,10 @@ class tx_templavoila_mod1_clipboard {
 
 	// References to the page module object
 	var $pObj;			// A pointer to the parent object, that is the templavoila page module script. Set by calling the method init() of this class.
+
 	var $doc;			// A reference to the doc object of the parent object.
+	var $apiObj;			// Instance of tx_templavoila_api
+	var $icoObj;			// Instance of iconlinks class
 
 	/**
 	 * Initializes the clipboard object. The calling class must make sure that the right locallang files are already loaded.
@@ -74,31 +77,33 @@ class tx_templavoila_mod1_clipboard {
 
 		// Make local reference to some important variables:
 		$this->pObj =& $pObj;
-		$this->doc =& $this->pObj->doc;
 		$this->extKey =& $this->pObj->extKey;
-		$this->MOD_SETTINGS =& $this->pObj->MOD_SETTINGS;
+
+		$this->doc =& $this->pObj->doc;
+		$this->apiObj =& $this->pObj->apiObj;
+		$this->icoObj =& $this->pObj->icoObj;
 
 		// Initialize the t3lib clipboard:
-		$this->t3libClipboardObj = t3lib_div::makeInstance('t3lib_clipboard');
-		$this->t3libClipboardObj->backPath = $BACK_PATH;
-		$this->t3libClipboardObj->initializeClipboard();
-		$this->t3libClipboardObj->lockToNormal();
+		$this->cbObj = t3lib_div::makeInstance('t3lib_clipboard');
+		$this->cbObj->backPath = $BACK_PATH;
+		$this->cbObj->initializeClipboard();
+		$this->cbObj->lockToNormal();
 
 		// Clipboard actions are handled:
 		$CB = t3lib_div::_GP('CB');			// CB is the clipboard command array
-		$this->t3libClipboardObj->setCmd($CB);		// Execute commands.
+		$this->cbObj->setCmd($CB);		// Execute commands.
 
 		if (isset($CB['setFlexMode'])) {
 			switch ($CB['setFlexMode']) {
-				case 'copy':    $this->t3libClipboardObj->clipData['normal']['flexMode'] = 'copy'; break;
-				case 'cut':     $this->t3libClipboardObj->clipData['normal']['flexMode'] = 'cut'; break;
-				case 'ref':     $this->t3libClipboardObj->clipData['normal']['flexMode'] = 'ref'; break;
-				default: unset ($this->t3libClipboardObj->clipData['normal']['flexMode']); break;
+				case 'copy':    $this->cbObj->clipData['normal']['flexMode'] = 'copy'; break;
+				case 'cut':     $this->cbObj->clipData['normal']['flexMode'] = 'cut'; break;
+				case 'ref':     $this->cbObj->clipData['normal']['flexMode'] = 'ref'; break;
+				default: unset ($this->cbObj->clipData['normal']['flexMode']); break;
 			}
 		}
 
-		$this->t3libClipboardObj->cleanCurrent();	// Clean up pad
-		$this->t3libClipboardObj->endClipboard();	// Save the clipboard content
+		$this->cbObj->cleanCurrent();	// Clean up pad
+		$this->cbObj->endClipboard();	// Save the clipboard content
 
 		// Add a list of non-used elements to the sidebar:
 		$this->pObj->sideBarObj->addItem('nonUsedElements', $this, 'sidebar_renderNonUsedElements', $GLOBALS['LANG']->getLL('nonusedelements'), 30);
@@ -117,14 +122,14 @@ class tx_templavoila_mod1_clipboard {
 		global $LANG;
 
 		$clipActive_copy = $clipActive_cut = $clipActive_ref = FALSE;
-		if (!$elementPointer = $this->pObj->apiObj->flexform_getValidPointer($elementPointer)) return '';
-		$elementRecord = $this->pObj->apiObj->flexform_getRecordByPointer($elementPointer);
+		if (!$elementPointer = $this->apiObj->flexform_getValidPointer($elementPointer)) return '';
+		$elementRecord = $this->apiObj->flexform_getRecordByPointer($elementPointer);
 
 		// Fetch the element from the "normal" clipboard (if any) and set the button states accordingly:
-		if (is_array($this->t3libClipboardObj->clipData['normal']['el'])) {
-		       reset($this->t3libClipboardObj->clipData['normal']['el']);
-			list ($clipboardElementTableAndUid, $clipboardElementPointerString) = each($this->t3libClipboardObj->clipData['normal']['el']);
-			$clipboardElementPointer = $this->pObj->apiObj->flexform_getValidPointer($clipboardElementPointerString);
+		if (is_array($this->cbObj->clipData['normal']['el'])) {
+		       reset($this->cbObj->clipData['normal']['el']);
+			list ($clipboardElementTableAndUid, $clipboardElementPointerString) = each($this->cbObj->clipData['normal']['el']);
+			$clipboardElementPointer = $this->apiObj->flexform_getValidPointer($clipboardElementPointerString);
 
 			// If we have no flexform reference pointing to the element, we create a short flexform pointer pointing to the record directly:
 			if (!is_array($clipboardElementPointer)) {
@@ -145,7 +150,7 @@ class tx_templavoila_mod1_clipboard {
 
 			// Set whether the current element is selected for copy/cut/reference or not:
 			if ($pointToTheSameRecord) {
-				$selectMode = isset ($this->t3libClipboardObj->clipData['normal']['flexMode']) ? $this->t3libClipboardObj->clipData['normal']['flexMode'] : ($this->t3libClipboardObj->clipData['normal']['mode'] == 'copy' ? 'copy' : 'cut');
+				$selectMode = isset ($this->cbObj->clipData['normal']['flexMode']) ? $this->cbObj->clipData['normal']['flexMode'] : ($this->cbObj->clipData['normal']['mode'] == 'copy' ? 'copy' : 'cut');
 
 				$clipActive_copy = ($selectMode == 'copy');
 				$clipActive_cut  = ($selectMode == 'cut');
@@ -153,18 +158,18 @@ class tx_templavoila_mod1_clipboard {
 			}
 		}
 
-		$copyIcon = '<img' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/clip_copy' . ($clipActive_copy ? '_h' : '') . '.gif', '') . ' title="' . $LANG->getLL('copyrecord') . '" border="0" alt="" />';
-		$cutIcon  = '<img' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/clip_cut' . ($clipActive_cut ? '_h' : '') . '.gif', '') . ' title="' . $LANG->getLL('cutrecord') . '" border="0" alt="" />';
-		$refIcon  = '<img' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'mod1/clip_ref' . ($clipActive_ref ? '_h' : '') . '.gif', '') . ' title="' . $LANG->getLL('createreference') . '" border="0" alt="" />';
+		$copyIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/clip_copy' . ($clipActive_copy ? '_h' : '') . '.gif', '') . ' title="' . $LANG->getLL('copyrecord') . '" border="0" alt="" />';
+		$cutIcon  = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/clip_cut' . ($clipActive_cut ? '_h' : '') . '.gif', '') . ' title="' . $LANG->getLL('cutrecord') . '" border="0" alt="" />';
+		$refIcon  = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'mod1/clip_ref' . ($clipActive_ref ? '_h' : '') . '.gif', '') . ' title="' . $LANG->getLL('createreference') . '" border="0" alt="" />';
 
 		$removeElement = '&amp;CB[removeAll]=normal';
-		$setElement    = '&amp;CB[el][' . rawurlencode('tt_content|' . $elementRecord['uid']) . ']=' . rawurlencode($this->pObj->apiObj->flexform_getStringFromPointer($elementPointer));
+		$setElement    = '&amp;CB[el][' . rawurlencode('tt_content|' . $elementRecord['uid']) . ']=' . rawurlencode($this->apiObj->flexform_getStringFromPointer($elementPointer));
 		$setElementRef = '&amp;CB[el][' . rawurlencode('tt_content|' . $elementRecord['uid']) . ']=1';
-		$setElementID  = tvID_to_jsID($this->pObj->apiObj->flexform_getStringFromPointer($elementPointer));
+		$setElementID  = tvID_to_jsID($this->apiObj->flexform_getStringFromPointer($elementPointer));
 
-		$linkCopy = '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;CB[setCopyMode]=1&amp;CB[setFlexMode]=copy' . ($clipActive_copy ? $removeElement : $setElement   ) . '#' . $setElementID . '">' . $copyIcon . '</a>';
-		$linkCut  = '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;CB[setCopyMode]=0&amp;CB[setFlexMode]=cut'  . ($clipActive_cut  ? $removeElement : $setElement   ) . '#' . $setElementID . '">' . $cutIcon  . '</a>';
-		$linkRef  = '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;CB[setCopyMode]=1&amp;CB[setFlexMode]=ref'  . ($clipActive_ref  ? $removeElement : $setElementRef) . '#' . $setElementID . '">' . $refIcon  . '</a>';
+		$linkCopy = '<a href="' . $this->pObj->baseScript . $this->pObj->uri_getParameters() . '&amp;CB[setCopyMode]=1&amp;CB[setFlexMode]=copy' . ($clipActive_copy ? $removeElement : $setElement   ) . '#' . $setElementID . '">' . $copyIcon . '</a>';
+		$linkCut  = '<a href="' . $this->pObj->baseScript . $this->pObj->uri_getParameters() . '&amp;CB[setCopyMode]=0&amp;CB[setFlexMode]=cut'  . ($clipActive_cut  ? $removeElement : $setElement   ) . '#' . $setElementID . '">' . $cutIcon  . '</a>';
+		$linkRef  = '<a href="' . $this->pObj->baseScript . $this->pObj->uri_getParameters() . '&amp;CB[setCopyMode]=1&amp;CB[setFlexMode]=ref'  . ($clipActive_ref  ? $removeElement : $setElementRef) . '#' . $setElementID . '">' . $refIcon  . '</a>';
 
 		$output =
 			(t3lib_div::inList($listOfButtons, 'copy') ? $linkCopy : '').
@@ -186,12 +191,12 @@ class tx_templavoila_mod1_clipboard {
 		global $LANG, $BE_USER;
 
 		$origDestinationPointer = $destinationPointer;
-		if (!$destinationPointer = $this->pObj->apiObj->flexform_getValidPointer($destinationPointer)) return '';
-		if (!is_array ($this->t3libClipboardObj->clipData['normal']['el'])) return '';
+		if (!$destinationPointer = $this->apiObj->flexform_getValidPointer($destinationPointer)) return '';
+		if (!is_array ($this->cbObj->clipData['normal']['el'])) return '';
 
-		reset($this->t3libClipboardObj->clipData['normal']['el']);
-		list ($clipboardElementTableAndUid, $clipboardElementPointerString) = each($this->t3libClipboardObj->clipData['normal']['el']);
-		$clipboardElementPointer = $this->pObj->apiObj->flexform_getValidPointer($clipboardElementPointerString);
+		reset($this->cbObj->clipData['normal']['el']);
+		list ($clipboardElementTableAndUid, $clipboardElementPointerString) = each($this->cbObj->clipData['normal']['el']);
+		$clipboardElementPointer = $this->apiObj->flexform_getValidPointer($clipboardElementPointerString);
 
 		// If we have no flexform reference pointing to the element, we create a short flexform pointer pointing to the record directly:
 		list ($clipboardElementTable, $clipboardElementUid) = explode('|', $clipboardElementTableAndUid);
@@ -205,10 +210,10 @@ class tx_templavoila_mod1_clipboard {
 		}
 
 		// If the destination element is already a sub element of the clipboard element, we mustn't show any paste icon:
-		$destinationRecord = $this->pObj->apiObj->flexform_getRecordByPointer($destinationPointer);
-		$clipboardElementRecord = $this->pObj->apiObj->flexform_getRecordByPointer($clipboardElementPointer);
+		$destinationRecord = $this->apiObj->flexform_getRecordByPointer($destinationPointer);
+		$clipboardElementRecord = $this->apiObj->flexform_getRecordByPointer($clipboardElementPointer);
 		$dummyArr = array();
-		$clipboardSubElementUidsArr = $this->pObj->apiObj->flexform_getListOfSubElementUidsRecursively('tt_content', $clipboardElementRecord['uid'], $dummyArr);
+		$clipboardSubElementUidsArr = $this->apiObj->flexform_getListOfSubElementUidsRecursively('tt_content', $clipboardElementRecord['uid'], $dummyArr);
 		$clipboardElementHasSubElements = count($clipboardSubElementUidsArr) > 0;
 
 		if ($clipboardElementHasSubElements) {
@@ -221,19 +226,19 @@ class tx_templavoila_mod1_clipboard {
 		}
 
 		// Prepare the ingredients for the different buttons:
-		$pasteMode       = isset ($this->t3libClipboardObj->clipData['normal']['flexMode']) ? $this->t3libClipboardObj->clipData['normal']['flexMode'] : ($this->t3libClipboardObj->clipData['normal']['mode'] == 'copy' ? 'copy' : 'cut');
-		$pasteAfterIcon  = '<img class="paste"' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/clip_pasteafter.gif', '') . ' border="0" title="' . $LANG->getLL('pasterecord') . '" alt="" />';
+		$pasteMode       = isset ($this->cbObj->clipData['normal']['flexMode']) ? $this->cbObj->clipData['normal']['flexMode'] : ($this->cbObj->clipData['normal']['mode'] == 'copy' ? 'copy' : 'cut');
+		$pasteAfterIcon  = '<img class="paste"' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/clip_pasteafter.gif', '') . ' border="0" title="' . $LANG->getLL('pasterecord') . '" alt="" />';
 		$pasteSubRefIcon = '<img class="paste"' . t3lib_iconWorks::skinImg('clip_pastesubref.gif', '') . ' border="0" title="' . $LANG->getLL('pastefce_andreferencesubs') . '" alt="" />';
 
-		$sourcePointerString      = $this->pObj->apiObj->flexform_getStringFromPointer($clipboardElementPointer);
-		$destinationPointerString = $this->pObj->apiObj->flexform_getStringFromPointer($destinationPointer);
+		$sourcePointerString      = $this->apiObj->flexform_getStringFromPointer($clipboardElementPointer);
+		$destinationPointerString = $this->apiObj->flexform_getStringFromPointer($destinationPointer);
 
 		// FCEs with sub elements have two different paste icons, normal elements only one:
 		if ($pasteMode == 'copy' && $clipboardElementHasSubElements) {
-			$output  = '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;CB[removeAll]=normal&amp;pasteRecord=copy&amp;source=' . rawurlencode($sourcePointerString) . '&amp;destination=' . rawurlencode($destinationPointerString) . '#' . tvID_to_jsID($destinationPointerString) . '">' . $pasteAfterIcon . '</a>';
-			$output .= '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;CB[removeAll]=normal&amp;pasteRecord=copyref&amp;source=' . rawurlencode($sourcePointerString) . '&amp;destination=' . rawurlencode($destinationPointerString) . '#' . tvID_to_jsID($destinationPointerString) . '">' . $pasteSubRefIcon.'</a>';
+			$output  = '<a href="' . $this->pObj->baseScript . $this->pObj->uri_getParameters() . '&amp;CB[removeAll]=normal&amp;pasteRecord=copy&amp;source=' . rawurlencode($sourcePointerString) . '&amp;destination=' . rawurlencode($destinationPointerString) . '#' . tvID_to_jsID($destinationPointerString) . '">' . $pasteAfterIcon . '</a>';
+			$output .= '<a href="' . $this->pObj->baseScript . $this->pObj->uri_getParameters() . '&amp;CB[removeAll]=normal&amp;pasteRecord=copyref&amp;source=' . rawurlencode($sourcePointerString) . '&amp;destination=' . rawurlencode($destinationPointerString) . '#' . tvID_to_jsID($destinationPointerString) . '">' . $pasteSubRefIcon.'</a>';
 		} else {
-			$output  = '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&amp;CB[removeAll]=normal&amp;pasteRecord=' . $pasteMode . '&amp;source=' . rawurlencode($sourcePointerString) . '&amp;destination=' . rawurlencode($destinationPointerString) . '#' . tvID_to_jsID($destinationPointerString) . '">' . $pasteAfterIcon . '</a>';
+			$output  = '<a href="' . $this->pObj->baseScript . $this->pObj->uri_getParameters() . '&amp;CB[removeAll]=normal&amp;pasteRecord=' . $pasteMode . '&amp;source=' . rawurlencode($sourcePointerString) . '&amp;destination=' . rawurlencode($destinationPointerString) . '#' . tvID_to_jsID($destinationPointerString) . '">' . $pasteAfterIcon . '</a>';
 		}
 
 		return $output;
@@ -284,15 +289,21 @@ class tx_templavoila_mod1_clipboard {
 
 			// Prepare buttons:
 			$recordIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_iconWorks::getIcon('tt_content', $row), 'width="18" height="16"') . ' border="0" title="[tt_content:' . $row['uid'] . ']" alt="" />';
-			$recordButton = $this->pObj->doc->wrapClickMenuOnIcon($recordIcon, 'tt_content', $row['uid'], 1, '&callingScriptId=' . rawurlencode($this->pObj->doc->scriptID), 'new,copy,cut,pasteinto,pasteafter,delete');
+			$recordButton = $this->doc->wrapClickMenuOnIcon($recordIcon, 'tt_content', $row['uid'], 1, '&callingScriptId=' . rawurlencode($this->doc->scriptID), 'new,copy,cut,pasteinto,pasteafter,delete');
 
 			$titleBarLeftButtons = $recordButton;
 
 			if (!$this->pObj->translatorMode && $this->pObj->canEditContent) {
 				$elementPointerString = 'tt_content' . SEPARATOR_PARMS . $row['uid'];
 
-				$linkEdit = $this->pObj->icon_edit(array('table' => 'tt_content', 'uid' => $row['uid'], 'isHidden' => $row['hidden']));
-				$linkHide = $this->pObj->icon_hide(array('table' => 'tt_content', 'uid' => $row['uid'], 'isHidden' => $row['hidden']));
+				$el = array(
+					'table'    => 'tt_content',
+					'uid'      => $row['uid'],
+					'isHidden' => $row['hidden']
+				);
+
+				$linkEdit = $this->icoObj->icon_edit($el);
+				$linkHide = $this->icoObj->icon_hide($el);
 
 				$copyButton = $this->element_getSelectButtons($elementPointerString, 'copy');
 				$refButton  = $this->element_getSelectButtons($elementPointerString, 'ref');
@@ -308,7 +319,7 @@ class tx_templavoila_mod1_clipboard {
 					$this->renderLinks($row['uid'], $linkHide);
 
 				if (($ia = $this->pObj->checkReferenceCount($row['uid'])) && (count($ia) > 1)) {
-					$warnings = '<div>' . $this->doc->icons(2) . ' <em>' . sprintf(htmlspecialchars($GLOBALS['LANG']->getLL('warning_elementusedelsewheretoo', '')), count($ia), $this->pObj->link_warn('<img src="gfx/magnifier.png" class="absmiddle" />', $row['uid'], $ia)) . '</em></div>';
+					$warnings = '<div>' . $this->doc->icons(2) . ' <em>' . sprintf(htmlspecialchars($GLOBALS['LANG']->getLL('warning_elementusedelsewheretoo', '')), count($ia), $this->icoObj->link_warn('<img src="gfx/magnifier.png" class="absmiddle" />', $row['uid'], $ia)) . '</em></div>';
 				}
 			} else {
 				$titleBarRightButtons = '';
@@ -361,15 +372,15 @@ class tx_templavoila_mod1_clipboard {
 			';
 
 			// "Browse", "New" and "Paste" icon:
-			$cellFragment .= $this->pObj->icon_browse($subElementPointer);
+			$cellFragment .= $this->icoObj->icon_browse($subElementPointer);
 			if (!$this->pObj->translatorMode && $this->pObj->canCreateNew) {
-				$cellFragment .= $this->pObj->icon_new($subElementPointer);
+				$cellFragment .= $this->icoObj->icon_new($subElementPointer);
 			}
 
 			$cellFragment .= '<span class="sortablePaste">' . $this->element_getPasteButtons($subElementPointer) . '</span>';
-			if ($this->pObj->apiObj) {
+			if ($this->apiObj) {
 				/* id-strings must not contain double-colons because of the selectors-api */
-				$cellId = tvID_to_jsID($this->pObj->apiObj->flexform_getStringFromPointer($subElementPointer));
+				$cellId = tvID_to_jsID($this->apiObj->flexform_getStringFromPointer($subElementPointer));
 				$cellRel = $cellId;
 
 				$cellFragment = '<div class="sortableItem" id="' . $cellId . '" rel="' . $cellRel . '">' . $cellFragment . '</div>';
@@ -392,7 +403,7 @@ class tx_templavoila_mod1_clipboard {
 			//			'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/garbage.gif', 'width="11" height="12"') . ' title="' . htmlspecialchars($label) . '" alt="" />' .
 			//			'</a>';
 
-				$deleteAll = $this->pObj->icon_delete(array('table' => 'tt_content'));
+				$deleteAll = $this->icoObj->icon_delete(array('table' => 'tt_content'));
 			}
 
 		}
@@ -401,9 +412,9 @@ class tx_templavoila_mod1_clipboard {
 			'table' => 'tt_content'
 		);
 
-		if ($this->pObj->apiObj) {
+		if ($this->apiObj) {
 			/* id-strings must not contain double-colons because of the selectors-api */
-			$cellId = tvID_to_jsID($this->pObj->apiObj->flexform_getStringFromPointer($groupElementPointer));
+			$cellId = tvID_to_jsID($this->apiObj->flexform_getStringFromPointer($groupElementPointer));
 
 			$this->pObj->sortableContainers[] = $cellId;
 		}
@@ -454,10 +465,10 @@ class tx_templavoila_mod1_clipboard {
 			/* collect ids we may remove in a bunch */
 			$this->deleteUids[] = $uid;
 
-			return $this->pObj->icon_unlink($unlinkPointer) . $hideIcon .
-			       $this->pObj->icon_delete($unlinkPointer);
+			return $this->icoObj->icon_unlink($unlinkPointer) . $hideIcon .
+			       $this->icoObj->icon_delete($unlinkPointer);
 		} else {
-			return						  $hideIcon;
+			return						    $hideIcon;
 		}
 	}
 

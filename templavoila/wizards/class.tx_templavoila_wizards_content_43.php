@@ -529,7 +529,7 @@ class tx_templavoila_wizards_content {
 				if (is_array($tempGetVars['defVals']['tt_content']))	{
 					$wizardItems[$key]['tt_content_defValues'] = array_merge(is_array($wizardItems[$key]['tt_content_defValues']) ? $wizardItems[$key]['tt_content_defValues'] : array(), $tempGetVars['defVals']['tt_content']);
 					unset($tempGetVars['defVals']['tt_content']);
-					$wizardItems[$key]['params'] = t3lib_div::implodeArrayForUrl('',$tempGetVars);
+					$wizardItems[$key]['params'] = t3lib_div::implodeArrayForUrl('', $tempGetVars);
 				}
 			}
 

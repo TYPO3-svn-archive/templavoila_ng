@@ -85,7 +85,7 @@
  * 2205:     function link_unlink($label, $unlinkPointer, $realDelete=FALSE)
  * 2227:     function icon_makeLocal($makeLocalPointer, $realDup=0)
  * 2247:     function link_makeLocal($label, $makeLocalPointer)
- * 2259:     function link_getParameters()
+ * 2259:     function uri_getParameters()
  *
  *              SECTION: Processing and structure functions (protected)
  * 2288:     function handleIncomingCommands()
@@ -320,6 +320,7 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 				case 'warning': $type = t3lib_FlashMessage::WARNING; break;
 				case 'ok': $type = t3lib_FlashMessage::OK; break;
 				case 'note': $type = t3lib_FlashMessage::NOTICE; break;
+				case 'info': $type = t3lib_FlashMessage::INFO; break;
 			}
 
 			$flashMessage = t3lib_div::makeInstance(
@@ -337,6 +338,7 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 				case 'warning': $type = $GLOBALS['LANG']->getLL('error'); $icon = 'gfx/icon_warning.gif'; break;
 				case 'ok': $type = ''; $icon = 'gfx/icon_ok.gif'; break;
 				case 'note': $type = ''; $icon = 'gfx/icon_note.gif'; break;
+				case 'info': $type = ''; $icon = 'gfx/icon_info.gif'; break;
 			}
 
 			return  '<img' . t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], $icon, 'width="18" height="16"') . ' border="0" align="top" class="absmiddle" alt="" />' .
@@ -450,7 +452,7 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 			$this->doc->docType= 'xhtml_trans';
 			$this->doc->backPath = $BACK_PATH;
 			$this->doc->divClass = '';
-			$this->doc->form = '<form action="' . htmlspecialchars($this->baseScript . $this->link_getParameters()) . '" method="post" autocomplete="off">' .
+			$this->doc->form = '<form action="' . htmlspecialchars($this->baseScript . $this->uri_getParameters()) . '" method="post" autocomplete="off">' .
 				'<input type="hidden" id="browser[communication]" name="browser[communication]" />';
 
 			// Add custom styles
@@ -729,7 +731,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 				Event.observe(window, \'load\', function() {
 					sortable_clipboard = \'' . tvID_to_jsID('tt_content' . SEPARATOR_PARMS) . '\';
 					sortable_removeHidden = ' . ($this->MOD_SETTINGS['tt_content_showHidden'] ? 'false' : 'true') . ';
-					sortable_baseLink = \'' . $this->baseScript . $this->link_getParameters() . '\';
+					sortable_baseLink = \'' . $this->baseScript . $this->uri_getParameters() . '\';
 					sortable_containers = [
 						"' . implode('",
 						"', $this->sortableContainers) . '"
@@ -748,7 +750,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 //				Ext.onReady(function() {
 //					sortable_clipboard = \'' . tvID_to_jsID('tt_content' . SEPARATOR_PARMS) . '\';
 //					sortable_removeHidden = ' . ($this->MOD_SETTINGS['tt_content_showHidden'] ? 'FALSE' : 'true') . ';
-//					sortable_baseLink = \'' . $this->baseScript . $this->link_getParameters() . '\';
+//					sortable_baseLink = \'' . $this->baseScript . $this->uri_getParameters() . '\';
 //					sortable_containers = [
 //						"' . implode('",
 //						"', $this->sortableContainers) . '"
@@ -1491,9 +1493,6 @@ table.typo3-dyntabmenu td.disabled:hover {
 			$table = $elementContentTreeArr['el']['table'];
 			$uid   = $elementContentTreeArr['previewData']['fullRow']['uid'];
 
-			$TCEformsConfiguration = $fieldData['TCEforms']['config'];
-			$TCEformsLabel = $this->localizedFFLabel($fieldData['TCEforms']['label'], 1);	// title for non-section elements
-
 			$cellContent = '';
 
 			// --------------------------------------------------------------------------
@@ -1604,6 +1603,9 @@ table.typo3-dyntabmenu td.disabled:hover {
 			// Preview of flexform fields on top-level:
 			else {
 				$fieldValue = $fieldData['data'][$lKey][$vGet];
+
+				$TCEformsConfiguration = $fieldData['TCEforms']['config'];
+				$TCEformsLabel = $this->localizedFFLabel($fieldData['TCEforms']['label'], 1);	// title for non-section elements
 
 				if ($TCEformsConfiguration['type'] == 'group') {
 					if ($TCEformsConfiguration['internal_type'] == 'file') {
@@ -1944,7 +1946,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 								// Copy for language:
 								if ($this->rootElementLangParadigm == 'free') {
 									$sourcePointerString = $this->apiObj->flexform_getStringFromPointer($parentPointer);
-									$onClick = "document.location='" . $this->baseScript . $this->link_getParameters() . '&source=' . rawurlencode($sourcePointerString) . '&localizeElement=' . $sLInfo['ISOcode'] . "'; return FALSE;";
+									$onClick = "document.location='" . $this->baseScript . $this->uri_getParameters() . '&source=' . rawurlencode($sourcePointerString) . '&localizeElement=' . $sLInfo['ISOcode'] . "'; return FALSE;";
 								} else {
 									$params='&cmd[tt_content][' . $contentTreeArr['el']['uid'] . '][localize]=' . $sys_language_uid;
 									$onClick = "document.location='" . $GLOBALS['SOBE']->doc->issueCommand($params) . "'; return FALSE;";
@@ -2451,7 +2453,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @return	string		parameters
 	 * @access public
 	 */
-	function link_getParameters()	{
+	function uri_getParameters()	{
 		$output =
 			'id=' . $this->id .
 			(is_array($this->altRoot) ? t3lib_div::implodeArrayForUrl('altRoot', $this->altRoot) : '') .
@@ -2492,7 +2494,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 		foreach ($possibleCommands as $command) {
 			if (($commandParameters = t3lib_div::_GP($command)) != '') {
-				$redirectLocation = $this->baseScript . $this->link_getParameters();
+				$redirectLocation = $this->baseScript . $this->uri_getParameters();
 
 				switch ($command) {
 					case 'clearCache':
@@ -2507,7 +2509,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 						if (t3lib_div::_GP('returnUrl'))
 							$returnUrl = t3lib_div::_GP('returnUrl');
 						else
-							$returnUrl = $this->mod1Script . $this->link_getParameters();
+							$returnUrl = $this->mod1Script . $this->uri_getParameters();
 
 						if (($newUid = $commandParameters) >= 0) {
 							/* revert selector-api valid flex-string to original one */
@@ -2591,7 +2593,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 						if (t3lib_div::_GP('returnUrl'))
 							$returnUrl = '&returnUrl=' . rawurlencode(t3lib_div::_GP('returnUrl'));
 						else
-							$returnUrl = '&returnUrl=' . rawurlencode($this->mod1Script . $this->link_getParameters());
+							$returnUrl = '&returnUrl=' . rawurlencode($this->mod1Script . $this->uri_getParameters());
 
 						$redirectLocation = $GLOBALS['BACK_PATH'] . 'alt_doc.php?' . $params . $returnUrl;
 						break;
@@ -2626,7 +2628,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 							if (t3lib_div::_GP('returnUrl'))
 								$returnUrl = '&returnUrl=' . rawurlencode(t3lib_div::_GP('returnUrl'));
 							else
-								$returnUrl = '&returnUrl=' . rawurlencode($this->mod1Script . $this->link_getParameters());
+								$returnUrl = '&returnUrl=' . rawurlencode($this->mod1Script . $this->uri_getParameters());
 
 							$redirectLocation = $GLOBALS['BACK_PATH'] . 'alt_doc.php?' . $params . $returnUrl;	//.'&localizationMode=text';
 						}
@@ -3132,7 +3134,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 
 		/* general option-group */
 		{
-			$link = $this->baseScript . $this->link_getParameters() . '&SET[tt_content_showHidden]=###';
+			$link = $this->baseScript . $this->uri_getParameters() . '&SET[tt_content_showHidden]=###';
 
 			$entries = array();
 			$entries[] = '<li class="mradio' . (!$this->MOD_SETTINGS['tt_content_showHidden'] ? ' selected' : '') . '" name="tt_content_showHidden"><a href="' . str_replace('###', '', $link).'"'. '>' . $GLOBALS['LANG']->getLL('page_settings_hidden', 1) . '</a></li>';
@@ -3144,7 +3146,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 
 		/* Previews view option-group */
 		{
-			$link = $this->baseScript . $this->link_getParameters() . '&SET[tt_content_hidePreviews]=###';
+			$link = $this->baseScript . $this->uri_getParameters() . '&SET[tt_content_hidePreviews]=###';
 
 			$entries = array();
 			$entries[] = '<li class="mradio' . ( $this->MOD_SETTINGS['tt_content_hidePreviews'] ? ' selected' : '') . '" name="tt_content_hidePreviews"><a href="' . str_replace('###', '1', $link).'"'. '>' . $GLOBALS['LANG']->getLL('page_settings_preview_off', 1) . '</a></li>';
@@ -3156,7 +3158,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 
 		/* Extended view option-group */
 		{
-			$link = $this->baseScript . $this->link_getParameters() . '&SET[tt_content_extendedView]=###';
+			$link = $this->baseScript . $this->uri_getParameters() . '&SET[tt_content_extendedView]=###';
 
 			$entries = array();
 			$entries[] = '<li class="mradio' . (!$this->MOD_SETTINGS['tt_content_extendedView'] ? ' selected' : '') . '" name="tt_content_extendedView"><a href="' . str_replace('###', '', $link).'"'. '>' . $GLOBALS['LANG']->getLL('page_settings_exview_off', 1) . '</a></li>';
@@ -3168,7 +3170,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 
 		/* Extended clipboard option-group */
 		{
-			$link = $this->baseScript . $this->link_getParameters() . '&SET[tt_content_extendedClipboard]=###';
+			$link = $this->baseScript . $this->uri_getParameters() . '&SET[tt_content_extendedClipboard]=###';
 
 			$entries = array();
 			$entries[] = '<li class="mradio' . (!$this->MOD_SETTINGS['tt_content_extendedClipboard'] ? ' selected' : '') . '" name="tt_content_extendedClipboard"><a href="' . str_replace('###', '', $link).'"'. '>' . $GLOBALS['LANG']->getLL('page_settings_exclip_off', 1) . '</a></li>';
@@ -3423,7 +3425,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 			$this->doc->JScode .= $CMparts[0];
 		//	$this->doc->JScode .= $this->doc->getDynTabMenuJScode();
 			$this->doc->postCode .= $CMparts[2];
-			$this->doc->form = '<form action="' . htmlspecialchars($this->baseScript . $this->link_getParameters()) . '" method="post" autocomplete="off">' .
+			$this->doc->form = '<form action="' . htmlspecialchars($this->baseScript . $this->uri_getParameters()) . '" method="post" autocomplete="off">' .
 				'<input type="hidden" id="browser[communication]" name="browser[communication]" />';
 
 //			/* Prototype / ExtJS */
@@ -3630,7 +3632,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 			if ($this->CALC_PERMS & 8) {
 				// Create new page wizard
 				$params = 'id=' . $this->id . '&pagesOnly=1';
-				$buttons['new'] = '<a href="' . $this->doc->backPath . 'db_new.php?' . $params . '&returnUrl=' . rawurlencode($this->baseScript . $this->link_getParameters()) . '">' .
+				$buttons['new'] = '<a href="' . $this->doc->backPath . 'db_new.php?' . $params . '&returnUrl=' . rawurlencode($this->baseScript . $this->uri_getParameters()) . '">' .
 					'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/new_page.gif', 'width="13" height="12"') . ' title="' . htmlspecialchars($GLOBALS['LANG']->getLL('clickForWizard')) . '" alt="" />' .
 					'</a>';
 			}
@@ -3665,13 +3667,13 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 
 			// Cache
 			if (!intval($this->modTSconfig['properties']['disableAdvancedControls'])) {
-				$buttons['cache'] = '<a href="' . $this->baseScript . $this->link_getParameters() . '&clearCache=1">' .
+				$buttons['cache'] = '<a href="' . $this->baseScript . $this->uri_getParameters() . '&clearCache=1">' .
 								'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/clear_cache.gif') . ' title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.clear_cache', 1) . '" alt="" />' .
 								'</a>';
 			}
 
 			// Reload
-			$buttons['reload'] = '<a href="' . $this->baseScript . $this->link_getParameters() . '">' .
+			$buttons['reload'] = '<a href="' . $this->baseScript . $this->uri_getParameters() . '">' .
 							'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/refresh_n.gif') . ' title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.reload', 1) . '" alt="" />' .
 							'</a>';
 		}

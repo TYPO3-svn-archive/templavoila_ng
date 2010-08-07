@@ -120,7 +120,7 @@ class tx_templavoila_mod1_records {
 	 * @return	string		Genrated content
 	 */
 	function renderTableSelector() {
-		$link = '\'' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&SET[recordsView_start]=0&SET[recordsView_table]=\'+this.options[this.selectedIndex].value';
+		$link = '\'' . $this->pObj->baseScript . $this->pObj->uri_getParameters() . '&SET[recordsView_start]=0&SET[recordsView_table]=\'+this.options[this.selectedIndex].value';
 
 		$content  = '
 			<tr class="bgColor4">
@@ -200,7 +200,7 @@ class tx_templavoila_mod1_records {
 		$this->dblist->backPath = $this->pObj->doc->backPath;
 		$this->dblist->calcPerms = $this->calcPerms;
 		$this->dblist->thumbs = $GLOBALS['BE_USER']->uc['thumbnailsByDefault'];
-		$this->dblist->returnUrl = $this->pObj->baseScript . $this->pObj->link_getParameters();
+		$this->dblist->returnUrl = $this->pObj->baseScript . $this->pObj->uri_getParameters();
 		$this->dblist->allFields = true;
 		$this->dblist->localizationView = true;
 		$this->dblist->showClipboard = false;

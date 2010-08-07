@@ -311,7 +311,7 @@ class tx_templavoila_wizard extends t3lib_SCbase {
 	 * @return	string		parameters
 	 * @access public
 	 */
-	function link_getParameters()	{
+	function uri_getParameters()	{
 		$output =
 			'id=' . $this->id .
 			(is_array($this->altRoot) ? t3lib_div::implodeArrayForUrl('altRoot', $this->altRoot) : '') .
@@ -502,7 +502,7 @@ class tx_templavoila_wizard_integral extends tx_templavoila_wizard {
 			$this->doc->JScode .= $CMparts[0];
 		//	$this->doc->JScode .= $this->doc->getDynTabMenuJScode();
 			$this->doc->postCode .= $CMparts[2];
-			$this->doc->form = '<form action="' . htmlspecialchars($this->baseScript . $this->link_getParameters()) . '" method="post" autocomplete="off">';
+			$this->doc->form = '<form action="' . htmlspecialchars($this->baseScript . $this->uri_getParameters()) . '" method="post" autocomplete="off">';
 
 			/* Prototype / Scriptaculous */
 			$this->doc->JScode .= '<script src="' . $this->doc->backPath . 'contrib/prototype/prototype.js" type="text/javascript"></script>';

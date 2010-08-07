@@ -52,7 +52,7 @@
  *  710: class tx_templavoila_module2_integral extends tx_templavoila_module2
  *  719:     function init()
  *  729:     function menuConfig()
- *  758:     function link_getParameters()
+ *  758:     function uri_getParameters()
  *  779:     function getFuncMenuNoHSC($mainParams, $elementName, $currentValue, $menuItems, $script = '', $addparams = '')
  *  818:     function getOptsMenuNoHSC()
  *  856:     function main()
@@ -568,7 +568,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 								<tr class="bgColor4">
 									<td colspan="' . ($this->MOD_SETTINGS['set_details'] ? '2' : '1') . '">' .
 										$rTODres['icon'] . '
-										<a href="' . $this->mod2Script . $this->link_getParameters() . '&SET[page]=' . $page . '#to-' . $toRow['uid'] . '">' .
+										<a href="' . $this->mod2Script . $this->uri_getParameters() . '&SET[page]=' . $page . '#to-' . $toRow['uid'] . '">' .
 											htmlspecialchars($toRow['title']) . '
 										</a>
 									</td>' . ($this->MOD_SETTINGS['set_details'] ? '
@@ -626,7 +626,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 					<tr>
 						<td>' .
 							$rDSDres['icon'] . '
-							<a href="' . $this->mod2Script . $this->link_getParameters() . '&SET[page]=' . $page . '#ds-' . md5($dsID) . '">' .
+							<a href="' . $this->mod2Script . $this->uri_getParameters() . '&SET[page]=' . $page . '#ds-' . md5($dsID) . '">' .
 								htmlspecialchars($dsRow['title'] ? $dsRow['title'] : $dsRow['path']) . '
 							</a>
 						</td>' . ($this->MOD_SETTINGS['set_details'] ? '
@@ -654,7 +654,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 				if ($this->dsObj->isModifiable()) {
 					// New-DS link:
 					$content .= '
-						<a href="' . $this->mod2Script . $this->link_getParameters() . '&SET[page]=tmplfiles' . '">
+						<a href="' . $this->mod2Script . $this->uri_getParameters() . '&SET[page]=tmplfiles' . '">
 							<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/new_el.gif', 'width="11" height="12"') . ' alt="" class="absmiddle" />
 							' . $GLOBALS['LANG']->getLL('center_view_ds_new') . '
 						</a><br />';
@@ -701,7 +701,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 			if ($this->dsObj->isModifiable()) {
 				// New-DS link:
 				$index .= '
-					<a href="' . $this->mod2Script . $this->link_getParameters() . '&SET[page]=tmplfiles' . '">
+					<a href="' . $this->mod2Script . $this->uri_getParameters() . '&SET[page]=tmplfiles' . '">
 						<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/new_el.gif', 'width="11" height="12"') . ' alt="" class="absmiddle" />
 						' . $GLOBALS['LANG']->getLL('center_view_ds_new') . '
 					</a><br />';
@@ -871,7 +871,7 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 	 * @return	string		parameters
 	 * @access public
 	 */
-	function link_getParameters()	{
+	function uri_getParameters()	{
 		$output =
 			'id=' . $this->id;
 
@@ -942,7 +942,7 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 
 		/* general option-group */
 		{
-			$link = $this->baseScript . $this->link_getParameters() . '&SET[set_details]=###';
+			$link = $this->baseScript . $this->uri_getParameters() . '&SET[set_details]=###';
 
 			$entries[] = '<li class="mradio' . (!$this->MOD_SETTINGS['set_details'] ? ' selected' : '') . '" name="set_details"><a href="' . str_replace('###', '' , $link) . '"' . '>' . $GLOBALS['LANG']->getLL('center_settings_hidden', 1) . '</a></li>';
 			$entries[] = '<li class="mradio' . ( $this->MOD_SETTINGS['set_details'] ? ' selected' : '') . '" name="set_details"><a href="' . str_replace('###', '1', $link) . '"' . '>' . $GLOBALS['LANG']->getLL('center_settings_all', 1) . '</a></li>';

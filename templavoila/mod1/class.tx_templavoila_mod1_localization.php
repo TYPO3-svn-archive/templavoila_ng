@@ -102,7 +102,7 @@ class tx_templavoila_mod1_localization {
 			}
 		}
 
-		$link = '\'' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&SET[language]=\'+this.options[this.selectedIndex].value';
+		$link = '\'' . $this->pObj->baseScript . $this->pObj->uri_getParameters() . '&SET[language]=\'+this.options[this.selectedIndex].value';
 
 		return '<select onchange="document.location=' . $link . '" style="' . $sstyle . '">' . implode('', $optionsArr) . '</select>';
 	}
@@ -128,7 +128,7 @@ class tx_templavoila_mod1_localization {
 				$flag = ($languageArr['flagIcon'] != '' ? $languageArr['flagIcon'] : $BACK_PATH . 'gfx/flags/unknown.gif');
 
 				// Link to editing of language header:
-				$availableTranslationsFlags .= '<a href="' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&editPageLanguageOverlay=' . $languageArr['uid'] . '"><img src="' . $flag . '" title="Edit ' . htmlspecialchars($languageArr['title']) . '" alt=""' . $style . ' /></a> ';
+				$availableTranslationsFlags .= '<a href="' . $this->pObj->baseScript . $this->pObj->uri_getParameters() . '&editPageLanguageOverlay=' . $languageArr['uid'] . '"><img src="' . $flag . '" title="Edit ' . htmlspecialchars($languageArr['title']) . '" alt=""' . $style . ' /></a> ';
 			}
 		}
 
@@ -159,7 +159,7 @@ class tx_templavoila_mod1_localization {
 			}
 		}
 
-		$link = $this->pObj->baseScript . $this->pObj->link_getParameters() . '&createNewPageTranslation=\'+this.options[this.selectedIndex].value+\'&pid=' . $this->pObj->id;
+		$link = $this->pObj->baseScript . $this->pObj->uri_getParameters() . '&createNewPageTranslation=\'+this.options[this.selectedIndex].value+\'&pid=' . $this->pObj->id;
 
 		return '<select onchange="document.location=' . $link . '" style="' . $sstyle . '">'.implode ('', $optionsArr) . '</select>';
 	}
@@ -179,7 +179,7 @@ class tx_templavoila_mod1_localization {
 			$options[] = t3lib_div::inList($this->pObj->modTSconfig['properties']['disableDisplayMode'], 'default'         ) ? '' : '<option value=""'.                  ($this->pObj->MOD_SETTINGS['langDisplayMode'] ==  ''                 ? ' selected="selected"' : '') . '>' . $GLOBALS['LANG']->getLL('pageLocalizationDisplayMode_defaultLanguage') . '</option>';
 			$options[] = t3lib_div::inList($this->pObj->modTSconfig['properties']['disableDisplayMode'], 'selectedLanguage') ? '' : '<option value="selectedLanguage"' . ($this->pObj->MOD_SETTINGS['langDisplayMode'] === 'selectedLanguage' ? ' selected="selected"' : '') . '>' . $GLOBALS['LANG']->getLL('pageLocalizationDisplayMode_selectedLanguage') . '</option>';
 			$options[] = t3lib_div::inList($this->pObj->modTSconfig['properties']['disableDisplayMode'], 'onlyLocalized'   ) ? '' : '<option value="onlyLocalized"' .    ($this->pObj->MOD_SETTINGS['langDisplayMode'] === 'onlyLocalized'    ? ' selected="selected"' : '') . '>' . $GLOBALS['LANG']->getLL('pageLocalizationDisplayMode_onlyLocalized') . '</option>';
-			$link = '\'' . $this->pObj->baseScript . $this->pObj->link_getParameters() . '&SET[langDisplayMode]=\'+this.options[this.selectedIndex].value';
+			$link = '\'' . $this->pObj->baseScript . $this->pObj->uri_getParameters() . '&SET[langDisplayMode]=\'+this.options[this.selectedIndex].value';
 
 			return '<select onchange="document.location=' . $link . '">' . implode(chr(10), $options) . '</select>';
 		}
@@ -191,7 +191,7 @@ class tx_templavoila_mod1_localization {
 		global $BACK_PATH;
 
 		if ($this->pObj->currentLanguageUid >= 0 && (($this->pObj->rootElementLangMode === 'disable') || ($this->pObj->rootElementLangParadigm === 'bound'))) {
-			$link = $this->pObj->baseScript . $this->pObj->link_getParameters() . '&SET[langDisplayMode]=###';
+			$link = $this->pObj->baseScript . $this->pObj->uri_getParameters() . '&SET[langDisplayMode]=###';
 
 			$entries = array();
 			$entries[] = t3lib_div::inList($this->pObj->modTSconfig['properties']['disableDisplayMode'], 'default'         ) ? '' : '<li class="mradio' . ($this->pObj->MOD_SETTINGS['langDisplayMode'] ==  ''                 ? ' selected' : '') . '" name="langDisplayMode"><a href="' . str_replace('###', '', $link) . '"' .                 '>' . $GLOBALS['LANG']->getLL('pageLocalizationDisplayMode_defaultLanguage') . '</a></li>';
