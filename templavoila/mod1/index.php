@@ -1540,6 +1540,9 @@ table.typo3-dyntabmenu td.disabled:hover {
 															'</dd>';
 													}
 												} else if ($TCEformsConfiguration['type'] != '') {
+echo '<pre>';
+print_r($TCEformsConfiguration['type']);
+echo '</pre>';
 													// Render for everything else:
 													$cellContent .=
 														'<dt style="width: 25%; float: left; clear: left;">' .
@@ -1617,6 +1620,9 @@ table.typo3-dyntabmenu td.disabled:hover {
 							'<br />';
 					}
 				} else if ($TCEformsConfiguration['type'] != '') { //$this->icoObj->icon_lang($contentTreeArr['el'], $languageUid);
+echo '<pre>';
+print_r($TCEformsConfiguration['type']);
+echo '</pre>';
 					// Render for everything else:
 					$cellContent .=
 						'<strong>' . $TCEformsLabel . '</strong><br /> ' . // $vGet .
@@ -2414,13 +2420,13 @@ table.typo3-dyntabmenu td.disabled:hover {
 		$warnings = '';
 
 		if (($this->global_tt_content_elementRegister[$contentTreeArr['el']['uid']] > 1) && ($this->rootElementLangParadigm != 'free')) {
-			$warnings .= '<div>' . $this->doc->icons(2) . ' <em>' . htmlspecialchars(sprintf($GLOBALS['LANG']->getLL('warning_elementusedmorethanonce', ''), $this->global_tt_content_elementRegister[$contentTreeArr['el']['uid']], $contentTreeArr['el']['uid'])) . '</em></div>';
+			$warnings .= '<div style="font-size: 10px;">' . $this->doc->icons(2) . ' <em>' . htmlspecialchars(sprintf($GLOBALS['LANG']->getLL('warning_elementusedmorethanonce', ''), $this->global_tt_content_elementRegister[$contentTreeArr['el']['uid']], $contentTreeArr['el']['uid'])) . '</em></div>';
 		}
 
 		if (($contentTreeArr['el']['table'] === 'tt_content') && ($ia = $this->checkReferenceCount($contentTreeArr['el']['uid'])) && (count($ia) > $this->global_tt_content_elementRegister[$contentTreeArr['el']['uid']])) {
-			$warnings .= '<div>' . $this->doc->icons(2) . ' <em>' . sprintf(htmlspecialchars($GLOBALS['LANG']->getLL('warning_elementusedelsewheretoo', '')), count($ia), $this->icoObj->link_warn('<img src="gfx/magnifier.png" class="absmiddle" />', $contentTreeArr['el']['uid'], $ia)) . '</em></div>';
+			$warnings .= '<div style="font-size: 10px;">' . $this->doc->icons(2) . ' <em>' . sprintf(htmlspecialchars($GLOBALS['LANG']->getLL('warning_elementusedelsewheretoo', '')), count($ia), $this->icoObj->link_warn('<img src="gfx/magnifier.png" class="absmiddle" />', $contentTreeArr['el']['uid'], $ia)) . '</em></div>';
 		}
-
+/*
 		// Displaying warning for container content (in default sheet - a limitation) elements if localization is enabled:
 		$isContainerEl = count($contentTreeArr['sub']['sDEF']);
 		if (!intval($this->modTSconfig['properties']['disableContainerElementLocalizationWarning']) &&
@@ -2431,13 +2437,13 @@ table.typo3-dyntabmenu td.disabled:hover {
 		    !$contentTreeArr['ds_meta']['langDisable'])	{
 			if ($contentTreeArr['ds_meta']['langChildren'])	{
 				if (!$this->modTSconfig['properties']['disableContainerElementLocalizationWarning_warningOnly']) {
-					$warnings .= '<div>' . $this->doc->icons(2) . ' <strong>' . $GLOBALS['LANG']->getLL('warning_containerInheritance' . $suffix) . '</strong></div>';
+					$warnings .= '<div style="font-size: 10px;">' . $this->doc->icons(2) . ' <strong>' . $GLOBALS['LANG']->getLL('warning_containerInheritance' . $suffix) . '</strong></div>';
 				}
 			} else {
-				$warnings .= '<div>' . $this->doc->icons(3) . ' <strong>' . $GLOBALS['LANG']->getLL('warning_containerSeparate' . $suffix) . '</strong></div>';
+				$warnings .= '<div style="font-size: 10px;">' . $this->doc->icons(3) . ' <strong>' . $GLOBALS['LANG']->getLL('warning_containerSeparate' . $suffix) . '</strong></div>';
 			}
 		}
-
+*/
 		return $warnings ? '<h3>Warnings</h3>' . $warnings : '';
 	}
 

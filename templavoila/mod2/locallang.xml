@@ -32,6 +32,9 @@
 			<label index="warnings">Warnings</label>
 			<label index="errors">Fatal errors</label>
 
+			<label index="deleteTOMsg">Do you really want to delete this Template Object?</label>
+			<label index="deleteDSTOMsg">Do you really want to delete this Data Structure and its Template Objects?</label>
+
 			<label index="list_storage">Storage Folder</label>
 			<label index="list_dss">Data Structures</label>
 			<label index="list_tos">Template Objects</label>
@@ -176,6 +179,9 @@
 			<label index="rendertype">Render Type</label>
 			<label index="warnings">Warnungen</label>
 			<label index="errors">Fatale Fehler</label>
+
+			<label index="deleteTOMsg">Do you really want to delete this Template Object?</label>
+			<label index="deleteDSTOMsg">Do you really want to delete this Data Structure and all Template Objects?</label>
 
 			<label index="list_storage">Speicher-Punkt</label>
 			<label index="list_dss">Datenstrukturen</label>

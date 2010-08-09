@@ -233,13 +233,16 @@ class tx_templavoila_mod2_to {
 		/* ------------------------------------------------------------------------------ */
 		// Links:
 		if ($this->modifiable) {
-			$lpXML = '<a href="#" onclick="' . htmlspecialchars(t3lib_BEfunc::editOnClick('&edit[tx_templavoila_tmplobj][' . $toRow['uid'] . ']=edit&columnsOnly=localprocessing', $this->doc->backPath)) . '">' .
+			$lpXML = '<a href="#" onclick="' .
+					htmlspecialchars(t3lib_BEfunc::editOnClick('&edit[tx_templavoila_tmplobj][' . $toRow['uid'] . ']=edit&columnsOnly=localprocessing', $this->doc->backPath)) . '">' .
 					'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/edit2.gif', 'width="11" height="12"') . ' title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:edit') . '" alt="" class="absmiddle" />' .
 					'</a>';
-			$editLink = '<a href="#" onclick="' . htmlspecialchars(t3lib_BEfunc::editOnClick('&edit[tx_templavoila_tmplobj][' . $toRow['uid'] . ']=delete', $this->doc->backPath)) . '">' .
-					'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/garbage.gif', 'width="11" height="12"') . ' title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:edit') . '" alt="" class="absmiddle" style="float: right;" />' .
+			$editLink = '<a href="' .
+					$this->doc->issueCommand('&cmd[tx_templavoila_tmplobj][' . $toRow['uid'] . '][delete]=1') . '" onclick="return confirm(' . $GLOBALS['LANG']->JScharCode($GLOBALS['LANG']->getLL('deleteTOMsg')) . ');">' .
+					'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/garbage.gif', 'width="11" height="12"') . ' title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:delete') . '" alt="" class="absmiddle" style="float: right;" />' .
 					'</a>';
-			$editLink .= '<a href="#" onclick="' . htmlspecialchars(t3lib_BEfunc::editOnClick('&edit[tx_templavoila_tmplobj][' . $toRow['uid'] . ']=edit', $this->doc->backPath)) . '">' .
+			$editLink .= '<a href="#" onclick="' .
+					htmlspecialchars(t3lib_BEfunc::editOnClick('&edit[tx_templavoila_tmplobj][' . $toRow['uid'] . ']=edit', $this->doc->backPath)) . '">' .
 					'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/edit2.gif', 'width="11" height="12"') . ' title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:edit') . '" alt="" class="absmiddle" style="float: right;" />' .
 					'</a>';
 			$toTitle = '<a href="' . htmlspecialchars($linkUrl) . '" title="' . $GLOBALS['LANG']->getLL('center_view_to') . '">' . htmlspecialchars($toRow['title']) . '</a>';

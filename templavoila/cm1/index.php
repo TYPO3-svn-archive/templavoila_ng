@@ -623,7 +623,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath($this->extKey) . "cm1/styles.css";
 
 		// Setting up form-wrapper:
-		$this->doc->form = '<form id="tv-form" action="' . $this->linkThisScript(array()) . '" method="post" name="pageform">';
+		$this->doc->form = '<form id="tv-form" action="' . $this->linkThisScript() . '" method="post" name="pageform">';
 
 		// JavaScript
 		$this->doc->JScode .= $this->doc->wrapScriptTags('
@@ -1169,7 +1169,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		}
 
 		// Loading DS from either XML or a Template Object (containing reference to DS)
-		if ($cmd == 'load_ds_xml' && ($this->_load_ds_xml_content || $this->_load_ds_xml_to)) {
+		if (($cmd == 'load_ds_xml') && ($this->_load_ds_xml_content || $this->_load_ds_xml_to)) {
 			$sesDat = array();
 
 			if (($toUID = $this->_load_ds_xml_to)) {
@@ -1216,8 +1216,8 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					'title' => 'ROOT',
 					'description' => $GLOBALS['LANG']->getLL('rootDescription'),
 				),
-				'type' => 'array',
-				'el' => array()
+				'type'	=> 'array',
+				'el'	=> array()
 			)
 		);
 
@@ -1377,9 +1377,9 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			case 'save_dsto_into':
 				// DS:
 				$dataArr = array();
-				$dataArr['tx_templavoila_datastructure']['NEW']['pid'] = intval($this->_save_dsto_spec['pid']);
-				$dataArr['tx_templavoila_datastructure']['NEW']['title'] = $this->_save_dsto_spec['title'];
-				$dataArr['tx_templavoila_datastructure']['NEW']['scope'] = $this->_save_dsto_spec['type'];
+				$dataArr['tx_templavoila_datastructure']['NEW']['pid'  ] = intval($this->_save_dsto_spec['pid'  ]);
+				$dataArr['tx_templavoila_datastructure']['NEW']['title'] =        $this->_save_dsto_spec['title'];
+				$dataArr['tx_templavoila_datastructure']['NEW']['scope'] =        $this->_save_dsto_spec['type' ];
 
 				// Modifying data structure with conversion of preset values for field types to actual settings:
 				$storeDataStruct = $dataStruct;
@@ -1515,14 +1515,14 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 					if (t3lib_div::_GP('_save_dsto_return') ||
 					    t3lib_div::_GP('_save_dsto_return_x')) {
-						header('Location: ' . t3lib_div::locationHeaderUrl($this->returnUrl ? $this->returnUrl : $this->baseScript . 'id=' . $this->id));
-						exit;
+						header('Location: ' . t3lib_div::locationHeaderUrl($this->returnUrl ? $this->returnUrl : $this->mod2Script . 'id=' . $this->id));
+						exit();
 					}
 
 					if (t3lib_div::_GP('_save_dsto_preview') ||
 					    t3lib_div::_GP('_save_dsto_preview_x')) {
 						header('Location: ' . t3lib_div::locationHeaderUrl($_SERVER['REQUEST_URI']) . '&SET[page]=preview');
-						exit;
+						exit();
 					}
 				}
 				break;
@@ -2435,8 +2435,8 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 						'title' => 'ROOT of MultiTemplate',
 						'description' => 'Select the ROOT container for this template project. Probably just select a body-tag or some other HTML element which encapsulates ALL sub templates!',
 					),
-					'type' => 'array',
-					'el' => array()
+					'type'	=> 'array',
+					'el'	=> array()
 				)
 			);
 
@@ -3169,8 +3169,8 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 								foreach ($optDat as $k => $v) {
 									list($pI) = $this->markupObj->splitPath($k);
 
-									if (($value['type'] == 'attr' && $pI['modifier'] == 'ATTR') ||
-									    ($value['type'] != 'attr' && $pI['modifier'] != 'ATTR')) {
+									if ((($value['type'] == 'attr') && ($pI['modifier'] == 'ATTR')) ||
+									    (($value['type'] != 'attr') && ($pI['modifier'] != 'ATTR'))) {
 										if (
 											(!$this->markupObj->tags[$lastLevel['el']]['single'] || $pI['modifier'] != 'INNER') &&
 											(!is_array($mapDat) || ($pI['modifier'] != 'ATTR' && isset($mapDat[strtolower($pI['modifier'] ? $pI['modifier'] : 'outer')])) ||
@@ -3390,18 +3390,22 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					<dt><label>' . $GLOBALS['LANG']->getLL('structureFormTitle') . ':</label></dt>
 					<dd><input type="text" size="80" name="' . $formFieldName.'[tx_templavoila][title]" value="' . htmlspecialchars($insertDataArray['tx_templavoila']['title']) . '" /></dd>
 
+					' . (($insertDataArray['type'] != 'no_map') ? '
 					<dt><label>' . $GLOBALS['LANG']->getLL('structureFormInstruction') . ':</label></dt>
 					<dd><textarea class="fixed-font enable-tab" cols="' . $this->textareaCols . '" rows="2" name="' . $formFieldName . '[tx_templavoila][description][]">' . t3lib_div::deHSCentities(htmlspecialchars($insertDataArray['tx_templavoila']['description'][0])) . '</textarea></dd>
 
 					<dt><label>' . $GLOBALS['LANG']->getLL('structureFormRules') . ':</label></dt>
 					<dd><input type="text" size="80" name="' . $formFieldName . '[tx_templavoila][tags]" value="'.htmlspecialchars($insertDataArray['tx_templavoila']['tags']).'" /></dd>
+					' :'') . '
 
 					' . (($insertDataArray['type'] != 'array') &&
 					     ($insertDataArray['type'] != 'section') ? '
+					' . (($insertDataArray['type'] != 'no_map') ? '
 					<!-- non-array options ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 					<dt><label>' . $GLOBALS['LANG']->getLL('structureFormSamples') . ':</label></dt>
 					<dd><textarea class="fixed-font enable-tab" cols="' . $this->textareaCols . '" rows="5" name="' . $formFieldName . '[tx_templavoila][sample_data][]">' . t3lib_div::deHSCentities(htmlspecialchars($insertDataArray['tx_templavoila']['sample_data'][0])) . '</textarea>
 						' . $this->lipsumLink($formFieldName . '[tx_templavoila][sample_data]') . '</dd>
+					' :'') . '
 
 					<dt><label>' . $GLOBALS['LANG']->getLL('structureFormPreset') . ':</label></dt>
 					<dd><select onchange="if (confirm(\'' . $GLOBALS['LANG']->getLL('mess.onChangeAlert') . '\')) document.getElementById(\'_updateDS\').click();"
@@ -3634,15 +3638,15 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					<td valign="top" style="padding: 0.8em 2px 0.8em ' . (($level) * 16 + 3) . 'px;" nowrap="nowrap">
 						<select style="margin: 4px 0 4px 0; padding: 1px 1px 1px 30px; background: 0 50% url(' . $info[3] . ') no-repeat; width: 150px !important;" title="Mapping Type" name="' . $formFieldName . '[type]" onchange="if (confirm(\'' . $GLOBALS['LANG']->getLL('mess.onChangeAlert') . '\')) document.getElementById(\'_updateDS\').click();">
 							<optgroup class="c-divider" label="Containers">
-								<option style="padding: 1px 1px 1px 30px; background: 0 50% url(' . $this->dsTypes['sc'][3] . ') no-repeat;" value="section"'. ($insertDataArray['type']=='section' ? ' selected="selected"' : '') . '>Section of elements</option>
-								<option style="padding: 1px 1px 1px 30px; background: 0 50% url(' . $this->dsTypes['co'][3] . ') no-repeat;" value="array"'.   ($insertDataArray['type']=='array'   ? ' selected="selected"' : '') . '>Container for elements</option>
+								<option style="padding: 1px 1px 1px 30px; background: 0 50% url(' . $this->dsTypes['sc'][3] . ') no-repeat;" value="section"' . ($insertDataArray['type'] == 'section' ? ' selected="selected"' : '') . '>Section of elements</option>
+								<option style="padding: 1px 1px 1px 30px; background: 0 50% url(' . $this->dsTypes['co'][3] . ') no-repeat;" value="array"' .   ($insertDataArray['type'] == 'array'   ? ' selected="selected"' : '') . '>Container for elements</option>
 							</optgroup>
 							<optgroup class="c-divider" label="Elements">
-								<option style="padding: 1px 1px 1px 30px; background: 0 50% url(' . $this->dsTypes['el'][3] . ') no-repeat;" value=""'.        ($insertDataArray['type']==''        ? ' selected="selected"' : '') . '>Element</option>
-								<option style="padding: 1px 1px 1px 30px; background: 0 50% url(' . $this->dsTypes['at'][3] . ') no-repeat;" value="attr"'.    ($insertDataArray['type']=='attr'    ? ' selected="selected"' : '') . '>Attribute</option>
+								<option style="padding: 1px 1px 1px 30px; background: 0 50% url(' . $this->dsTypes['el'][3] . ') no-repeat;" value=""' .        ($insertDataArray['type'] == ''        ? ' selected="selected"' : '') . '>Element</option>
+								<option style="padding: 1px 1px 1px 30px; background: 0 50% url(' . $this->dsTypes['at'][3] . ') no-repeat;" value="attr"' .    ($insertDataArray['type'] == 'attr'    ? ' selected="selected"' : '') . '>Attribute</option>
 							</optgroup>
 							<optgroup class="c-divider" label="Other">
-								<option style="padding: 1px 1px 1px 30px; background: 0 50% url(' . $this->dsTypes['no'][3] . ') no-repeat;" value="no_map"'.  ($insertDataArray['type']=='no_map'  ? ' selected="selected"' : '') . '>Not mapped</option>
+								<option style="padding: 1px 1px 1px 30px; background: 0 50% url(' . $this->dsTypes['no'][3] . ') no-repeat;" value="no_map"' .  ($insertDataArray['type'] == 'no_map'  ? ' selected="selected"' : '') . '>Not mapped</option>
 							</optgroup>
 						</select>
 						<div style="margin: 0.25em;">' .
@@ -3714,7 +3718,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 						' . $formSubmit . '
 					</td>
 				</tr>';
-			} else if (!$this->DS_element && ($value['type'] == 'array' || $value['type'] == 'section') && !$this->mapElPath) {
+			} else if (!$this->DS_element && (($value['type'] == 'array') || ($value['type'] == 'section')) && !$this->mapElPath) {
 				$addEditRows = '
 				<tr class="bgColor4">
 					<td colspan="6">
@@ -3749,9 +3753,9 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		// If a user function was registered, use that instead of our own handlers:
 		if (isset ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['templavoila']['cm1']['eTypesExtraFormFields'][$type])) {
 			$_params = array (
-				'type' => $type,
-				'formFieldName' => $formFieldName,
-				'curValue' => $curValue,
+				'type'		=> $type,
+				'formFieldName'	=> $formFieldName,
+				'curValue'	=> $curValue,
 			);
 
 			$output = t3lib_div::callUserFunction($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['templavoila']['cm1']['eTypesExtraFormFields'][$type], $_params, $this);
@@ -3854,7 +3858,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 * @param	array		Overriding parameters.
 	 * @see drawDataStructureMap()
 	 */
-	function linkThisScript($array = array()) {
+	function linkThisScript($array = null) {
 		$theArray = array(
 			'id' => $this->id,
 			'file' => $this->displayFile,
@@ -3863,7 +3867,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			'returnUrl' => $this->returnUrl
 		);
 
-		$p = t3lib_div::implodeArrayForUrl('', array_merge($theArray, $array), '', 1);
+		$p = t3lib_div::implodeArrayForUrl('', $array ? array_merge($theArray, $array) : $theArray, '', 1);
 
 		return htmlspecialchars($this->baseScript . $p);
 	}
@@ -4124,9 +4128,9 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				'formName' => 'pageform',
 				'itemName' => $formElementName . '[]',
 				'params' => array(
-#					'type' => 'header',
-					'type' => 'description',
-					'add' => 1,
+#					'type'	=> 'header',
+					'type'	=> 'description',
+					'add'	=> 1,
 					'endSequence' => '46,32',
 				)
 			);
@@ -4269,9 +4273,11 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 		$this->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->MOD_MENU, t3lib_div::_GP('SET'), $this->MCONF['name']);
 
 		// Fallback on multi-pages
-		if (t3lib_div::_GP('_loadScreen'))
+		if (t3lib_div::_GP('_loadScreen') ||
+		    t3lib_div::_GP('_loadScreen_x'))
 			$this->MOD_SETTINGS['page'] = 'structure';
-		if (t3lib_div::_GP('_saveScreen'))
+		if (t3lib_div::_GP('_saveScreen') ||
+		    t3lib_div::_GP('_saveScreen_x'))
 			$this->MOD_SETTINGS['page'] = 'structure';
 	}
 
@@ -4486,11 +4492,11 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 		//	$this->doc->JScode .= $this->doc->getDynTabMenuJScode();
 			$this->doc->JScode .= $CMparts[0];
 			$this->doc->postCode .= $CMparts[2];
-			$this->doc->form = '<form id="tv-form" action="' . $this->linkThisScript(array()) . '" method="post" name="pageform">';
+			$this->doc->form = '<form id="tv-form" action="' . $this->linkThisScript() . '" method="post" name="pageform">';
 
 			$vContent = $this->doc->getVersionSelector($this->id,1);
 			if ($vContent)	{
-				$this->content.=$this->doc->section('',$vContent);
+				$this->content .= $this->doc->section('', $vContent);
 			}
 
 			$this->extObjContent();
@@ -4590,7 +4596,7 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 		);
 
 		// If access to File>List for user, then link to that module.
-		if ($this->displayFile && $BE_USER->check('modules','file_list') && $this->markupFile) {
+		if ($this->displayFile && $BE_USER->check('modules', 'file_list') && $this->markupFile) {
 			$href = $BACK_PATH . 'file_list.php?id=' . dirname($this->markupFile) . '&returnUrl=' . rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI'));
 			$buttons['record_list'] .= '<a href="' . htmlspecialchars($href) . '">' .
 					'<img src="' . t3lib_iconWorks::skinImg($BACK_PATH, 'MOD:file_list/list.gif', 'width="16" height="16"', 1) . '" title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.showList', 1) . '" alt="" />' .
@@ -4598,7 +4604,7 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 		}
 
 		// If access to Web>List for user, then link to that module.
-		if (!$this->displayFile && $BE_USER->check('modules','web_list') && $this->pageinfo['uid']) {
+		if (!$this->displayFile && $BE_USER->check('modules', 'web_list') && $this->pageinfo['uid']) {
 			$href = $BACK_PATH . 'db_list.php?id=' . $this->pageinfo['uid'] . '&returnUrl=' . rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI'));
 			$buttons['record_list'] .= '<a href="' . htmlspecialchars($href) . '">' .
 					'<img src="' . t3lib_iconWorks::skinImg($BACK_PATH, 'MOD:web_list/list.gif', 'width="16" height="16"', 1) . '" title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.showList', 1) . '" alt="" />' .

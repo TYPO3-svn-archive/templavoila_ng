@@ -58,6 +58,14 @@ if (is_callable(array('t3lib_div', 'int_from_ver')) && t3lib_div::int_from_ver(T
 	templavoila.wizards.newContentElement.wizardItems {
 		common.header = LLL:EXT:cms/layout/locallang_db_new_content_el.xml:common
 		common.elements {
+			head {
+				icon = gfx/c_wiz/header.gif
+				title = LLL:EXT:cms/layout/locallang_db_new_content_el.xml:common_headerOnly_title
+				description = LLL:EXT:cms/layout/locallang_db_new_content_el.xml:common_headerOnly_description
+				tt_content_defValues {
+					CType = header
+				}
+			}
 			text {
 				icon = gfx/c_wiz/regular_text.gif
 				title = LLL:EXT:cms/layout/locallang_db_new_content_el.xml:common_regularText_title
@@ -102,7 +110,7 @@ if (is_callable(array('t3lib_div', 'int_from_ver')) && t3lib_div::int_from_ver(T
 			}
 
 		}
-		common.show = text,textpic,image,bullets,table
+		common.show = head,text,textpic,image,bullets,table
 
 		special.header = LLL:EXT:cms/layout/locallang_db_new_content_el.xml:special
 		special.elements {

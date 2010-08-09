@@ -285,8 +285,9 @@ class tx_templavoila_cm1_presets {
 
 							// Finding link-fields on same level and set the image to be linked by that TypoLink:
 							$elArrayKeys = array_keys($elArray);
-							foreach($elArrayKeys as $theKey) {
-								if ($elArray[$theKey]['tx_templavoila']['eType'] == 'link') {
+							foreach ($elArrayKeys as $theKey) {
+								if (($elArray[$theKey]['tx_templavoila']['eType'] == 'link') &&
+								    ($elArray[$theKey]['tx_templavoila']['type'] == 'no_map')) {
 									$elArray[$key]['tx_templavoila']['TypoScript'] .= '
 	10.stdWrap.typolink.parameter.field = ' . $theKey . '
 ';			// Proper alignment (at least for the first level)
@@ -422,8 +423,9 @@ class tx_templavoila_cm1_presets {
 							if ($elArray[$key]['tx_templavoila']['eType'] == 'input_h') {
 								// Finding link-fields on same level and set the image to be linked by that TypoLink:
 								$elArrayKeys = array_keys($elArray);
-								foreach($elArrayKeys as $theKey)	{
-									if ($elArray[$theKey]['tx_templavoila']['eType'] == 'link') {
+								foreach ($elArrayKeys as $theKey) {
+									if (($elArray[$theKey]['tx_templavoila']['eType'] == 'link') &&
+								            ($elArray[$theKey]['tx_templavoila']['type'] == 'no_map')) {
 										$elArray[$key]['tx_templavoila']['TypoScript'] = '
 	10 = TEXT
 	10.current = 1
