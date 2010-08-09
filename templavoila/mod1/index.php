@@ -1527,7 +1527,30 @@ table.typo3-dyntabmenu td.disabled:hover {
 												$TCEformsConfiguration = $containerFieldData['TCEforms']['config'];
 												$TCEformsLabel = $this->localizedFFLabel($containerFieldData['TCEforms']['label'], 1);	// title for non-section elements
 
-												if ($TCEformsConfiguration['type'] == 'group') {
+												if ($fieldData['templavoila']['eType'] == 'TypoScriptObject') {
+													// Render for everything else:
+													$cellContent .=
+														'<dt style="width: 25%; float: left; clear: left;">' .
+															'<strong>' . $TCEformsLabel . '</strong>' .
+															' <em>[' . $containerFieldData['templavoila']['TypoScriptObjPath'] . ']</em>' .
+														'</dt>' .
+														'<dd style="margin-left: 25%;">' .
+															$containerFieldData['templavoila']['TypoScriptObjDesc'] .
+														'</dd>';
+												} else if ($containerFieldData['templavoila']['eType'] == 'link') {
+													if (is_numeric($containerFieldValue)) {
+														$containerFieldValue = t3lib_BEfunc::getRecordWSOL('pages', $containerFieldValue);
+														$containerFieldValue = t3lib_BEfunc::getRecordTitle('pages', $containerFieldValue, TRUE);
+													}
+
+													$cellContent .=
+														'<dt style="width: 25%; float: left; clear: left;">' .
+															'<strong>' . $TCEformsLabel . '</strong>' .
+														'</dt>' .
+														'<dd style="margin-left: 25%;">' .
+															$this->icoObj->link_edit('<span class="inlineEdit">' . htmlspecialchars(t3lib_div::fixed_lgd_cs(strip_tags($containerFieldValue), 200)) . '</span>', $table, $uid, 'tx_templavoila_flex') .
+														'</dd>';
+												} else if ($TCEformsConfiguration['type'] == 'group') {
 													if ($TCEformsConfiguration['internal_type'] == 'file') {
 														// Render preview for images:
 														$thumbnail = t3lib_BEfunc::thumbCode(array('dummyFieldName' => $containerFieldValue), '', 'dummyFieldName', $this->doc->backPath, '', $TCEformsConfiguration['uploadfolder']);
@@ -1540,9 +1563,6 @@ table.typo3-dyntabmenu td.disabled:hover {
 															'</dd>';
 													}
 												} else if ($TCEformsConfiguration['type'] != '') {
-echo '<pre>';
-print_r($TCEformsConfiguration['type']);
-echo '</pre>';
 													// Render for everything else:
 													$cellContent .=
 														'<dt style="width: 25%; float: left; clear: left;">' .
@@ -1550,16 +1570,6 @@ echo '</pre>';
 														'</dt>' .
 														'<dd style="margin-left: 25%;">' .
 															$this->icoObj->link_edit('<span class="inlineEdit">' . htmlspecialchars(t3lib_div::fixed_lgd_cs(strip_tags($containerFieldValue), 200)) . '</span>', $table, $uid, 'tx_templavoila_flex') .
-														'</dd>';
-												} else if ($fieldData['templavoila']['eType'] == 'TypoScriptObject') {
-													// Render for everything else:
-													$cellContent .=
-														'<dt style="width: 25%; float: left; clear: left;">' .
-															'<strong>' . $TCEformsLabel . '</strong>' .
-															' <em>[' . $containerFieldData['templavoila']['TypoScriptObjPath'] . ']</em>' .
-														'</dt>' .
-														'<dd style="margin-left: 25%;">' .
-															$containerFieldData['templavoila']['TypoScriptObjDesc'] .
 														'</dd>';
 												} else {
 													// Render for everything else:
@@ -1610,7 +1620,22 @@ echo '</pre>';
 				$TCEformsConfiguration = $fieldData['TCEforms']['config'];
 				$TCEformsLabel = $this->localizedFFLabel($fieldData['TCEforms']['label'], 1);	// title for non-section elements
 
-				if ($TCEformsConfiguration['type'] == 'group') {
+				if ($fieldData['templavoila']['eType'] == 'TypoScriptObject') {
+					// Render for everything else:
+					$cellContent .=
+						'<strong>' . $TCEformsLabel . '</strong> <em>[' . $fieldData['templavoila']['TypoScriptObjPath'] . ']</em>' .
+						'<p>' . $fieldData['templavoila']['TypoScriptObjDesc'] . '</p>';
+				} else if ($fieldData['templavoila']['eType'] == 'link') {
+					if (is_numeric($fieldValue)) {
+						$fieldValue = t3lib_BEfunc::getRecordWSOL('pages', $fieldValue);
+						$fieldValue = t3lib_BEfunc::getRecordTitle('pages', $fieldValue, TRUE);
+					}
+
+					$cellContent .=
+						'<strong>' . $TCEformsLabel . '</strong><br /> ' . // $vGet .
+						$this->icoObj->link_edit('<span class="inlineEdit">' . $edit2 . '&nbsp;</span>' . htmlspecialchars(t3lib_div::fixed_lgd_cs(strip_tags($fieldValue), 200)), $table, $uid, 'tx_templavoila_flex') .
+						'<br />';
+				} else if ($TCEformsConfiguration['type'] == 'group') {
 					if ($TCEformsConfiguration['internal_type'] == 'file') {
 						// Render preview for images:
 						$thumbnail = t3lib_BEfunc::thumbCode(array('dummyFieldName' => $fieldValue), '', 'dummyFieldName', $this->doc->backPath, '', $TCEformsConfiguration['uploadfolder']);
@@ -1620,19 +1645,11 @@ echo '</pre>';
 							'<br />';
 					}
 				} else if ($TCEformsConfiguration['type'] != '') { //$this->icoObj->icon_lang($contentTreeArr['el'], $languageUid);
-echo '<pre>';
-print_r($TCEformsConfiguration['type']);
-echo '</pre>';
 					// Render for everything else:
 					$cellContent .=
 						'<strong>' . $TCEformsLabel . '</strong><br /> ' . // $vGet .
 						$this->icoObj->link_edit('<span class="inlineEdit">' . $edit2 . '&nbsp;</span>' . htmlspecialchars(t3lib_div::fixed_lgd_cs(strip_tags($fieldValue), 200)), $table, $uid, 'tx_templavoila_flex') .
 						'<br />';
-				} else if ($fieldData['templavoila']['eType'] == 'TypoScriptObject') {
-					// Render for everything else:
-					$cellContent .=
-						'<strong>' . $TCEformsLabel . '</strong> <em>[' . $fieldData['templavoila']['TypoScriptObjPath'] . ']</em>' .
-						'<p>' . $fieldData['templavoila']['TypoScriptObjDesc'] . '</p>';
 				} else {
 					// Render for everything else:
 					$cellContent .=
@@ -3709,6 +3726,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 
 		// Setting the path of the page
 		$pagePath = $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.path', 1) . ': <span class="typo3-docheader-pagePath">' . htmlspecialchars(t3lib_div::fixed_lgd_cs($title, -50)) . '</span>';
+
 		return $pagePath;
 	}
 
