@@ -87,7 +87,7 @@ class tx_templavoila_mod1_localization {
 		global $BACK_PATH;
 
 		$availableLanguagesArr = $this->pObj->translatedLanguagesArr;
-		if (count($availableLanguagesArr) <= 1)
+		if (count($availableLanguagesArr) <= 0)
 			return FALSE;
 
 		$optionsArr = array ();
@@ -102,9 +102,12 @@ class tx_templavoila_mod1_localization {
 			}
 		}
 
-		$link = '\'' . $this->pObj->baseScript . $this->pObj->uri_getParameters() . '&SET[language]=\'+this.options[this.selectedIndex].value';
+		$link = '\'' . $this->pObj->baseScript . $this->pObj->uri_getParameters() . '&SET[language]=\' + this.options[this.selectedIndex].value';
 
-		return '<select onchange="document.location=' . $link . '" style="' . $sstyle . '">' . implode('', $optionsArr) . '</select>';
+		return
+			'<select onchange="document.location=' . $link . '" style="' . $sstyle . '">' .
+				implode('', $optionsArr) .
+			'</select>';
 	}
 
 	/**
@@ -118,9 +121,8 @@ class tx_templavoila_mod1_localization {
 		global $BACK_PATH;
 
 		$availableLanguagesArr = $this->pObj->translatedLanguagesArr;
-		if (count($availableLanguagesArr) <= 1) {
+		if (count($availableLanguagesArr) <= 0)
 			return FALSE;
-		}
 
 		foreach ($availableLanguagesArr as $languageArr) {
 			if ($languageArr['uid'] <= 0 || $GLOBALS['BE_USER']->checkLanguageAccess($languageArr['uid'])) {
@@ -150,7 +152,7 @@ class tx_templavoila_mod1_localization {
 		if (count($newLanguagesArr) < 1)
 			return FALSE;
 
-		$optionsArr = array ('<option value=""></option>');
+		$optionsArr = array('<option value=""></option>');
 		foreach ($newLanguagesArr as $language) {
 			if ($GLOBALS['BE_USER']->checkLanguageAccess($language['uid']) && !isset($translatedLanguagesArr[$language['uid']])) {
 				$style = isset ($language['flagIcon']) ? 'background-image: url(' . $language['flagIcon'] . '); background-repeat: no-repeat; padding-top: 0px; padding-left: 22px;' : '';
@@ -159,9 +161,57 @@ class tx_templavoila_mod1_localization {
 			}
 		}
 
-		$link = $this->pObj->baseScript . $this->pObj->uri_getParameters() . '&createNewPageTranslation=\'+this.options[this.selectedIndex].value+\'&pid=' . $this->pObj->id;
+		$link = '\'' . $this->pObj->baseScript . $this->pObj->uri_getParameters() . '&createNewPageTranslation=\' + this.options[this.selectedIndex].value + \'&pid=' . $this->pObj->id . '\'';
 
-		return '<select onchange="document.location=' . $link . '" style="' . $sstyle . '">'.implode ('', $optionsArr) . '</select>';
+		return
+			'<select onchange="document.location=' . $link . '" style="' . $sstyle . '">' .
+				implode ('', $optionsArr) .
+			'</select>';
+	}
+
+	/**
+	 * Renders the HTML code for a selectorbox for selecting the language version of the current
+	 * page.
+	 *
+	 * @return	mixed		HTML code for the selectorbox or FALSE if no language is available.
+	 * @access	protected
+	 */
+	function sidebar_renderItem_renderLanguageSelectorbox_pure_merged() {
+		global $BACK_PATH;
+
+		$availableLanguagesArr = $this->pObj->translatedLanguagesArr;
+		$newLanguagesArr = $this->pObj->getAvailableLanguages(0, true, FALSE);
+		if (count($availableLanguagesArr) <= 0)
+			return FALSE;
+
+		$optionsArr = array();
+		foreach ($availableLanguagesArr as $languageArr) {
+			if ($languageArr['uid'] <= 0 || $GLOBALS['BE_USER']->checkLanguageAccess($languageArr['uid'])) {
+				$style = $languageArr['PLO_hidden'] ? 'Filter: alpha(opacity=25); -moz-opacity: 0.25; opacity: 0.25;' : '';
+				$flag = ($languageArr['flagIcon'] != '' ? $languageArr['flagIcon'] : $BACK_PATH . 'gfx/flags/unknown.gif');
+
+				$style .= isset($languageArr['flagIcon']) ? 'background: 1px center url(' . $flag . ') no-repeat; padding-left: 22px;' : '';
+				$optionsArr[] = '<option style="' . $style . '" value="&SET[language]=' . $languageArr['uid'] . '"' . ($this->pObj->MOD_SETTINGS['language'] == $languageArr['uid'] ? ' selected="selected"' : '') . '>' . htmlspecialchars($languageArr['title']) . '</option>';
+				$sstyle = ($this->pObj->MOD_SETTINGS['language'] == $languageArr['uid'] ? $style : $sstyle);
+			}
+		}
+
+		foreach ($newLanguagesArr as $language) {
+			if ($GLOBALS['BE_USER']->checkLanguageAccess($language['uid']) && !isset($availableLanguagesArr[$language['uid']])) {
+				$style = 'font-style: italic; font-weight: bold;';
+
+				$style .= isset($language['flagIcon']) ? 'background-image: url(' . $language['flagIcon'] . '); background-repeat: no-repeat; padding-top: 0px; padding-left: 22px;' : '';
+				$optionsArr[] = '<option style="' . $style . '" value="&createNewPageTranslation=' . $language['uid'] . '&pid=' . $this->pObj->id . '" name="createNewPageTranslation">' . htmlspecialchars($language['title']) . ' +</option>';
+			//	$sstyle = ($this->pObj->MOD_SETTINGS['language'] == $languageArr['uid'] ? $style : $sstyle);
+			}
+		}
+
+		$link = '\'' . $this->pObj->baseScript . $this->pObj->uri_getParameters() . '\' + this.options[this.selectedIndex].value';
+
+		return
+			'<select onchange="document.location=' . $link . '" style="' . $sstyle . '">' .
+				implode('', $optionsArr) .
+			'</select>';
 	}
 
 	/**

@@ -48,6 +48,7 @@
  *  571:     function printContent()
  *
  *              SECTION: Rendering functions
+ *  591:     function renderModuleSidebar($singleView=FALSE)
  *  591:     function renderModuleContent($singleView=FALSE)
  *  665:     function render_editPageScreen($singleView)
  *
@@ -231,14 +232,14 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 			$this->translatorMode = TRUE;
 		}
 
+		// Initialize TemplaVoila API class:
+		$apiClassName = t3lib_div::makeInstanceClassName('tx_templavoila_api');
+		$this->apiObj = new $apiClassName($this->altRoot ? $this->altRoot : 'pages');
+
 		// Initialize side bar:
 		$this->sideBarObj =& t3lib_div::getUserObj('EXT:templavoila/mod1/class.tx_templavoila_mod1_sidebar.php:&tx_templavoila_mod1_sidebar', '');
 		$this->sideBarObj->init($this);
 		$this->sideBarObj->position = isset($this->modTSconfig['properties']['sideBarPosition']) ? $this->modTSconfig['properties']['sideBarPosition'] : 'toptabs';
-
-		// Initialize TemplaVoila API class:
-		$apiClassName = t3lib_div::makeInstanceClassName('tx_templavoila_api');
-		$this->apiObj = new $apiClassName ($this->altRoot ? $this->altRoot : 'pages');
 
 		// Initialize the clipboard
 		$this->clipboardObj =& t3lib_div::getUserObj('EXT:templavoila/mod1/class.tx_templavoila_mod1_clipboard.php:&tx_templavoila_mod1_clipboard', '');
@@ -620,32 +621,10 @@ table.typo3-dyntabmenu td.disabled:hover {
 			$this->content .= $this->doc->startPage($GLOBALS['LANG']->getLL('title'));
 
 			// Rendering module content
-			$content = $this->renderModuleContent(FALSE);
+			$this->content .= $this->renderModuleContent(false);
+			$this->content  = $this->renderModuleSidebar(false);
 
-			// Hook for adding new sidebars or removing existing
-			$sideBarHooks = $this->hooks_prepareObjectsArray('sideBarClass');
-			foreach ($sideBarHooks as $hookObj) {
-				if (method_exists($hookObj, 'main_alterSideBar')) {
-					$hookObj->main_alterSideBar($this->sideBarObj, $this);
-				}
-			}
-
-			// Show the "edit current page" screen along with the sidebar
-			$shortCut = ($BE_USER->mayMakeShortcut() ? '<br /><br />' . $this->doc->makeShortcutIcon('id,altRoot', implode(',', array_keys($this->MOD_MENU)), $this->MCONF['name']) : '');
-			if (($this->sideBarObj->position == 'left') && $this->modTSconfig['properties']['sideBarEnable']) {
-				$this->content = '
-					<table cellspacing="0" cellpadding="0" style="width: 100%; height: 550px; padding: 0; margin: 0;">
-						<tr>
-							<td style="vertical-align:top;">' . $this->sideBarObj->render() . '</td>
-							<td style="vertical-align:top; padding-bottom:20px;" width="99%">' . $this->content . $shortCut . '</td>
-						</tr>
-					</table>
-				';
-			} else {
-				$sideBarTop = $this->modTSconfig['properties']['sideBarEnable']  && ($this->sideBarObj->position == 'toprows' || $this->sideBarObj->position == 'toptabs') ? $this->sideBarObj->render() : '';
-
-				$this->content = $sideBarTop . $this->content . $shortCut;
-			}
+			$this->content .= $this->doc->endPage();
 
 		// No access or no current page uid:
 		} else {
@@ -653,9 +632,8 @@ table.typo3-dyntabmenu td.disabled:hover {
 			$this->doc->docType = 'xhtml_trans';
 			$this->doc->backPath = $BACK_PATH;
 			$this->content .= $this->doc->startPage($GLOBALS['LANG']->getLL('title'));
+			$this->content .= $this->doc->endPage();
 		}
-
-		$this->content .= $this->doc->endPage();
 	}
 
 	/**
@@ -684,17 +662,85 @@ table.typo3-dyntabmenu td.disabled:hover {
 	 * @param	[type]		$singleView: ...
 	 * @return	void
 	 */
+	function renderModuleSidebar($singleView = FALSE) {
+		$content = $this->content;
+
+		// Hook for adding new sidebars or removing existing
+		$sideBarHooks = $this->hooks_prepareObjectsArray('sideBarClass');
+		foreach ($sideBarHooks as $hookObj) {
+			if (method_exists($hookObj, 'main_alterSideBar')) {
+				$hookObj->main_alterSideBar($this->sideBarObj, $this);
+			}
+		}
+
+		if ($singleView) {
+			// built-in
+			unset($this->sideBarObj->sideBarItems['headerFields']);
+			unset($this->sideBarObj->sideBarItems['advancedFunctions']);
+			unset($this->sideBarObj->sideBarItems['localization']);
+			unset($this->sideBarObj->sideBarItems['records']);
+			unset($this->sideBarObj->sideBarItems['nonUsedElements']);
+		}
+
+		if (!count($this->sideBarObj->sideBarItems))
+			return $content;
+
+		// Show the "edit current page" screen along with the sidebar
+		if (($this->sideBarObj->position == 'left') && $this->modTSconfig['properties']['sideBarEnable']) {
+			$this->content = '
+				<table cellspacing="0" cellpadding="0" style="width: 100%; height: 550px; padding: 0; margin: 0;">
+					<tr>
+						<td style="vertical-align:top;">' . $this->sideBarObj->render() . '</td>
+						<td style="vertical-align:top; padding-bottom:20px;" width="99%">' . $content . $shortCut . '</td>
+					</tr>
+				</table>
+			';
+		} else {
+			$sideBarTop = $this->modTSconfig['properties']['sideBarEnable']  &&
+				($this->sideBarObj->position == 'toprows' ||
+				 $this->sideBarObj->position == 'toptabs')
+				 ? $this->sideBarObj->render()
+				 : '';
+
+			$content = $sideBarTop . $content . $shortCut;
+		}
+
+		return $content;
+	}
+
+	/**
+	 * Renders module content:
+	 *
+	 * @param	[type]		$singleView: ...
+	 * @return	void
+	 */
 	function renderModuleContent($singleView = FALSE) {
 		$content = '';
 
 		$this->handleIncomingCommands();
+
+		if ($this->MOD_SETTINGS['page'] == 'records') {
+		//	if (count($this->recordsObj->tables)) {
+
+			// Create table and header cell:
+			$content .= /*'
+				<table border="0" cellpadding="0" cellspacing="0" width="100%" class="tv-records" id="records">
+				<caption class="tool">Records</caption>
+				<thead><tr><th>' . $this->recordsObj->sidebar_renderTableSelector_pure() . '</th></tr></thead>
+				</table>
+			' .*/ $this->recordsObj->sidebar_renderAllTables();
+
+			if (!$content)
+				$content = $this->msgThrow('note', $GLOBALS['LANG']->getLL('norecords'), false);
+
+			return $content;
+		}
 
 		// Start creating HTML output
 		$render_editPageScreen = true;
 
 		// Show message if the page is of a special doktype:
 		if ($this->rootElementTable == 'pages') {
-
 			// Initialize the special doktype class:
 			$specialDoktypesObj =& t3lib_div::getUserObj('EXT:templavoila/mod1/class.tx_templavoila_mod1_specialdoktypes.php:&tx_templavoila_mod1_specialdoktypes','');
 			$specialDoktypesObj->init($this);
@@ -715,6 +761,8 @@ table.typo3-dyntabmenu td.disabled:hover {
 				}
 			}
 		}
+
+		$this->msgFlush($content, true);
 
 		if ($render_editPageScreen) {
 			// Render "edit current page" (important to do before calling ->sideBarObj->render() - otherwise the translation tab is not rendered!
@@ -967,7 +1015,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 				if ($singleView)
 					$titleBarLeftButtons =
 					($this->localizationObj
-						? $this->localizationObj->sidebar_renderItem_renderLanguageSelectorbox_pure_actual()
+						? $this->localizationObj->sidebar_renderItem_renderLanguageSelectorbox_pure_merged()
 						: ''
 					) . ' ';
 				break;
@@ -2184,7 +2232,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 				if ($singleView)
 					$titleBarLeftButtons =
 					($this->localizationObj ?
-						$this->localizationObj->sidebar_renderItem_renderLanguageSelectorbox_pure_actual() : '') . ' ';
+						$this->localizationObj->sidebar_renderItem_renderLanguageSelectorbox_pure_merged() : '') . ' ';
 				break;
 			case 'tt_content':
 				$languageUid = $contentTreeArr['el']['sys_language_uid'];
@@ -3080,17 +3128,18 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 			array(
 				'preview'    => $GLOBALS['LANG']->getLL('page_display', 1),
 				'preview_nu' => $GLOBALS['LANG']->getLL('page_display_nu', 1),
-				'outline'    => $GLOBALS['LANG']->getLL('page_ouline', 1)
+				'outline'    => $GLOBALS['LANG']->getLL('page_ouline', 1),
+				'records'    => $GLOBALS['LANG']->getLL('page_records', 1)
 			);
 
 		if (!$BE_USER->isAdmin()) {
 			unset($this->MOD_MENU['page']['outline']);
 		}
 
-			// page/be_user TSconfig settings and blinding of menu-items
+		// page/be_user TSconfig settings and blinding of menu-items
 		$this->modTSconfig = t3lib_BEfunc::getModTSconfig($this->id,'mod.'.$this->MCONF['name']);
 
-			// CLEANSE SETTINGS
+		// CLEANSE SETTINGS
 		$this->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->MOD_MENU, t3lib_div::_GP('SET'), $this->MCONF['name']);
 	}
 
@@ -3483,6 +3532,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 			if ($this->id) {
 				// Rendering module content
 				$this->content .= $this->renderModuleContent(true);
+				$this->content  = $this->renderModuleSidebar(true);
 			} else {
 				// Render nothing
 				$this->content  = '';
@@ -3658,6 +3708,12 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 				$buttons['new'] = '<a href="' . $this->doc->backPath . 'db_new.php?' . $params . '&returnUrl=' . rawurlencode($this->baseScript . $this->uri_getParameters()) . '">' .
 					'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/new_page.gif', 'width="13" height="12"') . ' title="' . htmlspecialchars($GLOBALS['LANG']->getLL('clickForWizard')) . '" alt="" />' .
 					'</a>';
+
+			//	// Create new content wizard
+			//	$params = 'id=' . $this->id . '&pagesOnly=1';
+			//	$buttons['new'] = '<a onclick="' . $this->doc->backPath . 'db_new.php' . $params . '&returnUrl=' . rawurlencode($this->baseScript . $this->uri_getParameters()) . '">' .
+			//		'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/new_el.gif', 'width="13" height="12"') . ' title="' . htmlspecialchars($GLOBALS['LANG']->getLL('clickForWizard')) . '" alt="" />' .
+			//		'</a>';
 			}
 
 			if ($this->CALC_PERMS & 2) {

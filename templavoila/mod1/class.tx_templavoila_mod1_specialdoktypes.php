@@ -166,8 +166,9 @@ class tx_templavoila_mod1_specialdoktypes {
 				break;
 		}
 
+		$this->pObj->msgAppend('info', $LANG->getLL('cannotedit_externalurl_' . $pageRecord['urltype'], '', 1));
+
 		$content =
-			$this->pObj->msgThrow('info', $LANG->getLL('cannotedit_externalurl_' . $pageRecord['urltype'], '', 1)) .
 			'<p><strong><a href="' . $url . '" target="_new">' .
 			htmlspecialchars(sprintf($LANG->getLL('jumptoexternalurl'), $url)) .
 			'</a></strong><p>'
@@ -203,9 +204,12 @@ class tx_templavoila_mod1_specialdoktypes {
 				</strong>';
 		}
 
+		$this->pObj->msgAppend('info', htmlspecialchars(sprintf($LANG->getLL('cannotedit_shortcut_' . intval($pageRecord['shortcut_mode'])), $shortcutSourcePageRecord['title'])));
+
 		$content =
-			$this->pObj->msgThrow('info', htmlspecialchars(sprintf($LANG->getLL('cannotedit_shortcut_' . intval($pageRecord['shortcut_mode'])), $shortcutSourcePageRecord['title']))) .
-			'<p>' . $jumpToShortcutSourceLink . '</p>'
+			'<p>' .
+			$jumpToShortcutSourceLink .
+			'</p>'
 		;
 
 		return $content;
@@ -238,9 +242,13 @@ class tx_templavoila_mod1_specialdoktypes {
 			<a href="' . $this->pObj->mod1Script . 'id=' . $pageRecord['mount_pid'] . '">' . htmlspecialchars($LANG->getLL('jumptomountsourcepage')) . '</a>
 		';
 
+		$this->pObj->msgAppend('info', htmlspecialchars(sprintf($LANG->getLL('cannotedit_doktypemountpoint'), $mountSourcePageRecord['title'])));
+
 		$content =
-			$this->pObj->msgThrow('info', htmlspecialchars(sprintf($LANG->getLL('cannotedit_doktypemountpoint'), $mountSourcePageRecord['title']))) .
-			'<p>' . $mountSourceButton . ' <strong>' . $mountSourceLink . '</strong></p>'
+			'<p>' .
+			$mountSourceButton .
+			' <strong>' . $mountSourceLink . '</strong>' .
+			'</p>'
 		;
 
 		return $content;
@@ -262,10 +270,10 @@ class tx_templavoila_mod1_specialdoktypes {
 
 		$editButton = $this->icoObj->link_edit('<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/edit2.gif', '') . ' title="'.htmlspecialchars($LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:editPage')) . '" alt="" style="text-align: center; vertical-align: middle; border:0;" />', 'pages', $pageRecord['uid']);
 
-		if ($this->userHasAccessToListModule ()) {
+		if ($this->userHasAccessToListModule()) {
 			$listModuleURL = t3lib_div::getIndpEnv('TYPO3_SITE_URL') . TYPO3_mainDir . 'db_list.php?id=' . intval($this->pObj->id);
 			$onClick = "top.nextLoadModuleUrl='" . $listModuleURL . "';top.fsMod.recentIds['web']=" . intval($this->pObj->id) . ";top.goToModule('web_list',1);";
-			$listModuleLink = '<br /><br />
+			$listModuleLink = '
 				<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'mod/web/list/list.gif', '') . ' style="text-align:center; vertical-align: middle; border:0;" />
 				<strong><a href="#" onClick="' . $onClick . '">' . $LANG->getLL('editpage_sysfolder_switchtolistview','',1) . '</a></strong>
 			';
@@ -273,9 +281,12 @@ class tx_templavoila_mod1_specialdoktypes {
 			$listModuleLink = $LANG->getLL('editpage_sysfolder_listview_noaccess', '', 1);
 		}
 
+		$this->pObj->msgAppend('info', $LANG->getLL('editpage_sysfolder_intro', '', 1));
+
 		$content =
-			$this->pObj->msgThrow('info', $LANG->getLL('editpage_sysfolder_intro', '', 1)) .
-			$listModuleLink
+			'<p>' .
+			$listModuleLink .
+			'</p>'
 		;
 
 		return $content;

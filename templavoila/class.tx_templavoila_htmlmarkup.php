@@ -1101,9 +1101,9 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 		// Get gnyf:
 		$attrInfo = '';
 		if ($params[0]['class'])
-			$attrInfo .= ' CLASS="' . $params[0]['class'] . '"';
+			$attrInfo .= ' class="' . $params[0]['class'] . '"';
 		if ($params[0]['id'])
-			$attrInfo .= ' ID="' . $params[0]['id'] . '"';
+			$attrInfo .= ' id="' . $params[0]['id'] . '"';
 
 		$gnyf = $this->getGnyf($firstTagName, $subPath, $subPath . ($attrInfo ? ' - ' . $attrInfo : ''));
 
@@ -1202,59 +1202,60 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 		} elseif ($this->searchPaths[$subPath])	{
 			$placeholder = md5(uniqid(rand(), true));
 
-			switch((string)$this->searchPaths[$subPath]['modifier'])	{
+			switch((string)$this->searchPaths[$subPath]['modifier']) {
 				case 'ATTR':
 				case 'INNER+ATTR':
 						// Attribute
-					if ($this->searchPaths[$subPath]['modifier_value'])	{
+					if ($this->searchPaths[$subPath]['modifier_value']) {
 						$attributeArray = array_unique(t3lib_div::trimExplode(',',$this->searchPaths[$subPath]['modifier_value'],1));
-						foreach($attributeArray as $attr)	{
+						foreach($attributeArray as $attr) {
 							$placeholder = '###'.$placeholder.'###';
 							$this->searchPaths[$subPath]['attr'][$attr]['placeholder']=$placeholder;
 							$this->searchPaths[$subPath]['attr'][$attr]['content']=$params[0][$attr];
 							$params[0][$attr] = $placeholder;
 							$placeholder = md5(uniqid(rand(), true));
 						}
-						$firstTag = '<'.trim($firstTagName.' '.t3lib_div::implodeAttributes($params[0])).($mode!='block'?' /':'').'>';
-						if ($mode!='block')	{
+						$firstTag = '<' . trim($firstTagName . ' ' . t3lib_div::implodeAttributes($params[0])).($mode!='block'?' /':'').'>';
+						if ($mode != 'block') {
 							$v = $firstTag;
 							$firstTag = '';
 						}
 					}
 
-					if ($mode=='block' && (string)$this->searchPaths[$subPath]['modifier']=='INNER+ATTR')	{
-							// INNER
-						$placeholder = '<!--###'.$placeholder.'###-->';
-						$this->searchPaths[$subPath]['placeholder']=$placeholder;
-						$this->searchPaths[$subPath]['content']=$v;
-						$v = $firstTag.$placeholder.$endTag;
-					} else {
-						$v = $firstTag.$v.$endTag;
-					}
-				break;
-				case 'INNER':
+					if ($mode=='block' && (string)$this->searchPaths[$subPath]['modifier'] == 'INNER+ATTR')	{
 						// INNER
-					$placeholder = '<!--###'.$placeholder.'###-->';
+						$placeholder = '<!--###' . $placeholder . '###-->';
+						$this->searchPaths[$subPath]['placeholder'] = $placeholder;
+						$this->searchPaths[$subPath]['content'] = $v;
+						$v = $firstTag . $placeholder . $endTag;
+					} else {
+						$v = $firstTag . $v . $endTag;
+					}
+					break;
+				case 'INNER':
+					// INNER
+					$placeholder = '<!--###' . $placeholder . '###-->';
 					$this->searchPaths[$subPath]['placeholder']=$placeholder;
 					$this->searchPaths[$subPath]['content']=$v;
 					$v = $firstTag.$placeholder.$endTag;
-				break;
+					break;
 				case 'RANGE':
-					$placeholder = '<!--###'.$placeholder.'###-->';
-					$this->searchPaths[$subPath]['placeholder']=$placeholder;
-					$this->searchPaths[$subPath]['content']=$firstTag.$v.$endTag;
+					// RANGE
+					$placeholder = '<!--###' . $placeholder . '###-->';
+					$this->searchPaths[$subPath]['placeholder'] = $placeholder;
+					$this->searchPaths[$subPath]['content'] = $firstTag . $v . $endTag;
 					$v = $placeholder;
 
-					$this->rangeEndSearch[$recursion]=trim($path.' '.$this->searchPaths[$subPath]['modifier_value']);
+					$this->rangeEndSearch[$recursion] = trim($path . ' ' . $this->searchPaths[$subPath]['modifier_value']);
 					$this->rangeStartPath[$recursion] = $subPath;
-				break;
+					break;
 				default:
-						// OUTER
-					$placeholder = '<!--###'.$placeholder.'###-->';
-					$this->searchPaths[$subPath]['placeholder']=$placeholder;
-					$this->searchPaths[$subPath]['content']=$firstTag.$v.$endTag;
+					// OUTER
+					$placeholder = '<!--###' . $placeholder . '###-->';
+					$this->searchPaths[$subPath]['placeholder'] = $placeholder;
+					$this->searchPaths[$subPath]['content'] = $firstTag . $v . $endTag;
 					$v = $placeholder;
-				break;
+					break;
 			}
 		} else {
 			$v = $firstTag.$v.$endTag;
@@ -1273,12 +1274,39 @@ require_once(PATH_t3lib.'class.t3lib_parsehtml.php');
 	 */
 	function sourceDisplay($str, $recursion, $gnyf = '', $valueStr = 0) {
 		if (strcmp(trim($str), '')) {
-			return str_pad('', $recursion * 2, ' ', STR_PAD_LEFT) .
-				$gnyf .
-				($valueStr ? '<font color="#6666FF"><em>' : '') .
-				htmlspecialchars(t3lib_div::fixed_lgd_cs(preg_replace('/\s+/', ' ', $str), $this->maxLineLengthInSourceMode)).
-				($valueStr ? '</em></font>' : '') .
-				chr(10);
+			$res = '';
+			$str = explode('-->', $str);
+			foreach ($str as $frg) {
+				$nav = '';
+				if (preg_match('/<\!-- +(FCE|FLX)\: +(.*)\.* +/', $frg, $matches)) {
+					$matches[2] = preg_replace('/\.*$/', '', $matches[2]);
+					$matches[2] = preg_replace('/[^a-zA-Z0-9_-]/', '_', $matches[2]);
+					$matches[2] = preg_replace('/_+/', '_', $matches[2]);
+					$matches[2] = preg_replace('/_+$/', '', $matches[2]);
+
+					$idt = $matches[1] . '_' . $matches[2];
+					if (!isset($this->tv_idts))
+						$this->tv_idts = array();
+					if (!isset($this->tv_idts[$idt]))
+						$this->tv_idts[$idt] = 0;
+					$this->tv_idts[$idt] = $this->tv_idts[$idt] + 1;
+
+					$idt = $matches[1] . '_' . $matches[2] . '[' . ($this->tv_idts[$idt]) . ']';
+
+					$nav = ' id="' . $idt . '"';
+					$frg .= '-->';
+				}
+
+				$res .=
+					str_pad('', $recursion * 2, ' ', STR_PAD_LEFT) .
+					$gnyf .
+					($valueStr ? '<font color="#6666FF"><em' . $nav . '>' : '') .
+					htmlspecialchars(t3lib_div::fixed_lgd_cs(preg_replace('/\s+/', ' ', $frg), $this->maxLineLengthInSourceMode)).
+					($valueStr ? '</em></font>' : '') .
+					chr(10);
+			}
+
+			return $res;
 		}
 
 		return '';

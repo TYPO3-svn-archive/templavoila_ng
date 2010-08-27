@@ -2958,6 +2958,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 			if ($this->_preview && !$this->mapElPath) {
 				$label = $GLOBALS['LANG']->getLL('titlePreview');
+				$section .= $this->makeSelectorForVisual($displayFile, '', '', 0, 1);
 				$section .= $this->makeIframeForVisual($displayFile, '', '', 0, 1);
 			}
 			else {
@@ -3000,6 +3001,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			//	';
 
 				// Add the Iframe:
+				$section .= $this->makeSelectorForVisual($displayFile, $this->displayPath, $limitTags, $this->doMappingOfPath);
 				$section .= $this->makeIframeForVisual($displayFile, $this->displayPath, $limitTags, $this->doMappingOfPath);
 			}
 
@@ -3883,6 +3885,59 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 * @return	string		HTML code for the IFRAME.
 	 * @see main_display()
 	 */
+	function makeSelectorForVisual($file, $path, $limitTags, $showOnly, $preview = 0) {
+		if (($content = t3lib_div::getUrl($file))) {
+			$res = '';
+			$str = explode('-->', $content);
+			foreach ($str as $frg) {
+				$nav = '';
+				if (preg_match('/<\!-- +(FCE|FLX)\: +(.*)\.* +/', $frg, $matches)) {
+					$nme = $matches[1] . ': ' . $matches[2];
+
+					$matches[2] = preg_replace('/\.*$/', '', $matches[2]);
+					$matches[2] = preg_replace('/[^a-zA-Z0-9_-]/', '_', $matches[2]);
+					$matches[2] = preg_replace('/_+/', '_', $matches[2]);
+					$matches[2] = preg_replace('/_+$/', '', $matches[2]);
+
+					$idt = $matches[1] . '_' . $matches[2];
+
+					if (!isset($this->tv_idts))
+						$this->tv_idts = array();
+					if (!isset($this->tv_idts[$idt]))
+						$this->tv_idts[$idt] = 0;
+
+					$this->tv_idts[$idt] = $this->tv_idts[$idt] + 1;
+					$this->tv_nams[$nme] = $idt . '[' . ($this->tv_idts[$idt]) . ']';
+				}
+			}
+
+			if (count($this->tv_nams)) {
+				$opts = array();
+				foreach ($this->tv_nams as $nme => $idt)
+					$opts[] = '<option value="' . $idt . '">' . $nme . '</option>';
+
+				return
+				'<select style="float: right;" onchange="vis = document.getElementById(\'visual\'); vis.src = vis.src.replace(/#.*$/, \'#\' + this.value);">
+					<option value="_MARKED_UP_ELEMENT">markedup element</option>
+					' . implode('', $opts) . '
+				</select>';
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Creates the HTML code for the IFRAME in which the display mode is shown:
+	 *
+	 * @param	string		File name to display in exploded mode.
+	 * @param	string		HTML-page
+	 * @param	string		Tags which is the only ones to show
+	 * @param	boolean		If set, the template is only shown, mapping links disabled.
+	 * @param	boolean		Preview enabled.
+	 * @return	string		HTML code for the IFRAME.
+	 * @see main_display()
+	 */
 	function makeIframeForVisual($file, $path, $limitTags, $showOnly, $preview = 0) {
 		$url = $this->baseScript . 'mode=display' .
 				'&file=' . rawurlencode($file) .
@@ -3890,7 +3945,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				'&preview=' . ($preview? 1 : 0) .
 				($showOnly ? '&show=1' : '&limitTags=' . rawurlencode($limitTags));
 
-		return '<iframe width="98%" height="500" src="' . htmlspecialchars($url) . '#_MARKED_UP_ELEMENT" style="border: 1xpx solid black;"></iframe>';
+		return '<iframe id="visual" width="98%" height="500" src="' . htmlspecialchars($url) . '#_MARKED_UP_ELEMENT" style="border: 1xpx solid black;"></iframe>';
 	}
 
 	/**

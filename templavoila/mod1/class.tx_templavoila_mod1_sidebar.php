@@ -104,7 +104,7 @@ class tx_templavoila_mod1_sidebar {
 			);
 		}
 
-		$this->sideBarItems['headerFields'] = array (
+		$this->sideBarItems['headerFields'] = array(
 			'object' => &$this,
 			'method' => 'renderItem_headerFields',
 			'label' => $LANG->getLL('pagerelatedinformation'),
@@ -112,7 +112,7 @@ class tx_templavoila_mod1_sidebar {
 			'hideIfEmpty' => true,
 		);
 
-		$this->sideBarItems['advancedFunctions'] = array (
+		$this->sideBarItems['advancedFunctions'] = array(
 			'object' => &$this,
 			'method' => 'renderItem_advancedFunctions',
 			'label' => $LANG->getLL('advancedfunctions'),
@@ -134,7 +134,7 @@ class tx_templavoila_mod1_sidebar {
 	 * @access	public
 	 */
 	function addItem($itemKey, &$object, $method, $label, $priority = 50, $hideIfEmpty = false) {
-		$this->sideBarItems[$itemKey] = array (
+		$this->sideBarItems[$itemKey] = array(
 			'object' => $object,
 			'method' => $method,
 			'label' => $label,
@@ -162,7 +162,7 @@ class tx_templavoila_mod1_sidebar {
 	 */
 	function render() {
 		if (is_array($this->sideBarItems) && count($this->sideBarItems)) {
-			uasort ($this->sideBarItems, array($this, 'sortItemsCompare'));
+			uasort($this->sideBarItems, array($this, 'sortItemsCompare'));
 
 			// Render content of each sidebar item:
 			$index = 0;
@@ -175,6 +175,9 @@ class tx_templavoila_mod1_sidebar {
 					$index++;
 				}
 			}
+
+			if (!count($numSortedSideBarItems))
+				return '';
 
 			// Create the whole sidebar:
 			switch ($this->position) {

@@ -17,6 +17,7 @@
 			<label index="page_display">Preview-mode</label>
 			<label index="page_display_nu">Preview-mode (with non-used elements)</label>
 			<label index="page_ouline">Outline-mode</label>
+			<label index="page_records">Record-mode</label>
 			<label index="page_settings">Options</label>
 			<label index="page_settings_hidden">Hide hidden elements</label>
 			<label index="page_settings_all">Show hidden elements</label>
@@ -112,6 +113,7 @@
 			<label index="path">Path</label>
 			<label index="notitle">[No title]</label>
 			<label index="notemplate">There has been no template defined for the curent page.</label>
+			<label index="norecords">There are no records visible to you at the moment.</label>
 			<label index="defaultLanguage">Default language</label>
 			<label index="createcopyfortranslation">Create a copy for translation</label>
 			<label index="inititemno_elementsNotBeingUsed">Elements not being used in this language or sheet</label>
@@ -162,6 +164,7 @@
 			<label index="page_display">Vorschau-Modus</label>
 			<label index="page_display_nu">Vorschau-Modus (mit unbenutzten Elementen)</label>
 			<label index="page_ouline">Zeilen-Modus</label>
+			<label index="page_records">Record-Modus</label>
 			<label index="page_settings">Optionen</label>
 			<label index="page_settings_hidden">Versteckte Elemente ausblenden</label>
 			<label index="page_settings_all">Versteckte Elemente anzeigen</label>
@@ -249,6 +252,9 @@
 			<label index="makeLocal">Lokale Kopie erstellen</label>
 			<label index="makeLocalMsg">Möchten Sie eine lokale Kopie dieses verknüpften Elements erstellen?</label>
 			<label index="path">Pfad</label>
+			<label index="notitle">[Kein Titel]</label>
+			<label index="notemplate">Es wurde keine Vorlage für die aktuelle Seite definiert.</label>
+			<label index="norecords">Es sind aktuell keine Einträge sichtbar.</label>
 			<label index="defaultLanguage">Standard Sprache</label>
 			<label index="createcopyfortranslation">Erstelle eine Kopie für Übersetzung</label>
 			<label index="inititemno_elementsNotBeingUsed">Elemente, die in diesem Blatt oder Sprache nicht verwendet werden</label>

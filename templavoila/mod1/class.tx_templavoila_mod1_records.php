@@ -36,8 +36,8 @@
  *   58: class tx_templavoila_mod1_records
  *   73:     function init(&$pObj)
  *  100:     function sidebar_renderRecords()
- *  117:     function renderTableSelector()
- *  151:     function renderRecords()
+ *  117:     function sidebar_renderTableSelector()
+ *  151:     function sidebar_renderRecords()
  *  168:     function canDisplayTable($table)
  *  179:     function initDbList($table)
  *
@@ -73,18 +73,23 @@ class tx_templavoila_mod1_records {
 	function init(&$pObj) {
 		if (t3lib_div::int_from_ver(TYPO3_version) >= 4000005) {
 			$this->pObj = &$pObj;
+			$this->tables = array();
 
-			$this->tables = t3lib_div::trimExplode(',', $this->pObj->modTSconfig['properties']['recordDisplay_tables'], true);
-			if ($this->tables) {
+			// Get tables
+			$tables = t3lib_div::trimExplode(',', $this->pObj->modTSconfig['properties']['recordDisplay_tables'], true);
+			if ($tables) {
 				// Get permissions
 				$this->calcPerms = $GLOBALS['BE_USER']->calcPerms(t3lib_BEfunc::readPageAccess($this->pObj->id, $this->pObj->perms_clause));
-				foreach ($this->tables as $table) {
+				foreach ($tables as $table) {
 					if ($this->canDisplayTable($table)) {
-						// At least one displayable table found!
-						$this->pObj->sideBarObj->addItem('records', $this, 'sidebar_renderRecords', $GLOBALS['LANG']->getLL('records'), 25);
-						break;
+						$this->tables[] = $table;
 					}
 				}
+			}
+
+			// At least one displayable table found!
+			if (count($this->tables)) {
+				$this->pObj->sideBarObj->addItem('records', $this, 'sidebar_renderRecords', $GLOBALS['LANG']->getLL('records'), 25);
 			}
 		}
 	}
@@ -105,10 +110,10 @@ class tx_templavoila_mod1_records {
 				<tr class="bgColor4-20">
 					<th colspan="3">&nbsp;</th>
 				</tr>' .
-				$this->renderTableSelector() . '
+				$this->sidebar_renderTableSelector() . '
 			</thead>
 			<tbody>' .
-				$this->renderRecords() . '
+				$this->sidebar_renderRecordTables() . '
 			</tbody>
 			</table>
 		';
@@ -119,14 +124,23 @@ class tx_templavoila_mod1_records {
 	 *
 	 * @return	string		Genrated content
 	 */
-	function renderTableSelector() {
-		$link = '\'' . $this->pObj->baseScript . $this->pObj->uri_getParameters() . '&SET[recordsView_start]=0&SET[recordsView_table]=\'+this.options[this.selectedIndex].value';
-
+	function sidebar_renderTableSelector() {
 		$content  = '
 			<tr class="bgColor4">
 				<td width="20">&nbsp;</td>
 				<td width="200">' . $GLOBALS['LANG']->getLL('displayRecordsFrom') . '</td>
 				<td>
+				' . $this->sidebar_renderTableSelector_pure() . '
+				</td>
+			</tr>';
+
+		return $content;
+	}
+
+	function sidebar_renderTableSelector_pure() {
+		$link = '\'' . $this->pObj->baseScript . $this->pObj->uri_getParameters() . '&SET[recordsView_start]=0&SET[recordsView_table]=\'+this.options[this.selectedIndex].value';
+
+		$content  = '
 					<select onchange="document.location.href=' . $link . '">
 						<option value=""' . ($this->pObj->MOD_SETTINGS['recordsView_table'] == '' ? ' selected="selected"' : '') . '></options>';
 
@@ -144,9 +158,7 @@ class tx_templavoila_mod1_records {
 		}
 
 		$content .= '
-					</select>
-				</td>
-			</tr>';
+					</select>';
 
 		if (!in_array($this->pObj->MOD_SETTINGS['recordsView_table'], $this->tables)) {
 			unset($this->pObj->MOD_SETTINGS['recordsView_table']);
@@ -161,17 +173,47 @@ class tx_templavoila_mod1_records {
 	 *
 	 * @return	void
 	 */
-	function renderRecords() {
+	function sidebar_renderRecordTables() {
 		$content = '';
 
 		if (($table = $this->pObj->MOD_SETTINGS['recordsView_table'])) {
+			$content = '
+				<tr class="bgColor4">
+					<td colspan="3" style="padding: 0 0 3px 3px">' . $this->sidebar_renderTable($table) . '</td>
+				</tr>';
+		}
+
+		return $content;
+	}
+
+	/**
+	 * Renders record table.
+	 *
+	 * @return	void
+	 */
+	function sidebar_renderAllTables() {
+		$content = '';
+
+		foreach ($this->tables as $table) {
+			$content .= $this->sidebar_renderTable($table);
+		}
+
+		return $content;
+	}
+
+	/**
+	 * Renders record table.
+	 *
+	 * @return	void
+	 */
+	function sidebar_renderTable($table) {
+		$content = '';
+
+		if ($table && in_array($table, $this->tables)) {
 			$this->initDbList($table);
 			$this->dblist->generateList();
 
-			$content = '
-				<tr class="bgColor4">
-					<td colspan="3" style="padding: 0 0 3px 3px">' . $this->dblist->HTMLcode . '</td>
-				</tr>';
+			$content = $this->dblist->HTMLcode;
 		}
 
 		return $content;
@@ -185,6 +227,7 @@ class tx_templavoila_mod1_records {
 	 */
 	function canDisplayTable($table) {
 		t3lib_div::loadTCA($table);
+
 		return ($table != 'pages' && $table != 'tt_content' && isset($GLOBALS['TCA'][$table]) && $GLOBALS['BE_USER']->check('tables_select', $table));
 	}
 
