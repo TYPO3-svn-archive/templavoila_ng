@@ -96,7 +96,7 @@ class tx_templavoila_mod2_to {
 		$toRecords = array();
 
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-			'cruser_id, crdate, tstamp, uid, title, parent, fileref, sys_language_uid, datastructure, rendertype, localprocessing, previewicon, description, fileref_mtime, fileref_md5',
+			'cruser_id, crdate, tstamp, uid, title, parent, sys_language_uid, datastructure, rendertype, localprocessing, previewicon, description, fileref, fileref_mtime, fileref_md5, belayout, belayout_mtime, belayout_md5',
 			'tx_templavoila_tmplobj',
 			'pid = ' . intval($pid) . t3lib_BEfunc::deleteClause('tx_templavoila_tmplobj'),
 			'',
@@ -157,6 +157,14 @@ class tx_templavoila_mod2_to {
 		$linkUrl = $this->pObj->cm1Script . 'id=' . $this->pObj->id . '&table=tx_templavoila_tmplobj&uid=' . $toRow['uid'] . '&_reload_from=1&returnUrl=' . rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI'));
 
 		/* ------------------------------------------------------------------------------ */
+		$templateStatusError   = 0;
+		$templateStatusActions = '';
+
+		/* ------------------------------------------------------------------------------ */
+		$mappingStatusIcon     = '';
+		$mappingStatusTitle    = '';
+		$mappingStatusMessage  = '';
+
 		$fileReference = t3lib_div::getFileAbsFileName($toRow['fileref']);
 		if (@is_file($fileReference)) {
 			$this->tFileList[$fileReference]++;
@@ -170,13 +178,6 @@ class tx_templavoila_mod2_to {
 			$fileMtime = 0;
 		}
 
-		/* ------------------------------------------------------------------------------ */
-		$mappingStatusError   = 0;
-		$mappingStatusIcon    = '';
-		$mappingStatusTitle   = '';
-		$mappingStatusMessage = '';
-		$mappingStatusActions = '';
-
 		if ($fileMtime && $toRow['fileref_mtime']) {
 			if ($toRow['fileref_md5'] != '') {
 				$modified = (@md5_file($fileReference) != $toRow['fileref_md5']);
@@ -184,45 +185,95 @@ class tx_templavoila_mod2_to {
 				$modified = ($toRow['fileref_mtime'] != $fileMtime);
 			}
 
-			if (($mappingStatusError = $modified ? 1 : 0)) {
+			if (($templateStatusError |= $modified ? 1 : 0) && $modified) {
 				$mappingStatusIcon  .= t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_warning2.gif', 'width="18" height="16"');
 				$mappingStatusTitle .= sprintf($GLOBALS['LANG']->getLL('center_mapping_changed'), t3lib_BEfunc::datetime($toRow['tstamp']));
 			} else {
 				$mappingStatusIcon  .= t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_ok2.gif', 'width="18" height="16"');
 				$mappingStatusTitle .= $GLOBALS['LANG']->getLL('center_mapping_good');
 			}
-
-			// Module may be allowed, but modify may not
-			if ($this->modifiable) {
-				$mappingStatusActions .= '<a href="' . htmlspecialchars($linkUrl) . '">[ ' . $GLOBALS['LANG']->getLL('center_view_to') . ' ]</a> ';
-			}
-		} else if (($mappingStatusError = !$fileMtime ? 2 : 0)) {
+		} else if (($templateStatusError |= !$fileMtime ? 2 : 0) && !$fileMtime) {
 			$mappingStatusIcon    .= t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_fatalerror.gif', 'width="18" height="16"');
 			$mappingStatusTitle   .= $GLOBALS['LANG']->getLL('center_mapping_unmapped');
 			$mappingStatusMessage .= '<em style="font-size: 0.8em;>' . $GLOBALS['LANG']->getLL('center_mapping_note') . '<br /></em>';
+		}
 
-			if ($this->modifiable) {
-				$mappingStatusActions .= '<a href="' . htmlspecialchars($linkUrl) . '">[ ' . $GLOBALS['LANG']->getLL('center_view_to_map') . ' ]</a> ';
-			}
+		if ($mappingStatusTitle) {
+			$mappingStatusShort = '<img' . $mappingStatusIcon . ' title="' . $mappingStatusTitle . '" class="absmiddle" />';
+			$mappingStatusLine  = '<img' . $mappingStatusIcon . ' alt="" class="absmiddle" /> ' . $mappingStatusTitle . '<br />';
+			$mappingStatusLong  = $mappingStatusLine . $mappingStatusMessage;
+		}
+
+		/* ------------------------------------------------------------------------------ */
+		$belayoutStatusIcon     = '';
+		$belayoutStatusTitle    = '';
+		$belayoutStatusMessage  = '';
+
+		$belayoutReference = t3lib_div::getFileAbsFileName($toRow['belayout']);
+		if (@is_file($belayoutReference)) {
+			$this->tFileList[$belayoutReference]++;
+
+			$belayoutRef = '<a href="' . htmlspecialchars($this->doc->backPath . '../' . substr($belayoutReference, strlen(PATH_site))) . '" target="_blank">' . htmlspecialchars($toRow['belayout']) . '</a>';
+			$belayoutMsg = '';
+			$belayoutMtime = filemtime($belayoutReference);
+		} else if (trim($belayoutReference)) {
+			$belayoutRef = htmlspecialchars($toRow['belayout']);
+			$belayoutMsg = '<div class="typo3-red">' . $GLOBALS['LANG']->getLL('filenotfound') . '</div>';
+			$belayoutMtime = 0;
+		} else if (is_array($xml = t3lib_div::xml2array($toRow['localprocessing'])) && trim($xml['meta']['beLayout'])) {
+			$belayoutRef = '';
+			$belayoutMsg = $GLOBALS['LANG']->getLL('belayoutembedded');
+			$belayoutMtime = 0;
 		} else {
-			if ($this->modifiable) {
-				$mappingStatusActions .= '<a href="' . htmlspecialchars($linkUrl) . '">[ ' . $GLOBALS['LANG']->getLL('center_view_to_remap') . ' ]</a> ';
-				$mappingStatusActions .= '<a href="' . htmlspecialchars($linkUrl . '&SET[page]=preview') . '">[ ' . $GLOBALS['LANG']->getLL('center_view_to_verify') . ' ]</a>';
+			$belayoutRef = '';
+			$belayoutMsg = $GLOBALS['LANG']->getLL('belayoutnotused');
+			$belayoutMtime = 0;
+		}
+
+		if ($belayoutMtime && $toRow['belayoutref_mtime']) {
+			if ($toRow['belayoutref_md5'] != '') {
+				$modified = (@md5_file($belayoutReference) != $toRow['belayoutref_md5']);
+			} else {
+				$modified = ($toRow['belayoutref_mtime'] != $belayoutMtime);
+			}
+
+			if (($templateStatusError |= $modified ? 1 : 0) && $modified) {
+				$belayoutStatusIcon  .= t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_warning2.gif', 'width="18" height="16"');
+				$belayoutStatusTitle .= sprintf($GLOBALS['LANG']->getLL('center_belayout_changed'), t3lib_BEfunc::datetime($toRow['tstamp']));
+			} else {
+				$belayoutStatusIcon  .= t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_ok2.gif', 'width="18" height="16"');
+				$belayoutStatusTitle .= $GLOBALS['LANG']->getLL('center_belayout_good');
 			}
 		}
 
-		if (!$this->modifiable) {
-			$mappingStatusActions .= '<a href="' . htmlspecialchars($linkUrl . '&SET[page]=preview') . '">[ ' . $GLOBALS['LANG']->getLL('center_view_to_preview') . ' ]</a>';
+		if ($belayoutStatusTitle) {
+			$belayoutStatusShort = '<img' . $belayoutStatusIcon . ' title="' . $belayoutStatusTitle . '" class="absmiddle" />';
+			$belayoutStatusLine  = '<img' . $belayoutStatusIcon . ' alt="" class="absmiddle" /> ' . $belayoutStatusTitle . '<br />';
+			$belayoutStatusLong  = $belayoutStatusLine . $belayoutStatusMessage;
 		}
 
-		$mappingStatusShort = '<img' . $mappingStatusIcon . ' title="' . $mappingStatusTitle . '" class="absmiddle" />';
-		$mappingStatusLine  = '<img' . $mappingStatusIcon . ' alt="" class="absmiddle" /> ' . $mappingStatusTitle . '<br />';
-		$mappingStatusLong  = $mappingStatusLine . $mappingStatusMessage;
+		/* ------------------------------------------------------------------------------ */
+		// Module may be allowed, but modify may not
+		if ($this->modifiable) {
+			// file/belayout missing
+			if ($templateStatusError >= 2) {
+				$templateStatusActions .= '<a href="' . htmlspecialchars($linkUrl) . '">[ ' . $GLOBALS['LANG']->getLL('center_view_to_map') . ' ]</a> ';
+			}
+			// file/belayout changed
+			else if ($templateStatusError >= 1) {
+				$templateStatusActions .= '<a href="' . htmlspecialchars($linkUrl) . '">[ ' . $GLOBALS['LANG']->getLL('center_view_to_remap') . ' ]</a> ';
+				$templateStatusActions .= '<a href="' . htmlspecialchars($linkUrl . '&SET[page]=preview') . '">[ ' . $GLOBALS['LANG']->getLL('center_view_to_verify') . ' ]</a>';
+			}
+			// every other reason
+			else  {
+				$templateStatusActions .= '<a href="' . htmlspecialchars($linkUrl) . '">[ ' . $GLOBALS['LANG']->getLL('center_view_to') . ' ]</a> ';
+			}
+		}
 
-		if ($mappingStatusError >= 2) {
-			$this->pObj->setErrorLog($scope, 'fatal', $mappingStatusLine . ' (TO: "' . $toRow['title'] . '")');
-		} else if ($mappingStatusError >= 1) {
-			$this->pObj->setErrorLog($scope, 'warning', $mappingStatusLine . ' (TO: "' . $toRow['title'] . '")');
+		if ($templateStatusError >= 2) {
+			$this->pObj->setErrorLog($scope, 'fatal', $mappingStatusLine . $belayoutStatusLine . ' (TO: "' . $toRow['title'] . '")');
+		} else if ($templateStatusError >= 1) {
+			$this->pObj->setErrorLog($scope, 'warning', $mappingStatusLine . $belayoutStatusLine . ' (TO: "' . $toRow['title'] . '")');
 		}
 
 		/* ------------------------------------------------------------------------------ */
@@ -281,9 +332,11 @@ class tx_templavoila_mod2_to {
 				     $templateUsageMessage,
 				     $templateUsageCount) = $this->findRecordsWhereTOUsed($toRow, $scope);
 
-				$templateUsageShort = '<img' . $templateUsageIcon . ' title="' . $templateUsageTitle . '" class="absmiddle" />';
-				$templateUsageLine  = '<img' . $templateUsageIcon . ' alt="" class="absmiddle" /> ' . $templateUsageTitle . '<br />';
-				$templateUsageLong  = $templateUsageLine . $templateMessage;
+				if ($templateUsageTitle) {
+					$templateUsageShort = '<img' . $templateUsageIcon . ' title="' . $templateUsageTitle . '" class="absmiddle" />';
+					$templateUsageLine  = '<img' . $templateUsageIcon . ' alt="" class="absmiddle" /> ' . $templateUsageTitle . '<br />';
+					$templateUsageLong  = $templateUsageLine . $templateMessage;
+				}
 
 				if ($templateUsageError >= 2) {
 					$this->pObj->setErrorLog($scope, 'fatal', $templateUsageLine . ' (TO: "' . $toRow['title'] . '")');
@@ -309,6 +362,9 @@ class tx_templavoila_mod2_to {
 						<dt>' . $GLOBALS['LANG']->getLL('description') . ':</dt>
 						<dd>' . ($toRow['description'] ? htmlspecialchars($toRow['description']) : '&mdash;') . '</dd>
 
+						<dt>' . $GLOBALS['LANG']->getLL('belayoutref') . ':</dt>
+						<dd>' . $belayoutRef . $belayoutMsg . '</dd>
+
 						<dt>' . $GLOBALS['LANG']->getLL('fileref') . ':</dt>
 						<dd>' . $fileRef . $fileMsg . '</dd>
 
@@ -326,11 +382,12 @@ class tx_templavoila_mod2_to {
 						<dd>' . $templateUsageLong . '</dd>
 					' : '') . '
 
-						<dt>' . $GLOBALS['LANG']->getLL('center_list_mapstatus') . ':</dt>
-						<dd>' . $mappingStatusLong . '</dd>
+						<dt>' . $GLOBALS['LANG']->getLL('center_list_filestatus') . ':</dt>
+						<dd>' . $mappingStatusLong . '
+						    ' . $belayoutStatusLong . '</dd>
 					</dl>
 					<div class="actions">' .
-						$mappingStatusActions . '
+						$templateStatusActions . '
 					</div>
 					</td>
 				</tr>
@@ -350,6 +407,9 @@ class tx_templavoila_mod2_to {
 				<tr class="bgColor4">
 					<td>
 					<dl class="TO-listing">
+						<dt>' . $GLOBALS['LANG']->getLL('belayoutref') . ':</dt>
+						<dd>' . $belayoutRef . $belayoutMsg . '</dd>
+
 						<dt>' . $GLOBALS['LANG']->getLL('fileref') . ':</dt>
 						<dd>' . $fileRef . $fileMsg . '</dd>
 
@@ -370,10 +430,11 @@ class tx_templavoila_mod2_to {
 						<dd>' . t3lib_BEfunc::datetime($toRow['tstamp']) . '</dd>
 					' : '') . '
 
-						<dt>' . $GLOBALS['LANG']->getLL('center_list_mapstatus') . ':</dt>
-						<dd>' . $mappingStatusLong . '</dd>
+						<dt>' . $GLOBALS['LANG']->getLL('center_list_filestatus') . ':</dt>
+						<dd>' . $mappingStatusLong . '
+						    ' . $belayoutStatusLong . '</dd>
 					</dl>
-					' . $mappingStatusActions . '
+					' . $templateStatusActions . '
 					</td>
 				</tr>
 			</table>
@@ -402,7 +463,8 @@ class tx_templavoila_mod2_to {
 			'icon'   => $recordIcon,
 			'link'   => $linkUrl,
 			'action' => $editLink,
-			'status' => $mappingStatusShort,
+			'status' => $mappingStatusShort .
+				    $belayoutStatusShort,
 			'stats'  => $templateUsageCount
 		);
 	}
@@ -431,11 +493,11 @@ class tx_templavoila_mod2_to {
 			case TVDS_SCOPE_PAGE:
 				// Header:
 				$output[] = '
-					<tr class="bgColor5 tableheader">
-						<td>PID:</td>
-						<td>Title:</td>
-						<td>Path:</td>
-						<td>Workspace:</td>
+					<tr class="bgColor5 tableheader">workspace
+						<td>' . $GLOBALS['LANG']->getLL('pid') . ':</td>
+						<td>' . $GLOBALS['LANG']->getLL('title') . ':</td>
+						<td>' . $GLOBALS['LANG']->getLL('path') . ':</td>
+						<td>' . $GLOBALS['LANG']->getLL('workspace') . ':</td>
 					</tr>
 				';
 
@@ -475,7 +537,7 @@ class tx_templavoila_mod2_to {
 								<td nowrap="nowrap">'.
 									htmlspecialchars($pRow['uid']) .
 									'</td>
-								<td><em>No access</em></td>
+								<td><em>' . $GLOBALS['LANG']->getLL('noaccess') . '</em></td>
 								<td>&mdash;</td>
 								<td>&mdash;</td>
 							</tr>';
@@ -490,10 +552,10 @@ class tx_templavoila_mod2_to {
 				// Header:
 				$output[] = '
 					<tr class="bgColor5 tableheader">
-						<td>UID:</td>
-						<td>Header:</td>
-						<td>Path:</td>
-						<td>Workspace:</td>
+						<td>' . $GLOBALS['LANG']->getLL('uid') . ':</td>
+						<td>' . $GLOBALS['LANG']->getLL('header') . ':</td>
+						<td>' . $GLOBALS['LANG']->getLL('path') . ':</td>
+						<td>' . $GLOBALS['LANG']->getLL('workspace') . ':</td>
 					</tr>
 				';
 
@@ -535,7 +597,7 @@ class tx_templavoila_mod2_to {
 								<td nowrap="nowrap">'.
 									htmlspecialchars($pRow['uid']).
 									'</td>
-								<td><em>No access</em></td>
+								<td><em>' . $GLOBALS['LANG']->getLL('noaccess') . '</em></td>
 								<td>&mdash;</td>
 								<td>&mdash;</td>
 							</tr>';
@@ -551,7 +613,11 @@ class tx_templavoila_mod2_to {
 			return array(
 				0,
 				t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_ok2.gif', 'width="18" height="16"'),
-				'Used in ' . (count($output) - 1) . ' Elements',
+				$GLOBALS['LANG']->getLL('center_templates_valid') . ' ' . (count($output) - 1) . ' ' .
+					($scope == TVDS_SCOPE_OTHER ? 'other elements' :
+					($scope == TVDS_SCOPE_PAGE  ? 'pages' :
+					($scope == TVDS_SCOPE_FCE   ? 'content elements' :
+					                              'plugin elements'))),
 				':
 				<table border="0" cellspacing="1" cellpadding="1" class="lrPadding">
 					' . implode('', $output) . '
@@ -562,7 +628,7 @@ class tx_templavoila_mod2_to {
 			return array(
 				1,
 				t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_warning2.gif', 'width="18" height="16"'),
-				'No usage!',
+				$GLOBALS['LANG']->getLL('unused'),
 				'',
 				0
 			);

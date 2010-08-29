@@ -199,7 +199,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	var $_load_ds_xml_to;
 	var $_save_dsto_spec;
 
-	var $textareaCols = 60; //default coös for textareas
+	var $textareaCols = 60;		//default cols for textareas
 	var $messages;
 
 	function init() {
@@ -813,7 +813,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 * @param	string		The file-path
 	 * @return	the dl-fragment with the informations and icons
 	 */
-	function renderFile_info($theFile) {
+	function renderFile_info($theFile, $title) {
 		// Find the file:
 		$theFile = t3lib_div::getFileAbsFileName($theFile, 1);
 		if ($theFile && @is_file($theFile)) {
@@ -986,7 +986,9 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			// Get title and icon:
 			$tRows[] = $this->renderTO_info($row);
 			// Find the file:
-			$tRows[] = $this->renderFile_info($row['fileref']);
+			$tRows[] = $this->renderFile_info($row['fileref'], $GLOBALS['LANG']->getLL('templateFile'));
+			// Find the BE file:
+			$tRows[] = $this->renderFile_info($row['belayout'], $GLOBALS['LANG']->getLL('belayoutFile'));
 			// Get title and icon:
 			$tRows[] = $this->renderDS_info($DS_row);
 			// Get type:
@@ -1405,8 +1407,8 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					$dataArr['tx_templavoila_tmplobj']['NEW']['pid'            ] = intval($this->_save_dsto_spec['pid']);
 					$dataArr['tx_templavoila_tmplobj']['NEW']['title'          ] = $this->_save_dsto_spec['title'] . ' [Template]';
 					$dataArr['tx_templavoila_tmplobj']['NEW']['datastructure'  ] = intval($tce->substNEWwithIDs['NEW']);
-					$dataArr['tx_templavoila_tmplobj']['NEW']['fileref'        ] = substr($this->displayFile, strlen(PATH_site));
 					$dataArr['tx_templavoila_tmplobj']['NEW']['templatemapping'] = serialize($templatemapping);
+					$dataArr['tx_templavoila_tmplobj']['NEW']['fileref'        ] = substr($this->displayFile, strlen(PATH_site));
 					$dataArr['tx_templavoila_tmplobj']['NEW']['fileref_mtime'  ] = @filemtime($this->displayFile);
 					$dataArr['tx_templavoila_tmplobj']['NEW']['fileref_md5'    ] = @md5_file($this->displayFile);
 
@@ -1485,8 +1487,8 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					$TOuid = t3lib_BEfunc::wsMapId('tx_templavoila_tmplobj', $this->_load_ds_xml_to = $toREC['uid']);
 
 					$dataArr = array();
-					$dataArr['tx_templavoila_tmplobj'][$TOuid]['fileref'        ] = substr($this->displayFile, strlen(PATH_site));
 					$dataArr['tx_templavoila_tmplobj'][$TOuid]['templatemapping'] = serialize($templatemapping);
+					$dataArr['tx_templavoila_tmplobj'][$TOuid]['fileref'        ] = substr($this->displayFile, strlen(PATH_site));
 					$dataArr['tx_templavoila_tmplobj'][$TOuid]['fileref_mtime'  ] = @filemtime($this->displayFile);
 					$dataArr['tx_templavoila_tmplobj'][$TOuid]['fileref_md5'    ] = @md5_file($this->displayFile);
 
@@ -1896,7 +1898,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			$tabs = array_reverse($tabs);
 
 			// Create location handlers:
-			$relFilePath = substr($this->displayFile,strlen(PATH_site));
+			$relFilePath = substr($this->displayFile, strlen(PATH_site));
 			$onCl = 'return top.openUrlInWindow(\'' . t3lib_div::getIndpEnv('TYPO3_SITE_URL') . $relFilePath . '\', \'FileView\');';
 			$location .= '
 				<!--
@@ -2171,7 +2173,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				$theFile = t3lib_div::getFileAbsFileName($row['fileref'], 1);
 				if ($theFile && @is_file($theFile)) {
 					// Get name and icon:
-					$tRows[] = $this->renderFile_info($row['fileref']);
+					$tRows[] = $this->renderFile_info($row['fileref'], $GLOBALS['LANG']->getLL('templateFile'));
 
 					// Finding Data Structure Record:
 					$DSOfile = '';

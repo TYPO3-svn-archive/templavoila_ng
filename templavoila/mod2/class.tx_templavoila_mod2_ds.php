@@ -127,6 +127,8 @@ class tx_templavoila_mod2_ds {
 	 *
 	 *****************************/
 
+	var $dFileList = array();
+
 
 	/**
 	 * Rendering a single data structures information
@@ -175,16 +177,84 @@ class tx_templavoila_mod2_ds {
 			     $templateStatusMessage,
 			     $templateStatusActions) = $this->findDSUsageWithImproperTOs($dsID, $toIdArray, $scope);
 
+			if ($templateStatusTitle) {
+				$templateStatusShort = '<img' . $templateStatusIcon . ' title="' . $templateStatusTitle . '" class="absmiddle" />';
+				$templateStatusLine  = '<img' . $templateStatusIcon . ' alt="" class="absmiddle" /> ' . $templateStatusTitle . '<br />';
+				$templateStatusLong  = $templateStatusLine . $templateStatusMessage;
+			}
+
 			$templateStatusActions .= '<a href="' . htmlspecialchars($linkUrl) . '">[ ' . $GLOBALS['LANG']->getLL('center_view_ds') . ' ]</a>';
 
-			$templateStatusShort = '<img' . $templateStatusIcon . ' title="' . $templateStatusTitle . '" class="absmiddle" />';
-			$templateStatusLine  = '<img' . $templateStatusIcon . ' alt="" class="absmiddle" /> ' . $templateStatusTitle . '<br />';
-			$templateStatusLong  = $templateStatusLine . $templateStatusMessage;
+			/* ------------------------------------------------------------------------------ */
+			$belayoutStatusIcon     = '';
+			$belayoutStatusTitle    = '';
+			$belayoutStatusMessage  = '';
+
+			$belayoutReference = t3lib_div::getFileAbsFileName($dsRow['belayout']);
+			if (@is_file($belayoutReference)) {
+				$this->dFileList[$belayoutReference]++;
+
+				$belayoutRef = '<a href="' . htmlspecialchars($this->doc->backPath . '../' . substr($belayoutReference, strlen(PATH_site))) . '" target="_blank">' . htmlspecialchars($dsRow['belayout']) . '</a>';
+				$belayoutMsg = '';
+				$belayoutMtime = filemtime($belayoutReference);
+			} else if (trim($belayoutReference)) {
+				$belayoutRef = htmlspecialchars($dsRow['belayout']);
+				$belayoutMsg = '<div class="typo3-red">' . $GLOBALS['LANG']->getLL('filenotfound') . '</div>';
+				$belayoutMtime = 0;
+			} else if (is_array($xml = t3lib_div::xml2array($dsRow['dataprot'])) && trim($xml['meta']['beLayout'])) {
+				$belayoutRef = '';
+				$belayoutMsg = $GLOBALS['LANG']->getLL('belayoutembedded');
+				$belayoutMtime = 0;
+			} else {
+				$belayoutRef = '';
+				$belayoutMsg = $GLOBALS['LANG']->getLL('belayoutnotused');
+				$belayoutMtime = 0;
+			}
+
+			if ($belayoutMtime && $dsRow['belayoutref_mtime']) {
+				if ($dsRow['belayoutref_md5'] != '') {
+					$modified = (@md5_file($belayoutReference) != $dsRow['belayoutref_md5']);
+				} else {
+					$modified = ($dsRow['belayoutref_mtime'] != $belayoutMtime);
+				}
+
+				if (($templateStatusError |= $modified ? 1 : 0) && $modified) {
+					$belayoutStatusIcon  .= t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_warning2.gif', 'width="18" height="16"');
+					$belayoutStatusTitle .= sprintf($GLOBALS['LANG']->getLL('center_belayout_changed'), t3lib_BEfunc::datetime($dsRow['tstamp']));
+				} else {
+					$belayoutStatusIcon  .= t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_ok2.gif', 'width="18" height="16"');
+					$belayoutStatusTitle .= $GLOBALS['LANG']->getLL('center_belayout_good');
+				}
+			}
+
+			if ($belayoutStatusTitle) {
+				$belayoutStatusShort = '<img' . $belayoutStatusIcon . ' title="' . $belayoutStatusTitle . '" class="absmiddle" />';
+				$belayoutStatusLine  = '<img' . $belayoutStatusIcon . ' alt="" class="absmiddle" /> ' . $belayoutStatusTitle . '<br />';
+				$belayoutStatusLong  = $belayoutStatusLine . $belayoutStatusMessage;
+			}
+
+			/* ------------------------------------------------------------------------------ */
+			// Module may be allowed, but modify may not
+			if ($this->modifiable) {
+				// file/belayout missing
+				if ($templateStatusError >= 2) {
+					$templateStatusActions .= '<a href="' . htmlspecialchars($linkUrl) . '">[ ' . $GLOBALS['LANG']->getLL('center_view_to_map') . ' ]</a> ';
+				}
+				// file/belayout changed
+				else if ($templateStatusError >= 1) {
+					$templateStatusActions .= '<a href="' . htmlspecialchars($linkUrl) . '">[ ' . $GLOBALS['LANG']->getLL('center_view_to_remap') . ' ]</a> ';
+					$templateStatusActions .= '<a href="' . htmlspecialchars($linkUrl . '&SET[page]=preview') . '">[ ' . $GLOBALS['LANG']->getLL('center_view_to_verify') . ' ]</a>';
+				}
+				// every other reason
+				else  {
+					$templateStatusActions .= '<a href="' . htmlspecialchars($linkUrl) . '">[ ' . $GLOBALS['LANG']->getLL('center_view_to') . ' ]</a> ';
+				}
+			}
 
 			if ($templateStatusError >= 2) {
-				$this->pObj->setErrorLog($scope, 'fatal', $templateStatusLine . ' (TO: "' . $toRow['title'] . '")');
+				$this->pObj->setErrorLog($scope, 'fatal', $templateStatusLine . $belayoutStatusLine . ' (DS: "' . $dsRow['title'] . '")');
 			} else if ($templateStatusError >= 1) {
-				$this->pObj->setErrorLog($scope, 'warning', $templateStatusLine . ' (TO: "' . $toRow['title'] . '")');
+				$this->pObj->setErrorLog($scope, 'warning', $templateStatusLine . $belayoutStatusLine . ' (DS: "' . $dsRow['title'] . '")');
 			}
 
 			/* ------------------------------------------------------------------------------ */
@@ -246,6 +316,9 @@ class tx_templavoila_mod2_ds {
 					<td style="width: 100px; padding: 1em; vertical-align: top; text-align: center;">' . $icon . '</td>
 					<td>
 					<dl class="DS-listing">
+						<dt>' . $GLOBALS['LANG']->getLL('belayout') . ':</dt>
+						<dd>' . $belayoutRef . $belayoutMsg . '</dd>
+
 						<dt>' . $GLOBALS['LANG']->getLL('center_view_globalproc') . '&nbsp;<strong>XML</strong>:</dt>
 						<dd>' . $lpXML . ($this->MOD_SETTINGS['set_details'] ? '<hr />' . $XMLinfo['HTML'] : '') . '</dd>
 
@@ -258,7 +331,8 @@ class tx_templavoila_mod2_ds {
 					' : '') . '
 
 						<dt>' . $GLOBALS['LANG']->getLL('center_view_tmplstatus') . ':</dt>
-						<dd>' . $templateStatusLong . '</dd>
+						<dd>' . $templateStatusLong . '
+						    ' . $belayoutStatusLong . '</dd>
 					</dl>
 					<div class="actions">' .
 						$templateStatusActions . '
@@ -280,8 +354,21 @@ class tx_templavoila_mod2_ds {
 			}
 
 			/* ------------------------------------------------------------------------------ */
+			list($templateStatusError,
+			     $templateStatusIcon,
+			     $templateStatusTitle,
+			     $templateStatusMessage,
+			     $templateStatusActions) = $this->findDSUsageWithImproperTOs($dsID, $toIdArray, $scope);
+
+			if ($templateStatusTitle) {
+				$templateStatusShort = '<img' . $templateStatusIcon . ' title="' . $templateStatusTitle . '" class="absmiddle" />';
+				$templateStatusLine  = '<img' . $templateStatusIcon . ' alt="" class="absmiddle" /> ' . $templateStatusTitle . '<br />';
+				$templateStatusLong  = $templateStatusLine . $templateStatusMessage;
+			}
+
+			/* ------------------------------------------------------------------------------ */
 			$fileReference = t3lib_div::getFileAbsFileName($dsRow['path']);
-			if (@is_file($fileReference))	{
+			if (@is_file($fileReference)) {
 				$fileRef = '<a href="' . htmlspecialchars($this->doc->backPath . '../' . substr($fileReference, strlen(PATH_site))) . '" target="_blank">' .
 						htmlspecialchars($dsRow['path']) .
 						'</a>';
@@ -294,20 +381,20 @@ class tx_templavoila_mod2_ds {
 			}
 
 			/* ------------------------------------------------------------------------------ */
-			list($templateStatusError,
-			     $templateStatusIcon,
-			     $templateStatusTitle,
-			     $templateStatusMessage,
-			     $templateStatusActions) = $this->findDSUsageWithImproperTOs($dsID, $toIdArray, $scope);
+			$belayoutReference = t3lib_div::getFileAbsFileName($dsRow['belayout']);
+			if (@is_file($belayoutReference)) {
+				$belayoutRef = '<a href="' . htmlspecialchars($this->doc->backPath . '../' . substr($belayoutReference, strlen(PATH_site))) . '" target="_blank">' . htmlspecialchars($dsRow['belayout']) . '</a>';
+			} else if (trim($belayoutReference)) {
+				$belayoutRef = htmlspecialchars($dsRow['belayout']) . ' [' . $GLOBALS['LANG']->getLL('filenotfound') . '!]';
+			} else {
+				$belayoutRef = $GLOBALS['LANG']->getLL('belayoutnotused');
+			}
 
-			$templateStatusShort = '<img' . $templateStatusIcon . ' title="' . $templateStatusTitle . '" class="absmiddle" />';
-			$templateStatusLine  = '<img' . $templateStatusIcon . ' alt="" class="absmiddle" /> ' . $templateStatusTitle . '<br />';
-			$templateStatusLong  = $templateStatusLine . $templateStatusMessage;
-
+			/* ------------------------------------------------------------------------------ */
 			if ($templateStatusError >= 2) {
-				$this->pObj->setErrorLog($scope, 'fatal', $templateStatusLine . ' (DS: "' . $dsRow['title'] . '")');
+				$this->pObj->setErrorLog($scope, 'fatal', $templateStatusLine . $belayoutStatusLine . ' (DS: "' . $dsRow['title'] . '")');
 			} else if ($templateStatusError >= 1) {
-				$this->pObj->setErrorLog($scope, 'warning', $templateStatusLine . ' (DS: "' . $dsRow['title'] . '")');
+				$this->pObj->setErrorLog($scope, 'warning', $templateStatusLine . $belayoutStatusLine . ' (DS: "' . $dsRow['title'] . '")');
 			}
 
 			/* ------------------------------------------------------------------------------ */
@@ -328,11 +415,15 @@ class tx_templavoila_mod2_ds {
 					<td style="width: 100px; padding: 1em; vertical-align: top; text-align: center;">' . $icon . '</td>
 					<td>
 					<dl class="DS-listing">
+						<dt>' . $GLOBALS['LANG']->getLL('belayout') . ':</dt>
+						<dd>' . $belayoutRef . '</dd>
+
 						<dt>XML ' . $GLOBALS['LANG']->getLL('file') . ':</dt>
 						<dd>' . $fileRef . ($this->MOD_SETTINGS['set_details'] ? '<hr/>' . $XMLinfo['HTML'] : '') . '</dd>
 
 						<dt>' . $GLOBALS['LANG']->getLL('center_view_tmplstatus') . ':</dt>
-						<dd>' . $templateStatusLong . '</dd>
+						<dd>' . $templateStatusLong . '
+						    ' . $belayoutStatusLong . '</dd>
 					</dl>
 					<div class="actions">' .
 						$templateStatusActions . '
@@ -348,7 +439,8 @@ class tx_templavoila_mod2_ds {
 			'icon'   => $recordIcon,
 			'link'   => $linkUrl,
 			'action' => $editLink,
-			'status' => $templateStatusShort,
+			'status' => $templateStatusShort .
+				    $belayoutStatusShort,
 			'stats'  => $XMLinfo['stats']
 		);
 	}
@@ -370,8 +462,8 @@ class tx_templavoila_mod2_ds {
 				// Header:
 				$output[] = '
 					<tr class="bgColor5 tableheader">
-						<td>Title:</td>
-						<td>Path:</td>
+						<td>' . $GLOBALS['LANG']->getLL('title') . ':</td>
+						<td>' . $GLOBALS['LANG']->getLL('path') . ':</td>
 					</tr>
 				';
 
@@ -402,7 +494,7 @@ class tx_templavoila_mod2_ds {
 					} else {
 						$output[] = '
 							<tr class="bgColor4-20">
-								<td><em>No access</em></td>
+								<td><em>' . $GLOBALS['LANG']->getLL('noaccess') . '</em></td>
 								<td>&mdash;</td>
 							</tr>';
 					}
@@ -415,8 +507,8 @@ class tx_templavoila_mod2_ds {
 				// Header:
 				$output[] = '
 					<tr class="bgColor5 tableheader">
-						<td>Header:</td>
-						<td>Path:</td>
+						<td>' . $GLOBALS['LANG']->getLL('header') . ':</td>
+						<td>' . $GLOBALS['LANG']->getLL('path') . ':</td>
 					</tr>
 				';
 
@@ -424,7 +516,7 @@ class tx_templavoila_mod2_ds {
 				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 					'uid,header,pid',
 					'tt_content',
-					'CType='.$GLOBALS['TYPO3_DB']->fullQuoteStr('templavoila_pi1', 'tt_content').
+					'CType=' . $GLOBALS['TYPO3_DB']->fullQuoteStr('templavoila_pi1', 'tt_content').
 						' AND tx_templavoila_to NOT IN (' . implode(',', $toIdArray) . ')'.
 						' AND tx_templavoila_ds='.$GLOBALS['TYPO3_DB']->fullQuoteStr($dsID, 'tt_content').
 						t3lib_BEfunc::deleteClause('tt_content'),
@@ -449,7 +541,7 @@ class tx_templavoila_mod2_ds {
 					} else {
 						$output[] = '
 							<tr class="bgColor4-20">
-								<td><em>No access</em></td>
+								<td><em>' . $GLOBALS['LANG']->getLL('noaccess') . '</em></td>
 								<td>&mdash;</td>
 							</tr>';
 					}
@@ -464,7 +556,7 @@ class tx_templavoila_mod2_ds {
 			return array(
 				2,
 				t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_fatalerror.gif', 'width="18" height="16"'),
-				'Invalid template objects (TOs) on ' . (count($output) - 1) . ' ' .
+				$GLOBALS['LANG']->getLL('center_templates_invalid') . ' ' . (count($output) - 1) . ' ' .
 					($scope == TVDS_SCOPE_OTHER ? 'other elements' :
 					($scope == TVDS_SCOPE_PAGE  ? 'pages' :
 					($scope == TVDS_SCOPE_FCE   ? 'content elements' :

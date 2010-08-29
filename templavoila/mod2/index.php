@@ -759,8 +759,9 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 	 * @return	void
 	 * @see getErrorLog()
 	 */
-	function setErrorLog($scope,$type,$HTML) {
-		$this->errorsWarnings['_ALL'][$type][] = $this->errorsWarnings[$scope][$type][] = $HTML;
+	function setErrorLog($scope, $type, $HTML) {
+		$this->errorsWarnings['_ALL'][$type][] =
+		$this->errorsWarnings[$scope][$type][] = $HTML;
 	}
 
 	/**
@@ -784,7 +785,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 
 			if (is_array($this->errorsWarnings[$scope]['fatal']))	{
 				$errStat['count'] = count($this->errorsWarnings[$scope]['fatal']) . ($errStat['count'] ? '/' . $errStat['count'] : '');
-				$errStat['content'] .= '<h3>' . $GLOBALS['LANG']->getLL('errors') . '</h3>'. implode('<hr />', $this->errorsWarnings[$scope]['fatal']);
+				$errStat['content'] .= '<h3>' . $GLOBALS['LANG']->getLL('errors') . '</h3>' . implode('<hr />', $this->errorsWarnings[$scope]['fatal']);
 				$errStat['iconCode'] = 3;
 			}
 		}

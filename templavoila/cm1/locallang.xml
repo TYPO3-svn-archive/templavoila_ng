@@ -12,13 +12,16 @@
 		<languageKey index="default" type="array">
 			<label index="title">TemplaVoilà</label>
 
+			<label index="belayoutFile">BE-Layout File</label>
+			<label index="belayoutFileRef">BE-Layout File reference</label>
+
 			<label index="templateFile">Template File</label>
+			<label index="templateFileRef">Template File reference</label>
 			<label index="templateObject">Template Object</label>
 			<label index="templateIcon">Template Icon</label>
 			<label index="templateType">Template Type</label>
 			<label index="templateUID">UID</label>
 			<label index="templateTitle">Title</label>
-			<label index="templateFileRef">File reference</label>
 			<label index="templateMappingSize">Mapping-Data Length</label>
 
 			<label index="typeSC">Section</label>

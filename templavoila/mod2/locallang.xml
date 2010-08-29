@@ -20,8 +20,12 @@
 			<label index="none">None found</label>
 			<label index="noerrors">No errors found</label>
 			<label index="file">File</label>
-			<label index="fileref">File reference</label>
+			<label index="fileref">Template File reference</label>
 			<label index="filenotfound">File not found</label>
+			<label index="belayout">BE-Layout</label>
+			<label index="belayoutref">BE-Layout File reference</label>
+			<label index="belayoutnotused">BE-Layout not used</label>
+			<label index="belayoutembedded">BE-Layout embedded</label>
 			<label index="created">Created</label>
 			<label index="updated">Updated</label>
 			<label index="by">by user</label>
@@ -31,6 +35,14 @@
 			<label index="rendertype">Render Type</label>
 			<label index="warnings">Warnings</label>
 			<label index="errors">Fatal errors</label>
+			<label index="noaccess">No access!</label>
+			<label index="unused">No usage!</label>
+			<label index="title">Title</label>
+			<label index="header">Header</label>
+			<label index="path">Path</label>
+			<label index="pid">PID</label>
+			<label index="uid">UID</label>
+			<label index="workspace">Workspace</label>
 
 			<label index="deleteTOMsg">Do you really want to delete this Template Object?</label>
 			<label index="deleteDSTOMsg">Do you really want to delete this Data Structure and its Template Objects?</label>
@@ -54,7 +66,7 @@
 			<label index="center_list_loc">Localization</label>
 			<label index="center_list_status">Status</label>
 			<label index="center_list_costatus">Container Status</label>
-			<label index="center_list_mapstatus">Mapping Status</label>
+			<label index="center_list_filestatus">Reference Status</label>
 			<label index="center_list_usage">Usage Count</label>
 			<label index="center_list_stats">Statistics</label>
 			<label index="center_list_stats_roots">Root-elements</label>
@@ -147,15 +159,21 @@
 			<label index="center_layout_auto">Automatic layout in the page-module</label>
 			<label index="center_layout_becode">Contains a custom backend layout for the page-module</label>
 			<label index="center_layout_befile">Contains a custom backend layout for the page-module, loaded from %s</label>
-			<label index="center_mapping_changed">Template file was updated since last mapping (%s) and you might need to remap the Template Object!</label>
+			<label index="center_mapping_changed">Template File was updated since last mapping (%s) and you might need to remap the Template Object!</label>
 			<label index="center_mapping_good">Mapping up-to-date.</label>
 			<label index="center_mapping_unmapped">Not mapped yet!</label>
 			<label index="center_mapping_note">It might also mean that the TO was mapped with an older version of TemplaVoila - then just go and save the mapping again at this will be updated.</label>
+			<label index="center_belayout_changed">BE-Layout File was updated since last mapping (%s) and you might need to remap the Template Object!</label>
+			<label index="center_belayout_good">BE-Layout up-to-date.</label>
+			<label index="center_belayout_unmapped">No BE-Layout used.!</label>
+			<label index="center_belayout_note">It might also mean that the TO was mapped with an older version of TemplaVoila - then just go and save the mapping again at this will be updated.</label>
 			<label index="center_templates_used">Used Templates</label>
 			<label index="center_templates_unused">Template Archive</label>
 			<label index="center_templates_file">File</label>
 			<label index="center_templates_count">Usage count</label>
 			<label index="center_templates_new">New DS/TO</label>
+			<label index="center_templates_invalid">Invalid template objects (TOs) on</label>
+			<label index="center_templates_valid">Used in</label>
 		</languageKey>
 		<languageKey index="de" type="array">
 			<label index="title">TemplaVoilà Kontrollcenter</label>
@@ -203,7 +221,7 @@
 			<label index="center_list_loc">Mehrsprachigkeit</label>
 			<label index="center_list_status">Status</label>
 			<label index="center_list_costatus">Kontainer-Status</label>
-			<label index="center_list_mapstatus">Verknüpfungs-Status</label>
+			<label index="center_list_filestatus">Verknüpfungs-Status</label>
 			<label index="center_list_usage">Benutzungs&#173;zähler</label>
 			<label index="center_list_stats">Statistiken</label>
 			<label index="center_list_stats_roots">Wurzel-Elemente</label>
@@ -300,7 +318,7 @@
 			<label index="center_list_loc">Vertaling</label>
 			<label index="center_list_status">Status</label>
 			<label index="center_list_costatus">Containerstatus</label>
-			<label index="center_list_mapstatus">Projectiestatus</label>
+			<label index="center_list_filestatus">Projectiestatus</label>
 			<label index="center_list_usage">Gebruiksteller</label>
 			<label index="center_list_stats">Statistieken</label>
 			<label index="center_list_stats_roots">Stamelementen</label>
