@@ -269,9 +269,9 @@ class tx_templavoila_wizards_page {
 
 				$tTO = 'tx_templavoila_tmplobj';
 				$tDS = 'tx_templavoila_datastructure';
-				$where = $tTO . '.parent=0 AND ' .
-					 $tTO . '.pid=' .
-						intval($storageFolderPID) . ' AND ' . $tDS . '.scope=' . TVDS_SCOPE_PAGE .
+				$where = $tTO . '.parent = 0 AND ' .
+					 $tTO . '.pid IN (' . $storageFolderPID . ')' .
+					 ' AND ' . $tDS . '.scope = ' . TVDS_SCOPE_PAGE .
 						$this->buildRecordWhere($tTO) .
 						$this->buildRecordWhere($tDS) .
 						t3lib_befunc::deleteClause($tTO) .
@@ -401,15 +401,16 @@ class tx_templavoila_wizards_page {
 
 		$tce = t3lib_div::makeInstance('t3lib_TCEmain');
 
-		// set default TCA values specific for the user
-		$TCAdefaultOverride = $GLOBALS['BE_USER']->getTSConfigProp('TCAdefaults');
+		// set default TCA values specific for the page and user
+		$TCAdefaultOverride = t3lib_BEfunc::getModTSconfig($positionPid , 'TCAdefaults');
 		if (is_array($TCAdefaultOverride)) {
 			$tce->setDefaultsFromUserTS($TCAdefaultOverride);
 		}
 
-		$tce->stripslashes_values=0;
-		$tce->start($dataArr,array());
+		$tce->stripslashes_values = 0;
+		$tce->start($dataArr, array());
 		$tce->process_datamap();
+
 		return $tce->substNEWwithIDs['NEW'];
 	}
 

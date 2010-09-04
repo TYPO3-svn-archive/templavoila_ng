@@ -333,7 +333,9 @@ class tx_templavoila_wizards_content {
         	$res = $TYPO3_DB->exec_SELECTquery(
         		'*',
         		'tx_templavoila_datastructure',
-        		'pid=' . intval($storageFolderPID) . ' AND scope=' . TVDS_SCOPE_FCE . $addWhere .
+        		'pid IN (' . $storageFolderPID . ')' .
+        		' AND scope = ' . TVDS_SCOPE_FCE .
+        		 	$addWhere .
         			t3lib_BEfunc::deleteClause('tx_templavoila_datastructure').
         			t3lib_BEfunc::versioningPlaceholderClause('tx_templavoila_datastructure')
         	);
@@ -357,7 +359,9 @@ class tx_templavoila_wizards_content {
 		$res = $TYPO3_DB->exec_SELECTquery(
 			'*',
 			'tx_templavoila_tmplobj',
-			'pid=' . intval($storageFolderPID) . ' AND parent=0' . $addWhere .
+			'pid IN (' . $storageFolderPID . ')' .
+        		' AND parent = 0' .
+        			$addWhere .
 				t3lib_BEfunc::deleteClause('tx_templavoila_tmplobj') .
 				t3lib_BEfunc::versioningPlaceholderClause('tx_templavoila_tmpl'), '', 'sorting'
 		);

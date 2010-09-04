@@ -344,26 +344,20 @@ class tx_templavoila_api {
 		$tce = t3lib_div::makeInstance('t3lib_TCEmain');
 		/* @var $tce t3lib_TCEmain */
 
-		// set default TCA values specific for the user
-		$userTS = $GLOBALS['BE_USER']->getTSConfigProp('TCAdefaults');
-		$pageTS = t3lib_BEfunc::getPagesTSconfig($newRecordPid, true);
-
-		$TCAdefaultOverride = array();
-		if (is_array($userTS)) {
-			$TCAdefaultOverride = array_merge($TCAdefaultOverride, $userTS);
-		}
-		if (is_array($pageTS['TCAdefaults.'])) {
-			$TCAdefaultOverride = array_merge($TCAdefaultOverride, $pageTS['TCAdefaults.']);
-		}
-		$tce->setDefaultsFromUserTS($TCAdefaultOverride);
+		// set default TCA values specific for the page and user
+		$TCAdefaultOverride = t3lib_BEfunc::getModTSconfig($newRecordPid, 'TCAdefaults');
+ 		if (is_array($TCAdefaultOverride)) {
+ 			$tce->setDefaultsFromUserTS($TCAdefaultOverride);
+ 		}
 
 		$tce->stripslashes_values = 0;
 		$flagWasSet = $this->getTCEmainRunningFlag();
-		$this->setTCEmainRunningFlag (TRUE);
+		$this->setTCEmainRunningFlag(TRUE);
 
-		if ($this->debug) t3lib_div::devLog ('API: insertElement_createRecord()', 'templavoila', 0, array('dataArr' => $dataArr));
+		if ($this->debug)
+			t3lib_div::devLog ('API: insertElement_createRecord()', 'templavoila', 0, array('dataArr' => $dataArr));
 
-		$tce->start($dataArr,array());
+		$tce->start($dataArr, array());
 		$tce->process_datamap();
 		if ($this->debug && count($tce->errorLog)) {
 			t3lib_div::devLog ('API: insertElement_createRecord(): tcemain failed', 'templavoila', 0, array('errorLog' => $tce->errorLog));
@@ -1483,16 +1477,15 @@ class tx_templavoila_api {
 	 * @access public
 	 */
 	function ds_getAvailablePageTORecords($pageUid) {
-		global $TYPO3_DB;
-
 		$storageFolderPID = $this->getStorageFolderPid($pageUid);
 
 		$tTO = 'tx_templavoila_tmplobj';
 		$tDS = 'tx_templavoila_datastructure';
-		$res = $TYPO3_DB->exec_SELECTquery(
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 			"$tTO.*",
 			"$tTO LEFT JOIN $tDS ON $tTO.datastructure = $tDS.uid",
-			"$tTO.pid=" . intval($storageFolderPID) . " AND $tDS.scope=" . TVDS_SCOPE_PAGE .
+			"$tTO.pid IN (" . $storageFolderPID . ")" .
+			" AND $tDS.scope = " . TVDS_SCOPE_PAGE .
 				t3lib_befunc::deleteClause($tTO) .
 				t3lib_befunc::deleteClause($tDS) .
 				t3lib_BEfunc::versioningPlaceholderClause($tTO) .
@@ -1503,7 +1496,7 @@ class tx_templavoila_api {
 			return FALSE;
 
 		$templateObjectRecords = array();
-		while (false != ($row = $TYPO3_DB->sql_fetch_assoc($res))) {
+		while (false != ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
 			$templateObjectRecords[$row['uid']] = $row;
 		}
 
@@ -2003,25 +1996,31 @@ class tx_templavoila_api {
 	 * Returns the page uid of the selected storage folder from the context of the given page uid.
 	 *
 	 * @param	integer		$pageUid: Context page uid
-	 * @return	integer		PID of the storage folder
+	 * @return	integer		PID(s) of the storage folder
 	 * @access public
 	 */
 	function getStorageFolderPid($pageUid)	{
 
 		// Negative PID values is pointing to a page on the same level as the current.
 		if ($pageUid < 0) {
-			$pidRow = t3lib_BEfunc::getRecordWSOL('pages',abs($pageUid),'pid');
+			$pidRow = t3lib_BEfunc::getRecordWSOL('pages', abs($pageUid), 'pid');
 			$pageUid = $pidRow['pid'];
 		}
-
-		$row = t3lib_BEfunc::getRecordWSOL('pages', $pageUid);
-		$TSconfig = t3lib_BEfunc::getTCEFORM_TSconfig('pages', $row);
-		$storagePid = intval($TSconfig['_STORAGE_PID']);
 
 		// Check for alternative storage folder
 		$modTSConfig = t3lib_BEfunc::getModTSconfig($pageUid, 'tx_templavoila.storagePid');
 		if (is_array($modTSConfig) && t3lib_div::testInt($modTSConfig['value'])) {
 			$storagePid = intval($modTSConfig['value']);
+		} else {
+			$storagePid = array();
+
+			do {
+				$row = t3lib_BEfunc::getRecordWSOL('pages', $pageUid);
+				$TSconfig = t3lib_BEfunc::getTCEFORM_TSconfig('pages', $row);
+				$storagePid[] = intval($TSconfig['_STORAGE_PID']);
+			} while(($pageUid = $row['pid']));
+
+			$storagePid = implode(',', array_unique($storagePid));
 		}
 
 		return $storagePid;
