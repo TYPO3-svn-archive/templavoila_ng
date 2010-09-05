@@ -74,7 +74,6 @@
  * 2539:     function displayFileContentWithPreview($content,$relPathFix)
  * 2575:     function displayFrameError($error)
  * 2602:     function cshItem($table,$field,$BACK_PATH,$wrap='',$onlyIconMode=FALSE, $styleAttrib='')
- * 2615:     function lipsumLink($formElementName)
  *
  * TOTAL FUNCTIONS: 29
  * (This index is automatically created/updated by the extension "extdeveval")
@@ -104,19 +103,6 @@ define("TVTO_CLEAR_ALL",	1);
 define("TVTO_CLEAR_HEAD",	2);
 define("TVTO_CLEAR_BODY",	3);
 
-if (t3lib_extMgm::isLoaded('lorem_ipsum')) {
-	// Dmitry: this dependency on lorem_ipsum is bad :(
-	// http://bugs.typo3.org/view.php?id=3691
-	require_once(t3lib_extMgm::extPath('lorem_ipsum').'class.tx_loremipsum_wiz.php');
-	if (t3lib_extMgm::isLoaded('rtehtmlarea')) {
-		require_once(t3lib_extMgm::extPath('rtehtmlarea').'class.tx_rtehtmlarea_base.php');
-	}
-}
-
-if (t3lib_extMgm::isLoaded('t3editor')) {
-	require_once(t3lib_extMgm::extPath('t3editor').'class.tx_t3editor.php');
-}
-
 /*************************************
  *
  * Short glossary;
@@ -137,9 +123,6 @@ if (t3lib_extMgm::isLoaded('t3editor')) {
  */
 class tx_templavoila_cm1 extends t3lib_SCbase {
 
-	// t3editor
-	var $t3e = null;
-
 	// Static:
 	var $theDisplayMode = '';	// Set to ->MOD_SETTINGS[]
 	var $head_markUpTags = array(
@@ -156,7 +139,6 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	var $baseScript = 'index.php?';
 	var $mod1Script = '../mod1/index.php?';
 	var $mod2Script = '../mod2/index.php?';
-	var $dsTypes;			// chached DS-node icons
 	var $changedTO = false;		// detect changes in the TO for "revert"
 	var $changedDS = false;		// detect changes in the DS for "reimport"
 	var $databaseDSTO = false;	// the DS/TO originally comes from a database-entry
@@ -164,7 +146,6 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 	// Internal, dynamic:
 	var $elNames = array();
-	var $zebraRows = 0;
 	var $editDataStruct = 0;	// Setting whether we are editing a data structure or not.
 	var $storageFolders = array();	// Storage folders as key(uid) / value (title) pairs.
 	var $storageFolders_pidList = 0;// The storageFolders pids imploded to a comma list including "0"
@@ -178,7 +159,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	var $displayUid = '';		// (GPvar "uid") The UID to display (from ->displayTable)
 	var $displayPath = '';		// (GPvar "htmlPath") The "HTML-path" to display from the current file
 	var $returnUrl = '';		// (GPvar "returnUrl") Return URL if the script is supplied with that.
-	var $sessionBuffer = '';	// (GPvar "sessionBuffer") The session-buffer to choose for DS/TO-editing.
+	var $sessionKey = '';		// (GPvar "sessionBuffer") The session-buffer to choose for DS/TO-editing.
 
 	// GPvars for MODULE mode, specific to mapping a DS:
 	var $_preview;
@@ -194,12 +175,14 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	var $markupFile = '';		// Used to store the name of the file to mark up with a given path.
 	var $markupObj = '';
 
+	var $configObj;			// Instance of config class
+	var $presetsObj;		// Instance of presets class
+
 	// GPvars for MODULE mode, specific to creating a DS:
 	var $_load_ds_xml_content;
 	var $_load_ds_xml_to;
 	var $_save_dsto_spec;
 
-	var $textareaCols = 60;		//default cols for textareas
 	var $messages;
 
 	function init() {
@@ -212,9 +195,9 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		}
 
 		// General GPvars for module mode:
+		$this->displayUid   = t3lib_div::_GP('uid');
 		$this->displayFile  = t3lib_div::_GP('file');
 		$this->displayTable = t3lib_div::_GP('table');
-		$this->displayUid   = t3lib_div::_GP('uid');
 		$this->displayPath  = t3lib_div::_GP('htmlPath');
 		$this->returnUrl    = t3lib_div::_GP('returnUrl');
 
@@ -237,6 +220,14 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		$this->_load_ds_xml_content = t3lib_div::_GP('_load_ds_xml_content');
 		$this->_load_ds_xml_to = t3lib_div::_GP('_load_ds_xml_to');
 		$this->_save_dsto_spec = t3lib_div::_GP('_save_dsto_spec');
+
+		// Initialize the config
+		$this->configObj =& t3lib_div::getUserObj('EXT:templavoila/cm1/class.tx_templavoila_cm1_config.php:&tx_templavoila_cm1_config', '');
+		$this->configObj->init($this);
+
+		// Initialize the presets
+		$this->presetsObj =& t3lib_div::getUserObj('EXT:templavoila/cm1/class.tx_templavoila_cm1_presets.php:&tx_templavoila_cm1_presets', '');
+		$this->presetsObj->init($this);
 	}
 
 	/**
@@ -267,32 +258,6 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 */
 	function menuDisable($DS_row) {
 
-	}
-
-	/**
-	 * Returns an abbrevation and a description for a given element-type.
-	 *
-	 * @return	array
-	 */
-	function dsTypeInfo($conf) {
-		// Icon:
-		if ($conf['type'] == 'section')
-			return $this->dsTypes['sc'];
-
-		if ($conf['type'] == 'array') {
-			if (!$conf['section'])
-				return $this->dsTypes['co'];
-
-			return $this->dsTypes['sc'];
-		}
-
-		if ($conf['type'] == 'attr')
-			return $this->dsTypes['at'];
-
-		if ($conf['type'] == 'no_map')
-			return $this->dsTypes['no'];
-
-		return $this->dsTypes['el'];
 	}
 
 	/**
@@ -685,8 +650,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 		// Add Prototype /Scriptaculous + t3editor
 		if (t3lib_extMgm::isLoaded('t3editor')) {
-			$this->t3e = t3lib_div::getUserObj('EXT:t3editor/class.tx_t3editor.php:&tx_t3editor');
-			$this->doc->JScode .= $this->t3e->getJavascriptCode($this->doc);
+			$this->doc->JScode .= $this->configObj->getJavascriptCode();
 		}
 		/* Add Prototype /Scriptaculous */
 		else {
@@ -698,90 +662,15 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			 */
 		//	$this->doc->loadJavascriptLib('contrib/scriptaculous/scriptaculous.js?load=effects,dragdrop');
 			$this->doc->loadJavascriptLib('contrib/scriptaculous/scriptaculous.js?load=effects');
+
+			$this->doc->JScode .= $this->configObj->getJavascriptCode();
 		}
 
 		/* Drag'N'Drop bug */
 		$this->doc->JScode .= '<script src="' . $this->doc->backPath . t3lib_extMgm::extRelPath($this->extKey) . 'res/dragdrop.js" type="text/javascript"></script>';
 
-		// TS-browser
-		$this->doc->JScode .= $this->doc->wrapScriptTags('
-				var browserPos = null, browserWin = "";
-
-				function setFormValueOpenBrowser(mode,params) {	//
-					var url = "' . $GLOBALS['BACK_PATH'] . 'browser.php?mode=" + mode + "&bparams=" + params;
-
-					browserWin = window.open(url, "Typo3WinBrowser - TemplaVoila Element Selector", "height=350,width=" + (mode == "db" ? 650 : 600) + ",status=0,menubar=0,resizable=1,scrollbars=1");
-					browserWin.focus();
-				}
-
-				function setFormValueFromBrowseWin(fName,value,label,exclusiveValues){
-					if (value) {
-						var ret = value.split(\'_\');
-						var rid = ret.pop();
-							ret = ret.join(\'_\');
-
-						$(\'browser[context]\').innerHTML = label + \' <em>[pid: \' + rid + \']</em>\';
-						$(\'browser[communication]\').src = \'' . $this->baseScript . 'mode=browser&pid=\' + rid + \'&current=\' +
-						$(\'browser[result]\').value;
-					}
-				}
-
-				function setFormValueFromBrowseFrame(value){
-					if (value) {
-						$(\'browser[result]\').value = value;
-					}
-				}
-
-				function setSizeBrowseFrame(height){
-					if (height) {
-						$(\'browser[communication]\').height = height;
-					}
-				}
-
-				' . (t3lib_extMgm::isLoaded('t3editor') ? '
-				/* overwrite ajax-hadling, we dont need it */
-				T3editor.prototype.saveFunction = function(event) {
-					if (t3e_instances[0])
-						t3e_instances[0].textarea.value = t3e_instances[0].mirror.editor.getCode();
-				};
-
-				// callback if ajax saving was successful
-				T3editor.prototype.saveFunctionComplete = function(ajaxrequest) {
-				};
-
-				Event.observe(window, \'load\', function(){
-					if (t3e_instances[0])
-						Event.observe(\'tv-form\', \'submit\', t3e_instances[0].saveFunction);
-				});
-				' : '') . '
-		');
-
 		// Finding Storage folder:
 		$this->findingStorageFolderIds();
-
-		// Icons
-		$this->dsTypes = array(
-			'sc' => $GLOBALS['LANG']->getLL('typeSC') . ': ',
-			'co' => $GLOBALS['LANG']->getLL('typeCO') . ': ',
-			'el' => $GLOBALS['LANG']->getLL('typeEL') . ': ',
-			'at' => $GLOBALS['LANG']->getLL('typeAT') . ': ',
-			'no' => $GLOBALS['LANG']->getLL('typeNO') . ': ');
-
-		foreach ($this->dsTypes as $id => $title) {
-			$this->dsTypes[$id] = array(
-				// abbrevation
-				$id,
-				// descriptive title
-				$title,
-				// image-path
-				t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'cm1/item_' . $id . '.gif', 'width="24" height="16"') . ' border="0" style="margin-right: 5px;"',
-				// background-path
-				t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'cm1/item_' . $id . '.gif', '', 1)
-			);
-
-			// information
-			$this->dsTypes[$id][4] = @getimagesize($this->dsTypes[$id][3]);
-		}
 
 		// Render content, depending on input values:
 		if ($this->displayFile)	{
@@ -932,7 +821,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 */
 	function renderTO_info($row) {
 		// Get title and icon:
-		$icon = t3lib_iconworks::getIconImage('tx_templavoila_tmplobj', $row, $GLOBALS['BACK_PATH'], ' align="top" title="UID: ' . $this->displayUid . '"');
+		$icon = t3lib_iconworks::getIconImage('tx_templavoila_tmplobj', $row, $GLOBALS['BACK_PATH'], ' align="top" title="uid: ' . $this->displayUid . '"');
 		$title = t3lib_BEfunc::getRecordTitle('tx_templavoila_tmplobj', $row, 1);
 		return '
 			<dt>'. $GLOBALS['LANG']->getLL('templateObject') . ': </dt>
@@ -1125,6 +1014,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 		// Init settings:
 		$this->editDataStruct = 1;	// Edit DS...
+
 		$content = '';
 
 		// Checking Storage Folder PID:
@@ -1386,10 +1276,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				// Modifying data structure with conversion of preset values for field types to actual settings:
 				$storeDataStruct = $dataStruct;
 				if (is_array($storeDataStruct['ROOT']['el'])) {
-					// Initialize the presets
-					$presetsObj =& t3lib_div::getUserObj('EXT:templavoila/cm1/class.tx_templavoila_cm1_presets.php:&tx_templavoila_cm1_presets', '');
-					$presetsObj->init($this);
-					$presetsObj->substEtypeWithRealStuff($storeDataStruct['ROOT']['el'], $contentSplittedByMapping['sub']['ROOT'], $dataArr['tx_templavoila_datastructure']['NEW']['scope']);
+					$this->presetsObj->substEtypeWithRealStuff($storeDataStruct['ROOT']['el'], $contentSplittedByMapping['sub']['ROOT'], $dataArr['tx_templavoila_datastructure']['NEW']['scope']);
 				}
 
 				$dataProtXML = t3lib_div::array2xml_cs($storeDataStruct, 'T3DataStructure', array('useCDATA' => 1));
@@ -1468,10 +1355,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					// Modifying data structure with conversion of preset values for field types to actual settings:
 					$storeDataStruct = $dataStruct;
 					if (is_array($storeDataStruct['ROOT']['el'])) {
-						// Initialize the presets
-						$presetsObj =& t3lib_div::getUserObj('EXT:templavoila/cm1/class.tx_templavoila_cm1_presets.php:&tx_templavoila_cm1_presets', '');
-						$presetsObj->init($this);
-						$presetsObj->substEtypeWithRealStuff($storeDataStruct['ROOT']['el'], $contentSplittedByMapping['sub']['ROOT'], $dsREC['scope']);
+						$this->presetsObj->substEtypeWithRealStuff($storeDataStruct['ROOT']['el'], $contentSplittedByMapping['sub']['ROOT'], $dsREC['scope']);
 					}
 
 					$dataProtXML = t3lib_div::array2xml_cs($storeDataStruct, 'T3DataStructure', array('useCDATA' => 1));
@@ -1562,7 +1446,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 		// Template Object records:
 		$opts = array();
-		$res = $TYPO3_DB->exec_SELECTquery (
+		$res = $TYPO3_DB->exec_SELECTquery(
 			'tx_templavoila_tmplobj.*, tx_templavoila_datastructure.scope',
 			'tx_templavoila_tmplobj LEFT JOIN tx_templavoila_datastructure ON tx_templavoila_datastructure.uid = tx_templavoila_tmplobj.datastructure',
 			'tx_templavoila_tmplobj.pid IN (' . $this->storageFolders_pidList . ') AND tx_templavoila_tmplobj.datastructure > 0 ' .
@@ -1609,10 +1493,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 				$storeDataStruct = $dataStruct;
 				if (is_array($storeDataStruct['ROOT']['el'])) {
-					// Initialize the presets
-					$presetsObj =& t3lib_div::getUserObj('EXT:templavoila/cm1/class.tx_templavoila_cm1_presets.php:&tx_templavoila_cm1_presets', '');
-					$presetsObj->init($this);
-					$presetsObj->substEtypeWithRealStuff($storeDataStruct['ROOT']['el'], $contentSplittedByMapping['sub']['ROOT']);
+					$this->presetsObj->substEtypeWithRealStuff($storeDataStruct['ROOT']['el'], $contentSplittedByMapping['sub']['ROOT']);
 				}
 
 				$dataStructureXML = t3lib_div::array2xml_cs($storeDataStruct, 'T3DataStructure', array('useCDATA' => 1));
@@ -3063,8 +2944,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					$rowCells = array();
 
 					// Icon:
-					$info = $this->dsTypeInfo($value);
-					$icon = '<img' . $info[2] . ' alt="" title="' . $info[1] . $key . '" class="absmiddle" />';
+					$icon = $this->configObj->renderInfo_elicon($value, $key);
 
 					// Composing title-cell:
 					if (preg_match('/^LLL:/', $value['tx_templavoila']['title'])) {
@@ -3248,7 +3128,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					}
 
 					// Getting editing row, if applicable:
-					list ($addEditRows, $placeBefore) = $this->drawDataStructureMap_editItem(
+					list($addEditRows, $placeBefore) = $this->drawDataStructureMap_editItem(
 						$formPrefix,
 						$key,
 						$value,
@@ -3365,10 +3245,8 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				/* do the preset-completition */
 				$real = array($key => &$insertDataArray);
 
-				// Initialize the presets
-				$presetsObj =& t3lib_div::getUserObj('EXT:templavoila/cm1/class.tx_templavoila_cm1_presets.php:&tx_templavoila_cm1_presets', '');
-				$presetsObj->init($this);
-				$presetsObj->substEtypeWithRealStuff($real);
+				// Substitute the presets
+				$this->presetsObj->substEtypeWithRealStuff($real);
 
 				/* ... */
 				if (($insertDataArray['type'] == 'array') &&
@@ -3376,233 +3254,21 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					$insertDataArray['type'] = 'section';
 
 				// Create form:
-				/* The basic XML-structure of an tx_templavoila-entry is:
-				 *
-				 * <tx_templavoila>
-				 * 	<title>			-> Human readable title of the element
-				 * 	<description>		-> A description explaining the elements function
-				 * 	<sample_data>		-> Some sample-data (can't contain HTML)
-				 * 	<eType>			-> The preset-type of the element, used to switch use/content of TCEforms/TypoScriptObjPath
-				 * 	<oldStyleColumnNumber>	-> for distributing the fields across the tt_content column-positions
-				 * 	<langOverlayMode>	-> A description explaining the elements function
-				 * 	<langOverlayMode>	-> A description explaining the elements function
-				 * </tx_templavoila>
-				 */
-				$form = '
-				<dl id="dsel-general" class="DS-config">
-					<!-- always present options +++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-					<dt><label>' . $GLOBALS['LANG']->getLL('structureFormTitle') . ':</label></dt>
-					<dd><input type="text" size="80" name="' . $formFieldName.'[tx_templavoila][title]" value="' . htmlspecialchars($insertDataArray['tx_templavoila']['title']) . '" /></dd>
-
-					' . (($insertDataArray['type'] != 'no_map') ? '
-					<dt><label>' . $GLOBALS['LANG']->getLL('structureFormInstruction') . ':</label></dt>
-					<dd><textarea class="fixed-font enable-tab" cols="' . $this->textareaCols . '" rows="2" name="' . $formFieldName . '[tx_templavoila][description][]">' . t3lib_div::deHSCentities(htmlspecialchars($insertDataArray['tx_templavoila']['description'][0])) . '</textarea></dd>
-
-					<dt><label>' . $GLOBALS['LANG']->getLL('structureFormRules') . ':</label></dt>
-					<dd><input type="text" size="80" name="' . $formFieldName . '[tx_templavoila][tags]" value="'.htmlspecialchars($insertDataArray['tx_templavoila']['tags']).'" /></dd>
-					' :'') . '
-
-					' . (($insertDataArray['type'] != 'array') &&
-					     ($insertDataArray['type'] != 'section') ? '
-					' . (($insertDataArray['type'] != 'no_map') ? '
-					<!-- non-array options ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-					<dt><label>' . $GLOBALS['LANG']->getLL('structureFormSamples') . ':</label></dt>
-					<dd><textarea class="fixed-font enable-tab" cols="' . $this->textareaCols . '" rows="5" name="' . $formFieldName . '[tx_templavoila][sample_data][]">' . t3lib_div::deHSCentities(htmlspecialchars($insertDataArray['tx_templavoila']['sample_data'][0])) . '</textarea>
-						' . $this->lipsumLink($formFieldName . '[tx_templavoila][sample_data]') . '</dd>
-					' :'') . '
-
-					<dt><label>' . $GLOBALS['LANG']->getLL('structureFormPreset') . ':</label></dt>
-					<dd><select onchange="if (confirm(\'' . $GLOBALS['LANG']->getLL('mess.onChangeAlert') . '\')) document.getElementById(\'_updateDS\').click();"
-						name="' . $formFieldName . '[tx_templavoila][eType]">
-						<optgroup class="c-divider" label="' . $GLOBALS['LANG']->getLL('structureFormTCEFields') . '">
-							<option value="input"'.           ($insertDataArray['tx_templavoila']['eType'] == 'input'            ? ' selected="selected"' : '') . '>Plain input field</option>
-							<option value="input_h"'.         ($insertDataArray['tx_templavoila']['eType'] == 'input_h'          ? ' selected="selected"' : '') . '>Header field</option>
-							<option value="input_g"'.         ($insertDataArray['tx_templavoila']['eType'] == 'input_g'          ? ' selected="selected"' : '') . '>Header field, Graphical</option>
-							<option value="text"'.            ($insertDataArray['tx_templavoila']['eType'] == 'text'             ? ' selected="selected"' : '') . '>Text area for bodytext</option>
-							<option value="rte"'.             ($insertDataArray['tx_templavoila']['eType'] == 'rte'              ? ' selected="selected"' : '') . '>Rich text editor for bodytext</option>
-							<option value="link"'.            ($insertDataArray['tx_templavoila']['eType'] == 'link'             ? ' selected="selected"' : '') . '>Link field</option>
-							<option value="int"'.             ($insertDataArray['tx_templavoila']['eType'] == 'int'              ? ' selected="selected"' : '') . '>Integer value</option>
-							<option value="image"'.           ($insertDataArray['tx_templavoila']['eType'] == 'image'            ? ' selected="selected"' : '') . '>Image field</option>
-							<option value="imagefixed"'.      ($insertDataArray['tx_templavoila']['eType'] == 'imagefixed'       ? ' selected="selected"' : '') . '>Image field, fixed W+H</option>
-							<option value="imagelist"'.       ($insertDataArray['tx_templavoila']['eType'] == 'imagelist'        ? ' selected="selected"' : '') . '>Image list</option>
-							<option value="select"'.          ($insertDataArray['tx_templavoila']['eType'] == 'select'           ? ' selected="selected"' : '') . '>Selector box</option>
-						</optgroup>
-						<optgroup class="c-divider" label="' . $GLOBALS['LANG']->getLL('structureFormTSElements') . '">
-							<option value="ce"'.              ($insertDataArray['tx_templavoila']['eType'] == 'ce'               ? ' selected="selected"' : '') . '>Page-Content Elements [Pos.: '.($insertDataArray['tx_templavoila']['oldStyleColumnNumber'] ? $insertDataArray['tx_templavoila']['oldStyleColumnNumber'] : 'to be defined').']</option>
-							<option value="TypoScriptObject"'.($insertDataArray['tx_templavoila']['eType'] == 'TypoScriptObject' ? ' selected="selected"' : '') . '>TypoScript Object Path</option>
-						</optgroup>
-						<optgroup class="c-divider" label="' . $GLOBALS['LANG']->getLL('structureFormOther') . '">
-							<option value="none"'.            ($insertDataArray['tx_templavoila']['eType'] == 'none'             ? ' selected="selected"' : '') . '>None (only TS)</option>
-							<option value="custom"'.          ($insertDataArray['tx_templavoila']['eType'] == 'custom'           ? ' selected="selected"' : '') . '>Custom TCE</option>
-						</optgroup>
-					</select><input type="hidden"
-						name="' . $formFieldName . '[tx_templavoila][eType_before]"
-						value="' . $insertDataArray['tx_templavoila']['eType'] . '" /></dd>
-					' :'') . '
-
-					' . (($insertDataArray['type'] != 'array') ? '
-					' . ($inheritable ? '
-					<!-- non-array options ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-					<dt><label>' . $GLOBALS['LANG']->getLL('structureFormInheritance') . ':</label></dt>
-					<dd>
-						<input type="radio" name="' . $formFieldName . '[tx_templavoila][inheritance]" value="' . TVDS_INHERITANCE_NONE       . '" ' . ($insertDataArray['tx_templavoila']['inheritance'] == TVDS_INHERITANCE_NONE       ? 'checked="checked"' : '') . ' /> Never<br />
-						<input type="radio" name="' . $formFieldName . '[tx_templavoila][inheritance]" value="' . TVDS_INHERITANCE_REPLACE    . '" ' . ($insertDataArray['tx_templavoila']['inheritance'] == TVDS_INHERITANCE_REPLACE    ? 'checked="checked"' : '') . ' /> Replace<br />
-						<input type="radio" name="' . $formFieldName . '[tx_templavoila][inheritance]" value="' . TVDS_INHERITANCE_ACCUMULATE . '" ' . ($insertDataArray['tx_templavoila']['inheritance'] == TVDS_INHERITANCE_ACCUMULATE ? 'checked="checked"' : '') . ' /> Accumulate<br />
-					</dd>
-					' : '') . '
-					' . ($localizable ? '
-					<!-- non-array options ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-					<dt><label>' . $GLOBALS['LANG']->getLL('structureFormOverlayMode') . ':</label></dt>
-					<dd><select
-						name="' . $formFieldName . '[tx_templavoila][langOverlayMode]">
-						<option value=""'              . ($insertDataArray['tx_templavoila']['langOverlayMode'] == ''              ? ' selected="selected"' : '') . '>Default</option>
-						<option value="ifFalse"'       . ($insertDataArray['tx_templavoila']['langOverlayMode'] == 'ifFalse'       ? ' selected="selected"' : '') . '>If evaluates to "false"</option>
-						<option value="ifBlank"'       . ($insertDataArray['tx_templavoila']['langOverlayMode'] == 'ifBlank'       ? ' selected="selected"' : '') . '>If evaluates to ""</option>
-						<option value="never"'         . ($insertDataArray['tx_templavoila']['langOverlayMode'] == 'never'         ? ' selected="selected"' : '') . '>Never</option>
-						<option value="removeIfBlank"' . ($insertDataArray['tx_templavoila']['langOverlayMode'] == 'removeIfBlank' ? ' selected="selected"' : '') . '>Remove if evaluates to ""</option>
-					</select>
-					</dd>
-					<dt><label>' . $GLOBALS['LANG']->getLL('structureFormMultilanguage') . ':</label></dt>
-					<dd>
-						<input type="radio" name="' . $formFieldName . '[tx_templavoila][multilang]" value="1" ' . ( $insertDataArray['tx_templavoila']['multilang'] ? 'checked="checked"' : '') . ' /> yes
-						<input type="radio" name="' . $formFieldName . '[tx_templavoila][multilang]" value="0" ' . (!$insertDataArray['tx_templavoila']['multilang'] ? 'checked="checked"' : '') . ' /> no
-					</dd>
-					' : '') . '
-					' : '') . '
-				</dl>';
-
-			/*	// The dam-tv-connector will substitute the text above, that's $%*%&"$%, but well anyway, let's not break it
-				if (count($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['templavoila']['cm1']['eTypesExtraFormFields']) > 0) {
-				$form .= '
-						<optgroup class="c-divider" label="Extra Elements">';
-					foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['templavoila']['cm1']['eTypesExtraFormFields'] as $key => $value) {
-							<option value="'.$key.'"'.($insertDataArray['tx_templavoila']['eType']==$key ? ' selected="selected"' : '').'>'.$key.'</option>
-					}
-				$form .= '
-						</optgroup>';
-				}	*/
+				$form = $this->configObj->renderConfig_general($formFieldName, $insertDataArray, $inheritable, $localizable);
 
 				if (($insertDataArray['type'] != 'array') &&
 				    ($insertDataArray['type'] != 'section')) {
-					/* The Typoscript-related XML-structure of an tx_templavoila-entry is:
-					 *
-					 * <tx_templavoila>
-					 *	<TypoScript_constants>	-> an array of constants that will be substituted in the <TypoScript>-element
-					 * 	<TypoScript>		->
-					 * </tx_templavoila>
-					 */
 					if ($insertDataArray['tx_templavoila']['eType'] != 'TypoScriptObject')
-					$form .= '
-					<dl id="dsel-ts" class="DS-config">
-						<dt><label>' . $GLOBALS['LANG']->getLL('structureFormTSConst') . ':</label></dt>
-						<dd><textarea class="fixed-font enable-tab xml" cols="' . $this->textareaCols . '" rows="10" name="' . $formFieldName . '[tx_templavoila][TypoScript_constants]" rel="tx_templavoila.TypoScript_constants">' . htmlspecialchars($this->flattenarray($insertDataArray['tx_templavoila']['TypoScript_constants'])) . '</textarea></dd>
-						<dt><label>' . $GLOBALS['LANG']->getLL('structureFormTSCode') . ':</label></dt>
-						<dd>' . (!$this->t3e ? '
-							<textarea
-								class="fixed-font enable-tab ts"
-								cols="' . $this->textareaCols . '"
-								rows="10"
-								name="' . $formFieldName.'[tx_templavoila][TypoScript]"
-								rel="tx_templavoila.TypoScript">'.
-								htmlspecialchars($insertDataArray['tx_templavoila']['TypoScript']) . '
-							</textarea>' :
-							str_replace('<br/>', '', $this->t3e->getCodeEditor(
-								$formFieldName . '[tx_templavoila][TypoScript]',
-								'fixed-font enable-tab ts',
-								htmlspecialchars($insertDataArray['tx_templavoila']['TypoScript']),
-								'cols="' . $this->textareaCols . '" rows="10" rel="tx_templavoila.TypoScript" id="dsel-t3editor"'))) . '
-						</dd>
-					</dl>';
+						$form .= $this->configObj->renderConfig_typoscript($formFieldName, $insertDataArray, $inheritable, $localizable);
 
-					/* The Typoscript-related XML-structure of an tx_templavoila-entry is:
-					 *
-					 * <tx_templavoila>
-					 * 	<TypoScriptObjPath>	->
-					 * </tx_templavoila>
-					 */
-					if (($extra = $this->drawDataStructureMap_editItem_editTypeExtra(
-							$insertDataArray['tx_templavoila']['eType'],
-							$formFieldName . '[tx_templavoila][eType_EXTRA]',
-							($insertDataArray['tx_templavoila']['eType_EXTRA'] 	// Use eType_EXTRA only if it is set (could be modified, etc), otherwise use TypoScriptObjPath!
-							?	$insertDataArray['tx_templavoila']['eType_EXTRA']
-							:	($insertDataArray['tx_templavoila']['TypoScriptObjPath']
-								?	array(
-										'objDesc' => $insertDataArray['tx_templavoila']['TypoScriptObjDesc'],
-										'objPath' => $insertDataArray['tx_templavoila']['TypoScriptObjPath']
-									)
-								:	''))
-						)))
-					$form .= '
-					<dl id="dsel-extra" class="DS-config">
-						<dt>' . $GLOBALS['LANG']->getLL('structureFormExtra') . '</dt>
-						<dd>' . $extra . '</dd>
-					</dl>';
+					$form .= $this->configObj->renderConfig_extra($formFieldName, $insertDataArray, $inheritable, $localizable);
+					$form .= $this->configObj->renderConfig_procf($formFieldName, $insertDataArray, $inheritable, $localizable);
 
-					/* The process-related XML-structure of an tx_templavoila-entry is:
-					 *
-					 * <tx_templavoila>
-					 * 	<proc>			-> define post-processes for this element's value
-					 *		<int>		-> this element's value will be cast to an integer (if exist)
-					 *		<HSC>		-> this element's value will convert special chars to HTML-entities (if exist)
-					 *		<stdWrap>	-> an implicit stdWrap for this element, "stdWrap { ...inside... }"
-					 * 	</proc>
-					 * </tx_templavoila>
-					 */
-					$form .= '
-					<dl id="dsel-proc" class="DS-config">
-						<dt>Applied post-processes:</dt>
-						<dd>
-							<label style="float: left; width: 20em;">Cast content to integer:</label>
-							<input type="radio" name="' . $formFieldName . '[tx_templavoila][proc][int]" value="1" ' . ( $insertDataArray['tx_templavoila']['proc']['int'] ? 'checked="checked"' : '') . ' /> yes
-							<input type="radio" name="' . $formFieldName . '[tx_templavoila][proc][int]" value="0" ' . (!$insertDataArray['tx_templavoila']['proc']['int'] ? 'checked="checked"' : '') . ' /> no
-							<br />
-							<label style="float: left; width: 20em;">Pass content through htmlentities():</label>
-							<input type="radio" name="' . $formFieldName . '[tx_templavoila][proc][HSC]" value="1" ' . ( $insertDataArray['tx_templavoila']['proc']['HSC'] ? 'checked="checked"' : '') . ' /> yes
-							<input type="radio" name="' . $formFieldName . '[tx_templavoila][proc][HSC]" value="0" ' . (!$insertDataArray['tx_templavoila']['proc']['HSC'] ? 'checked="checked"' : '') . ' /> no
-						</dd>
-
-						<dt><label>Custom stdWrap:</label></dt>
-						<dd><textarea class="fixed-font enable-tab ts" cols="' . $this->textareaCols . '" rows="10" name="' . $formFieldName . '[tx_templavoila][proc][stdWrap]" rel="tx_templavoila.proc.stdWrap">' . htmlspecialchars($insertDataArray['tx_templavoila']['proc']['stdWrap']) . '</textarea></dd>
-					</dl>';
-
-					/* The basic XML-structure of an TCEforms-entry is:
-					 *
-					 * <TCEforms>
-					 * 	<label>			-> TCE-label for the BE
-					 * 	<config>		-> TCE-configuration array
-					 * </TCEforms>
-					 */
 					if ($insertDataArray['tx_templavoila']['eType'] != 'TypoScriptObject')
-					$form .= '
-					<dl id="dsel-tce" class="DS-config">
-						<dt><label>TCE Label:</label></dt>
-						<dd><input type="text" size="80" name="' . $formFieldName . '[TCEforms][label]" value="' . htmlspecialchars($insertDataArray['TCEforms']['label']).'" /></dd>
-
-						<dt><label>TCE Multilanguage:</label></dt>
-						<dd>	<input type="radio" name="' . $formFieldName . '[TCEforms][multi]" value="1" ' . ( $insertDataArray['TCEforms']['multi'] ? 'checked="checked"' : '') . ' /> yes
-							<input type="radio" name="' . $formFieldName . '[TCEforms][multi]" value="0" ' . (!$insertDataArray['TCEforms']['multi'] ? 'checked="checked"' : '') . ' /> no</dd>
-
-						<dt><label>TCE Configuration:</label></dt>
-						<dd><textarea class="fixed-font enable-tab xml" cols="' . $this->textareaCols . '" rows="10" name="' . $formFieldName . '[TCEforms][config]" rel="TCEforms.config">' . htmlspecialchars($this->flattenarray($insertDataArray['TCEforms']['config'])) . '</textarea></dd>
-
-						<dt><label>TCE Extras:</label></dt>
-						<dd><input type="text" size="80" name="'.$formFieldName.'[TCEforms][defaultExtras]" value="' . htmlspecialchars($insertDataArray['TCEforms']['defaultExtras']) . '" /></dd>
-					</dl>';
+						$form .= $this->configObj->renderConfig_tceform($formFieldName, $insertDataArray, $inheritable, $localizable);
 				}
 				else /*if ($insertDataArray['type'] != 'section')*/ {
-					/* The process-related XML-structure of an tx_templavoila-entry is:
-					 *
-					 * <tx_templavoila>
-					 * 	<proc>			-> define post-processes for this element's value
-					 *		<stdWrap>	-> an implicit stdWrap for this element, "stdWrap { ...inside... }"
-					 * 	</proc>
-					 * </tx_templavoila>
-					 */
-					$form .= '
-					<dl id="dsel-proc" class="DS-config">
-						<dt><label>Custom stdWrap:</label></dt>
-						<dd><textarea class="fixed-font enable-tab ts" cols="' . $this->textareaCols . '" rows="10" name="' . $formFieldName . '[tx_templavoila][proc][stdWrap]" rel="tx_templavoila.proc.stdWrap">' . htmlspecialchars($insertDataArray['tx_templavoila']['proc']['stdWrap']) . '</textarea></dd>
-					</dl>';
+					$form .= $this->configObj->renderConfig_procw($formFieldName, $insertDataArray, $inheritable, $localizable);
 				}
 
 				$formSubmit = '
@@ -3635,88 +3301,17 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				 * </element>
 				 */
 
-				// Icons:
-				$info = $this->dsTypeInfo($insertDataArray);
-
 				$addEditRows = '<tr class="bgColor4 tv-edit-row">
-					<td valign="top" style="padding: 0.8em 2px 0.8em ' . (($level) * 16 + 3) . 'px;" nowrap="nowrap">
-						<select style="margin: 4px 0 4px 0; padding: 1px 1px 1px 30px; background: 0 50% url(' . $info[3] . ') no-repeat; width: 150px !important;" title="Mapping Type" name="' . $formFieldName . '[type]" onchange="if (confirm(\'' . $GLOBALS['LANG']->getLL('mess.onChangeAlert') . '\')) document.getElementById(\'_updateDS\').click();">
-							<optgroup class="c-divider" label="Containers">
-								<option style="padding: 1px 1px 1px 30px; background: 0 50% url(' . $this->dsTypes['sc'][3] . ') no-repeat;" value="section"' . ($insertDataArray['type'] == 'section' ? ' selected="selected"' : '') . '>Section of elements</option>
-								<option style="padding: 1px 1px 1px 30px; background: 0 50% url(' . $this->dsTypes['co'][3] . ') no-repeat;" value="array"' .   ($insertDataArray['type'] == 'array'   ? ' selected="selected"' : '') . '>Container for elements</option>
-							</optgroup>
-							<optgroup class="c-divider" label="Elements">
-								<option style="padding: 1px 1px 1px 30px; background: 0 50% url(' . $this->dsTypes['el'][3] . ') no-repeat;" value=""' .        ($insertDataArray['type'] == ''        ? ' selected="selected"' : '') . '>Element</option>
-								<option style="padding: 1px 1px 1px 30px; background: 0 50% url(' . $this->dsTypes['at'][3] . ') no-repeat;" value="attr"' .    ($insertDataArray['type'] == 'attr'    ? ' selected="selected"' : '') . '>Attribute</option>
-							</optgroup>
-							<optgroup class="c-divider" label="Other">
-								<option style="padding: 1px 1px 1px 30px; background: 0 50% url(' . $this->dsTypes['no'][3] . ') no-repeat;" value="no_map"' .  ($insertDataArray['type'] == 'no_map'  ? ' selected="selected"' : '') . '>Not mapped</option>
-							</optgroup>
-						</select>
-						<div style="margin: 0.25em;">' .
+					<td valign="top" style="padding: 0.8em 2px 0.8em ' . (($level) * 16 + 3) . 'px;" nowrap="nowrap">' .
+						$this->configObj->renderConfig_elselector($formFieldName, $insertDataArray, $inheritable, $localizable) .
+						'<div style="margin: 0.25em;">' .
 							($this->DS_cmd == 'add' ? $autokey . ' <strong>(new)</strong>:<br />' : $key) .
-						'</div>
-						<input id="dsel-act" type="hidden" name="dsel_act" />
-						<ul id="dsel-menu" class="DS-tree">
-							<li><a id="dssel-general" class="active" href="#" onclick="" title="edit general configuration">Configuration</a>
-								<ul>
-									<li><a id="dssel-proc" href="#" title="edit data-processing modifications">Data-Processing</a></li>
-									<li><a id="dssel-ts" href="#" title="edit TypoScript specializations">Typo-Script</a></li>
-									<li class="last-child"><a id="dssel-extra" href="#" title="edit extra options">Extra</a></li>
-								</ul>
-							</li>
-							<li class="last-child"><a id="dssel-tce" href="#" title="edit TCE-Form configuration">TCE-Form</a></li>
-						</ul>
-						' . $this->cshItem('xMOD_tx_templavoila', 'mapping_editform', $this->doc->backPath, '', FALSE, 'margin-bottom: 0px;') . '
+						'</div>' .
+						$this->configObj->renderConfig_jsselector() .
+						$this->cshItem('xMOD_tx_templavoila', 'mapping_editform', $this->doc->backPath, '', FALSE, 'margin-bottom: 0px;') . '
 					</td>
 					<td valign="top" style="padding: 0.8em 2px 0.8em 2px;" colspan="4">
-						' . $form . '
-						<script type="text/javascript">
-							var dsel_act = "' . (t3lib_div::_GP('dsel_act') ? t3lib_div::_GP('dsel_act') : 'general') . '";
-							var dsel_menu = [
-								{"id" : "general",		"avail" : true,	"label" : "Configuration",	"title" : "edit general configuration",	"childs" : [
-									{"id" : "ts",		"avail" : true,	"label" : "Typo-Script",	"title" : "edit TypoScript specializations"},
-									{"id" : "extra",	"avail" : true,	"label" : "Extra",		"title" : "edit extra options"},
-									{"id" : "proc",		"avail" : true,	"label" : "Data-Processing",	"title" : "edit data-processing modifications"}]},
-								{"id" : "tce",			"avail" : true,	"label" : "TCE-Form",		"title" : "edit TCE-Form configuration"}
-							];
-
-							function dsel_menu_construct(dsul, dsmn) {
-								if (dsul) {
-									while (dsul.childNodes.length)
-										dsul.removeChild(dsul.childNodes[0]);
-									for (var el = 0, pos = 0; el < dsmn.length; el++) {
-										var tab = document.getElementById("dsel-" + dsmn[el]["id"]);
-										var stl = "none";
-										if (tab) { if (dsmn[el]["avail"]) {
-											var tx = document.createTextNode(dsmn[el]["label"]);
-											var ac = document.createElement("a"); ac.appendChild(tx);
-											var li = document.createElement("li"); li.appendChild(ac);
-											ac.title = dsmn[el]["title"]; ac.href = "#dsel-menu"; ac.rel = dsmn[el]["id"];
-											ac.className = (dsel_act == dsmn[el]["id"] ? "active" : "");
-											ac.onclick = function() { dsel_act = this.rel; dsel_menu_reset(); };
-											if (dsmn[el]["childs"]) {
-												var ul = document.createElement("ul");
-												dsel_menu_construct(ul, dsmn[el]["childs"]);
-												li.appendChild(ul);
-											}
-											dsul.appendChild(li);
-											stl = (dsel_act == dsmn[el]["id"] ? "" : "none");
-										} tab.style.display = stl; }
-									}
-									if (dsul.lastChild)
-										dsul.lastChild.className = "last-child";
-								}
-							}
-
-							function dsel_menu_reset() {
-								dsel_menu_construct(document.getElementById("dsel-menu"), dsel_menu);
-								document.getElementById("dsel-act").value = dsel_act;
-							}
-
-							dsel_menu_reset();
-							xmlarea_init();
-						</script>
+						' . $form . $this->configObj->renderConfig_jscode() . '
 					</td>
 					<td valign="top" align="right" style="padding: 0.5em 2px 0.5em 2px;" colspan="1">
 						' . $formSubmit . '
@@ -3742,75 +3337,6 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			$placeBefore
 		);
 	}
-
-	/**
-	 * Renders extra form fields for configuration of the Editing Types.
-	 *
-	 * @param	string		Editing Type string
-	 * @param	string		Form field name prefix
-	 * @param	array		Current values for the form field name prefix.
-	 * @return	string		HTML with extra form fields
-	 * @access	private
-	 * @see drawDataStructureMap_editItem()
-	 */
-	function drawDataStructureMap_editItem_editTypeExtra($type, $formFieldName, $curValue)	{
-		// If a user function was registered, use that instead of our own handlers:
-		if (isset ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['templavoila']['cm1']['eTypesExtraFormFields'][$type])) {
-			$_params = array (
-				'type'		=> $type,
-				'formFieldName'	=> $formFieldName,
-				'curValue'	=> $curValue,
-			);
-
-			$output = t3lib_div::callUserFunction($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['templavoila']['cm1']['eTypesExtraFormFields'][$type], $_params, $this);
-		} else {
-			switch ($type) {
-				case 'TypoScriptObject':
-					// Generate selector box options:
-					// Storage Folders for elements:
-					$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-						'*',
-						'pages',
-						'storage_pid IN (' . $this->storageFolders_pidList . ')' . t3lib_BEfunc::deleteClause('pages'),
-						'',
-						'title'
-					);
-
-					$pid = 0;
-					if (false !== ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
-						$pid = $row['uid'];
-					}
-
-					$output =
-						$GLOBALS['LANG']->getLL('structureFormTSODescription') . ':<br />
-						<input style="width: 95%;" id="browser[descrp]" type="text" name="' . $formFieldName . '[objDesc]" value="' . htmlspecialchars($curValue['objDesc'] ? $curValue['objDesc'] : 'My object') . '" />
-					';
-
-					$output .=
-						$GLOBALS['LANG']->getLL('structureFormTSOPath') . ':<br />
-						<input style="width: 95%;" id="browser[result]" type="text" name="' . $formFieldName . '[objPath]" value="' . htmlspecialchars($curValue['objPath'] ? $curValue['objPath'] : 'lib.myObject') . '" />
-					';
-
-					$output .=
-						$GLOBALS['LANG']->getLL('structureFormTSOContext') . ':<br />
-						<div style="width: 94.7%;" class="tv-ts-tree">
-							<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/insert3.gif') . ' title="Context" alt="Load context"
-								 onclick="setFormValueOpenBrowser(\'db\',\'browser[communication]|||pages\');" style="cursor: pointer; vertical-align: middle;" />
-							<span id="browser[context]">root <em>[pid: ' . $pid . ']</em></span>
-							<iframe width="100%" height="400" style="border: 0;" id="browser[communication]" src="' . $this->baseScript . 'mode=browser&pid=' . $pid . '&current=' . $curValue['objPath'] . '"></iframe>
-						</div>
-					';
-
-					break;
-			}
-		}
-
-		return $output;
-	}
-
-
-
-
 
 
 	/*******************************
@@ -3864,10 +3390,10 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 */
 	function linkThisScript($array = null) {
 		$theArray = array(
-			'id' => $this->id,
-			'file' => $this->displayFile,
+			'id'    => $this->id,
+			'file'  => $this->displayFile,
 			'table' => $this->displayTable,
-			'uid' => $this->displayUid,
+			'uid'   => $this->displayUid,
 			'returnUrl' => $this->returnUrl
 		);
 
@@ -4166,34 +3692,6 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 			return t3lib_BEfunc::cshItem($table, $field, $BACK_PATH, $wrap, $onlyIconMode, $styleAttrib);
 		}
 
-		return '';
-	}
-
-	/**
-	 * [Describe function...]
-	 *
-	 * @param	[type]		$formElementName: ...
-	 * @return	[type]		...
-	 */
-	function lipsumLink($formElementName) {
-		if (t3lib_extMgm::isLoaded('lorem_ipsum')) {
-			$LRobj = t3lib_div::makeInstance('tx_loremipsum_wiz');
-			$LRobj->backPath = $this->doc->backPath;
-
-			$PA = array(
-				'fieldChangeFunc' => array(),
-				'formName' => 'pageform',
-				'itemName' => $formElementName . '[]',
-				'params' => array(
-#					'type'	=> 'header',
-					'type'	=> 'description',
-					'add'	=> 1,
-					'endSequence' => '46,32',
-				)
-			);
-
-			return $LRobj->main($PA,'ID:templavoila');
-		}
 		return '';
 	}
 

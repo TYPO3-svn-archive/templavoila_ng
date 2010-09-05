@@ -1705,6 +1705,7 @@ class tx_templavoila_api {
 			'sys_language_uid'	=> $row['sys_language_uid'],
 			'l18n_parent'		=> $row['l18n_parent'],
 			'CType'			=> $row['CType'],
+			'TO'			=> $row['tx_templavoila_to']
 		);
 
 		if ($this->includePreviewData) {
@@ -1745,9 +1746,7 @@ class tx_templavoila_api {
 				$templateMappingArr = unserialize($currentTemplateObject['templatemapping']);
 			if (!is_array($flexformContentArr))
 				$flexformContentArr = array();
-//echo '<pre>';
-//print_r($templateMappingArr);
-//echo '</pre>';
+
 			// Respect the currently selected language, for both concepts - with langChildren enabled and disabled:
 			$langChildren = intval($tree['ds_meta']['langChildren']);
 			$langDisable  = intval($tree['ds_meta']['langDisable']);

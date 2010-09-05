@@ -2,9 +2,14 @@
 # TYPO3 CVS ID: $Id: ext_localconf.php 5928 2007-07-12 11:20:33Z kasper $
 if (!defined ('TYPO3_MODE')) 	die ('Access denied.');
 
+x// unserializing the configuration so we can use it here:
+x$_EXTCONF = unserialize($_EXTCONF);
+
 // Adding the two plugins TypoScript:
 t3lib_extMgm::addPItoST43($_EXTKEY, 'pi1/class.tx_templavoila_pi1.php', '_pi1', 'CType', 1);
-t3lib_extMgm::addTypoScript($_EXTKEY, 'setup', 'tt_content.templavoila_pi1.10 >', 43);
+if (!$_EXTCONF['enable.']['renderFCEHeader']) {
+	t3lib_extMgm::addTypoScript($_EXTKEY, 'setup', 'tt_content.templavoila_pi1.10 >', 43);
+}
 
 // Use templavoila's wizard instead the default create new page wizard
 t3lib_extMgm::addPageTSConfig('
@@ -217,6 +222,7 @@ if (is_callable(array('t3lib_div', 'int_from_ver')) && t3lib_div::int_from_ver(T
 		}
 		plugins.show = *
 	}
+
 	# set to tabs for tab rendering
 	templavoila.wizards.newContentElement.renderMode =
 
@@ -232,6 +238,7 @@ if (is_callable(array('t3lib_div', 'int_from_ver')) && t3lib_div::int_from_ver(T
 			CType = media
 		}
 	}
+
 	templavoila.wizards.newContentElement.wizardItems.special.show = uploads,media,menu,html,div
 	');
 	}

@@ -234,23 +234,6 @@ class tx_templavoila_mod2_ds {
 			}
 
 			/* ------------------------------------------------------------------------------ */
-			// Module may be allowed, but modify may not
-			if ($this->modifiable) {
-				// file/belayout missing
-				if ($templateStatusError >= 2) {
-					$templateStatusActions .= '<a href="' . htmlspecialchars($linkUrl) . '">[ ' . $GLOBALS['LANG']->getLL('center_view_to_map') . ' ]</a> ';
-				}
-				// file/belayout changed
-				else if ($templateStatusError >= 1) {
-					$templateStatusActions .= '<a href="' . htmlspecialchars($linkUrl) . '">[ ' . $GLOBALS['LANG']->getLL('center_view_to_remap') . ' ]</a> ';
-					$templateStatusActions .= '<a href="' . htmlspecialchars($linkUrl . '&SET[page]=preview') . '">[ ' . $GLOBALS['LANG']->getLL('center_view_to_verify') . ' ]</a>';
-				}
-				// every other reason
-				else  {
-					$templateStatusActions .= '<a href="' . htmlspecialchars($linkUrl) . '">[ ' . $GLOBALS['LANG']->getLL('center_view_to') . ' ]</a> ';
-				}
-			}
-
 			if ($templateStatusError >= 2) {
 				$this->pObj->setErrorLog($scope, 'fatal', $templateStatusLine . $belayoutStatusLine . ' (DS: "' . $dsRow['title'] . '")');
 			} else if ($templateStatusError >= 1) {
@@ -291,7 +274,7 @@ class tx_templavoila_mod2_ds {
 			}
 
 			$lpXML .= $dsRow['dataprot']
-				? t3lib_div::formatSize(strlen($dsRow['dataprot'])).'bytes'
+				? t3lib_div::formatSize(strlen($dsRow['dataprot'])) . 'bytes'
 				: '&mdash;';
 
 			/* ------------------------------------------------------------------------------ */

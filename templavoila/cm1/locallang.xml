@@ -76,24 +76,45 @@
 			<label index="structureAction">Commands</label>
 			<label index="structureEdit">Actions</label>
 
+			<label index="structureFormContainers">Containers</label>
+			<label index="structureFormElements">Elements</label>
+			<label index="structureFormOther">Other</label>
 			<label index="structureFormFieldNew">Enter new fieldname</label>
 			<label index="structureFormTitle">Title</label>
 			<label index="structureFormInstruction">Mapping instructions</label>
 			<label index="structureFormSamples">Sample Data</label>
 			<label index="structureFormPreset">Element Preset</label>
-			<label index="structureFormTCEFields">Form Fields</label>
-			<label index="structureFormTSElements">TypoScript Elements</label>
 			<label index="structureFormOther">Other</label>
 			<label index="structureFormRules">Mapping rules</label>
 			<label index="structureFormInheritance">Inheritance</label>
 			<label index="structureFormOverlayMode">Overlay-mode</label>
 			<label index="structureFormMultilanguage">Multi-language</label>
+			<label index="structureFormTSElements">TypoScript Elements</label>
 			<label index="structureFormTSConst">TypoScript Constants</label>
 			<label index="structureFormTSCode">TypoScript Code</label>
 			<label index="structureFormExtra">Extra options</label>
+			<label index="structureFormTCEFields">Form Fields</label>
+			<label index="structureFormTCELabel">Label</label>
+			<label index="structureFormTCEMLang">Multi-language</label>
+			<label index="structureFormTCEConfig">Configuration</label>
+			<label index="structureFormTCEExtras">Extras</label>
 			<label index="structureFormTSODescription">Description</label>
 			<label index="structureFormTSOPath">Object path</label>
 			<label index="structureFormTSOContext">Context</label>
+			<label index="structureFormPost">Applied post-processes</label>
+			<label index="structureFormPostCast">Cast content to integer</label>
+			<label index="structureFormPostHSC">Pass content through htmlentities()</label>
+			<label index="structureFormStdWrap">Custom stdWrap</label>
+			<label index="structureFormMenuConfig">Configuration</label>
+			<label index="structureFormMenuDataProc">Data-Processing</label>
+			<label index="structureFormMenuTS">TypoScript</label>
+			<label index="structureFormMenuExtra">Extra</label>
+			<label index="structureFormMenuTCE">TCE-Form</label>
+			<label index="structureFormMenuTitleConfig">edit general configuration</label>
+			<label index="structureFormMenuTitleDataProc">edit data-processing modifications</label>
+			<label index="structureFormMenuTitleTS">edit TypoScript specializations</label>
+			<label index="structureFormMenuTitleExtra">edit extra options</label>
+			<label index="structureFormMenuTitleTCE">edit TCE-Form configuration</label>
 
 			<label index="originXML">Pure XML import</label>
 			<label index="originScratch">From scratch construction</label>
@@ -106,6 +127,34 @@
 			<label index="mappingFound">Content found (at %d chars)</label>
 			<label index="mappingEmpty">Content empty</label>
 
+			<label index="presets_ce"              >Content-Elements</label>
+			<label index="presets_input"           >Plain input field</label>
+			<label index="presets_input_h"         >Header field</label>
+			<label index="presets_input_g"         >Header field, Graphical</label>
+			<label index="presets_text"            >Text area for bodytext</label>
+			<label index="presets_rte"             >Rich text editor for bodytext</label>
+			<label index="presets_link"            >Link field</label>
+			<label index="presets_int"             >Integer value</label>
+			<label index="presets_image"           >Image field</label>
+			<label index="presets_imagefixed"      >Image field, fixed W+H</label>
+			<label index="presets_imagelist"       >Image list</label>
+			<label index="presets_select"          >Selector box</label>
+			<label index="presets_custom"          >Custom</label>
+			<label index="presets_TypoScriptObject">TypoScript Object Path</label>
+			<label index="presets_none"            >Inline TypoScript Only</label>
+
+			<label index="overlaymode_"             >Default</label>
+			<label index="overlaymode_ifFalse"      >If evaluates to "false"</label>
+			<label index="overlaymode_ifBlank"      >If evaluates to ""</label>
+			<label index="overlaymode_never"        >Never</label>
+			<label index="overlaymode_removeIfBlank">Remove if evaluates to ""</label>
+
+			<label index="dsnode_sc">Section of elements</label>
+			<label index="dsnode_co">Container for elements</label>
+			<label index="dsnode_el">Element</label>
+			<label index="dsnode_at">Attribute</label>
+			<label index="dsnode_no">Not mapped</label>
+
 			<label index="displayModeExploded">Mode: Exploded Visual</label>
 			<label index="displayModeOverlay">Mode: Overlay</label>
 			<label index="displayModeSource">Mode: HTML Source</label>
@@ -115,6 +164,8 @@
 			<label index="headTag">Tag</label>
 			<label index="headContent">Tag content</label>
 
+			<label index="yes">yes</label>
+			<label index="no">no</label>
 			<label index="none">None found</label>
 			<label index="noicon">No icon</label>
 			<label index="rootDescription">Select the HTML element on the page which you want to be the overall container element for the template.</label>

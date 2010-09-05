@@ -92,39 +92,30 @@ class tx_templavoila_mod1_specialdoktypes {
 	function renderDoktype_2($pageRecord)    {
 		global $LANG, $BE_USER, $TYPO3_CONF_VARS;
 
-		if (intval($pageRecord['content_from_pid'])) {
-			// Prepare the record icon including a content sensitive menu link wrapped around it:
+		if (intval($pageRecord['content_from_pid'])) {		// Prepare the record icon including a content sensitive menu link wrapped around it:
 			$pageTitle = htmlspecialchars(t3lib_div::fixed_lgd_cs(t3lib_BEfunc::getRecordTitle('pages', $pageRecord), 50));
-			$recordIcon = $recordIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_iconWorks::getIconImage('pages', $pageRecord), '').' style="text-align: center; vertical-align: middle;" width="18" height="16" border="0" title="'.$pageTitle.'" alt="" />';
-			$editButton = $this->icoObj->link_edit('<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/edit2.gif', '') . ' title="'.htmlspecialchars($LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:editPage')).'" alt="" style="text-align: center; vertical-align: middle; border:0;" />', 'pages', $pageRecord['uid']);
+			$recordIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_iconWorks::getIconImage('pages', $pageRecord), '') . ' style="text-align: center; vertical-align: middle;" width="18" height="16" border="0" title="' . $pageTitle . '" alt="" />';
+			$recordButton = $this->doc->wrapClickMenuOnIcon($recordIcon, 'pages', $pageRecord['uid'], 1, '&callingScriptId=' . rawurlencode($this->doc->scriptID), 'new,copy,cut,pasteinto,pasteafter,delete');
+			$editButton = $this->icoObj->link_edit('<img'.t3lib_iconWorks::skinImg($this->doc->backPath,'gfx/edit2.gif','') . ' title="' . htmlspecialchars($LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:editPage')) . '" alt="" style="text-align: center; vertical-align: middle; border:0;" />', 'pages', $pageRecord['uid']);
 
-			$sourcePageRecord = t3lib_beFunc::getRecordWSOL('pages', $pageRecord['content_from_pid']);
-			$sourceIcon = '<img'.t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_iconWorks::getIcon('pages', $sourcePageRecord), '').' style="text-align: center; vertical-align: middle;" width="18" height="16" border="0" title="'.$sourcePageRecord['title'].'" alt="" />';
-			$sourceButton = $this->doc->wrapClickMenuOnIcon($sourceIcon, 'pages', $sourcePageRecord['uid'], 1, '&callingScriptId='.rawurlencode($this->doc->scriptID), 'new,copy,cut,pasteinto,pasteafter,delete');
+			if (intval($pageRecord['content_from_pid']) != 0) {
+				$substSourcePageRecord = t3lib_beFunc::getRecordWSOL('pages', $pageRecord['content_from_pid']);
+				$jumpToSubstSourceLink = '
+					<strong>
+					<a href="' . $this->pObj->mod1Script . 'id=' . $pageRecord['content_from_pid'] . '">
+						<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/shortcut.gif', '') . ' style="border:none; vertical-align: middle" /> '.
+						$LANG->getLL('jumptocontentfrompidpage', '', 1) . '
+					</a>
+					</strong>';
+			}
 
-			$sourceLink = '
-				<a href="' . $this->pObj->mod1Script . 'id='.$pageRecord['content_from_pid'] . '">' . htmlspecialchars($LANG->getLL ('jumptocontentfrompidpage')).'</a>
-			';
+			$this->pObj->msgAppend('info', htmlspecialchars(sprintf($LANG->getLL('cannotedit_contentfrompid'), $substSourcePageRecord['title'])));
 
-			$content = '
-				<table border="0" cellpadding="2" cellspacing="0" style="border: 1px solid black; margin-bottom:5px; width:100%">
-					<tr style="background-color: ' . $this->doc->bgColor2 . ';">
-						<td nowrap="nowrap" colspan="2">
-							' . $recordIcon . $editButton . '
-							</a>
-							' . htmlspecialchars($pageRecord['title']) . '
-						</td>
-					</tr>
-					<tr>
-						<td style="width:80%;">
-						' . htmlspecialchars(sprintf($LANG->getLL('cannotedit_contentfrompid'), $sourcePageRecord['title'])).'<br /><br />
-						' . $sourceButton . '<strong>' . $sourceLink . '<strong>
-
-						</td>
-						<td>&nbsp;</td>
-					</tr>
-				</table>
-			';
+			$content =
+				'<p>' .
+				$jumpToSubstSourceLink .
+				'</p>'
+			;
 
 			return $content;
 		}
@@ -149,10 +140,10 @@ class tx_templavoila_mod1_specialdoktypes {
 
 		switch ($pageRecord['urltype']) {
 			case 2 :
-				$url = 'ftp://'.$pageRecord['url'];
+				$url = 'ftp://' . $pageRecord['url'];
 				break;
 			case 3:
-				$url = 'mailto:'.$pageRecord['url'];
+				$url = 'mailto:' . $pageRecord['url'];
 				break;
 			default:
 				// Check if URI scheme already present. We support only Internet-specific notation, others are not relevant for us (see http://www.ietf.org/rfc/rfc3986.txt for details)
@@ -162,7 +153,7 @@ class tx_templavoila_mod1_specialdoktypes {
 				}
 				// fall through
 			case 1 :
-				$url = 'http://'.$pageRecord['url'];
+				$url = 'http://' . $pageRecord['url'];
 				break;
 		}
 
@@ -291,7 +282,6 @@ class tx_templavoila_mod1_specialdoktypes {
 
 		return $content;
 	}
-
 
 	/**
 	 * Returns TRUE if the logged in BE user has access to the list module.

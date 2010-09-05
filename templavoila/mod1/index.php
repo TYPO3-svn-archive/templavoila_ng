@@ -430,8 +430,8 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 			$this->canEditContent = $GLOBALS['BE_USER']->isPSet($this->calcPerms, 'pages', 'editcontent');
 
 			// Define the root element record:
-			$this->rootElementTable = is_array($this->altRoot) ? $this->altRoot['table'] : 'pages';
-			$this->rootElementUid = is_array($this->altRoot) ? $this->altRoot['uid'] : $this->id;
+			$this->rootElementTable  = is_array($this->altRoot) ? $this->altRoot['table'] : 'pages';
+			$this->rootElementUid    = is_array($this->altRoot) ? $this->altRoot['uid'] : $this->id;
 			$this->rootElementRecord = t3lib_BEfunc::getRecordWSOL($this->rootElementTable, $this->rootElementUid, '*');
 
 			// If pages use current UID, otherwhise you must use the PID to define the Page ID
@@ -744,8 +744,11 @@ table.typo3-dyntabmenu td.disabled:hover {
 			// Initialize the special doktype class:
 			$specialDoktypesObj =& t3lib_div::getUserObj('EXT:templavoila/mod1/class.tx_templavoila_mod1_specialdoktypes.php:&tx_templavoila_mod1_specialdoktypes','');
 			$specialDoktypesObj->init($this);
+			$specialDoktype = $this->rootElementRecord['doktype'];
+			if ($this->rootElementRecord['content_from_pid'])
+				$specialDoktype = '2';
 
-			$methodName = 'renderDoktype_' . $this->rootElementRecord['doktype'];
+			$methodName = 'renderDoktype_' . $specialDoktype;
 			if (method_exists($specialDoktypesObj, $methodName)) {
 				$result = $specialDoktypesObj->$methodName($this->rootElementRecord);
 				if ($result !== FALSE) {
@@ -1092,15 +1095,32 @@ table.typo3-dyntabmenu td.disabled:hover {
 				<tr>
 					<th>' . ($contentTreeArr['to_icon'] ? '
 						<img style="float: left; padding-right: 1em;" src="' . $this->doc->backPath . '../uploads/tx_templavoila/' . $contentTreeArr['to_icon'] . '" />' : '') . '
-						<dl style="float: left; margin: 0;">
+						<dl style="float: left; margin: 0 1em 0 0;">
 							<dt>Template Object:</dt>
 							<dd>' . ($contentTreeArr['to_title'] ? htmlspecialchars($contentTreeArr['to_title']) : '&mdash;') . '</dd>
 							<dt>Template Description:</dt>
 							<dd>' . ($contentTreeArr['to_description'] ? htmlspecialchars($contentTreeArr['to_description']) : '&mdash;') . '</dd>
 							<dt>' . ($contentTreeArr['el']['table'] == 'pages' ? 'Page' : 'FCE') . ' created:</dt>
-							<dd>' . t3lib_BEfunc::datetime($this->rootElementRecord['crdate']) . ' by [' . $this->rootElementRecord['cruser_id'] . ']</dd>
+							<dd>' . t3lib_BEfunc::datetime($this->rootElementRecord['crdate']) . ' by [' . $this->icoObj->link_user($this->rootElementRecord['cruser_id']) . ']</dd>
 							<dt>' . ($contentTreeArr['el']['table'] == 'pages' ? 'Page' : 'FCE') . ' last modified:</dt>
 							<dd>' . t3lib_BEfunc::datetime($this->rootElementRecord['tstamp']) . '</dd>
+						</dl>
+						<dl style="float: left; margin: 0 1em 0 0;">' .
+							($contentTreeArr['el']['table'] == 'pages' ? '
+							<dt>Meta keywords:</dt>
+							<dd>' . ($this->rootElementRecord['keywords'] ? htmlspecialchars($this->rootElementRecord['keywords']) : '&mdash;') . '</dd>
+							<dt>Meta title:</dt>
+							<dd>' . ($this->rootElementRecord['description'] ? htmlspecialchars($this->rootElementRecord['description']) : '&mdash;') . '</dd>
+							' : '
+							<dt>Header link:</dt>
+							<dd>' . ($this->rootElementRecord['header_link'] ? $this->icoObj->link_auto($this->rootElementRecord['header_link']) : '&mdash;') . '</dd>
+							<dt>Subheader:</dt>
+							<dd>' . ($this->rootElementRecord['subheader'] ? htmlspecialchars($this->rootElementRecord['subheader']) : '&mdash;') . '</dd>
+							') . '
+							<dt>' . ($contentTreeArr['el']['table'] == 'pages' ? 'Page' : 'FCE') . ' from:</dt>
+							<dd>' . ($this->rootElementRecord['starttime'] ? t3lib_BEfunc::datetime($this->rootElementRecord['starttime']) : '&mdash;') . '</dd>
+							<dt>' . ($contentTreeArr['el']['table'] == 'pages' ? 'Page' : 'FCE') . ' until:</dt>
+							<dd>' . ($this->rootElementRecord['endtime'] ? t3lib_BEfunc::datetime($this->rootElementRecord['endtime']) : '&mdash;') . '</dd>
 						</dl>
 					</th>
 				</tr>
@@ -1848,11 +1868,10 @@ table.typo3-dyntabmenu td.disabled:hover {
 					$name = '&mdash;';
 					if ($row['pages']) {
 						$name = array_flip(explode(',', $row['pages']));
-						foreach ($name as $n => $na) {
-							$na = t3lib_BEfunc::getRecordWSOL('pages', $n);
-							$name[$n] = t3lib_BEfunc::getRecordTitle('pages', $na, TRUE);
-							$name[$n] = $this->icoObj->link_edit($name[$n], 'pages', $n);
-						}
+
+						foreach ($name as $n => $na)
+							$name[$n] = $this->icoObj->link_page($n);
+
 						$name = '<ul><li>' . implode('</li><li>', $name) . '</li></ul>';
 					}
 
@@ -3015,10 +3034,15 @@ table.typo3-dyntabmenu td.disabled:hover {
 		global $TYPO3_CONF_VARS;
 
 		$charset = $GLOBALS['LANG']->origCharSet;
-		if ($GLOBALS['LANG']->origCharSet != $TYPO3_CONF_VARS['BE']['forceCharset']) {
+		if ($GLOBALS['LANG']->origCharSet != $TYPO3_CONF_VARS['BE']['forceCharset'])
 			$GLOBALS['LANG']->origCharSet = $TYPO3_CONF_VARS['BE']['forceCharset'];
+
+		if (substr($label, 0, 4) === 'LLL:') {
+			$label = $GLOBALS['LANG']->sL($label);
 		}
+
 		$result = $GLOBALS['LANG']->hscAndCharConv($label, $hsc);
+
 		$GLOBALS['LANG']->origCharSet = $charset;
 
 		return $result;

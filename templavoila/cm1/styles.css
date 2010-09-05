@@ -234,6 +234,10 @@ div.t3e_wrap {
 	height: 200px !important;
 }
 
+div.t3e_wrap dl.t3e_linenum dt {
+	height: 16px;
+}
+
 div.t3e_wrap div.t3e_linenum_wrap {
 	height: 200px !important;
 }

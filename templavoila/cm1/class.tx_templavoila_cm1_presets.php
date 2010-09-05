@@ -60,6 +60,8 @@ class tx_templavoila_cm1_presets {
 	var $pObj;			// A pointer to the parent object, that is the templavoila control-center module script. Set by calling the method init() of this class.
 	var $doc;			// A reference to the doc object of the parent object.
 
+	var $presets;			// Presets-array
+
 	/**
 	 * Initializes the overview object. The calling class must make sure that the right locallang files are already loaded.
 	 * This method is usually called by the templavoila control-center module.
@@ -70,10 +72,12 @@ class tx_templavoila_cm1_presets {
 	 */
 	function init(&$pObj) {
 		// Make local reference to some important variables:
-		$this->pObj = &$pObj;
-		$this->doc = &$this->pObj->doc;
-		$this->extKey = &$this->pObj->extKey;
-		$this->MOD_SETTINGS = &$this->pObj->MOD_SETTINGS;
+		$this->pObj =& $pObj;
+		$this->extKey =& $this->pObj->extKey;
+
+		$this->doc =& $this->pObj->doc;
+
+		$this->MOD_SETTINGS =& $this->pObj->MOD_SETTINGS;
 	}
 
 
@@ -82,6 +86,72 @@ class tx_templavoila_cm1_presets {
 	 * Helper-functions for File-based DS/TO creation
 	 *
 	 ****************************************************/
+
+
+	/**
+	 * Renders extra form fields for configuration of the Editing Types.
+	 *
+	 * @param	string		Editing Type string
+	 * @param	string		Form field name prefix
+	 * @param	array		Current values for the form field name prefix.
+	 * @return	string		HTML with extra form fields
+	 * @access	private
+	 * @see drawDataStructureMap_editItem()
+	 */
+	function drawDataStructureMap_editItem_editTypeExtra($type, $formFieldName, $curValue)	{
+		// If a user function was registered, use that instead of our own handlers:
+		if (isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['templavoila']['cm1']['eTypesExtraFormFields'][$type])) {
+			$_params = array (
+				'type'		=> $type,
+				'formFieldName'	=> $formFieldName,
+				'curValue'	=> $curValue,
+			);
+
+			$output = t3lib_div::callUserFunction($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['templavoila']['cm1']['eTypesExtraFormFields'][$type], $_params, $this->pObj);
+		} else {
+			switch ($type) {
+				case 'TypoScriptObject':
+					// Generate selector box options:
+					// Storage Folders for elements:
+					$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+						'*',
+						'pages',
+						'storage_pid IN (' . $this->pObj->storageFolders_pidList . ')' . t3lib_BEfunc::deleteClause('pages'),
+						'',
+						'title'
+					);
+
+					$pid = 0;
+					if (false !== ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+						$pid = $row['uid'];
+					}
+
+					$output =
+						$GLOBALS['LANG']->getLL('structureFormTSODescription') . ':<br />
+						<input style="width: 95%;" id="browser[descrp]" type="text" name="' . $formFieldName . '[objDesc]" value="' . htmlspecialchars($curValue['objDesc'] ? $curValue['objDesc'] : 'My object') . '" />
+					';
+
+					$output .=
+						$GLOBALS['LANG']->getLL('structureFormTSOPath') . ':<br />
+						<input style="width: 95%;" id="browser[result]" type="text" name="' . $formFieldName . '[objPath]" value="' . htmlspecialchars($curValue['objPath'] ? $curValue['objPath'] : 'lib.myObject') . '" />
+					';
+
+					$output .=
+						$GLOBALS['LANG']->getLL('structureFormTSOContext') . ':<br />
+						<div style="width: 94.7%;" class="tv-ts-tree">
+							<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/insert3.gif') . ' title="Context" alt="Load context"
+								 onclick="setFormValueOpenBrowser(\'db\',\'browser[communication]|||pages\');" style="cursor: pointer; vertical-align: middle;" />
+							<span id="browser[context]">root <em>[pid: ' . $pid . ']</em></span>
+							<iframe width="100%" height="400" style="border: 0;" id="browser[communication]" src="' . $this->pObj->baseScript . 'mode=browser&pid=' . $pid . '&current=' . $curValue['objPath'] . '"></iframe>
+						</div>
+					';
+
+					break;
+			}
+		}
+
+		return $output;
+	}
 
 	/**
 	 * When mapping HTML files to DS the field types are selected amount some presets - this function converts these presets into the actual settings needed in the DS
@@ -102,7 +172,8 @@ class tx_templavoila_cm1_presets {
 		// Traverse array
 		foreach ($elArray as $key => $value) {
 			// this MUST not ever enter the XMLs (it will break TV)
-			if ($elArray[$key]['type'] == 'section') {
+			if (($elArray[$key]['type'] == 'section') ||
+			    ($elArray[$key]['section'])) {
 				$elArray[$key]['type'] = 'array';
 				$elArray[$key]['section'] = '1';
 			}

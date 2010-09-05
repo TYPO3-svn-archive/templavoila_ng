@@ -62,6 +62,7 @@ class tx_templavoila_cm1_display {
 
 	// GPvars:
 	var $displayFile = '';		// (GPvar "file", shared with DISPLAY mode!) The file to display, if file is referenced directly from filelist module. Takes precedence over displayTable/displayUid
+
 	var $show;			// Boolean; if true no mapping-links are rendered.
 	var $preview;			// Boolean; if true, the currentMappingInfo preview data is merged in
 	var $path;			// HTML-path to explode in template.
@@ -247,10 +248,11 @@ implode('', $cParts) . '
 	function renderModuleContent() {
 		// Setting GPvars:
 		$this->displayFile = t3lib_div::_GP('file');
-		$this->show = t3lib_div::_GP('show');
-		$this->preview = t3lib_div::_GP('preview');
-		$this->limitTags = t3lib_div::_GP('limitTags');
-		$this->path = t3lib_div::_GP('path');
+
+		$this->show        = t3lib_div::_GP('show');
+		$this->preview     = t3lib_div::_GP('preview');
+		$this->limitTags   = t3lib_div::_GP('limitTags');
+		$this->path        = t3lib_div::_GP('path');
 
 		// Checking if the displayFile parameter is set:
 		if (@is_file($this->displayFile) && t3lib_div::getFileAbsFileName($this->displayFile)) {

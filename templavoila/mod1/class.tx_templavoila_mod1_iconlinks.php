@@ -58,6 +58,8 @@ class tx_templavoila_mod1_iconlinks {
 	var $clipboardObj;			// Instance of clipboard class
 	var $apiObj;				// Instance of tx_templavoila_api
 
+	var $blindIcons = array();		// Icons which shouldn't be rendered by configuration, can contain elements of "new,edit,copy,cut,ref,paste,browse,delete,makeLocal,unlink,hide"
+
 	/**
 	 * Initializes the iconlinks object. The calling class must make sure that the right locallang files are already loaded.
 	 * This method is usually called by the templavoila page module.
@@ -74,6 +76,10 @@ class tx_templavoila_mod1_iconlinks {
 		$this->doc =& $this->pObj->doc;
 		$this->apiObj =& $this->pObj->apiObj;
 		$this->clipboardObj =& $this->pObj->clipboardObj;
+
+		$this->blindIcons = isset($this->pObj->modTSconfig['properties']['blindIcons'])
+			? t3lib_div::trimExplode(',', $this->pObj->modTSconfig['properties']['blindIcons'], TRUE)
+			: array();
 	}
 
 	/*******************************************
@@ -268,6 +274,9 @@ class tx_templavoila_mod1_iconlinks {
 	 * @access protected
 	 */
 	function icon_collapse() {
+		if (in_array('collapse', $this->blindIcons))
+			return'';
+
 		$collapseIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/ol/minusonly.gif', 'width="11" height="12"') . ' alt="" class="absmiddle" />';
 
 		return $collapseIcon;
@@ -280,6 +289,9 @@ class tx_templavoila_mod1_iconlinks {
 	 * @access protected
 	 */
 	function icon_container() {
+		if (in_array('container', $this->blindIcons))
+			return'';
+
 		$containerIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/i/tt_content.gif', 'width="11" height="12"') . ' title="Container for content elements" class="absmiddle" />';
 
 		return $containerIcon;
@@ -293,6 +305,9 @@ class tx_templavoila_mod1_iconlinks {
 	 * @access protected
 	 */
 	function icon_record(&$el) {
+		if (in_array('record', $this->blindIcons))
+			return'';
+
 		$recordIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, $el['icon'], 'width="18" height="16"') . ' border="0" title="' . htmlspecialchars('[' . $el['table'] . ':' . $el['uid'] . ']') . '" alt="" />';
 
 		return $recordIcon;
@@ -306,6 +321,9 @@ class tx_templavoila_mod1_iconlinks {
 	 * @access protected
 	 */
 	function icon_page(&$pageRecord) {
+		if (in_array('page', $this->blindIcons))
+			return'';
+
 		$pageIcon = t3lib_iconWorks::getIconImage('pages', $pageRecord, $this->pObj->backPath, 'class="absmiddle" title="' . htmlspecialchars(t3lib_BEfunc::getRecordIconAltText($pageRecord, 'pages')) . '"');
 
 		return $pageIcon;
@@ -319,6 +337,9 @@ class tx_templavoila_mod1_iconlinks {
 	 * @access protected
 	 */
 	function icon_warn($uid, $infoData) {
+		if (in_array('warn', $this->blindIcons))
+			return'';
+
 		$warningIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/icon_warning2.gif', '') . 'class="absmiddle" title="' . htmlspecialchars('Ref: ' . count($infoData)) . '" border="0" alt="" />';
 
 		return $this->link_warn($warningIcon, $uid, $infoData);
@@ -332,6 +353,9 @@ class tx_templavoila_mod1_iconlinks {
 	 * @access protected
 	 */
 	function icon_view(&$el) {
+		if (in_array('view', $this->blindIcons))
+			return'';
+
 		$viewPageIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/zoom.gif', 'width="12" height="12"') . ' title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:labels.showPage', 1) . '" alt="" />';
 
 		$label = $viewPageIcon;
@@ -347,6 +371,9 @@ class tx_templavoila_mod1_iconlinks {
 	 * @access protected
 	 */
 	function icon_new($parentPointer) {
+		if (in_array('new', $this->blindIcons))
+			return'';
+
 		$newIcon = '<img class="new"' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/new_el.gif', '') . ' border="0" title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:newRecordGeneral') . '" alt="" />';
 
 		return $this->link_new($newIcon, $parentPointer);
@@ -360,6 +387,9 @@ class tx_templavoila_mod1_iconlinks {
 	 * @access protected
 	 */
 	function icon_browse($parentPointer) {
+		if (in_array('browse', $this->blindIcons))
+			return'';
+
 		$browseIcon = '<img class="browse"' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/insert3.gif',     '') . ' border="0" title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:labels.browse_db') . '" alt="" />';
 		$insertIcon = '<img class="browse"' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/plusbullet2.gif', '') . ' border="0" title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:labels.browse_db') . '" alt="" />';
 
@@ -394,6 +424,9 @@ class tx_templavoila_mod1_iconlinks {
 	 * @access protected
 	 */
 	function icon_unlink($unlinkPointer) {
+		if (in_array('unlink', $this->blindIcons))
+			return'';
+
 		if (!$unlinkPointer['position'])
 			$unlinkIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'res/link_delete.png', '') . ' title="' . $GLOBALS['LANG']->getLL('unlinkRecordsAll') . '" border="0" alt="" />';
 		else
@@ -410,6 +443,9 @@ class tx_templavoila_mod1_iconlinks {
 	 * @access protected
 	 */
 	function icon_hide(&$el, $isReferenced = FALSE) {
+		if (in_array('hide', $this->blindIcons))
+			return'';
+
 		if (intval($this->pObj->modTSconfig['properties']['disableHideIcon']))
 			return '';
 
@@ -436,6 +472,9 @@ class tx_templavoila_mod1_iconlinks {
 	 * @access protected
 	 */
 	function icon_edit(&$el) {
+		if (in_array('edit', $this->blindIcons))
+			return'';
+
 		$editIcon = ($el['table'] == 'pages'
 		?	'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/edit2.gif', '') . ' border="0" title="' . htmlspecialchars($GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:editPage')) . '" alt="" />'
 		:	'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/edit2.gif', '') . ' border="0" title="' . htmlspecialchars($GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:edit'    )) . '" alt="" />');
@@ -454,6 +493,9 @@ class tx_templavoila_mod1_iconlinks {
 	 * @access protected
 	 */
 	function icon_makeLocal($makeLocalPointer, $realDup = 0) {
+		if (in_array('makeLocal', $this->blindIcons))
+			return'';
+
 		$dupIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'mod1/makelocalcopy.gif', '') . ' title="' . $GLOBALS['LANG']->getLL('makeLocal') . '" border="0" alt="" />';
 
 		if ($realDup)
@@ -470,6 +512,9 @@ class tx_templavoila_mod1_iconlinks {
 	 * @access protected
 	 */
 	function icon_delete($deletePointer, $isReferenced = FALSE) {
+		if (in_array('delete', $this->blindIcons))
+			return'';
+
 		/* disabling turn on */
 		if ( intval($this->pObj->modTSconfig['properties']['disableDeleteIcon']))
 		/* exception to disabling pass-through */
@@ -493,6 +538,9 @@ class tx_templavoila_mod1_iconlinks {
 	 * @access protected
 	 */
 	function icon_lang(&$el, $languageUid) {
+		if (in_array('lang', $this->blindIcons))
+			return'';
+
 		$languageLabel = htmlspecialchars($this->pObj->allAvailableLanguages[$el['sys_language_uid']]['title']);
 		$languageIcon = $this->pObj->allAvailableLanguages[$languageUid]['flagIcon'] ? '<img src="' . $this->pObj->allAvailableLanguages[$languageUid]['flagIcon'] . '" title="' . $languageLabel . '" alt="' . $languageLabel . '" />' : ($languageLabel && $languageUid ? '[' . $languageLabel . ']' : '');
 
@@ -526,6 +574,32 @@ class tx_templavoila_mod1_iconlinks {
 		}
 
 		return $controls;
+	}
+
+	/*******************************************
+	 *
+	 * Icons
+	 *
+	 *******************************************/
+
+	function link_user($uid) {
+		$user = t3lib_BEfunc::getRecordWSOL('be_users', $uid);
+
+		return $this->link_edit($user['username'], 'be_users', $uid);
+	}
+
+	function link_page($pid) {
+		$page = t3lib_BEfunc::getRecordWSOL('pages', $pid);
+		$title = t3lib_BEfunc::getRecordTitle('pages', $page, TRUE);
+
+		return $this->link_edit($title, 'pages', $pid);
+	}
+
+	function link_auto($link) {
+		if (is_numeric($link))
+			return $this->link_page($link);
+
+		return '<a href="' . $link . '" target="_blank">' . htmlspecialchars($link) . '</a>';
 	}
 
 	/*******************************************

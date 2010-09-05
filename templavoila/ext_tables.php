@@ -124,6 +124,7 @@ $tempColumns = array (
 		),
 	)
 );
+
 t3lib_extMgm::addTCAcolumns('be_groups', $tempColumns, 1);
 t3lib_extMgm::addToAllTCAtypes('be_groups','tx_templavoila_access;;;;1-1-1', '1');
 
@@ -187,9 +188,11 @@ $tempColumns = array(
 		)
 	),
 );
+
 t3lib_extMgm::addTCAcolumns('tt_content', $tempColumns, 1);
 
 $TCA['tt_content']['ctrl']['typeicons'][$_EXTKEY . '_pi1'] = t3lib_extMgm::extRelPath($_EXTKEY) . '/icon_fce_ce.gif';
+
 t3lib_extMgm::addPlugin(array('LLL:EXT:templavoila/locallang_db.xml:tt_content.CType_pi1', $_EXTKEY . '_pi1', 'EXT:' . $_EXTKEY . '/icon_fce_ce.gif'), 'CType');
 
 if ($_EXTCONF['enable.']['selectDataSource']) {
@@ -281,7 +284,9 @@ $tempColumns = array (
 		)
 	),
 );
+
 t3lib_extMgm::addTCAcolumns('pages', $tempColumns, 1);
+
 if ($_EXTCONF['enable.']['selectDataSource']) {
 	t3lib_extMgm::addToAllTCAtypes('pages', 'tx_templavoila_ds;;;;1-1-1,tx_templavoila_to,tx_templavoila_nextds;;;;1-1-1,tx_templavoila_next_to,tx_templavoila_flex;;;;1-1-1', '1');
 	t3lib_extMgm::addToAllTCAtypes('pages', 'tx_templavoila_ds;;;;1-1-1,tx_templavoila_to,tx_templavoila_nextds;;;;1-1-1,tx_templavoila_next_to,tx_templavoila_flex;;;;1-1-1', '6');
