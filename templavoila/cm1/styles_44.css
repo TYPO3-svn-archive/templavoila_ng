@@ -1,0 +1,10 @@
+@import url("styles.css");
+
+a.typo3-csh-link  {
+	vertical-align: 2px;
+}
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+table.typo3-tvlist thead a.typo3-csh-link {
+	float: none;
+}

@@ -155,34 +155,37 @@ class tx_templavoila_extdeveval {
 	 */
 	function getDataStructures()	{
 
-			// Select all Data Structures in the PID and put into an array:
+		// Select all Data Structures in the PID and put into an array:
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 			'*',
 			'tx_templavoila_datastructure',
-			'pid>=0'.
+			'pid >= 0'.
 				t3lib_BEfunc::deleteClause('tx_templavoila_datastructure'),
 			'',
 			'title'
 		);
+
 		$dsRecords = array();
-		while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
+		while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 			$row['_languageMode'] = $this->DSlanguageMode($row['dataprot']);
 			if ($row['_languageMode']!='Disabled')	{
 				$dsRecords[$row['scope']][] = $row;
 			}
 		}
 
-			// Select all static Data Structures and add to array:
+		// Select all static Data Structures and add to array:
 		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures']))	{
-			foreach($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'] as $staticDS)	{
+			foreach($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'] as $staticDS) {
 				$staticDS['_STATIC'] = 1;
+
 				$fileReference = t3lib_div::getFileAbsFileName($staticDS['path']);
-				if (@is_file($fileReference))	{
+				if (@is_file($fileReference)) {
 					$staticDS['_languageMode'] = $this->DSlanguageMode(t3lib_div::getUrl($fileReference));
 				} else {
 					$staticDS['_languageMode'] = 'ERROR: File not found';
 				}
-				if ($row['_languageMode']!='Disabled')	{
+
+				if ($row['_languageMode'] != 'Disabled') {
 					$dsRecords[$staticDS['scope']][] = $staticDS;
 				}
 			}
@@ -198,7 +201,6 @@ class tx_templavoila_extdeveval {
 	 * @return	string		Type keyword
 	 */
 	function DSlanguageMode($DSstring) {
-
 		$DScontent = t3lib_div::xml2array($DSstring);
 		$DScontent = array('meta' => $DScontent['meta']);
 
@@ -226,10 +228,9 @@ class tx_templavoila_extdeveval {
 		$output = '';
 
 		// Language Mode For DS
-		$dbQuery = "SELECT dataprot,title
-						FROM tx_templavoila_datastructure WHERE uid=".(int) $dsIdForConversion;
-		if($dbRes = $GLOBALS['TYPO3_DB']->sql_query($dbQuery)){
-			if(mysql_num_rows($dbRes) == 1){
+		$dbQuery = "SELECT dataprot,title FROM tx_templavoila_datastructure WHERE uid=" . (int)$dsIdForConversion;
+		if($dbRes = $GLOBALS['TYPO3_DB']->sql_query($dbQuery)) {
+			if (mysql_num_rows($dbRes) == 1) {
 				$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($dbRes);
 				$language = $this->DSlanguageMode($row['dataprot']);
 				$DStitle = $row['title'];
@@ -246,15 +247,14 @@ class tx_templavoila_extdeveval {
 		}
 
 		// If POST, then update in database
-		if(is_array($SET = t3lib_div::_POST('SET'))){
-
+		if (is_array($SET = t3lib_div::_POST('SET'))) {
 			if(in_array($SET['ds']['table'], array_keys($TCA)))
 				$setTable = $SET['ds']['table'];
 
 			$setField = $SET['ds']['field'];
-			foreach($SET['content'] as $key => $val){
+			foreach ($SET['content'] as $key => $val){
 				if($val){
-					$dbQuery = "SELECT * FROM {$setTable} WHERE uid='".(int) $key."' ";
+					$dbQuery = "SELECT * FROM {$setTable} WHERE uid='" . (int)$key . "' ";
 					if($dbRes = $GLOBALS['TYPO3_DB']->sql_query($dbQuery)){
 						if(mysql_num_rows($dbRes) == 1){
 							$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($dbRes);
@@ -281,9 +281,16 @@ class tx_templavoila_extdeveval {
 		foreach($TCA as $table => $tmp)	{
 			t3lib_div::loadTCA($table);
 
-			foreach($TCA[$table]['columns'] as $fieldName => $config)	{
-				if ($config['config']['type'] == 'flex' && $config['config']['ds_pointerField'] && $config['config']['ds_tableField']=='tx_templavoila_datastructure:dataprot')	{
-					$fieldsToCheck[] = array($table,$fieldName,$config['config']['ds_pointerField'],$config['config']['ds_pointerField_searchParent']);
+			foreach($TCA[$table]['columns'] as $fieldName => $config) {
+				if ($config['config']['type'] == 'flex' &&
+				    $config['config']['ds_pointerField'] &&
+				    $config['config']['ds_tableField'] == 'tx_templavoila_datastructure:dataprot') {
+					$fieldsToCheck[] = array(
+						$table,
+						$fieldName,
+						$config['config']['ds_pointerField'],
+						$config['config']['ds_pointerField_searchParent']
+					);
 				}
 			}
 		}

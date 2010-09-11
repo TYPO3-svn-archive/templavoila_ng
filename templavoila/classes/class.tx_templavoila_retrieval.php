@@ -24,16 +24,17 @@
 /**
  * Class/Function which manipulates the item-array for table/field tx_templavoila_tmplobj_datastructure.
  *
- * $Id: class.tx_templavoila_handlestaticdatastructures.php 17762 2009-03-13 12:24:13Z steffenk $
+ * $Id: class.tx_templavoila_retrieval.php 17762 2009-03-13 12:24:13Z steffenk $
  *
  * @author    Kasper Skaarhoj <kasper@typo3.com>
+ * @coauthor  Niels Fröhling <niels@frohling.biz>
  */
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
  *
  *
  *
- *   58: class tx_templavoila_handleStaticDataStructures
+ *   58: class tx_templavoila_retrieval
  *   69:     function main(&$params,&$pObj)
  *   86:     function main_scope1(&$params,&$pObj)
  *  104:     function main_scope2(&$params,&$pObj)
@@ -45,7 +46,7 @@
  */
 
 // Include class which contains the constants and definitions of TV
-require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_defines.php');
+require_once(t3lib_extMgm::extPath('templavoila') . 'ext_defines.php');
 
 /**
  * Class/Function which manipulates the item-array for table/field tx_templavoila_tmplobj_datastructure.
@@ -54,12 +55,171 @@ require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_define
  * @package TYPO3
  * @subpackage tx_templavoila
  */
-class tx_templavoila_handleStaticDataStructures {
+class tx_templavoila_retrieval {
 
 
 	var $prefix = 'Static: ';
 	var $iconPath = '../uploads/tx_templavoila/';
 
+
+	function getDataStructureBody($srcPointer, &$DSrec, $BE_MODE = FALSE) {
+		$xmlContent = FALSE;
+
+		if (t3lib_div::testInt($srcPointer)) {
+			// If integer, then its a record we will look up:
+		//	if (TYPO3_MODE == 'BE') {
+			if ($BE_MODE)
+				$DSrec = t3lib_BEfunc::getRecord('tx_templavoila_datastructure', $srcPointer);
+			else
+				$DSrec = $GLOBALS['TSFE']->sys_page->checkRecord('tx_templavoila_datastructure', $srcPointer);
+
+			if ($DSrec) {
+				$xmlContent = $DSrec['dataprot'];
+			}
+		} else {
+			// Otherwise expect it to be a file:
+			$DSfile = t3lib_div::getFileAbsFileName($srcPointer);
+			if ($DSfile && @is_file($DSfile)) {
+				$xmlContent = t3lib_div::getUrl($DSfile);
+			}
+		}
+
+		return ($xmlContent ? t3lib_div::xml2array($xmlContent) : FALSE);
+	}
+
+	/**
+	 * Returns an array of available Page Template Object records from the scope of the given page.
+	 *
+	 * Note: All TO records which are found in the selected storage folder will be returned, no matter
+	 *       if they match the currently selected data structure for the given page.
+	 *
+	 * @param	integer		$pageUid: (current) page uid, used for finding the correct storage folder
+	 * @return	mixed		Array of Template Object records or FALSE if an error occurred.
+	 * @access public
+	 */
+	function getAvailableFCEDSRecords($positionPid) {
+		// Flexible content elements:
+        	$dataStructureRecords = array();
+
+		/* database-based dataStructures */
+		if (1) {
+        		$storageFolderPID = $this->getStoragePidsNoTCERecursive($positionPid);
+
+			if (count($storageFolderPID) > 0) {
+        			// Fetch data structures stored in the database:
+				$tDS = 'tx_templavoila_datastructure';
+				$where = $tDS . '.pid IN (' . implode(',', $storageFolderPID) . ')' .
+					 ' AND ' . $tDS . '.scope = ' . TVDS_SCOPE_FCE .
+						$this->buildRecordWhere($tDS) .
+						t3lib_befunc::deleteClause($tDS).
+						t3lib_BEfunc::versioningPlaceholderClause($tDS);
+
+				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+					$tDS . '.*',
+					$where
+				);
+
+				if ($res) {
+        				while(FALSE !== ($row = $TYPO3_DB->sql_fetch_assoc($res))) {
+        					$dataStructureRecords[$row['uid']] = $row;
+        				}
+        			}
+        		}
+        	}
+
+		/* file-based dataStructures */
+		if (1) {
+        		// Fetch static data structures which are stored in XML files:
+			if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'])) {
+				foreach($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'] as $staticDataStructureArr)	{
+					$staticDataStructureArr['_STATIC'] = TRUE;
+					$dataStructureRecords[$staticDataStructureArr['path']] = $staticDataStructureArr;
+				}
+			}
+        	}
+
+		return count($dataStructureRecords) ? $dataStructureRecords : FALSE;
+        }
+
+	/**
+	 * Returns an array of available Page Template Object records from the scope of the given page.
+	 *
+	 * Note: All TO records which are found in the selected storage folder will be returned, no matter
+	 *       if they match the currently selected data structure for the given page.
+	 *
+	 * @param	integer		$pageUid: (current) page uid, used for finding the correct storage folder
+	 * @return	mixed		Array of Template Object records or FALSE if an error occurred.
+	 * @access public
+	 */
+	function getAvailablePageTORecords($positionPid) {
+		$templateObjectRecords = array();
+
+		/* database-based templateObjects */
+		if (1) {
+			$storageFolderPID = $this->getStoragePidsNoTCERecursive($positionPid);
+
+			if (count($storageFolderPID) > 0) {
+				$tTO = 'tx_templavoila_tmplobj';
+				$tDS = 'tx_templavoila_datastructure';
+				$where = $tTO . '.parent = 0 AND ' .
+					 $tTO . '.pid IN (' . implode(',', $storageFolderPID) . ')' .
+					 ' AND ' . $tDS . '.scope = ' . TVDS_SCOPE_PAGE .
+						$this->buildRecordWhere($tTO) .
+						$this->buildRecordWhere($tDS) .
+						t3lib_befunc::deleteClause($tTO) .
+						t3lib_befunc::deleteClause($tDS).
+						t3lib_BEfunc::versioningPlaceholderClause($tTO) .
+						t3lib_BEfunc::versioningPlaceholderClause($tDS);
+
+				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+					$tTO . '.*',
+					$tTO . ' LEFT JOIN ' . $tDS . ' ON ' .
+					$tTO . '.datastructure = ' . $tDS . '.uid',
+					$where
+				);
+
+				if ($res) {
+					while (false !== ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+						$templateObjectRecords[$row['uid']] = $row;
+					}
+				}
+			}
+		}
+
+		return count($templateObjectRecords) ? $templateObjectRecords : FALSE;
+	}
+
+	function getAvailableFCETORecords($positionPid) {
+		$templateObjectRecords = array();
+
+		/* database-based templateObjects */
+		if (1) {
+			$storageFolderPID = $this->getStoragePidsNoTCERecursive($positionPid);
+
+			if (count($storageFolderPID) > 0) {
+        			// Fetch data structures stored in the database:
+				$tTO = 'tx_templavoila_tmplobj';
+				$where = $tTO . '.pid IN (' . implode(',', $storageFolderPID) . ')' .
+						$this->buildRecordWhere($tTO) .
+						t3lib_befunc::deleteClause($tTO).
+						t3lib_BEfunc::versioningPlaceholderClause($tTO);
+
+				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+					$tTO . '.*',
+					$tTO . '.parent = 0 AND ',
+					$where
+				);
+
+				if ($res) {
+        				while(FALSE !== ($row = $TYPO3_DB->sql_fetch_assoc($res))) {
+						$templateObjectRecords[/*$row['uid']*/] = $row;
+        				}
+        			}
+        		}
+        	}
+
+		return count($templateObjectRecords) ? $templateObjectRecords : FALSE;
+	}
 
 	/**
 	 * Adds static data structures to selector box items arrays.
@@ -69,7 +229,7 @@ class tx_templavoila_handleStaticDataStructures {
 	 * @param	object		The parent object (t3lib_TCEforms / t3lib_transferData depending on context)
 	 * @return	void
 	 */
-	function main(&$params,&$pObj)    {
+	function dataStructureItemsProcFunc(&$params, &$pObj) {
 		// Adding an item!
 		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'])) {
 			foreach($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'] as $val)	{
@@ -86,7 +246,7 @@ class tx_templavoila_handleStaticDataStructures {
 	 * @param	object		The parent object (t3lib_TCEforms / t3lib_transferData depending on context)
 	 * @return	void
 	 */
-	function main_scope1(&$params,&$pObj) {
+	function dataStructureItemsProcFuncForPages(&$params, &$pObj) {
 		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'])) {
 			foreach($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'] as $val)	{
 				if ($val['scope'] == TVDS_SCOPE_PAGE) {
@@ -95,7 +255,7 @@ class tx_templavoila_handleStaticDataStructures {
 			}
 		}
 
-		tx_templavoila_handleStaticDataStructures::check_permissions($params, $pObj);
+		$this->check_permissions($params, $pObj);
 	}
 
 	/**
@@ -106,8 +266,8 @@ class tx_templavoila_handleStaticDataStructures {
 	 * @param	object		The parent object (t3lib_TCEforms / t3lib_transferData depending on context)
 	 * @return	void
 	 */
-	function main_scope2(&$params,&$pObj) {
-		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures']))	{
+	function dataStructureItemsProcFuncForFCEs(&$params, &$pObj) {
+		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'])) {
 			foreach($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'] as $val)	{
 				if ($val['scope'] == TVDS_SCOPE_FCE) {
 					$params['items'][] = Array($this->prefix . $val['title'], $val['path'], $val['icon']);
@@ -115,7 +275,7 @@ class tx_templavoila_handleStaticDataStructures {
 			}
 		}
 
-		tx_templavoila_handleStaticDataStructures::check_permissions($params, $pObj);
+		$this->check_permissions($params, $pObj);
 	}
 
 	/**
@@ -125,7 +285,7 @@ class tx_templavoila_handleStaticDataStructures {
 	 * @param	object		The parent object (t3lib_TCEforms / t3lib_transferData depending on context)
 	 * @return	void
 	 */
-	function pi_templates(&$params, $pObj) {
+	function pluginTemplateItemsProcFunc(&$params, $pObj) {
 		// Find the template data structure that belongs to this plugin:
 		$piKey = $params['row']['list_type'];
 
@@ -135,7 +295,7 @@ class tx_templavoila_handleStaticDataStructures {
 	//	$storagePid = $this->getStoragePid($params, $pObj);
 		$storagePids = $this->getStoragePidsRecursive($params, $pObj);
 
-		if ($templateRef && $storagePid) {
+		if ($templateRef && $storagePids) {
 			// Load the table:
 			t3lib_div::loadTCA('tx_templavoila_tmplobj');
 
@@ -199,9 +359,9 @@ class tx_templavoila_handleStaticDataStructures {
 
 		// Call functions to add static data structures
 		if ($params['table'] == 'pages') {
-			$this->main_scope1($params, $pObj);
+			$this->dataStructureItemsProcFuncForPages($params, $pObj);
 		} else {
-			$this->main_scope2($params, $pObj);
+			$this->dataStructureItemsProcFuncForFCEs($params, $pObj);
 		}
 	}
 
@@ -397,7 +557,55 @@ class tx_templavoila_handleStaticDataStructures {
 			$params['table'] = 'pages';
 		} while($params['row']);
 
-		return $storagePids;
+		return array_unique($storagePids);
+	}
+
+	/**
+	 * Retrieves DS/TO storage pid for the current page. This function expects
+	 * to be called from the itemsProcFunc only!
+	 *
+	 * @param	array	$params	Parameters as come to the itemsProcFunc
+	 * @param	t3lib_TCEforms	$pObj	Calling object
+	 * @return	int	Storage pid
+	 */
+	function getStoragePidNoTCE($row, $pageUid) {
+		// Get default first
+		$tsConfig = t3lib_BEfunc::getTCEFORM_TSconfig('pages', $row);
+		$storagePid = intval($tsConfig['_STORAGE_PID']);
+
+		// Check for alternative storage folder
+		$modTSConfig = t3lib_BEfunc::getModTSconfig($pageUid, 'tx_templavoila.storagePid');
+		if (is_array($modTSConfig) && t3lib_div::testInt($modTSConfig['value'])) {
+			$storagePid = intval($modTSConfig['value']);
+		}
+
+		return $storagePid;
+	}
+
+	/**
+	 * Returns the page uid of the selected storage folder from the context of the given page uid.
+	 *
+	 * @param	integer		$pageUid: Context page uid
+	 * @return	integer		PID(s) of the storage folder
+	 * @access public
+	 */
+	function getStoragePidsNoTCERecursive($pageUid) {
+		$storagePids = array();
+
+		// Negative PID values is pointing to a page on the same level as the current.
+		if ($pageUid < 0) {
+			$pidRow = t3lib_BEfunc::getRecordWSOL('pages', abs($pageUid), 'pid');
+			$pageUid = $pidRow['pid'];
+		}
+
+		/* collect storagePids all over the rootline (including TS-modifications) */
+		do {
+			$row = t3lib_BEfunc::getRecordWSOL('pages', $pageUid);
+			if (($storagePid = $this->getStoragePidNoTCE($row, $pageUid)))
+				$storagePids[] = $storagePid;
+		} while(($pageUid = $row['pid']));
+
+		return array_unique($storagePids);
 	}
 
 	/**
@@ -487,10 +695,34 @@ class tx_templavoila_handleStaticDataStructures {
 			}
 		}
 	}
+
+	/**
+	 * Create sql condition for given table to limit records according to user access.
+	 *
+	 * @param	string	$table	Table nme to fetch records from
+	 * @return	string	Condition or empty string
+	 */
+	function buildRecordWhere($table) {
+		$result = array();
+
+		if (!$GLOBALS['BE_USER']->isAdmin()) {
+			$prefLen = strlen($table) + 1;
+			foreach($GLOBALS['BE_USER']->userGroups as $group) {
+				$items = t3lib_div::trimExplode(',', $group['tx_templavoila_access'], 1);
+				foreach ($items as $ref) {
+					if (strstr($ref, $table)) {
+						$result[] = intval(substr($ref, $prefLen));
+					}
+				}
+			}
+		}
+
+		return (count($result) > 0 ? ' AND ' . $table . '.uid NOT IN (' . implode(',', $result) . ') ' : '');
+	}
 }
 
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/templavoila/class.tx_templavoila_handlestaticdatastructures.php'])    {
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/templavoila/class.tx_templavoila_handlestaticdatastructures.php']);
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/templavoila/classes/class.tx_templavoila_retrieval.php'])    {
+	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/templavoila/classes/class.tx_templavoila_retrieval.php']);
 }
 ?>

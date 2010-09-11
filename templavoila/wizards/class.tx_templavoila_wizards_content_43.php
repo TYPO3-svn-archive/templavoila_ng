@@ -31,7 +31,7 @@
  * Originally based on the CE wizard / cms extension by Kasper Skaarhoj <kasper@typo3.com>
  * XHTML compatible.
  *
- * @author		Robert Lemke <robert@typo3.org>
+ * @author	Robert Lemke <robert@typo3.org>
  * @coauthor	Kasper Skaarhoj <kasper@typo3.com>
  */
 /**
@@ -49,7 +49,6 @@
  *  271:     function getWizardItems()
  *  281:     function wizardArray()
  *  448:     function removeInvalidElements(&$wizardItems)
- *  512:     function buildRecordWhere($table)
  *
  * TOTAL FUNCTIONS: 8
  * (This index is automatically created/updated by the extension "extdeveval")
@@ -91,7 +90,7 @@ class tx_templavoila_wizards_content {
 		$this->pObj =& $pObj;
 		$this->doc =& $this->pObj->doc;
 		$this->extKey =& $this->pObj->extKey;
-		$this->apiObj =& $this->pObj->apiObj;
+		$this->retObj =& $this->pObj->retObj;
 
 		// Setting internal vars:
 		$this->id = intval(t3lib_div::_GP('id'));
@@ -101,7 +100,7 @@ class tx_templavoila_wizards_content {
 
 		// If no parent record was specified, find one:
 		if (!$this->parentRecord) {
-			$mainContentAreaFieldName = $this->apiObj->ds_getFieldNameByColumnPosition($this->id, 0);
+			$mainContentAreaFieldName = $this->retObj->ds_getFieldNameByColumnPosition($this->id, 0);
 			if ($mainContentAreaFieldName != FALSE) {
 				$this->parentRecord = implode(SEPARATOR_PARMS, array('pages', $this->id, 'sDEF', 'lDEF', $mainContentAreaFieldName, 'vDEF', 0));
 			}
@@ -392,58 +391,21 @@ class tx_templavoila_wizards_content {
 			$wizardElements = array();
 		}
 
-		// Flexible content elements:
-        	$positionPid = $this->id;
-        	$dataStructureRecords = array();
-        	$storageFolderPID = $this->apiObj->getStorageFolderPid($positionPid);
-
-        	// Fetch data structures stored in the database:
-        	$addWhere = $this->buildRecordWhere('tx_templavoila_datastructure');
-        	$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-        		'*',
-        		'tx_templavoila_datastructure',
-        		'pid IN (' . $storageFolderPID . ')' .
-        		' AND scope = ' . TVDS_SCOPE_FCE .
-        			$addWhere .
-        			t3lib_BEfunc::deleteClause('tx_templavoila_datastructure').
-        			t3lib_BEfunc::versioningPlaceholderClause('tx_templavoila_datastructure')
-        	);
-
-		while (FALSE !== ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) ) {
-        		$dataStructureRecords[$row['uid']] = $row;
-        	}
-/*
-        	// Fetch static data structures which are stored in XML files:
-		if (is_array($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures']))	{
-			foreach($GLOBALS['TBE_MODULES_EXT']['xMOD_tx_templavoila_cm1']['staticDataStructures'] as $staticDataStructureArr) {
-				$staticDataStructureArr['_STATIC'] = TRUE;
-				$dataStructureRecords[$staticDataStructureArr['path']] = $staticDataStructureArr;
-			}
-		}
-*/
-		// Fetch all template object records which uare based one of the previously fetched data structures:
-		$templateObjectRecords = array();
+		// Fetch all template object records which are based one of the previously fetched data structures:
+        	$dataStructureRecords = $this->retObj->getAvailableFCEDSRecords($this->id);
+        	$templateObjectRecords = $this->retObj->getAvailableFCETORecords($this->id);
 		$recordDataStructure = array();
-		$addWhere = $this->buildRecordWhere('tx_templavoila_tmplobj');
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-			'*',
-			'tx_templavoila_tmplobj',
-			'pid IN (' . $storageFolderPID . ')' .
-        		' AND parent = 0' .
-        			$addWhere .
-				t3lib_BEfunc::deleteClause('tx_templavoila_tmplobj') .
-				t3lib_BEfunc::versioningPlaceholderClause('tx_templavoila_tmpl'), '', 'sorting'
-		);
 
-		while(FALSE !== ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
-			if (is_array($dsr = $dataStructureRecords[$rd = $row['datastructure']])) {
-				$templateObjectRecords[] = $row;
-				$recordDataStructure[$rd] = t3lib_div::xml2array($dsr['dataprot']);
+		if ($templateObjectRecords !== FALSE) {
+			foreach ($templateObjectRecords as $uid => &$row) {
+				if (is_array($dsr = $dataStructureRecords[$rd = $row['datastructure']])) {
+					$recordDataStructure[$rd] = t3lib_div::xml2array($dsr['dataprot']);
+				}
 			}
 		}
 
 		// Add the filtered set of TO entries to the wizard list:
-        	foreach($templateObjectRecords as $index => $templateObjectRecord) {
+        	foreach ($templateObjectRecords as $index => $templateObjectRecord) {
         		$tmpFilename = 'uploads/tx_templavoila/' . $templateObjectRecord['previewicon'];
 
 			// Get default values from datastructure
@@ -567,30 +529,6 @@ class tx_templavoila_wizards_content {
 			if (!isset($headersUsed[$itemCategory]))
 				unset($wizardItems[$key]);
 		}
-	}
-
-	/**
-	 * Create sql condition for given table to limit records according to user access.
-	 *
-	 * @param	string		$table	Table nme to fetch records from
-	 * @return	string		Condition or empty string
-	 */
-	function buildRecordWhere($table) {
-		$result = array();
-
-		if (!$GLOBALS['BE_USER']->isAdmin()) {
-			$prefLen = strlen($table) + 1;
-			foreach($GLOBALS['BE_USER']->userGroups as $group) {
-				$items = t3lib_div::trimExplode(',', $group['tx_templavoila_access'], 1);
-				foreach ($items as $ref) {
-					if (strstr($ref, $table)) {
-						$result[] = intval(substr($ref, $prefLen));
-					}
-				}
-			}
-		}
-
-		return (count($result) > 0 ? ' AND uid NOT IN (' . implode(',', $result) . ') ' : '');
 	}
 }
 

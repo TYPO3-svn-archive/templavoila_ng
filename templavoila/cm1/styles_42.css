@@ -1,0 +1,9 @@
+@import url("styles.css");
+
+/* typo3/sysext/t3skin/stylesheets/typo3-db-list-php.css (line 21) */
+table.typo3-dblist tr.c-headLineTable th,
+table.typo3-page-stdlist tr.c-headLineTable th {
+	background-color: #B8BEC9;
+	background-image: url("/typo3/sysext/t3skin/icons/gfx/alt_menu_mainitem_bg.gif");
+	background-repeat: repeat-x;
+}

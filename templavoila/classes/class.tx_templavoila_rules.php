@@ -70,7 +70,9 @@
  *
  */
 
-
+// Include class which contains the constants and definitions of TV
+require_once(t3lib_extMgm::extPath('templavoila') . 'ext_defines.php');
+require_once(t3lib_extMgm::extPath('templavoila') . 'classes/class.tx_templavoila_retrieval.php');
 
 /**
  * Class 'tx_templavoila_rules' for the 'templavoila' extension.
@@ -84,6 +86,7 @@
  * @deprecated 1.0.0
  */
 class tx_templavoila_rules {
+
 	var $lastParsedRecord;	// Holds the last child record before an error occurs. Used for rule tracking / err messages
 	var $currentFieldName;	// Used for error tracking
 
@@ -102,26 +105,28 @@ class tx_templavoila_rules {
 	 * @access public
 	 * @see checkRulesForElement()
 	 */
-	function evaluateRulesForElement ($table, $uid) {
+	function evaluateRulesForElement($table, $uid) {
 	 	$statusArr = array();
 
-			// Getting data structure for the template and extract information for default records to create
+		// Getting data structure for the template and extract information for default records to create
 		$parentRecord = t3lib_BEfunc::getRecord ($table, $uid);
 
-			// Only care about page records or flexible content elements:
-		if ($table != 'tt_content' || $parentRecord['CType'] == 'templavoila_pi1') {
-			$recRow = t3lib_BEfunc::getRecord ('tx_templavoila_datastructure', $parentRecord['tx_templavoila_ds']);
-			$xmlContent = t3lib_div::xml2array($recRow['dataprot']);
+		// Only care about page records or flexible content elements:
+		if (($table != 'tt_content') || ($parentRecord['CType'] == 'templavoila_pi1')) {
+			$retObj = t3lib_div::makeInstance('tx_templavoila_retrieval'); $xmlRec = null;
+			$xmlContent = $retObj->getDataStructureBody($parentRecord['tx_templavoila_ds'], $xmlRec);
+
 			if (is_array($xmlContent['ROOT']) && is_array($xmlContent['ROOT']['el'])) {
 				foreach ($xmlContent['ROOT']['el'] as $fieldName=>$field) {
 					$ruleRegEx = trim ($field['tx_templavoila']['ruleRegEx']);
 					$ruleConstants = trim ($field['tx_templavoila']['ruleConstants']);
-					if ((string)$ruleRegEx != '' && ($field['tx_templavoila']['eType'] == 'ce')) {	// only check if necessary
 
-							// Save record of parent element for error tracking
+					if ((string)$ruleRegEx != '' && ($field['tx_templavoila']['eType'] == 'ce')) {	// only check if necessary
+						// Save record of parent element for error tracking
 						$this->lastParsedRecord = $parentRecord;
 						$this->currentFieldName = $fieldName;
-							// Get child records of the parent element record
+
+						// Get child records of the parent element record
 						$childRecords = array ();
 						$xmlContent = t3lib_div::xml2array($parentRecord['tx_templavoila_flex']);
 						$recUIDs = t3lib_div::trimExplode(',',$xmlContent['data']['sDEF']['lDEF'][$fieldName]['vDEF']);
@@ -130,18 +135,20 @@ class tx_templavoila_rules {
 							if ($row['CType'] == 'templavoila_pi1') {
 								$row['CType'] .= ',' . $row['tx_templavoila_to'];
 							}
-							if (is_array ($row)) {	// only would be no array if the row has been deleted somewhere else and still remains in the flexform data
+
+							// only would be no array if the row has been deleted somewhere else and still remains in the flexform data
+							if (is_array ($row)) {
 								$childRecords[] = $row;
 							}
 						}
 							// Check the rules:
-						$tmpStatusArr = $this->checkRulesForElement ($ruleRegEx, $ruleConstants, $childRecords);
+						$tmpStatusArr = $this->checkRulesForElement($ruleRegEx, $ruleConstants, $childRecords);
 						$this->statusMerge($statusArr, $tmpStatusArr, true);
 					}
 				}
 			}
 		}
-#debug ($statusArr,'statusArr',__LINE__,__FILE__);
+
 		return $statusArr;
 	}
 
@@ -769,8 +776,8 @@ class tx_templavoila_rules {
 	}
 }
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/templavoila/class.tx_templavoila_rules.php'])	{
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/templavoila/class.tx_templavoila_rules.php']);
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/templavoila/classes/class.tx_templavoila_rules.php'])	{
+	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/templavoila/classes/class.tx_templavoila_rules.php']);
 }
 
 ?>

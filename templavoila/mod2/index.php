@@ -72,7 +72,7 @@ $GLOBALS['LANG']->includeLLFile('EXT:templavoila/mod2/locallang.xml');
 $BE_USER->modAccess($MCONF, 1);
 
 // Include class which contains the constants and definitions of TV
-require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_defines.php');
+require_once(t3lib_extMgm::extPath('templavoila') . 'ext_defines.php');
 
 /**
  * Module 'TemplaVoila' for the 'templavoila' extension.
@@ -133,6 +133,27 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 	function main() {
 		global $BE_USER, $BACK_PATH;
 
+		// version-switch
+		$suffix = '';
+		if (!is_callable(array('t3lib_div', 'int_from_ver'))) {
+			$this->content = 'Fatal error: This version of TemplaVoila does not work with TYPO3 versions lower than 4.0.0! Please upgrade your TYPO3 core installation.';
+			return;
+		}
+		else {
+			$version = t3lib_div::int_from_ver(TYPO3_version);
+
+			     if ($version >= 4004000)
+				$suffix = '_44';
+			else if ($version >= 4003000)
+				$suffix = '_43';
+			else if ($version >= 4002000)
+				$suffix = '_42';
+			else if ($version <  4000000) {
+				$this->content = 'Fatal error: This version of TemplaVoila does not work with TYPO3 versions lower than 4.0.0! Please upgrade your TYPO3 core installation.';
+				return;
+			}
+		}
+
 		// Access check!
 		// The page will show only if there is a valid page and if this page may be viewed by the user
 		$this->pageinfo = t3lib_BEfunc::readPageAccess($this->id, $this->perms_clause);
@@ -147,7 +168,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 			$this->doc->form = '<form action="' . htmlspecialchars($this->baseScript . 'id=' . $this->id) . '" method="post" autocomplete="off">';
 
 			// Add custom styles
-			$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath($this->extKey) . "mod2/styles.css";
+			$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath($this->extKey) . "mod2/styles" . $suffix . ".css";
 
 			// Adding classic jumpToUrl function, needed for the function menu.
 			// Also, the id in the parent frameset is configured.
@@ -348,9 +369,6 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 		foreach ($dsScopes as $scopePointer) {
 			$scopeIcon = '';
 
-			// Create listing for a DS:
-			list($index, $content, $dsCount, $toCount) = $this->renderDSlisting($dsRecords[$scopePointer], $toRecords, $scopePointer);
-
 			// Label for the tab:
 			switch (intval($scopePointer)) {
 				case TVDS_SCOPE_PAGE:
@@ -373,14 +391,16 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 					break;
 			}
 
+			// Create listing for a DS:
+			list($index, $content, $dsCount, $toCount) = $this->renderDSlisting(
+				$dsRecords[$scopePointer], $toRecords, $scopePointer, $scopeIcon . ' ' . $label);
+
 			// Error/Warning log:
 			$errStat = $this->getErrorLog($scopePointer);
 
 			// Add lists for Summary:
 			if (!empty($index))
-				$lists[$func][] =
-					'<h4>' . $scopeIcon . ' ' . $label . '</h4>' .
-					$index;
+				$lists[$func][] = $index;
 
 			// Add parts for Tab menu:
 			if (!empty($content))
@@ -528,8 +548,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 	 * @param	[type]		$scope: ...
 	 * @return	array		Returns array with three elements: 0: content, 1: number of DS shown, 2: number of root-level template objects shown.
 	 */
-	function renderDSlisting($dsScopeArray, &$toRecords, $scope) {
-
+	function renderDSlisting($dsScopeArray, &$toRecords, $scope, $caption) {
 		$dsCount = 0;
 		$toCount = 0;
 		$content = '';
@@ -565,7 +584,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 
 							$TOcontent .= '<a name="to-' . $toRow['uid'] . '"></a>' . $rTODres['HTML'];
 							$TOindex .= '
-								<tr class="bgColor4">
+								<tr class="' . ($dsCount % 2 ? 'bgColor4' : 'bgColor6') . '">
 									<td colspan="' . ($this->MOD_SETTINGS['set_details'] ? '2' : '1') . '">' .
 										$rTODres['icon'] . '
 										<a href="' . $this->mod2Script . $this->uri_getParameters() . '&SET[page]=' . $page . '#to-' . $toRow['uid'] . '">' .
@@ -622,8 +641,8 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 
 				$content.= '<a name="ds-' . md5($dsID) . '"></a>' . $rDSDres['HTML'];
 				$index .= '
-					<tbody class="' . ($dsCount % 2 ? 'bgColor4' : 'bgColor6') . '">
-					<tr>
+					<tbody>
+					<tr class="' . ($dsCount % 2 ? 'bgColor4' : 'bgColor6') . '">
 						<td>' .
 							$rDSDres['icon'] . '
 							<a href="' . $this->mod2Script . $this->uri_getParameters() . '&SET[page]=' . $page . '#ds-' . md5($dsID) . '">' .
@@ -640,9 +659,6 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 						<td align="center">' . $rDSDres['action'] . '</td>
 					</tr>
 					' . $TOindex . '
-					<tr class="separator">
-						<td colspan="' . ($this->MOD_SETTINGS['set_details'] ? '7' : '3') . '"></td>
-					</tr>
 					</tbody>';
 
 				// Wrap TO elements in a div-tag and add to content:
@@ -667,10 +683,10 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 		}
 
 		if (!empty($index)) {
-
 			$index = '
-			<!--	<h4>' . $GLOBALS['LANG']->getLL('center_list_overview') . ':</h4>	-->
 				<table border="0" cellpadding="1" cellspacing="1" class="typo3-dblist typo3-tvlist">
+			<!--	<caption>' . $GLOBALS['LANG']->getLL('center_list_overview') . ':</caption>	-->
+				<caption>' . $caption . ':</caption>
 				<colgroup>
 					<col width="*"   align="left"   />' . ($this->MOD_SETTINGS['set_details'] ? '
 					<col width="110" align="center" />
@@ -681,7 +697,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 					<col width="70"  align="center" />
 				</colgroup>
 				<thead>
-					<tr class="c-headLineTable">
+					<tr class="t3-row-header c-headLineTable">
 						<th rowspan="2">' . $GLOBALS['LANG']->getLL('center_list_title') . ':</th>' . ($this->MOD_SETTINGS['set_details'] ? '
 						<th rowspan="2">' . $GLOBALS['LANG']->getLL('center_list_loc') . ':</th>
 						<th><img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/i/' . $icon . '.gif'      , 'width="11" height="12"') . ' title="' . $GLOBALS['LANG']->getLL('center_list_stats_roots' ) . '" class="absmiddle" /></th>
@@ -690,7 +706,7 @@ class tx_templavoila_module2 extends t3lib_SCbase {
 						<th rowspan="2">' . $GLOBALS['LANG']->getLL('center_list_status') . ':</th>
 						<th rowspan="2">' . $GLOBALS['LANG']->getLL('center_list_actions') . ':</th>
 					</tr>' . ($this->MOD_SETTINGS['set_details'] ? '
-					<tr class="c-headLineTable">
+					<tr class="t3-row-header c-headLineTable">
 						<th colspan="3">' . $GLOBALS['LANG']->getLL('center_list_usage') . ':</th>
 					</tr>' : '') . '
 				</thead>
@@ -976,6 +992,27 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 	function main()	{
 		global $BE_USER, $BACK_PATH;
 
+		// version-switch
+		$suffix = '';
+		if (!is_callable(array('t3lib_div', 'int_from_ver'))) {
+			$this->content = 'Fatal error: This version of TemplaVoila does not work with TYPO3 versions lower than 4.0.0! Please upgrade your TYPO3 core installation.';
+			return;
+		}
+		else {
+			$version = t3lib_div::int_from_ver(TYPO3_version);
+
+			     if ($version >= 4004000)
+				$suffix = '_44';
+			else if ($version >= 4003000)
+				$suffix = '_43';
+			else if ($version >= 4002000)
+				$suffix = '_42';
+			else if ($version <  4000000) {
+				$this->content = 'Fatal error: This version of TemplaVoila does not work with TYPO3 versions lower than 4.0.0! Please upgrade your TYPO3 core installation.';
+				return;
+			}
+		}
+
 		// Access check...
 		// The page will show only if there is a valid page and if this page may be viewed by the user
 		$this->pageinfo = t3lib_BEfunc::readPageAccess($this->id,$this->perms_clause);
@@ -1020,7 +1057,7 @@ class tx_templavoila_module2_integral extends tx_templavoila_module2 {
 			$this->doc->loadJavascriptLib(t3lib_extMgm::extRelPath($this->extKey) . "res/optionsmenu.js");
 
 			// Add custom styles
-			$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath($this->extKey) . "mod2/styles.css";
+			$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath($this->extKey) . "mod2/styles" . $suffix . ".css";
 
 			// JavaScript
 			$this->doc->JScode = $this->doc->wrapScriptTags('

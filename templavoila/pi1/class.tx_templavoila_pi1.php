@@ -53,12 +53,12 @@
  */
 
 require_once(PATH_tslib . 'class.tslib_pibase.php');
+require_once(PATH_t3lib . 'class.t3lib_flexformtools.php');
 
 // Include class which contains the constants and definitions of TV
-require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_defines.php');
-require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_htmlmarkup.php');
-
-require_once(PATH_t3lib . 'class.t3lib_flexformtools.php');
+require_once(t3lib_extMgm::extPath('templavoila') . 'ext_defines.php');
+require_once(t3lib_extMgm::extPath('templavoila') . 'classes/class.tx_templavoila_retrieval.php');
+require_once(t3lib_extMgm::extPath('templavoila') . 'classes/class.tx_templavoila_htmlmarkup.php');
 
 /**
  * Plugin 'Flexible Content' for the 'templavoila' extension.
@@ -150,18 +150,8 @@ class tx_templavoila_pi1 extends tslib_pibase {
 		foreach ($data as $k => $v) {
 			// Make correct language identifiers here!
 			if ($GLOBALS['TSFE']->sys_language_isocode) {
-				$srcPointer = $data['tx_templavoila_ds'];
-				if (t3lib_div::testInt($srcPointer)) {
-					// If integer, then its a record we will look up:
-					$DSrec = $GLOBALS['TSFE']->sys_page->checkRecord('tx_templavoila_datastructure', $srcPointer);
-					$DS = t3lib_div::xml2array($DSrec['dataprot']);
-				} else {
-					// Otherwise expect it to be a file:
-					$file = t3lib_div::getFileAbsFileName($srcPointer);
-					if ($file && @is_file($file)) {
-						$DS = t3lib_div::xml2array(t3lib_div::getUrl($file));
-					}
-				}
+				$retObj = t3lib_div::makeInstance('tx_templavoila_retrieval'); $DSrec = null;
+				$DS = $retObj->getDataStructureBody($data['tx_templavoila_ds'], $DSrec, TRUE);
 
 				if (is_array($DS)) {
 					$langChildren = $DS['meta']['langChildren'] ? 1 : 0;
@@ -285,18 +275,8 @@ class tx_templavoila_pi1 extends tslib_pibase {
 		}
 
 		// Get data structure:
-		$srcPointer = $row['tx_templavoila_ds'];
-		if (t3lib_div::testInt($srcPointer)) {
-			// If integer, then its a record we will look up:
-			$DSrec = $GLOBALS['TSFE']->sys_page->checkRecord('tx_templavoila_datastructure', $srcPointer);
-			$DS = t3lib_div::xml2array($DSrec['dataprot']);
-		} else {
-			// Otherwise expect it to be a file:
-			$file = t3lib_div::getFileAbsFileName($srcPointer);
-			if ($file && @is_file($file)) {
-				$DS = t3lib_div::xml2array(t3lib_div::getUrl($file));
-			}
-		}
+		$retObj = t3lib_div::makeInstance('tx_templavoila_retrieval'); $DSrec = null;
+		$DS = $retObj->getDataStructureBody($row['tx_templavoila_ds'], $DSrec, TRUE);
 
 		// If a Data Structure was found:
 		if (!is_array($DS))

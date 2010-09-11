@@ -90,6 +90,17 @@ class tx_templavoila_mod2_overview {
 	 *
 	 * @return	content
 	 */
+	function renderFileFolders() {
+		$this->content = '';
+
+		return $this->content;
+	}
+
+	/**
+	 * Renders module content, overview of pages with DS/TO on.
+	 *
+	 * @return	content
+	 */
 	function renderSysFolders() {
 		$this->content = '';
 
@@ -259,7 +270,7 @@ class tx_templavoila_mod2_overview {
 						<col width="110" align="center" />
 					</colgroup>
 					<thead>
-					<tr class="c-headLineTable">
+					<tr class="t3-row-header c-headLineTable">
 						<th>' . $GLOBALS['LANG']->getLL('list_storage') . '</th>
 						<th>' . $GLOBALS['LANG']->getLL('list_dss') . ':</th>
 						<th>' . $GLOBALS['LANG']->getLL('list_tos') . ':</th>

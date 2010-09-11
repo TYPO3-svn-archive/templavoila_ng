@@ -5,6 +5,10 @@ if (!defined ('TYPO3_MODE'))  die ('Access denied.');
 // unserializing the configuration so we can use it here:
 $_EXTCONF = unserialize($_EXTCONF);
 
+// Include class which contains the constants and definitions of TV
+require_once(t3lib_extMgm::extPath('templavoila') . 'ext_defines.php');
+require_once(t3lib_extMgm::extPath('templavoila') . 'classes/class.tx_templavoila_retrieval.php');
+
 if (TYPO3_MODE == 'BE') {
 
 	// Adding click menu item:
@@ -12,8 +16,6 @@ if (TYPO3_MODE == 'BE') {
 		'name' => 'tx_templavoila_cm1',
 		'path' => t3lib_extMgm::extPath($_EXTKEY) . 'class.tx_templavoila_cm1.php'
 	);
-
-	include_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_handlestaticdatastructures.php');
 
 	// Adding backend modules:
 	t3lib_extMgm::addModulePath('xMOD_txtemplavoilaCM1', t3lib_extMgm::extPath($_EXTKEY) . 'cm1/');
@@ -141,7 +143,7 @@ $tempColumns = array(
 				Array('', 0),
 			),
 			'allowNonIdValues' => 1,
-			'itemsProcFunc' => 'tx_templavoila_handleStaticDataStructures->dataSourceItemsProcFunc',
+			'itemsProcFunc' => 'tx_templavoila_retrieval->dataSourceItemsProcFunc',
 			'size' => 1,
 			'minitems' => 0,
 			'maxitems' => 1,
@@ -156,7 +158,7 @@ $tempColumns = array(
 			'items' => Array (
 				Array('', 0),
 			),
-			'itemsProcFunc' => 'tx_templavoila_handleStaticDataStructures->templateObjectItemsProcFunc',
+			'itemsProcFunc' => 'tx_templavoila_retrieval->templateObjectItemsProcFunc',
 			'size' => 1,
 			'minitems' => 0,
 			'maxitems' => 1,
@@ -181,7 +183,7 @@ $tempColumns = array(
 			'items' => Array (
 				Array('', 0),
 			),
-			'itemsProcFunc' => 'tx_templavoila_handleStaticDataStructures->pi_templates',
+			'itemsProcFunc' => 'tx_templavoila_retrieval->pluginTemplateItemsProcFunc',
 			'size' => 1,
 			'minitems' => 0,
 			'maxitems' => 1,
@@ -219,11 +221,11 @@ $tempColumns = array (
 				array('', 0),
 			),
 			'allowNonIdValues' => 1,
-			'itemsProcFunc' => 'tx_templavoila_handleStaticDataStructures->dataSourceItemsProcFunc',
+			'itemsProcFunc' => 'tx_templavoila_retrieval->dataSourceItemsProcFunc',
 			'size' => 1,
 			'minitems' => 0,
 			'maxitems' => 1,
-			'suppress_icons' => 'IF_VALUE_FALSE',
+		/*	'suppress_icons' => 'IF_VALUE_FALSE',	*/
 		)
 	),
 	'tx_templavoila_to' => Array (
@@ -235,7 +237,7 @@ $tempColumns = array (
 			'items' => Array (
 				Array('', 0),
 			),
-			'itemsProcFunc' => 'tx_templavoila_handleStaticDataStructures->templateObjectItemsProcFunc',
+			'itemsProcFunc' => 'tx_templavoila_retrieval->templateObjectItemsProcFunc',
 			'size' => 1,
 			'minitems' => 0,
 			'maxitems' => 1,
@@ -250,11 +252,11 @@ $tempColumns = array (
 				Array('', 0),
 			),
 			'allowNonIdValues' => 1,
-			'itemsProcFunc' => 'tx_templavoila_handleStaticDataStructures->dataSourceItemsProcFunc',
+			'itemsProcFunc' => 'tx_templavoila_retrieval->dataSourceItemsProcFunc',
 			'size' => 1,
 			'minitems' => 0,
 			'maxitems' => 1,
-			'suppress_icons' => 'IF_VALUE_FALSE',
+		/*	'suppress_icons' => 'IF_VALUE_FALSE',	*/
 		)
 	),
 	'tx_templavoila_next_to' => Array (
@@ -266,7 +268,7 @@ $tempColumns = array (
 			'items' => Array (
 				Array('', 0),
 			),
-			'itemsProcFunc' => 'tx_templavoila_handleStaticDataStructures->templateObjectItemsProcFunc',
+			'itemsProcFunc' => 'tx_templavoila_retrieval->templateObjectItemsProcFunc',
 			'size' => 1,
 			'minitems' => 0,
 			'maxitems' => 1,

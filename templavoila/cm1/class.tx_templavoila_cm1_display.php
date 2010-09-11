@@ -44,6 +44,9 @@
  *
  */
 
+// Include class which contains the constants and definitions of TV
+require_once(t3lib_extMgm::extPath('templavoila') . 'ext_defines.php');
+require_once(t3lib_extMgm::extPath('templavoila') . 'classes/class.tx_templavoila_htmlmarkup.php');
 
 /**
  * Submodule 'display' for the templavoila control-center module

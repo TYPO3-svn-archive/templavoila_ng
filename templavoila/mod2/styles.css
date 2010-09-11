@@ -3,9 +3,20 @@
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 table.typo3-tvlist {
 	table-layout: fixed;
+	width: 100%;
+	margin-top: 0 !important;
+}
+
+table.typo3-tvlist caption {
+	font-weight: bold;
 }
 
 table.typo3-tvlist tr.separator td {
+	border-top: 1px solid black;
+	padding: 0;
+}
+
+table.typo3-tvlist tbody + tbody > tr:first-child > td {
 	border-top: 1px solid black;
 }
 

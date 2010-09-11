@@ -92,8 +92,8 @@ $GLOBALS['LANG']->includeLLFile('EXT:templavoila/cm1/locallang.xml');
 $BE_USER->modAccess($ACONF, 1);
 
 // Include class which contains the constants and definitions of TV
-require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_defines.php');
-require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_htmlmarkup.php');
+require_once(t3lib_extMgm::extPath('templavoila') . 'ext_defines.php');
+require_once(t3lib_extMgm::extPath('templavoila') . 'classes/class.tx_templavoila_htmlmarkup.php');
 
 // some internal defines only used here
 define("TVDS_CLEAR_ALL",	1);
@@ -135,6 +135,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		'link'   => array('single' => 1),
 		'meta'   => array('single' => 1),
 	);
+
 	var $extKey = 'templavoila';	// Extension key of this module
 	var $baseScript = 'index.php?';
 	var $mod1Script = '../mod1/index.php?';
@@ -543,7 +544,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	}
 
 	function render_display() {
-		// Initialize the browser
+		// Initialize the display
 		$displayObj =& t3lib_div::getUserObj('EXT:templavoila/cm1/class.tx_templavoila_cm1_display.php:&tx_templavoila_cm1_display', '');
 		$displayObj->init($this);
 
@@ -574,6 +575,27 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 	 */
 	function main_mode() {
 
+		// version-switch
+		$suffix = '';
+		if (!is_callable(array('t3lib_div', 'int_from_ver'))) {
+			$this->content = 'Fatal error: This version of TemplaVoila does not work with TYPO3 versions lower than 4.0.0! Please upgrade your TYPO3 core installation.';
+			return;
+		}
+		else {
+			$version = t3lib_div::int_from_ver(TYPO3_version);
+
+			     if ($version >= 4004000)
+				$suffix = '_44';
+			else if ($version >= 4003000)
+				$suffix = '_43';
+			else if ($version >= 4002000)
+				$suffix = '_42';
+			else if ($version <  4000000) {
+				$this->content = 'Fatal error: This version of TemplaVoila does not work with TYPO3 versions lower than 4.0.0! Please upgrade your TYPO3 core installation.';
+				return;
+			}
+		}
+
 		// Draw the header.
 		$this->doc = t3lib_div::makeInstance('noDoc');
 		$this->doc->docType = 'xhtml_trans';
@@ -585,7 +607,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		$this->doc->loadJavascriptLib(t3lib_extMgm::extRelPath($this->extKey) . "res/xmlarea.js");
 
 		// Add custom styles
-		$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath($this->extKey) . "cm1/styles.css";
+		$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath($this->extKey) . "cm1/styles" . $suffix . ".css";
 
 		// Setting up form-wrapper:
 		$this->doc->form = '<form id="tv-form" action="' . $this->linkThisScript() . '" method="post" name="pageform">';
@@ -1517,9 +1539,10 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					<br />
 					<p>' . $GLOBALS['LANG']->getLL('pasteDSXml') . ':</p>
 					<textarea class="fixed-font enable-tab" rows="15" name="_load_ds_xml_content" wrap="off"' . $GLOBALS['TBE_TEMPLATE']->formWidthText(48, 'width:98%;', 'off') . '></textarea>
-					<br />
+					<div style="margin-top: 10px;">
 					<input type="submit" name="_load_ds_xml" value="' . $GLOBALS['LANG']->getLL('loadDSXml') . '" />
-					<input type="submit" name="_" value="' . $GLOBALS['LANG']->getLL('cancel') . '" />',
+					<input type="submit" name="_" value="' . $GLOBALS['LANG']->getLL('cancel') . '" />
+					</div>',
 					FALSE,
 					TRUE,
 					0,
@@ -1608,13 +1631,9 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 						<!--
 							Menu for creation Data Structures / Template Objects
 						-->
-						<table border="0" cellpadding="2" cellspacing="2" id="c-toMenu">
-							<tr class="bgColor5">
-								<td>' . implode('</td>
-								<td>', $menuItems) . '</td>
-							</tr>
-						</table>
-					';
+						<div style="margin-top: 10px;">' .
+							implode(' ', $menuItems) .
+						'</div>';
 
 					// Messages:
 					$this->msgFlush(&$menuContent, true);
@@ -1860,14 +1879,14 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 								<col width="80" align="center" />
 							</colgroup>
 							<thead>
-								<tr class="c-headLineTable">
-									<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structureElement') . ':'.
+								<tr class="t3-row-header c-headLineTable">
+									<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structureElement') . ':&nbsp;' .
 										$this->cshItem('xMOD_tx_templavoila', 'mapping_head_dataElement', $this->doc->backPath, '', TRUE).
 										'</th>
-									<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structureInstruction') . ':'.
+									<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structureInstruction') . ':&nbsp;' .
 										$this->cshItem('xMOD_tx_templavoila', 'mapping_head_mapping_instructions', $this->doc->backPath, '', TRUE).
 										'</th>
-									<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structureRule') . ':'.
+									<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structureRule') . ':&nbsp;' .
 										$this->cshItem('xMOD_tx_templavoila', 'mapping_head_Rules', $this->doc->backPath, '', TRUE).
 										'</th>
 								</tr>
@@ -1940,12 +1959,12 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 								<col width="120" />' : '') . '
 							</colgroup>
 							<thead>
-								<tr class="c-headLineTable">
-									<th>' . $GLOBALS['LANG']->getLL('templateUID') . ':</th>
-									<th>' . $GLOBALS['LANG']->getLL('templateTitle') . ':</th>
-									<th>' . $GLOBALS['LANG']->getLL('templateFileRef') . ':</th>
-									<th>' . $GLOBALS['LANG']->getLL('templateMappingSize') . ':</th>' . ($BE_USER->check('tables_modify', 'tx_templavoila_datastructure') ? '
-									<th>' . $GLOBALS['LANG']->getLL('modifyDSTO') . ':' . $this->cshItem('xMOD_tx_templavoila', 'mapping_to_modifyDSTO', $this->doc->backPath, '') . '</th>' : '') . '
+								<tr class="t3-row-header c-headLineTable">
+									<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('templateUID') . ':</th>
+									<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('templateTitle') . ':</th>
+									<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('templateFileRef') . ':</th>
+									<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('templateMappingSize') . ':</th>' . ($BE_USER->check('tables_modify', 'tx_templavoila_datastructure') ? '
+									<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('modifyDSTO') . ':&nbsp;' . $this->cshItem('xMOD_tx_templavoila', 'mapping_to_modifyDSTO', $this->doc->backPath, '') . '</th>' : '') . '
 								</tr>
 							</thead>
 							<tbody>
@@ -2495,13 +2514,9 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				<!--
 					Menu for saving Template Objects
 				-->
-				<table border="0" cellpadding="2" cellspacing="2" id="c-toMenu">
-					<tr class="bgColor5">
-						<td>' . implode('</td>
-						<td>', $menuItems) . '</td>
-					</tr>
-				</table>
-			';
+				<div style="margin-top: 10px;">' .
+					implode(' ', $menuItems) .
+				'</div>';
 		} else {
 			$menuContent = '';
 		}
@@ -2692,7 +2707,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 					<dt><label>HTML' .
 						$this->cshItem('xMOD_tx_templavoila', 'settings_belayout', $this->doc->backPath, '', TRUE) . '
 					</label></dt>
-					<dd><textarea name="dataStructureForm[meta][beLayout]" rows="20">' .
+					<dd><textarea name="dataStructureForm[meta][beLayout]" rows="20" style="width: 98%;">' .
 						htmlspecialchars($meta['beLayout']) .
 					'</textarea></dd>
 				</dl>
@@ -2794,29 +2809,29 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				<col width="90"  align="center" />' : '') . '
 			</colgroup>
 			<thead>
-				<tr class="c-headLineTable">
-					<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structureElement') . ':' .
+				<tr class="t3-row-header c-headLineTable">
+					<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structureElement') . ':&nbsp;' .
 						$this->cshItem('xMOD_tx_templavoila', 'mapping_head_dataElement', $this->doc->backPath, '', TRUE) . '
 						</th>' . ($this->editDataStruct ? '
-					<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structureField') . ':' .
+					<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structureField') . ':&nbsp;' .
 						$this->cshItem('xMOD_tx_templavoila', 'mapping_head_Field', $this->doc->backPath, '', TRUE) . '
 						</th>' : '
-					<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structureHide') . ':' .
+					<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structureHide') . ':&nbsp;' .
 						$this->cshItem('xMOD_tx_templavoila', 'mapping_head_Hide', $this->doc->backPath, '', TRUE) . '
 						</th>
-					<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL(!$this->_preview ? 'structureInstruction' : 'structureSamples') . ':' .
+					<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL(!$this->_preview ? 'structureInstruction' : 'structureSamples') . ':&nbsp;' .
 						$this->cshItem('xMOD_tx_templavoila', 'mapping_head_' . (!$this->_preview ? 'mapping_instructions' : 'sample_data'), $this->doc->backPath, '', TRUE) . '
 						</th>') . '
-					<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structureRule') . ':' .
+					<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structureRule') . ':&nbsp;' .
 						$this->cshItem('xMOD_tx_templavoila', 'mapping_head_Rules', $this->doc->backPath, '', TRUE) . '
 						</th>
-					<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structurePath') . ':' .
+					<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structurePath') . ':&nbsp;' .
 						$this->cshItem('xMOD_tx_templavoila', 'mapping_head_HTMLpath', $this->doc->backPath, '', TRUE) . '
 						</th>' . ($BE_USER->check('tables_modify', 'tx_templavoila_tmplobj') ? '
-					<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structureAction') . ':' .
+					<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structureAction') . ':&nbsp;' .
 						$this->cshItem('xMOD_tx_templavoila', 'mapping_head_Action', $this->doc->backPath, '', TRUE) . '
 						</th>' : '') . ($this->editDataStruct && !$this->_preview ? '
-					<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structureEdit') . ':' .
+					<th nowrap="nowrap">' . $GLOBALS['LANG']->getLL('structureEdit') . ':&nbsp;' .
 						$this->cshItem('xMOD_tx_templavoila', 'mapping_head_Edit', $this->doc->backPath, '', TRUE) . '
 						</th>' : '') . '
 				</tr>
@@ -3953,6 +3968,27 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 	function main()	{
 		global $BE_USER, $BACK_PATH;
 
+		// version-switch
+		$suffix = '';
+		if (!is_callable(array('t3lib_div', 'int_from_ver'))) {
+			$this->content = 'Fatal error: This version of TemplaVoila does not work with TYPO3 versions lower than 4.0.0! Please upgrade your TYPO3 core installation.';
+			return;
+		}
+		else {
+			$version = t3lib_div::int_from_ver(TYPO3_version);
+
+			     if ($version >= 4004000)
+				$suffix = '_44';
+			else if ($version >= 4003000)
+				$suffix = '_43';
+			else if ($version >= 4002000)
+				$suffix = '_42';
+			else if ($version <  4000000) {
+				$this->content = 'Fatal error: This version of TemplaVoila does not work with TYPO3 versions lower than 4.0.0! Please upgrade your TYPO3 core installation.';
+				return;
+			}
+		}
+
 		// Access check...
 		// The page will show only if there is a valid page and if this page may be viewed by the user
 		$this->pageinfo = t3lib_BEfunc::readPageAccess($this->id, $this->perms_clause);
@@ -4013,7 +4049,7 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 			$this->doc->loadJavascriptLib(t3lib_extMgm::extRelPath($this->extKey) . "res/optionsmenu.js");
 
 			// Add custom styles
-			$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath($this->extKey) . "cm1/styles.css";
+			$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath($this->extKey) . "cm1/styles" . $suffix . ".css";
 
 			// JavaScript
 			$this->doc->JScode = $this->doc->wrapScriptTags('
@@ -4356,6 +4392,7 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 			} else {
 				$theIcon = $iconImg;
 			}
+
 			$theIcon = $theIcon . '<em>[pid: ' . $pageRecord['uid'] . ']</em>';
 		}
 
@@ -4403,16 +4440,16 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 	function getDSInfo($pageRecord) {
 		global $BE_USER;
 
-			// Is this a real DS
-		if (intval($this->displayUid) > 0)	{
+		// Is this a real DS
+		if (intval($this->displayUid) > 0) {
 			$row = t3lib_BEfunc::getRecordWSOL('tx_templavoila_datastructure', $this->displayUid);
 
-			if (is_array($row))	{
+			if (is_array($row)) {
+				// Make Icon:
 				$iconImg = t3lib_iconworks::getIconImage('tx_templavoila_datastructure', $row, $this->doc->backPath, 'class="absmiddle" title="UID: '.$this->displayUid.'"');
-					// Make Icon:
 				$theIcon = $GLOBALS['SOBE']->doc->wrapClickMenuOnIcon($iconImg, 'tx_templavoila_datastructure', $row['uid'], 1);
 
-					// Setting icon with clickmenu + uid
+				// Setting icon with clickmenu + uid
 				$pageInfo = $theIcon . '<em>[uid: ' . $this->displayUid . ']</em>';
 			}
 		}
@@ -4459,16 +4496,16 @@ class tx_templavoila_cm1_integral extends tx_templavoila_cm1 {
 	function getTOInfo($pageRecord) {
 		global $BE_USER;
 
-			// Is this a real TO
-		if (intval($this->displayUid) > 0)	{
+		// Is this a real TO
+		if (intval($this->displayUid) > 0) {
 			$row = t3lib_BEfunc::getRecordWSOL('tx_templavoila_tmplobj', $this->displayUid);
 
-			if (is_array($row))	{
+			if (is_array($row)) {
+				// Make Icon:
 				$iconImg = t3lib_iconworks::getIconImage('tx_templavoila_tmplobj', $row, $this->doc->backPath, 'class="absmiddle" title="UID: '.$this->displayUid.'"');
-					// Make Icon:
 				$theIcon = $GLOBALS['SOBE']->doc->wrapClickMenuOnIcon($iconImg, 'tx_templavoila_tmplobj', $row['uid'], 1);
 
-					// Setting icon with clickmenu + uid
+				// Setting icon with clickmenu + uid
 				$pageInfo = $theIcon . '<em>[uid: ' . $this->displayUid . ']</em>';
 			}
 		}

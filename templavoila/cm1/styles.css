@@ -7,6 +7,8 @@
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 table.typo3-tvlist {
 	table-layout: fixed;
+	width: 100%;
+	margin-top: 0 !important;
 }
 
 table.typo3-tvlist + .typo3-message {

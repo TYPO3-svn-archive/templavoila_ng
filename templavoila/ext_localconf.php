@@ -2,8 +2,8 @@
 # TYPO3 CVS ID: $Id: ext_localconf.php 5928 2007-07-12 11:20:33Z kasper $
 if (!defined ('TYPO3_MODE')) 	die ('Access denied.');
 
-x// unserializing the configuration so we can use it here:
-x$_EXTCONF = unserialize($_EXTCONF);
+// unserializing the configuration so we can use it here:
+$_EXTCONF = unserialize($_EXTCONF);
 
 // Adding the two plugins TypoScript:
 t3lib_extMgm::addPItoST43($_EXTKEY, 'pi1/class.tx_templavoila_pi1.php', '_pi1', 'CType', 1);
@@ -48,13 +48,13 @@ t3lib_extMgm::addUserTSConfig('
 $GLOBALS['TYPO3_CONF_VARS']['FE']['addRootLineFields'] .= ',tx_templavoila_ds,tx_templavoila_to,tx_templavoila_next_ds,tx_templavoila_next_to';
 
 // Register our classes at a the hooks:
-$GLOBALS ['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass']['templavoila'] = 'EXT:templavoila/class.tx_templavoila_tcemain.php:tx_templavoila_tcemain';
-$GLOBALS ['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processCmdmapClass']['templavoila'] = 'EXT:templavoila/class.tx_templavoila_tcemain.php:tx_templavoila_tcemain';
-$GLOBALS ['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['moveRecordClass']['templavoila'] = 'EXT:templavoila/class.tx_templavoila_tcemain.php:tx_templavoila_tcemain';
-$GLOBALS ['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_userauthgroup.php']['recordEditAccessInternals']['templavoila'] = 'EXT:templavoila/class.tx_templavoila_access.php:&tx_templavoila_access->recordEditAccessInternals';
+$GLOBALS ['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass']['templavoila'] = 'EXT:templavoila/classes/class.tx_templavoila_tcemain.php:tx_templavoila_tcemain';
+$GLOBALS ['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processCmdmapClass']['templavoila'] = 'EXT:templavoila/classes/class.tx_templavoila_tcemain.php:tx_templavoila_tcemain';
+$GLOBALS ['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['moveRecordClass']['templavoila'] = 'EXT:templavoila/classes/class.tx_templavoila_tcemain.php:tx_templavoila_tcemain';
+$GLOBALS ['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_userauthgroup.php']['recordEditAccessInternals']['templavoila'] = 'EXT:templavoila/classes/class.tx_templavoila_access.php:&tx_templavoila_access->recordEditAccessInternals';
 
-$GLOBALS ['TYPO3_CONF_VARS']['EXTCONF']['lowlevel']['cleanerModules']['tx_templavoila_unusedce'] = array('EXT:templavoila/class.tx_templavoila_unusedce.php:tx_templavoila_unusedce');
-$GLOBALS ['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['indexFilter']['tx_templavoila_usedce'] = array('EXT:templavoila/class.tx_templavoila_usedce.php:tx_templavoila_usedce');
+$GLOBALS ['TYPO3_CONF_VARS']['EXTCONF']['lowlevel']['cleanerModules']['tx_templavoila_unusedce'] = array('EXT:templavoila/classes/class.tx_templavoila_unusedce.php:tx_templavoila_unusedce');
+$GLOBALS ['TYPO3_CONF_VARS']['EXTCONF']['l10nmgr']['indexFilter']['tx_templavoila_usedce'] = array('EXT:templavoila/classes/class.tx_templavoila_usedce.php:tx_templavoila_usedce');
 
 // version-switch
 if (is_callable(array('t3lib_div', 'int_from_ver')) && t3lib_div::int_from_ver(TYPO3_version) >= 4003000) {

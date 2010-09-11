@@ -105,15 +105,15 @@ class tx_templavoila_mod2_files {
 
 			if (count($tRows) > 0) {
 				$output .= '
-				<h3>' . $GLOBALS['LANG']->getLL('center_templates_used') . ':</h3>
 				<table border="0" cellpadding="1" cellspacing="1" class="typo3-dblist typo3-tvlist">
+				<caption>' . $GLOBALS['LANG']->getLL('center_templates_used') . ':</caption>
 				<colgroup>
 					<col width="*"  align="left" />
 					<col width="80" align="center" />' . ($this->modifiable ? '
 					<col width="80" align="center" />' : '') . '
 				</colgroup>
 				<thead>
-					<tr class="c-headLineTable" style="font-weight: bold; color: #FFFFFF;">
+					<tr class="t3-row-header c-headLineTable" style="font-weight: bold; color: #FFFFFF;">
 						<th>' . $GLOBALS['LANG']->getLL('center_templates_file') . '</th>
 						<th>' . $GLOBALS['LANG']->getLL('center_templates_count') . '</th>' . ($this->modifiable ? '
 						<th>' . $GLOBALS['LANG']->getLL('center_templates_new') . '</th>' : '') . '
@@ -168,15 +168,15 @@ class tx_templavoila_mod2_files {
 
 						if (count($tRows) > 0) {
 							$output .= '
-							<h3>' . $GLOBALS['LANG']->getLL('center_templates_unused') . ':</h3>
 							<table border="0" cellpadding="1" cellspacing="1" class="typo3-dblist typo3-tvlist">
+							<caption>' . $GLOBALS['LANG']->getLL('center_templates_unused') . ':</caption>
 							<colgroup>
 								<col width="*"  align="left" />
 								<col width="80" align="center" />' . ($this->modifiable ? '
 								<col width="80" align="center" />' : '') . '
 							</colgroup>
 							<thead>
-								<tr class="c-headLineTable" style="font-weight: bold; color: #FFFFFF;">
+								<tr class="t3-row-header c-headLineTable" style="font-weight: bold; color: #FFFFFF;">
 									<th>' . $GLOBALS['LANG']->getLL('center_templates_file') . '</th>
 									<th>' . $GLOBALS['LANG']->getLL('center_templates_count') . '</th>' . ($this->modifiable ? '
 									<th>' . $GLOBALS['LANG']->getLL('center_templates_new') . '</th>' : '') . '

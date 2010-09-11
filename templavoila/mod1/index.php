@@ -132,7 +132,7 @@ require_once(PATH_t3lib . 'class.t3lib_tcemain.php');
 require_once(PATH_t3lib . 'class.t3lib_clipboard.php');
 
 // Include class which contains the constants and definitions of TV
-require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_defines.php');
+require_once(t3lib_extMgm::extPath('templavoila') . 'ext_defines.php');
 require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_api.php');
 
 /**
@@ -400,9 +400,25 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 	function main() {
 		global $BE_USER, $BACK_PATH;
 
-		if (!is_callable(array('t3lib_div', 'int_from_ver')) || t3lib_div::int_from_ver(TYPO3_version) < 4000000) {
-			$this->content = 'Fatal error:This version of TemplaVoila does not work with TYPO3 versions lower than 4.0.0! Please upgrade your TYPO3 core installation.';
+		// version-switch
+		$suffix = '';
+		if (!is_callable(array('t3lib_div', 'int_from_ver'))) {
+			$this->content = 'Fatal error: This version of TemplaVoila does not work with TYPO3 versions lower than 4.0.0! Please upgrade your TYPO3 core installation.';
 			return;
+		}
+		else {
+			$version = t3lib_div::int_from_ver(TYPO3_version);
+
+			     if ($version >= 4004000)
+				$suffix = '_44';
+			else if ($version >= 4003000)
+				$suffix = '_43';
+			else if ($version >= 4002000)
+				$suffix = '_42';
+			else if ($version <  4000000) {
+				$this->content = 'Fatal error: This version of TemplaVoila does not work with TYPO3 versions lower than 4.0.0! Please upgrade your TYPO3 core installation.';
+				return;
+			}
 		}
 
 		// Access check! The page will show only if there is a valid page and if this page may be viewed by the user
@@ -457,7 +473,7 @@ class tx_templavoila_module1 extends t3lib_SCbase {
 				'<input type="hidden" id="browser[communication]" name="browser[communication]" />';
 
 			// Add custom styles
-			$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath($this->extKey) . "mod1/styles.css";
+			$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath($this->extKey) . "mod1/styles" . $suffix . ".css";
 
 			// Adding classic jumpToUrl function, needed for the function menu. Also, the id in the parent frameset is configured.
 			$this->doc->JScode = $this->doc->wrapScriptTags('
@@ -1093,20 +1109,25 @@ table.typo3-dyntabmenu td.disabled:hover {
 				</tr>' .
 				($isContainer ? '
 				<tr>
-					<th>' . ($contentTreeArr['to_icon'] ? '
-						<img style="float: left; padding-right: 1em;" src="' . $this->doc->backPath . '../uploads/tx_templavoila/' . $contentTreeArr['to_icon'] . '" />' : '') . '
-						<dl style="float: left; margin: 0 1em 0 0;">
-							<dt>Template Object:</dt>
-							<dd>' . ($contentTreeArr['to_title'] ? htmlspecialchars($contentTreeArr['to_title']) : '&mdash;') . '</dd>
-							<dt>Template Description:</dt>
-							<dd>' . ($contentTreeArr['to_description'] ? htmlspecialchars($contentTreeArr['to_description']) : '&mdash;') . '</dd>
+					<th>
+						<dl>
 							<dt>' . ($contentTreeArr['el']['table'] == 'pages' ? 'Page' : 'FCE') . ' created:</dt>
 							<dd>' . t3lib_BEfunc::datetime($this->rootElementRecord['crdate']) . ' by [' . $this->icoObj->link_user($this->rootElementRecord['cruser_id']) . ']</dd>
 							<dt>' . ($contentTreeArr['el']['table'] == 'pages' ? 'Page' : 'FCE') . ' last modified:</dt>
 							<dd>' . t3lib_BEfunc::datetime($this->rootElementRecord['tstamp']) . '</dd>
+							<dt>Template Object:</dt>
+							<dd>' . ($contentTreeArr['to_icon'] ? '
+								<img src="' . $this->doc->backPath . '../uploads/tx_templavoila/' . $contentTreeArr['to_icon'] . '" />' : '') . '
+							    ' . ($contentTreeArr['to_title'] ? htmlspecialchars($contentTreeArr['to_title']) : '&mdash;') . '</dd>
+							<dt>Template Description:</dt>
+							<dd>' . ($contentTreeArr['to_description'] ? htmlspecialchars($contentTreeArr['to_description']) : '&mdash;') . '</dd>
 						</dl>
-						<dl style="float: left; margin: 0 1em 0 0;">' .
-							($contentTreeArr['el']['table'] == 'pages' ? '
+						<dl>
+							<dt>' . ($contentTreeArr['el']['table'] == 'pages' ? 'Page' : 'FCE') . ' from:</dt>
+							<dd>' . ($this->rootElementRecord['starttime'] ? t3lib_BEfunc::datetime($this->rootElementRecord['starttime']) : '&mdash;') . '</dd>
+							<dt>' . ($contentTreeArr['el']['table'] == 'pages' ? 'Page' : 'FCE') . ' until:</dt>
+							<dd>' . ($this->rootElementRecord['endtime'] ? t3lib_BEfunc::datetime($this->rootElementRecord['endtime']) : '&mdash;') . '</dd>
+							' . ($contentTreeArr['el']['table'] == 'pages' ? '
 							<dt>Meta keywords:</dt>
 							<dd>' . ($this->rootElementRecord['keywords'] ? htmlspecialchars($this->rootElementRecord['keywords']) : '&mdash;') . '</dd>
 							<dt>Meta title:</dt>
@@ -1117,10 +1138,6 @@ table.typo3-dyntabmenu td.disabled:hover {
 							<dt>Subheader:</dt>
 							<dd>' . ($this->rootElementRecord['subheader'] ? htmlspecialchars($this->rootElementRecord['subheader']) : '&mdash;') . '</dd>
 							') . '
-							<dt>' . ($contentTreeArr['el']['table'] == 'pages' ? 'Page' : 'FCE') . ' from:</dt>
-							<dd>' . ($this->rootElementRecord['starttime'] ? t3lib_BEfunc::datetime($this->rootElementRecord['starttime']) : '&mdash;') . '</dd>
-							<dt>' . ($contentTreeArr['el']['table'] == 'pages' ? 'Page' : 'FCE') . ' until:</dt>
-							<dd>' . ($this->rootElementRecord['endtime'] ? t3lib_BEfunc::datetime($this->rootElementRecord['endtime']) : '&mdash;') . '</dd>
 						</dl>
 					</th>
 				</tr>
@@ -1133,7 +1150,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 				</tr>
 			</tfoot>
 			' : '') . (($contentTreeArr['el']['table'] != 'pages') || $contentTreeArr['ds_is_found'] ? '
-			<tbody>
+			<tbody class="tv-lang-original">
 				<tr>
 					' .
 						(is_array($contentTreeArr['previewData']['fullRow']) && !$isContainer
@@ -1146,7 +1163,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 				</tr>
 			</tbody>
 			' : '') . (trim($localize) ? '
-			<tbody>
+			<tbody class="tv-lang-overlay">
 				<tr style="' . $elementTitlebarStyle . ';">
 					<td>' . $localize . '</td>
 				</tr>
@@ -2014,11 +2031,11 @@ table.typo3-dyntabmenu td.disabled:hover {
 								$l10nInfo = '<div class="ver-element">' . $l10nInfo . '</div>';
 							}
 
-							$this->global_localization_status[$sys_language_uid][]=array(
-								'status' => 'exist',
-								'parent_uid' => $contentTreeArr['el']['uid'],
-								'localized_uid' => $localizedRecordInfo['row']['uid'],
-								'sys_language' => $contentTreeArr['el']['sys_language_uid']
+							$this->global_localization_status[$sys_language_uid][] = array(
+								'status'	=> 'exist',
+								'parent_uid'	=> $contentTreeArr['el']['uid'],
+								'localized_uid'	=> $localizedRecordInfo['row']['uid'],
+								'sys_language'	=> $contentTreeArr['el']['sys_language_uid']
 							);
 
 							break;
@@ -2045,9 +2062,9 @@ table.typo3-dyntabmenu td.disabled:hover {
 								$linkLabel = $GLOBALS['LANG']->getLL('createcopyfortranslation', 1) . ' (' . htmlspecialchars($sLInfo['title']) . ')';
 								$localizeIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/clip_copy.gif', 'width="12" height="12"') . ' class="bottom" title="' . $linkLabel . '" alt="" />';
 
-								$l10nInfo  =      '<a href="#" onclick="' . htmlspecialchars($onClick) . '" style="clear: right;">' . $localizeIcon . '</a>';
-								$l10nInfo .= ' <em><a href="#" onclick="' . htmlspecialchars($onClick) . '" style="clear: right;">' . $linkLabel . '</a></em>';
-								$flagLink_begin = '<a href="#" onclick="' . htmlspecialchars($onClick) . '" style="float: right; margin-top: 4px;">';
+								$l10nInfo  =      '<a href="#" onclick="' . htmlspecialchars($onClick) . '">' . $localizeIcon . '</a>';
+								$l10nInfo .= ' <em><a href="#" onclick="' . htmlspecialchars($onClick) . '">' . $linkLabel . '</a></em>';
+								$flagLink_begin = '<a href="#" onclick="' . htmlspecialchars($onClick) . '">';
 								$flagLink_end  = '</a>';
 
 								$this->global_localization_status[$sys_language_uid][] = array(
@@ -2064,7 +2081,9 @@ table.typo3-dyntabmenu td.disabled:hover {
 							// Change of strategy (27/11): Because there does not have to be content fields; could be in sections or arrays and if thats the case you still want to localize them! There has to be another way...
 						//	if (count($contentTreeArr['contentFields']['sDEF']))	{
 								list($flagLink_begin, $flagLink_end) = explode('|*|', $this->icoObj->link_edit('|*|', 'tt_content', $contentTreeArr['el']['uid'], '', TRUE));
+
 								$l10nInfo = $flagLink_begin . '<em>[Click to translate FlexForm]</em>' . $flagLink_end;
+
 								$this->global_localization_status[$sys_language_uid][] = array(
 									'status' => 'flex',
 									'parent_uid' => $contentTreeArr['el']['uid'],
@@ -3112,7 +3131,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 			'row' => $row
 		);
 		$ref = null;
-		return t3lib_div::callUserFunction('EXT:templavoila/class.tx_templavoila_access.php:&tx_templavoila_access->recordEditAccessInternals', $params, $ref);
+		return t3lib_div::callUserFunction('EXT:templavoila/classes/class.tx_templavoila_access.php:&tx_templavoila_access->recordEditAccessInternals', $params, $ref);
 	}
 */
 }
@@ -3226,7 +3245,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 		$options .=  '<a href="#" class="toolbar-item">' .
 				'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/options.gif') . ' title="' . $GLOBALS['LANG']->getLL('page_settings', 1) . '" alt="Options" />' .
 				'</a>';
-		$options .= '<ul class="toolbar-item-menu" style="display: none; width: 205px;">';
+		$options .= '<ul class="toolbar-item-menu" style="display: none; width: 235px;">';
 
 		/* general option-group */
 		{
@@ -3304,9 +3323,25 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 	function main()	{
 		global $BE_USER, $BACK_PATH;
 
-		if (!is_callable(array('t3lib_div', 'int_from_ver')) || t3lib_div::int_from_ver(TYPO3_version) < 4000000) {
-			$this->content = 'Fatal error:This version of TemplaVoila does not work with TYPO3 versions lower than 4.0.0! Please upgrade your TYPO3 core installation.';
+		// version-switch
+		$suffix = '';
+		if (!is_callable(array('t3lib_div', 'int_from_ver'))) {
+			$this->content = 'Fatal error: This version of TemplaVoila does not work with TYPO3 versions lower than 4.0.0! Please upgrade your TYPO3 core installation.';
 			return;
+		}
+		else {
+			$version = t3lib_div::int_from_ver(TYPO3_version);
+
+			     if ($version >= 4004000)
+				$suffix = '_44';
+			else if ($version >= 4003000)
+				$suffix = '_43';
+			else if ($version >= 4002000)
+				$suffix = '_42';
+			else if ($version <  4000000) {
+				$this->content = 'Fatal error: This version of TemplaVoila does not work with TYPO3 versions lower than 4.0.0! Please upgrade your TYPO3 core installation.';
+				return;
+			}
 		}
 
 		// Access check...
@@ -3396,7 +3431,7 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 			$this->doc->loadJavascriptLib(t3lib_extMgm::extRelPath($this->extKey) . "res/optionsmenu.js");
 
 			// Add custom styles
-			$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath($this->extKey) . "mod1/styles.css";
+			$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath($this->extKey) . "mod1/styles" . $suffix . ".css";
 
 			// JavaScript
 			$this->doc->JScode = $this->doc->wrapScriptTags('
@@ -3578,14 +3613,14 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 			// Setting up the buttons and markers for docheader
 			$docHeaderButtons = $this->getButtons();
 			$markers = array(
-				'CSH'       => $docHeaderButtons['csh'],
-				'FUNC_MENU' => $this->getFuncMenuNoHSC($this->id, 'SET[page]', $this->MOD_SETTINGS['page'], $this->MOD_MENU['page'],'',t3lib_div::implodeArrayForUrl('',$_GET,'',1,1)),
-				'OPTS_MENU' => $this->getOptsMenuNoHSC(),
+				'CSH'        => $docHeaderButtons['csh'],
+				'FUNC_MENU'  => $this->getFuncMenuNoHSC($this->id, 'SET[page]', $this->MOD_SETTINGS['page'], $this->MOD_MENU['page'],'',t3lib_div::implodeArrayForUrl('',$_GET,'',1,1)),
+				'OPTS_MENU'  => $this->getOptsMenuNoHSC(),
 
-				'CONTENT'   => $this->content,
+				'CONTENT'    => $this->content,
 
-				'PAGEPATH'  => $this->getPagePath($this->pageinfo),
-				'PAGEINFO'  => 'x' . $this->getPageInfo($this->pageinfo)
+				'PAGEMPATH'  => $this->getPagePath($this->pageinfo),
+				'PAGEMINFO'  => $this->getPageInfo($this->pageinfo)
 			);
 
 			// Build the <body> for the module
@@ -3633,19 +3668,19 @@ class tx_templavoila_module1_integral extends tx_templavoila_module1 {
 			$this->doc->loadJavascriptLib(t3lib_extMgm::extRelPath($this->extKey) . "res/optionsmenu.js");
 
 			// Add custom styles
-			$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath($this->extKey) . "mod1/styles.css";
+			$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath($this->extKey) . "mod1/styles" . $suffix . ".css";
 
 			// Setting up the buttons and markers for docheader
 			$docHeaderButtons = $this->getButtons();
 			$markers = array(
-				'CSH'       => $docHeaderButtons['csh'],
-				'FUNC_MENU' => $this->getFuncMenuNoHSC($this->id, 'SET[page]', $this->MOD_SETTINGS['page'], $this->MOD_MENU['page'],'',t3lib_div::implodeArrayForUrl('',$_GET,'',1,1)),
-				'OPTS_MENU' => $this->getOptsMenuNoHSC(),
+				'CSH'        => $docHeaderButtons['csh'],
+				'FUNC_MENU'  => $this->getFuncMenuNoHSC($this->id, 'SET[page]', $this->MOD_SETTINGS['page'], $this->MOD_MENU['page'],'',t3lib_div::implodeArrayForUrl('',$_GET,'',1,1)),
+				'OPTS_MENU'  => $this->getOptsMenuNoHSC(),
 
-				'CONTENT'   => '',
+				'CONTENT'    => '',
 
-				'PAGEPATH'  => '',
-				'PAGEINFO'  => ''
+				'PAGEMPATH'  => '',
+				'PAGEMINFO'  => ''
 			);
 
 			$this->content  = $this->doc->startPage($GLOBALS['LANG']->getLL('title'));

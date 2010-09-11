@@ -1,0 +1,19 @@
+@import url("styles.css");
+
+/* typo3/sysext/t3skin/stylesheets/typo3-db-list-php.css (line 21) */
+table.tv-coe thead.pages tr.sortableHandle th,
+table.tv-coe thead tr.sortableHandle th {
+	background-color: #B8BEC9;
+	background-image: url("/typo3/sysext/t3skin/icons/gfx/alt_menu_mainitem_bg.gif");
+	background-repeat: repeat-x;
+}
+
+table.tv-container > tbody > tr > td {
+	border: 1px dashed black;
+}
+
+table.tv-container > thead > tr > th + th,
+table.tv-container > tbody > tr > td + td,
+table.tv-container > tfoot > tr > td + td {
+	border-left: 0;
+}

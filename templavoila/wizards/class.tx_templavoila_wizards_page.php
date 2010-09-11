@@ -82,7 +82,8 @@ class tx_templavoila_wizards_page {
 		$this->pObj =& $pObj;
 		$this->doc =& $this->pObj->doc;
 		$this->extKey =& $this->pObj->extKey;
-		$this->apiObj =& $this->pObj->apiObj;
+		$this->retObj =& $this->pObj->retObj;
+		$this->retObj =& $this->pObj->retObj;
 
 		$this->choices = 0;
 	}
@@ -113,7 +114,9 @@ class tx_templavoila_wizards_page {
 			// Check if the HTTP_REFERER is valid
 			$refInfo = parse_url(t3lib_div::getIndpEnv('HTTP_REFERER'));
 			$httpHost = t3lib_div::getIndpEnv('TYPO3_HOST_ONLY');
-			if ($httpHost == $refInfo['host'] || t3lib_div::_GP('vC') == $BE_USER->veriCode() || $TYPO3_CONF_VARS['SYS']['doNotCheckReferer']) {
+			if (($httpHost == $refInfo['host']) ||
+			    (t3lib_div::_GP('vC') == $BE_USER->veriCode()) ||
+			    ($TYPO3_CONF_VARS['SYS']['doNotCheckReferer'])) {
 				// Create new page
 				$newID = $this->createPage(t3lib_div::_GP('data'), $positionPid);
 				if ($newID > 0) {
@@ -129,8 +132,10 @@ class tx_templavoila_wizards_page {
 
 					header('Location: ' . t3lib_div::locationHeaderUrl($this->doc->backPath . 'alt_doc.php?returnUrl=' . $returnUrl . $params));
 					exit();
-				} else { debug('Error: Could not create page!'); }
-			} else { debug('Error: Referer host did not match with server host.'); }
+				} else {
+					debug('Error: Could not create page!'); }
+			} else {
+				debug('Error: Referer host did not match with server host.'); }
 		}
 
 		// Based on t3d/xml templates:
@@ -176,7 +181,8 @@ class tx_templavoila_wizards_page {
 						exit();
 
 						// PLAIN COPY FROM ABOVE - END
-					} else { debug('Error: Could not create page!'); }
+					} else {
+						debug('Error: Could not create page!'); }
 				}
 			}
 		}
@@ -226,7 +232,7 @@ class tx_templavoila_wizards_page {
 		if (!$this->choices) {
 			$content .= '
 			<script>
-				document.getElementsByTagName(\'form\')[0].submit();
+			/*	document.getElementsByTagName(\'form\')[0].submit();*/
 			</script>
 			';
 		}
@@ -256,8 +262,6 @@ class tx_templavoila_wizards_page {
 
 		switch ($templateType) {
 			case 'tmplobj':
-				$storageFolderPID = $this->apiObj->getStorageFolderPid($positionPid);
-
 				// Create the "Default template" entry
 				$previewIconSrcDef = t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'res/default_previewicon.gif', '');
 
@@ -267,38 +271,21 @@ class tx_templavoila_wizards_page {
 					<h3 class="bgColor3-20">' . htmlspecialchars($GLOBALS['LANG']->getLL('template_titledefault')) . '</h3></td></tr>
 					<tr><td valign="top">' . $previewIcon . '</td><td width="120" valign="top"><p>' . $description . '</p></td></tr></table>';
 
-				$tTO = 'tx_templavoila_tmplobj';
-				$tDS = 'tx_templavoila_datastructure';
-				$where = $tTO . '.parent = 0 AND ' .
-					 $tTO . '.pid IN (' . $storageFolderPID . ')' .
-					 ' AND ' . $tDS . '.scope = ' . TVDS_SCOPE_PAGE .
-						$this->buildRecordWhere($tTO) .
-						$this->buildRecordWhere($tDS) .
-						t3lib_befunc::deleteClause($tTO) .
-						t3lib_befunc::deleteClause($tDS).
-						t3lib_BEfunc::versioningPlaceholderClause($tTO) .
-						t3lib_BEfunc::versioningPlaceholderClause($tDS);
+				if (($templateObjectRecords = $this->retObj->getAvailablePageTORecords($positionPid)) !== FALSE) {
+					foreach ($templateObjectRecords as $uid => &$row) {
+						// we got active choices
+						$this->choices++;
 
-				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-					$tTO . '.*',
-					$tTO . ' LEFT JOIN ' . $tDS . ' ON ' .
-					$tTO . '.datastructure = ' . $tDS . '.uid',
-					$where
-				);
+						// Check if preview icon exists, otherwise use default icon:
+						$tmpFilename = 'uploads/tx_templavoila/' . $row['previewicon'];
+						$previewIconSrc = (@is_file(PATH_site . $tmpFilename) ? ' src="' . $GLOBALS['BACK_PATH'] . '../' . $tmpFilename . '"' : $previewIconSrcDef);
 
-				while (false !== ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
-					// we got active choices
-					$this->choices++;
-
-					// Check if preview icon exists, otherwise use default icon:
-					$tmpFilename = 'uploads/tx_templavoila/' . $row['previewicon'];
-					$previewIconSrc = (@is_file(PATH_site . $tmpFilename) ? ' src="' . $GLOBALS['BACK_PATH'] . '../' . $tmpFilename . '"' : $previewIconSrcDef);
-
-					// Note: we cannot use value of image input element because MSIE replaces this value with mouse coordinates! Thus on click we set value to a hidden field. See http://bugs.typo3.org/view.php?id=3376
-					$previewIcon = '<input' . $previewIconSrc . ' type="image" class="c-inputButton" name="i' . $row['uid'] . '" onclick="document.getElementById(\'data_tx_templavoila_to\').value=' . $row['uid'] . '" title="" />';
-					$description = $row['description'] ? htmlspecialchars($row['description']) : $GLOBALS['LANG']->getLL('template_nodescriptionavailable');
-					$tmplHTML[] = '<table style="width: 100%;" valign="top"><tr><td colspan="2" nowrap="nowrap"><h3 class="bgColor3-20">' . htmlspecialchars($row['title']) . '</h3></td></tr>'.
-						'<tr><td valign="top">' . $previewIcon . '</td><td width="120" valign="top"><p>' . $description . '</p></td></tr></table>';
+						// Note: we cannot use value of image input element because MSIE replaces this value with mouse coordinates! Thus on click we set value to a hidden field. See http://bugs.typo3.org/view.php?id=3376
+						$previewIcon = '<input' . $previewIconSrc . ' type="image" class="c-inputButton" name="i' . $row['uid'] . '" onclick="document.getElementById(\'data_tx_templavoila_to\').value=' . $row['uid'] . '" title="" />';
+						$description = $row['description'] ? htmlspecialchars($row['description']) : $GLOBALS['LANG']->getLL('template_nodescriptionavailable');
+						$tmplHTML[] = '<table style="width: 100%;" valign="top"><tr><td colspan="2" nowrap="nowrap"><h3 class="bgColor3-20">' . htmlspecialchars($row['title']) . '</h3></td></tr>'.
+							'<tr><td valign="top">' . $previewIcon . '</td><td width="120" valign="top"><p>' . $description . '</p></td></tr></table>';
+					}
 				}
 
 				$tmplHTML[] = '<input type="hidden" id="data_tx_templavoila_to" name="data[tx_templavoila_to]" value="0" />';
@@ -427,30 +414,6 @@ class tx_templavoila_wizards_page {
 		$import->init();
 
 		return $import;
-	}
-
-	/**
-	 * Create sql condition for given table to limit records according to user access.
-	 *
-	 * @param	string	$table	Table nme to fetch records from
-	 * @return	string	Condition or empty string
-	 */
-	function buildRecordWhere($table) {
-		$result = array();
-
-		if (!$GLOBALS['BE_USER']->isAdmin()) {
-			$prefLen = strlen($table) + 1;
-			foreach($GLOBALS['BE_USER']->userGroups as $group) {
-				$items = t3lib_div::trimExplode(',', $group['tx_templavoila_access'], 1);
-				foreach ($items as $ref) {
-					if (strstr($ref, $table)) {
-						$result[] = intval(substr($ref, $prefLen));
-					}
-				}
-			}
-		}
-
-		return (count($result) > 0 ? ' AND ' . $table . '.uid NOT IN (' . implode(',', $result) . ') ' : '');
 	}
 }
 

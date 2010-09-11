@@ -112,18 +112,21 @@ class tx_templavoila_cm1_presets {
 			switch ($type) {
 				case 'TypoScriptObject':
 					// Generate selector box options:
-					// Storage Folders for elements:
-					$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-						'*',
-						'pages',
-						'storage_pid IN (' . $this->pObj->storageFolders_pidList . ')' . t3lib_BEfunc::deleteClause('pages'),
-						'',
-						'title'
-					);
 
-					$pid = 0;
-					if (false !== ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
-						$pid = $row['uid'];
+					$pid = t3lib_div::_GP('id');
+					if (!$pid) {
+						// Storage Folders for elements:
+						$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+							'*',
+							'pages',
+							'storage_pid IN (' . $this->pObj->storageFolders_pidList . ')' . t3lib_BEfunc::deleteClause('pages'),
+							'',
+							'title'
+						);
+
+						if (false !== ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
+							$pid = $row['uid'];
+						}
 					}
 
 					$output =

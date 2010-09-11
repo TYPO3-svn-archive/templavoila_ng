@@ -54,8 +54,11 @@
  *
  */
 
-	// Include TemplaVoila API:
-require_once (t3lib_extMgm::extPath('templavoila').'class.tx_templavoila_api.php');
+// Include TemplaVoila API:
+require_once(t3lib_extMgm::extPath('templavoila') . 'ext_defines.php');
+require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_api.php');
+require_once(t3lib_extMgm::extPath('templavoila') . 'classes/class.tx_templavoila_retrieval.php');
+
 
 /**
  * Class being included by TCEmain using a hook
@@ -142,7 +145,6 @@ class tx_templavoila_tcemain {
 
 		// If the references for content element changed at the current page, save that information into the reference table:
 		if ($status == 'update' && $table == 'pages' && isset ($fieldArray['tx_templavoila_flex'])) {
-
 			$this->correctSortingAndColposFieldsForPage($fieldArray['tx_templavoila_flex'], $id);
 
 			// If a new data structure has been selected, set a valid template object automatically:
@@ -157,14 +159,15 @@ class tx_templavoila_tcemain {
 				}
 
 				if (!is_null($pid)) {
-					$templaVoilaAPI = t3lib_div::makeInstance('tx_templavoila_api');
-					$templateObjectRecords = $templaVoilaAPI->ds_getAvailablePageTORecords ($pid);
+					$retObj = t3lib_div::makeInstance('tx_templavoila_retrieval');
+					$templateObjectRecords = $retObj->getAvailablePageTORecords($pid);
 
-					if (is_array ($templateObjectRecords)) {
+					if (is_array($templateObjectRecords)) {
 						foreach ($templateObjectRecords as $templateObjectRecord) {
 							if (!isset($matchingTOUid) && $templateObjectRecord['datastructure'] == $fieldArray['tx_templavoila_ds']) {
 								$matchingTOUid = $templateObjectRecord['uid'];
 							}
+
 							if (!isset($matchingNextTOUid) && $templateObjectRecord['datastructure'] == $fieldArray['tx_templavoila_next_ds']) {
 								$matchingNextTOUid = $templateObjectRecord['uid'];
 							}
@@ -174,6 +177,7 @@ class tx_templavoila_tcemain {
 						if (intval ($fieldArray['tx_templavoila_ds']) && ($fieldArray['tx_templavoila_to'] == 0)) {
 							$fieldArray['tx_templavoila_to'] = $matchingTOUid;
 						}
+
 						if (intval ($fieldArray['tx_templavoila_next_ds']) && ($fieldArray['tx_templavoila_next_to'] == 0)) {
 							$fieldArray['tx_templavoila_next_to'] = $matchingNextTOUid;
 						}
@@ -197,7 +201,7 @@ class tx_templavoila_tcemain {
 				);
 
 				$ref = null;
-				if (!t3lib_div::callUserFunction('EXT:templavoila/class.tx_templavoila_access.php:&tx_templavoila_access->recordEditAccessInternals', $params, $ref)) {
+				if (!t3lib_div::callUserFunction('EXT:templavoila/classes/class.tx_templavoila_access.php:&tx_templavoila_access->recordEditAccessInternals', $params, $ref)) {
 					$reference->newlog(sprintf($GLOBALS['LANG']->getLL($status != 'new' ? 'access_noModifyAccess' : 'access_noCrateAccess'), $table, $id), 1);
 					$fieldArray = null;
 				}
@@ -325,7 +329,7 @@ class tx_templavoila_tcemain {
 				);
 
 				$ref = null;
-				if (!t3lib_div::callUserFunction('EXT:templavoila/class.tx_templavoila_access.php:&tx_templavoila_access->recordEditAccessInternals', $params, $ref)) {
+				if (!t3lib_div::callUserFunction('EXT:templavoila/classes/class.tx_templavoila_access.php:&tx_templavoila_access->recordEditAccessInternals', $params, $ref)) {
 					$reference->newlog(sprintf($GLOBALS['LANG']->getLL($status != 'new' ? 'access_noModifyAccess' : 'access_noCrateAccess'), $table, $id), 1);
 					$command = '';	// Do not delete! A hack but there is no other way to prevent deletion...
 				} else {
@@ -580,8 +584,8 @@ class tx_templavoila_tcemain {
 }
 
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/templavoila/class.tx_templavoila_tcemain.php'])    {
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/templavoila/class.tx_templavoila_tcemain.php']);
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/templavoila/classes/class.tx_templavoila_tcemain.php'])    {
+	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/templavoila/classes/class.tx_templavoila_tcemain.php']);
 }
 
 ?>

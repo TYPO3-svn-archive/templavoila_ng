@@ -42,7 +42,12 @@
  */
 
 if (t3lib_extMgm::isLoaded('t3editor')) {
-	require_once(t3lib_extMgm::extPath('t3editor') . 'class.tx_t3editor.php');
+	/* pre 4.4 */
+	     if (file_exists(t3lib_extMgm::extPath('t3editor') . 'class.tx_t3editor.php'))
+		require_once(t3lib_extMgm::extPath('t3editor') . 'class.tx_t3editor.php');
+	/* post 4.4 */
+	else if (file_exists(t3lib_extMgm::extPath('t3editor') . 'classes/class.tx_t3editor.php'))
+		require_once(t3lib_extMgm::extPath('t3editor') . 'classes/class.tx_t3editor.php');
 }
 
 if (t3lib_extMgm::isLoaded('lorem_ipsum')) {
@@ -120,7 +125,12 @@ class tx_templavoila_cm1_config {
 		}
 
 		if (t3lib_extMgm::isLoaded('t3editor')) {
-			$this->t3e = t3lib_div::getUserObj('EXT:t3editor/class.tx_t3editor.php:&tx_t3editor');
+			/* pre 4.4 */
+			     if (file_exists(t3lib_extMgm::extPath('t3editor') . 'class.tx_t3editor.php'))
+				 $this->t3e = t3lib_div::getUserObj('EXT:t3editor/class.tx_t3editor.php:&tx_t3editor');
+			/* post 4.4 */
+			else if (file_exists(t3lib_extMgm::extPath('t3editor') . 'classes/class.tx_t3editor.php'))
+				 $this->t3e = t3lib_div::getUserObj('EXT:t3editor/classes/class.tx_t3editor.php:&tx_t3editor');
 		}
 	}
 
@@ -191,7 +201,7 @@ class tx_templavoila_cm1_config {
 							ret = ret.join(\'_\');
 
 						$(\'browser[context]\').innerHTML = label + \' <em>[pid: \' + rid + \']</em>\';
-						$(\'browser[communication]\').src = \'' . $this->baseScript . 'mode=browser&pid=\' + rid + \'&current=\' +
+						$(\'browser[communication]\').src = \'' . $this->pObj->baseScript . 'mode=browser&pid=\' + rid + \'&current=\' +
 						$(\'browser[result]\').value;
 					}
 				}

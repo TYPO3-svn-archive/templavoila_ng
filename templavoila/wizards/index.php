@@ -56,8 +56,8 @@ require_once(PATH_t3lib . 'class.t3lib_page.php');
 require_once(PATH_t3lib . 'class.t3lib_tceforms.php');
 
 // Include class which contains the constants and definitions of TV
-require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_defines.php');
-require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_api.php');
+require_once(t3lib_extMgm::extPath('templavoila') . 'ext_defines.php');
+require_once(t3lib_extMgm::extPath('templavoila') . 'classes/class.tx_templavoila_retrieval.php');
 
 /**
  * Module 'Wizard' for the 'templavoila' extension.
@@ -86,9 +86,9 @@ class tx_templavoila_wizard extends t3lib_SCbase {
 
 
 	/**
-	 * @var tx_templavoila_api
+	 * @var tx_templavoila_retrieval
 	 */
-	var $apiObj;					// Instance of tx_templavoila_api
+	var $retObj;					// Instance of tx_templavoila_retrieval
 
 	function init() {
 		parent::init();
@@ -101,9 +101,9 @@ class tx_templavoila_wizard extends t3lib_SCbase {
 			$this->wizScript = 'mod.php?M=tx_templavoila_wizards&wiz=content&';
 		}
 
-		// Initialize TemplaVoila API class:
-		$apiClassName = t3lib_div::makeInstanceClassName('tx_templavoila_api');
-		$this->apiObj = new $apiClassName ($this->altRoot ? $this->altRoot : 'pages');
+		// Initialize TemplaVoila Retrieval class:
+		$retClassName = t3lib_div::makeInstanceClassName('tx_templavoila_retrieval');
+		$this->retObj = new $retClassName();
 
 		// which wizard and where ------------------------------------------------------------
 		if (!($this->pid = intval(t3lib_div::_GP('pid')))) {
@@ -524,14 +524,14 @@ class tx_templavoila_wizard_integral extends tx_templavoila_wizard {
 			// Setting up the buttons and markers for docheader
 			$docHeaderButtons = $this->getButtons();
 			$markers = array(
-				'CSH'       => $docHeaderButtons['csh'],
-				'FUNC_MENU' => '',
-				'OPTS_MENU' => $this->getOptsMenuNoHSC(),
+				'CSH'        => $docHeaderButtons['csh'],
+				'FUNC_MENU'  => '',
+				'OPTS_MENU'  => $this->getOptsMenuNoHSC(),
 
-				'CONTENT'   => $this->content,
+				'CONTENT'    => $this->content,
 
-				'PAGEPATH'  => $this->getPagePath($this->pageinfo),
-				'PAGEINFO'  => $this->getPageInfo($this->pageinfo)
+				'PAGEMPATH'  => $this->getPagePath($this->pageinfo),
+				'PAGEMINFO'  => $this->getPageInfo($this->pageinfo)
 			);
 
 			// Build the <body> for the module

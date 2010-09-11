@@ -85,7 +85,6 @@
  * 1292:     function ds_getFieldNameByColumnPosition ($contextPageUid, $columnPosition)
  * 1350:     function ds_getColumnPositionByFieldName ($contextPageUid, $fieldName)
  * 1381:     function ds_getExpandedDataStructure ($table, $row)
- * 1418:     function ds_getAvailablePageTORecords ($pageUid)
  *
  *              SECTION: Get content structure of page
  * 1461:     function getContentTree($table, $row, $includePreviewData=TRUE)
@@ -103,7 +102,6 @@
  *              SECTION: Miscellaneous functions (protected)
  * 1864:     function setTCEmainRunningFlag ($flag)
  * 1876:     function getTCEmainRunningFlag ()
- * 1887:     function getStorageFolderPid($pageUid)
  * 1905:     function loadWebsiteLanguages()
  *
  * TOTAL FUNCTIONS: 50
@@ -115,7 +113,7 @@ require_once(PATH_t3lib . 'class.t3lib_loaddbgroup.php');
 require_once(PATH_t3lib . 'class.t3lib_tcemain.php');
 
 // Include class which contains the constants and definitions of TV
-require_once(t3lib_extMgm::extPath('templavoila') . 'class.tx_templavoila_defines.php');
+require_once(t3lib_extMgm::extPath('templavoila') . 'ext_defines.php');
 
 /**
  * Public API class for proper handling of content elements and other useful TemplaVoila related functions
@@ -1466,43 +1464,6 @@ class tx_templavoila_api {
 		return $expandedDataStructureArr;
 	}
 
-	/**
-	 * Returns an array of available Page Template Object records from the scope of the given page.
-	 *
-	 * Note: All TO records which are found in the selected storage folder will be returned, no matter
-	 *       if they match the currently selected data structure for the given page.
-	 *
-	 * @param	integer		$pageUid: (current) page uid, used for finding the correct storage folder
-	 * @return	mixed		Array of Template Object records or FALSE if an error occurred.
-	 * @access public
-	 */
-	function ds_getAvailablePageTORecords($pageUid) {
-		$storageFolderPID = $this->getStorageFolderPid($pageUid);
-
-		$tTO = 'tx_templavoila_tmplobj';
-		$tDS = 'tx_templavoila_datastructure';
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-			"$tTO.*",
-			"$tTO LEFT JOIN $tDS ON $tTO.datastructure = $tDS.uid",
-			"$tTO.pid IN (" . $storageFolderPID . ")" .
-			" AND $tDS.scope = " . TVDS_SCOPE_PAGE .
-				t3lib_befunc::deleteClause($tTO) .
-				t3lib_befunc::deleteClause($tDS) .
-				t3lib_BEfunc::versioningPlaceholderClause($tTO) .
-				t3lib_BEfunc::versioningPlaceholderClause($tDS)
-		);
-
-		if (!$res)
-			return FALSE;
-
-		$templateObjectRecords = array();
-		while (false != ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))) {
-			$templateObjectRecords[$row['uid']] = $row;
-		}
-
-		return $templateObjectRecords;
-	}
-
 
 
 
@@ -1989,40 +1950,6 @@ class tx_templavoila_api {
 	 */
 	function getTCEmainRunningFlag () {
 		return $GLOBALS ['TYPO3_CONF_VARS']['SC_OPTIONS']['tx_templavoila_api']['apiIsRunningTCEmain'] ? TRUE : FALSE;
-	}
-
-	/**
-	 * Returns the page uid of the selected storage folder from the context of the given page uid.
-	 *
-	 * @param	integer		$pageUid: Context page uid
-	 * @return	integer		PID(s) of the storage folder
-	 * @access public
-	 */
-	function getStorageFolderPid($pageUid)	{
-
-		// Negative PID values is pointing to a page on the same level as the current.
-		if ($pageUid < 0) {
-			$pidRow = t3lib_BEfunc::getRecordWSOL('pages', abs($pageUid), 'pid');
-			$pageUid = $pidRow['pid'];
-		}
-
-		// Check for alternative storage folder
-		$modTSConfig = t3lib_BEfunc::getModTSconfig($pageUid, 'tx_templavoila.storagePid');
-		if (is_array($modTSConfig) && t3lib_div::testInt($modTSConfig['value'])) {
-			$storagePid = intval($modTSConfig['value']);
-		} else {
-			$storagePid = array();
-
-			do {
-				$row = t3lib_BEfunc::getRecordWSOL('pages', $pageUid);
-				$TSconfig = t3lib_BEfunc::getTCEFORM_TSconfig('pages', $row);
-				$storagePid[] = intval($TSconfig['_STORAGE_PID']);
-			} while(($pageUid = $row['pid']));
-
-			$storagePid = implode(',', array_unique($storagePid));
-		}
-
-		return $storagePid;
 	}
 
 	/**
