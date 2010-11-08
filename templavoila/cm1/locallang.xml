@@ -306,7 +306,7 @@
 
 			<label index="mappingTitle">Vorlage-Assoziierung</label>
 			<label index="mappingInfoParts">Vorlage-Objekt Details</label>
-			<label index="mappingHeadParts">Adding parts from HTML header</label>
+			<label index="mappingHeadParts">Übernahme von Teilen des HTML-Kopfs</label>
 			<label index="mappingBodyParts">Datenstruktur die mit der HTML-Vorlage assoziiert werden soll</label>
 			<label index="mappingPreview">Datenstruktur die mit der HTML-Vorlage assoziiert wurde</label>
 			<label index="mappingFound">Inhalt gefunden (nach %d Zeichen)</label>
@@ -355,10 +355,10 @@
 			<label index="actionRemap"  >Re-Assoz.</label>	               	<label index="actiontitleRemap"  >Map this DS element to another HTML element in template file.</label>
 			<label index="actionChange" >Modus änd.</label>		       	<label index="actiontitleChange" >Change mapping mode, eg. from INNER to OUTER etc.</label>
 
-			<label index="msgDSTOSaved">Data Structure (UID %s) and Template Record (UID %s) was saved in PID %s</label>
-			<label index="msgDSTOUpdated">Data Structure (UID %s) and Template Record (UID %s) was updated</label>
-			<label index="msgMappingDiff">Mapping information has been changed, don't forget to save.</label>
-			<label index="msgMappingSaved">Mapping information was saved to the current Template Object!</label>
+			<label index="msgDSTOSaved">Daten Struktur (UID %s) und Vorlage Eintrag (UID %s) wurden in PID %s gespeichert</label>
+			<label index="msgDSTOUpdated">Daten Struktur (UID %s) und Vorlage Eintrag (UID %s) wurden erneuert</label>
+			<label index="msgMappingDiff">Assoziationen wurde verändert, speichern nicht vergessen.</label>
+			<label index="msgMappingSaved">Assoziationen wurde im aktuellen Vorlage-Objekt gespeichert!</label>
 
 			<label index="error">Fehler</label>
 			<label index="errorNoStorageFolder">No accessible Storage Folder found - please create one immediately!</label>

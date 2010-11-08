@@ -184,10 +184,6 @@ dl.DS-config textarea.ts {
 	font-family: monospace;
 }
 
-dl.DS-config .t3e_linenum dt {
-	margin: 0;
-}
-
 /* stylesheet.css (line 962) */
 optgroup,
 optgroup option {
@@ -231,9 +227,13 @@ tr.tv-edit-row div.tv-ts-tree {
 }
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-div.t3e_wrap {
+/* div.t3e_wrap {
 	width: 100% !important;
 	height: 200px !important;
+}
+
+dl.DS-config .t3e_linenum dt {
+	margin: 0;
 }
 
 div.t3e_wrap dl.t3e_linenum dt {
@@ -252,4 +252,4 @@ div.t3e_wrap div.t3e_linenum_wrap dt {
 div.t3e_wrap div.t3e_iframe_wrap iframe {
 	width: 100% !important;
 	height: 200px !important;
-}
+} */

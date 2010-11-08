@@ -277,7 +277,7 @@ class tx_templavoila_mod1_iconlinks {
 		if (in_array('collapse', $this->blindIcons))
 			return'';
 
-		$collapseIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/ol/minusonly.gif', 'width="11" height="12"') . ' alt="" class="absmiddle" />';
+		$collapseIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/ol/minusonly.gif', 'width="11" height="12"') . ' class="absmiddle" alt="" />';
 
 		return $collapseIcon;
 	}
@@ -292,7 +292,7 @@ class tx_templavoila_mod1_iconlinks {
 		if (in_array('container', $this->blindIcons))
 			return'';
 
-		$containerIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/i/tt_content.gif', 'width="11" height="12"') . ' title="Container for content elements" class="absmiddle" />';
+		$containerIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/i/tt_content.gif', 'width="11" height="12"') . ' title="Container for content elements" class="absmiddle" alt="" />';
 
 		return $containerIcon;
 	}
@@ -308,7 +308,7 @@ class tx_templavoila_mod1_iconlinks {
 		if (in_array('record', $this->blindIcons))
 			return'';
 
-		$recordIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, $el['icon'], 'width="18" height="16"') . ' border="0" title="' . htmlspecialchars('[' . $el['table'] . ':' . $el['uid'] . ']') . '" alt="" />';
+		$recordIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, $el['icon'], 'width="18" height="16"') . ' title="' . htmlspecialchars('[' . $el['table'] . ':' . $el['uid'] . ']') . '" class="absmiddle" alt="" />';
 
 		return $recordIcon;
 	}
@@ -428,9 +428,9 @@ class tx_templavoila_mod1_iconlinks {
 			return'';
 
 		if (!$unlinkPointer['position'])
-			$unlinkIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'res/link_delete.png', '') . ' title="' . $GLOBALS['LANG']->getLL('unlinkRecordsAll') . '" border="0" alt="" />';
+			$unlinkIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'res/link_delete.png', '') . ' title="' . $GLOBALS['LANG']->getLL('unlinkRecordsAll') . '" class="absmiddle" alt="" />';
 		else
-			$unlinkIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'res/link_delete.png', '') . ' title="' . $GLOBALS['LANG']->getLL('unlinkRecord'    ) . '" border="0" alt="" />';
+			$unlinkIcon = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, t3lib_extMgm::extRelPath('templavoila') . 'res/link_delete.png', '') . ' title="' . $GLOBALS['LANG']->getLL('unlinkRecord'    ) . '" class="absmiddle" alt="" />';
 
 		return $this->link_unlink($unlinkIcon, $unlinkPointer);
 	}
@@ -471,17 +471,32 @@ class tx_templavoila_mod1_iconlinks {
 	 * @return	string		image inside a HTML anchor tag containing the label and the correct link
 	 * @access protected
 	 */
-	function icon_edit(&$el) {
+	function icon_edit(&$el, $link = TRUE) {
 		if (in_array('edit', $this->blindIcons))
 			return'';
 
 		$editIcon = ($el['table'] == 'pages'
-		?	'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/edit2.gif', '') . ' border="0" title="' . htmlspecialchars($GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:editPage')) . '" alt="" />'
-		:	'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/edit2.gif', '') . ' border="0" title="' . htmlspecialchars($GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:edit'    )) . '" alt="" />');
+		?	'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/edit2.gif', '') . ' title="' . htmlspecialchars($GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:editPage')) . '" class="absmiddle" alt="" />'
+		:	'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/edit2.gif', '') . ' title="' . htmlspecialchars($GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:edit'    )) . '" class="absmiddle" alt="" />');
 
 		$label = $editIcon;
 
-		return $this->link_edit($label, $el['table'], $el['uid']);
+		if ($link)
+			return $this->link_edit($label, $el['table'], $el['uid']);
+		else
+			return                  $label;
+	}
+	
+	function icon_editflex() {
+		if (in_array('edit', $this->blindIcons))
+			return'';
+
+		$editIcon = 
+			'<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/edit2.gif', '') . ' title="' . $GLOBALS['LANG']->getLL('editrecord') . '" class="absmiddle" alt="" />';
+
+		$label = $editIcon;
+
+		return $label;
 	}
 
 	/**

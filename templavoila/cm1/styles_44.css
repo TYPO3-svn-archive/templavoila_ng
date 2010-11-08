@@ -4,6 +4,10 @@ a.typo3-csh-link  {
 	vertical-align: 2px;
 }
 
+table + .typo3-message {
+	margin-top: 10px;
+}
+
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 table.typo3-tvlist thead a.typo3-csh-link {
 	float: none;

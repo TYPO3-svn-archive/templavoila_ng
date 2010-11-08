@@ -163,22 +163,36 @@ class tx_templavoila_cm1_config {
 	function getJavascriptCode() {
 		$code = '';
 
-		if (t3lib_extMgm::isLoaded('t3editor')) {
+		if ($this->t3e) {      
+		//	if (is_callable($this->t3e->setMode))
+				$this->t3e->setMode(tx_t3editor::MODE_TYPOSCRIPT);
+
 			$code .= $this->t3e->getJavascriptCode($this->doc);
 			$code .= $this->doc->wrapScriptTags('
 				/* overwrite ajax-hadling, we dont need it */
 				T3editor.prototype.saveFunction = function(event) {
-					if (t3e_instances[0])
-						t3e_instances[0].textarea.value = t3e_instances[0].mirror.editor.getCode();
+					if (typeof event == "T3editor")
+						event.textarea.value = event.mirror.editor.getCode();
+					else
+						this.textarea.value = this.mirror.editor.getCode();
 				};
-
+                        
 				// callback if ajax saving was successful
 				T3editor.prototype.saveFunctionComplete = function(ajaxrequest) {
 				};
-
+                        
 				Event.observe(window, \'load\', function(){
-					if (t3e_instances[0])
-						Event.observe(\'tv-form\', \'submit\', t3e_instances[0].saveFunction);
+					if (typeof t3e_instances != "undefined")
+						Event.observe(\'tv-form\', \'submit\', function() {
+							for (var t = 0; t < t3e_instances.length; t++)
+								t3e_instances[t].saveFunction(t3e_instances[t]);
+						});
+					if (typeof T3editor.instances != "undefined")
+						Event.observe(\'tv-form\', \'submit\', function() {
+							T3editor.instances[i].saveFunction
+							for (var t = 0; t < T3editor.instances.length; t++)
+								T3editor.instances[t].saveFunction(T3editor.instances[t]);
+						});
 				});
 			');
 		}
@@ -198,7 +212,7 @@ class tx_templavoila_cm1_config {
 					if (value) {
 						var ret = value.split(\'_\');
 						var rid = ret.pop();
-							ret = ret.join(\'_\');
+						    ret = ret.join(\'_\');
 
 						$(\'browser[context]\').innerHTML = label + \' <em>[pid: \' + rid + \']</em>\';
 						$(\'browser[communication]\').src = \'' . $this->pObj->baseScript . 'mode=browser&pid=\' + rid + \'&current=\' +
@@ -450,16 +464,20 @@ class tx_templavoila_cm1_config {
 					rel="tx_templavoila.TypoScript">' .
 					htmlspecialchars($insertDataArray['tx_templavoila']['TypoScript']) . '
 				</textarea>' :
-				str_replace('<br/>', '', $this->t3e->getCodeEditor(
+				str_replace('<br/>', '', 
+				str_replace('<br />', '', 
+				str_replace('type="checkbox"', 'type="checkbox" checked="checked"', 
+				$this->t3e->getCodeEditor(
 					$formFieldName . '[tx_templavoila][TypoScript]',
 					'fixed-font enable-tab ts',
 					htmlspecialchars($insertDataArray['tx_templavoila']['TypoScript']),
 					'cols="' . $this->textareaCols . '"
 					rows="10"
-					rel="tx_templavoila.TypoScript"
-					id="dsel-t3editor"'))) . '
+					rel="tx_templavoila.TypoScript"',
+					'TypoScript'))))) . '
 			</dd>
 		</dl>';
+			//		id="dsel-t3editor"
 
 		return $form;
 	}
@@ -519,8 +537,29 @@ class tx_templavoila_cm1_config {
 			</dd>
 
 			<dt><label>' . $GLOBALS['LANG']->getLL('structureFormStdWrap') . ':</label></dt>
-			<dd><textarea class="fixed-font enable-tab ts" cols="' . $this->textareaCols . '" rows="10" name="' . $formFieldName . '[tx_templavoila][proc][stdWrap]" rel="tx_templavoila.proc.stdWrap">' . htmlspecialchars($insertDataArray['tx_templavoila']['proc']['stdWrap']) . '</textarea></dd>
+			<dd' . (!$this->t3e ? '
+				<textarea
+					class="fixed-font enable-tab ts"
+					cols="' . $this->textareaCols . '"
+					rows="10"
+					name="' . $formFieldName . '[tx_templavoila][proc][stdWrap]"
+					rel="tx_templavoila.proc.stdWrap">' .
+					htmlspecialchars($insertDataArray['tx_templavoila']['proc']['stdWrap']) . '
+				</textarea>' :
+				str_replace('<br/>', '', 
+				str_replace('<br />', '', 
+				str_replace('type="checkbox"', 'type="checkbox" checked="checked"', 
+				$this->t3e->getCodeEditor(
+					$formFieldName . '[tx_templavoila][proc][stdWrap]',
+					'fixed-font enable-tab ts',
+					htmlspecialchars($insertDataArray['tx_templavoila']['proc']['stdWrap']),
+					'cols="' . $this->textareaCols . '"
+					rows="10"
+					rel="tx_templavoila.proc.stdWrap"',
+					'stdWrap'))))) . '
+			</dd>
 		</dl>';
+			//		id="dsel-t3editor"
 
 		return $form;
 	}
@@ -537,7 +576,7 @@ class tx_templavoila_cm1_config {
 		$form = '
 		<dl id="dsel-proc" class="DS-config">
 			<dt><label>' . $GLOBALS['LANG']->getLL('structureFormStdWrap') . ':</label></dt>
-			<dd>' . /*(!$this->t3e ?*/ '
+			<dd>' . (!$this->t3e ? '
 				<textarea
 					class="fixed-font enable-tab ts"
 					cols="' . $this->textareaCols . '"
@@ -545,17 +584,21 @@ class tx_templavoila_cm1_config {
 					name="' . $formFieldName . '[tx_templavoila][proc][stdWrap]"
 					rel="tx_templavoila.proc.stdWrap">' .
 					htmlspecialchars($insertDataArray['tx_templavoila']['proc']['stdWrap']) . '
-				</textarea>' /*:
-				str_replace('<br/>', '', $this->t3e->getCodeEditor(
+				</textarea>' :
+				str_replace('<br/>', '', 
+				str_replace('<br />', '', 
+				str_replace('type="checkbox"', 'type="checkbox" checked="checked"', 
+				$this->t3e->getCodeEditor(
 					$formFieldName . '[tx_templavoila][proc][stdWrap]',
 					'fixed-font enable-tab ts',
 					htmlspecialchars($insertDataArray['tx_templavoila']['proc']['stdWrap']),
 					'cols="' . $this->textareaCols . '"
 					rows="10"
-					rel="tx_templavoila.TypoScript"
-					id="dsel-t3editor"')))*/ . '
+					rel="tx_templavoila.proc.stdWrap"',
+					'stdWrap'))))) . '
 			</dd>
 		</dl>';
+			//		id="dsel-t3editor"
 
 		return $form;
 	}

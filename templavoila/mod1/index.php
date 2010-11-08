@@ -1085,7 +1085,11 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 		// Finally assemble the table:
 		$finalContent = '
-			<table cellpadding="0" cellspacing="0" width="100%" class="tv-coe' . ($contentTreeArr['el']['isHidden'] ? ' tv-hidden' : '') . '">
+			<table width="100%" cellpadding="1" cellspacing="1" class="tv-coe' .
+				($contentTreeArr['el']['isHidden'] 
+					? ' tv-hidden' 
+					: ''
+				) . '">
 			<caption class="' . $contentTreeArr['el']['table'] . '">' .
 				($contentTreeArr['el']['table'] == 'pages'
 					? $GLOBALS['LANG']->getLL('page_layout')
@@ -1093,9 +1097,9 @@ table.typo3-dyntabmenu td.disabled:hover {
 				) . '
 			</caption>
 			<thead class="' . $contentTreeArr['el']['table'] . '">
-				<tr style="' . $elementTitlebarStyle . ';" class="sortableHandle">
+				<tr style="' . $elementTitlebarStyle . ';" class="sortableHandle t3-row-header c-headLineTable">
 					<th>
-						<div style="float:  left;" class="nobrs">' .
+						<div style="float: left; margin-left: 0.5em;" class="nobrs">' .
 							$languageIcon .
 							$titleBarLeftButtons .
 							($elementBelongsToCurrentPage ? '' : '<em>') .
@@ -1281,7 +1285,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 
 					if ($outbuf != '') $output .= '
 						<div class="tv-coe">
-							<h2>' . $previews[$groupID]['title'] . '</h2>' .
+							<h2 style="margin-left: 0.125em;">' . $previews[$groupID]['title'] . '</h2>' .
 							$outbuf . '
 						</div>';
 				}
@@ -1343,7 +1347,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 									($fieldData['inheritance'] ? '
 									<label>
 										<span>' . $GLOBALS['LANG']->getLL('jamming') . '</span>
-										<input type="checkbox" ' . ($fieldData['isJammed'] ? 'checked="checked" ' : '') . $this->cbox_jammswitch($groupElementPointer) . ' />
+										<input class="checkbox" type="checkbox" ' . ($fieldData['isJammed'] ? 'checked="checked" ' : '') . $this->icoObj->cbox_jammswitch($groupElementPointer) . ' />
 									</label>
 									' : '') .
 									$this->icoObj->icon_unlink($groupElementPointer) . '
@@ -1574,7 +1578,8 @@ table.typo3-dyntabmenu td.disabled:hover {
 			// Consider multi-language fields
 			$vGet = ($fieldData['multilang'] ? 'vALL' : $vKey);
 
-			$edit2 = '<img' . t3lib_iconWorks::skinImg($this->doc->backPath, 'gfx/edit2.gif', '') . ' title="' . $GLOBALS['LANG']->getLL('editrecord') . '" border="0" alt="" />';
+			$edit2 = $this->icoObj->icon_editflex();
+			
 			$table = $elementContentTreeArr['el']['table'];
 			$uid   = $elementContentTreeArr['previewData']['fullRow']['uid'];
 
@@ -2444,7 +2449,7 @@ table.typo3-dyntabmenu td.disabled:hover {
 							// Put together the records icon including content sensitive menu link wrapped around it:
 							$recordIcon_l10n =
 								$this->getRecordStatHookValue('tt_content', $olrow['uid']) .
-								t3lib_iconWorks::getIconImage('tt_content', $olrow,$this->doc->backPath, 'class="absmiddle" title="' . htmlspecialchars('[tt_content:' . $olrow['uid'] . ']') . '"');
+								t3lib_iconWorks::getIconImage('tt_content', $olrow, $this->doc->backPath, 'class="absmiddle" title="' . htmlspecialchars('[tt_content:' . $olrow['uid'] . ']') . '"');
 
 							if (!$this->translatorMode) {
 								$recordIcon_l10n = $this->doc->wrapClickMenuOnIcon($recordIcon_l10n, 'tt_content', $olrow['uid'], 1, '&amp;callingScriptId=' . rawurlencode($this->doc->scriptID), 'new,copy,cut,pasteinto,pasteafter');

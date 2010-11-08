@@ -74,12 +74,15 @@ class tx_templavoila_pi1 extends tslib_pibase {
 	var $extKey = 'templavoila';    				// The extension key.
 
 	var $overlayValueFromDefault = 1;				// If set, children-translations will take the value from the default if "false" (zero or blank)
+	var $visualMarkers = false;
+	var $visualPointer = array();
 
 	/**
 	 * Markup object
 	 *
 	 * @var tx_templavoila_htmlmarkup
 	 */
+	var $apiObj;
 	var $markupObj;
 
 	/**
@@ -260,7 +263,8 @@ class tx_templavoila_pi1 extends tslib_pibase {
 
 		// First prepare user defined objects (if any) for hooks which extend this function:
 		$hookObjectsArr = array();
-
+		
+		// Hook: retrieval
 		if (is_array($TYPO3_CONF_VARS['EXTCONF']['templavoila']['pi1']['renderElementClass'])) {
 			foreach ($TYPO3_CONF_VARS['EXTCONF']['templavoila']['pi1']['renderElementClass'] as $classRef) {
 				$hookObjectsArr[] = &t3lib_div::getUserObj($classRef);
@@ -286,12 +290,11 @@ class tx_templavoila_pi1 extends tslib_pibase {
 			');
 
 		// Sheet Selector:
+		$renderSheet = 'sDEF';
 		if ($DS['meta']['sheetSelector']) {
 			// <meta><sheetSelector> could be something like "EXT:user_extension/class.user_extension_selectsheet.php:&amp;user_extension_selectsheet"
 			$sheetSelector = &t3lib_div::getUserObj($DS['meta']['sheetSelector']);
 			$renderSheet = $sheetSelector->selectSheet();
-		} else {
-			$renderSheet = 'sDEF';
 		}
 
 		// Initialize:
@@ -314,7 +317,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 
 		// Apply data inheritance:
 		if ($table == 'pages')
-			$dataValues = $this->mergeDataValues($srcPointer, $sheet, $lKey, $DS);
+			$dataValues = $this->mergeDataValues($row['tx_templavoila_ds'], $sheet, $lKey, $DS);
 
 		// Init mark up object.
 		$this->markupObj = t3lib_div::makeInstance('tx_templavoila_htmlmarkup');
@@ -371,6 +374,27 @@ class tx_templavoila_pi1 extends tslib_pibase {
 			}
 		}
 
+		// prepare the feediting-markup
+		if (t3lib_extMgm::isLoaded('feeditadvanced')) {
+			if (is_object($GLOBALS['BE_USER']) && $GLOBALS['BE_USER']->isFrontendEditingActive()) {
+				$this->visualMarkers = true;
+				
+				// Create flexform pointer pointing to "before the first sub element":
+				$this->visualPointer = array(
+					'table' => $table,
+					'uid'   => $row['uid'],
+					'sheet' => $renderSheet,
+					'sLang' => $lKey,
+					'field' => '',
+					'vLang' => $vGet
+				);
+
+				// Initialize TemplaVoila API class:
+				$apiClassName = t3lib_div::makeInstanceClassName('tx_templavoila_api');
+				$this->apiObj = new $apiClassName($table);
+			}
+		}
+
 		// Processing the data array:
 		if ($GLOBALS['TT']->LR) $GLOBALS['TT']->push('Processing data');
 			$TOlocalProc = $singleSheet ? $TOproc['ROOT']['el'] : $TOproc['sheets'][$sheet]['ROOT']['el'];
@@ -409,8 +433,11 @@ class tx_templavoila_pi1 extends tslib_pibase {
 		$content = $this->pi_getEditIcon($content, 'tx_templavoila_flex', 'Edit element', $row, $table, $eIconf);
 
 		// Visual identification aids:
-		if ($GLOBALS['TSFE']->fePreview && $GLOBALS['TSFE']->beUserLogin && !$GLOBALS['TSFE']->workspacePreview && !$this->conf['disableExplosivePreview']) {
-			$content = $this->visualID($content, $srcPointer, $DSrec, $TOrec, $row, $table);
+		if ($GLOBALS['TSFE']->fePreview && 
+		    $GLOBALS['TSFE']->beUserLogin && 
+		   !$GLOBALS['TSFE']->workspacePreview && 
+		   !$this->conf['disableExplosivePreview']) {
+			$content = $this->visualID($content, $row['tx_templavoila_ds'], $DSrec, $TOrec, $row, $table);
 		}
 
 		return $content;
@@ -435,6 +462,13 @@ class tx_templavoila_pi1 extends tslib_pibase {
 		$DVarray = array(0 => array());	//		$DV['data'][$sheet][$lKey];
 		$DSroot = $DS['ROOT']['el'];	//		$DS['ROOT']['el'];
 
+//		echo '<h1>rootLine</h1>';
+//		echo '<pre>'; print_r($rootLine); echo '</pre>';
+//		echo '<h1>pageRecord</h1>';
+//		echo '<pre>'; print_r($pageRecord); echo '</pre>';
+//		echo '<h1>srcPointer</h1>';
+//		echo '<pre>'; print_r($srcPointer); echo '</pre>';
+		
 		// Prepare inheritance resolution (top-down, not bottom-up)
 		$I = -1;
 		foreach ($rootLine as $pRec) {
@@ -463,8 +497,8 @@ class tx_templavoila_pi1 extends tslib_pibase {
 				break;
 		}
 
-	//	echo '<h1>DVarray before</h1>';
-	//	echo '<pre>'; print_r($DVarray); echo '</pre>';
+//		echo '<h1>DVarray before</h1>';
+//		echo '<pre>'; print_r($DVarray); echo '</pre>';
 
 		if (count($DVarray) > 1) {
 			/* array holding a boolean map to indicate which part of the rootline the inheritance covers */
@@ -804,10 +838,9 @@ class tx_templavoila_pi1 extends tslib_pibase {
 			// Check if information about parent record should be set. Note: we do not push/pop registers here because it may break LOAD_REGISTER/RESTORE_REGISTER data transfer between FCEs!
 			$sameParent = false;
 			$savedParentInfo = array();
+			
 			if (is_array($this->cObj->data)) {
-
-				$tArray = $this->cObj->data;
-				ksort($tArray);
+				$tArray = $this->cObj->data; ksort($tArray);
 				$checksum = md5(serialize($tArray));
 
 				if (isset($GLOBALS['TSFE']->register['tx_templavoila_pi1.parentRec.__SERIAL'])) {
@@ -883,7 +916,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 
 			// Create local processing information array:
 			$LP = array();
-			foreach ($DSelements as $key => $dsConf) {
+			foreach ($DSelements as $key => $DSconf) {
 				// For all non-sections:
 				if (($DSelements[$key]['type'] != 'array') ||
 				    ($DSelements[$key]['section'] != 1)) {
@@ -928,7 +961,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 			$cObj->start($dataRecord, '_NO_TABLE');
 
 			// For each DS element:
-			foreach ($DSelements as $key => $dsConf) {
+			foreach ($DSelements as $key => $DSconf) {
 				// Array/Section:
 				if ($DSelements[$key]['type'] == 'array') {
 					/* no DS-childs: bail out
@@ -998,6 +1031,9 @@ class tx_templavoila_pi1 extends tslib_pibase {
 						}
 					}
 				} else {
+					// backup for visual markers
+					$dataOrg = $dataValues[$key][$valueKey];
+					
 					// Consider multi-language fields
 					$valueGet = ($LP[$key]['multilang'] ? 'vALL' : $valueKey);
 
@@ -1104,6 +1140,97 @@ class tx_templavoila_pi1 extends tslib_pibase {
 							$dataValues[$key][$valueKey] = $cObj->stdWrap($dataValues[$key][$valueKey], $tsparserObj->setup);
 						}
 					}
+					
+					if ($this->visualMarkers &&
+					    ($DSelements[$key]['type'] != 'attr') && 
+					    ($LP[$key]['eType'] == 'ce')) {
+
+						// Create flexform pointer pointing to "before the first sub element":
+						$visualField = $this->visualPointer['field'] = $xpath;
+                                	
+						/* id-strings must not contain double-colons because of the selectors-api */
+						$visualId = tvID_to_jsID($this->apiObj->flexform_getStringFromPointer($this->visualPointer));
+					//	$visualRel = tvID_to_jsID('tt_content' . SEPARATOR_PARMS . $subElementArr['el']['uid']);
+						
+						// Add some content to identify the container at the very beginning
+						$dataValues[$key][$valueKey] = 
+							'<div   class="feEditAdvanced-firstWrapper"
+								   id="feEditAdvanced-firstWrapper-field-' . $visualField . '-pages-' . $GLOBALS['TSFE']->id . '"></div>' .
+							$dataValues[$key][$valueKey] . 
+							'<input class="feEditAdvanced-flexformPointers"
+								type="hidden"
+								title="' . $visualId . '"
+								value="' . $dataOrg . '" />';
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Performing post-processing of the data array.
+	 * This will transform the data in the data array according to various rules before the data is merged with the template HTML
+	 * Notice that $dataValues is changed internally as a reference so the function returns no content but internally changes the passed variable for $dataValues.
+	 *
+	 * @param	array		The data values from the XML file (converted to array). Passed by reference.
+	 * @param	array		The data structure definition which the data in the dataValues array reflects.
+	 * @param	array		The local XML processing information found in associated Template Objects (TO)
+	 * @param	string		Value key
+	 * @return	void
+	 */
+	function renderDataValues(&$dataValues, $localValues, $DSelements, $valueKey = 'vDEF') {
+		if (is_array($DSelements)) {
+			$this->renderValues_traverse($dataValues, $localValues, $DSelements, $valueKey);
+		}
+	}
+
+	/**
+	 * Performing post-processing of the data array.
+	 * This will transform the data in the data array according to various rules before the data is merged with the template HTML
+	 * Notice that $dataValues is changed internally as a reference so the function returns no content but internally changes the passed variable for $dataValues.
+	 *
+	 * @param	array		The data values from the XML file (converted to array). Passed by reference.
+	 * @param	array		The data structure definition which the data in the dataValues array reflects.
+	 * @param	array		The local XML processing information found in associated Template Objects (TO)
+	 * @param	string		Value key
+	 * @param	[type]		$xpath: ...
+	 * @return	void
+	 */
+	function renderDataValues_traverse(&$dataValues, $localDataValues, $DSelements, $valueKey = 'vDEF', $xpath = '') {
+		if (is_array($DSelements)) {
+
+			// For each DS element:
+			foreach ($DSelements as $key => $DSconf) {
+				// Array/Section:
+				if ($DSelements[$key]['type'] == 'array') {
+					/* no DS-childs: bail out
+					 * no EL-childs: progress (they may all be TypoScript elements without visual representation)
+					 */
+					if (is_array($DSelements[$key]['el'])/* &&
+					    is_array($TOelements[$key]['el'])*/) {
+						if (!isset($dataValues[$key]['el']))
+							$dataValues[$key]['el'] = array();
+
+						// Go into section
+						if ($DSelements[$key]['section']) {
+							foreach ($dataValues[$key]['el'] as $ik => $el) {
+								if (is_array($el)) {
+									$this->renderDataValues_traverse($dataValues[$key]['el'][$ik], $localDataValues[$key]['el'][$ik], $DSelements[$key]['el'], $valueKey, $xpath . $key . SEPARATOR_XPATH . 'el' . SEPARATOR_XPATH);
+								}
+							}
+						} else {
+							$this->renderDataValues_traverse($dataValues[$key]['el'], $localDataValues[$key]['el'], $DSelements[$key]['el'], $valueKey, $xpath . $key . SEPARATOR_XPATH . 'el' . SEPARATOR_XPATH);
+						}
+					}
+				} else {
+					// Create flexform pointer pointing to "before the first sub element":
+					$this->visualPointer['field'] = $xpath;
+
+					/* id-strings must not contain double-colons because of the selectors-api */
+					$cellId = tvID_to_jsID($this->apiObj->flexform_getStringFromPointer($this->visualPointer));
+				//	$cellRel = tvID_to_jsID('tt_content' . SEPARATOR_PARMS . $subElementArr['el']['uid']);
+					
+					renderElement_postProcessDataValue($DSelements[$key], $dataValues[$key][$valueKey], $localDataValues[$key][$valueKey], $groupElementPointer);
 				}
 			}
 		}
@@ -1237,7 +1364,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 		$tRows[] = '
 			<tr>
 				<td valign="top"><strong>Template Object:</strong></td>
-				<td>'.htmlspecialchars(t3lib_div::fixed_lgd_cs($TOrec['title'], 30)) . ' <em>[UID:' . $TOrec['uid'] . ']</em>' .
+				<td>' . htmlspecialchars(t3lib_div::fixed_lgd_cs($TOrec['title'], 30)) . ' <em>[UID:' . $TOrec['uid'] . ']</em>' .
 					($TOrec['previewicon'] ? '<br/><img src="uploads/tx_templavoila/' . $TOrec['previewicon'] . '" alt="" />' : '').
 					'</td>
 			</tr>';
@@ -1273,12 +1400,12 @@ class tx_templavoila_pi1 extends tslib_pibase {
 
 		// Compile information table:
 		$infoArray = '
-			<table style="border:1px solid black; background-color: #D9D5C9; font-family: verdana,arial; font-size: 10px;" border="0" cellspacing="1" cellpadding="1">
+			<table style="border: 1px solid black; background-color: #D9D5C9; font-family: verdana,arial; font-size: 10px;" border="0" cellspacing="1" cellpadding="1">
 				' . implode('', $tRows) . '
 			</table>';
 
 		// Compile information:
-		$id = 'templavoila-preview-'.t3lib_div::shortMD5(microtime());
+		$id = 'templavoila-preview-' . t3lib_div::shortMD5(microtime());
 		$content = '
 			<div style="text-align: left; position: absolute; display: none; filter: alpha(Opacity=90);" id="' . $id . '">
 				' . $infoArray . '
@@ -1299,7 +1426,7 @@ class tx_templavoila_pi1 extends tslib_pibase {
 	}
 }
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/templavoila/pi1/class.tx_templavoila_pi1.php'])    {
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/templavoila/pi1/class.tx_templavoila_pi1.php']) {
     include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/templavoila/pi1/class.tx_templavoila_pi1.php']);
 }
 ?>

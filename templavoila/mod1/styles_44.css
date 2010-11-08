@@ -1,1 +1,23 @@
 @import url("styles.css");
+
+.t3-row-header a {
+	float: none;
+}
+
+.t3-row-header img.absmiddle {
+	vertical-align: -4px;
+}
+
+.t3-row-header .sortableButtons img.absmiddle {
+	vertical-align: 0;
+}
+
+.extraOptions input.checkbox, 
+.extraOptions input.checkbox:hover {
+	margin: 0;
+	vertical-align: -2px;
+}
+
+div.typo3-clipCtrl {
+	background: #999999;
+}

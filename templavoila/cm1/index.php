@@ -2102,7 +2102,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 
 							// Link to updating DS/TO:
 							$onCl = $this->baseScript .
-								'?id=' . $this->id .
+								'id=' . $this->id .
 								'&file=' . rawurlencode($theFile) .
 								'&returnUrl=' . rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI')) .
 								'&_load_ds_xml=1' .
@@ -2600,7 +2600,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				<col width="*"  align="left"   />
 			</colgroup>
 			<thead>
-				<tr class="bgColor5">
+				<tr class="bgColor5 t3-row-header c-headLineTable">
 					<th>' . $GLOBALS['LANG']->getLL('headInc') . ':</th>
 					<th>' . $GLOBALS['LANG']->getLL('headTag') . ':</th>
 					<th>' . $GLOBALS['LANG']->getLL('headContent') . ':</th>
@@ -3392,6 +3392,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		);
 
 		$p = t3lib_div::implodeArrayForUrl('', $theArray);
+		$p = str_replace('&&', '&', $p);
 
 		return '<strong><a href="' . htmlspecialchars($this->baseScript . $p) . '" target="display">' . $title . '</a></strong>';
 	}
@@ -3413,6 +3414,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 		);
 
 		$p = t3lib_div::implodeArrayForUrl('', $array ? array_merge($theArray, $array) : $theArray, '', 1);
+		$p = str_replace('&&', '&', $p);
 
 		return htmlspecialchars($this->baseScript . $p);
 	}
@@ -3488,7 +3490,7 @@ class tx_templavoila_cm1 extends t3lib_SCbase {
 				'&preview=' . ($preview? 1 : 0) .
 				($showOnly ? '&show=1' : '&limitTags=' . rawurlencode($limitTags));
 
-		return '<iframe id="visual" width="98%" height="500" src="' . htmlspecialchars($url) . '#_MARKED_UP_ELEMENT" style="border: 1xpx solid black;"></iframe>';
+		return '<iframe id="visual" width="98%" height="500" src="' . htmlspecialchars($url) . '#_MARKED_UP_ELEMENT" style="border: 1px solid black; height: 500px;"></iframe>';
 	}
 
 	/**

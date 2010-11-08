@@ -42,6 +42,7 @@
 
 	#options-menu > a {
 		position: relative; z-index: 1;
+		padding-bottom: 0;
 	}
 
 	#options-menu > ul {

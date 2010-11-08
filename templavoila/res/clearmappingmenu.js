@@ -56,7 +56,7 @@ var ClearMappingMenu = Class.create({
 		var toolbarItem = $$('#clear-mapping-actions-menu > .toolbar-item'     )[0];
 		var toolbarMenu = $$('#clear-mapping-actions-menu > .toolbar-item-menu')[0];
 
-		if(!toolbarItem.hasClassName('toolbar-item-active') && !event.type.match(/blur/)) {
+		if(!toolbarItem.hasClassName('toolbar-item-active') && !event.type.include('blur')) {
 			toolbarItem.addClassName('toolbar-item-active');
 			Effect.Appear(toolbarMenu, {duration: 0.2});
 		//	TYPO3BackendToolbarManager.hideOthers(toolbarItem);
